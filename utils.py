@@ -121,7 +121,7 @@ def validate_gpu_available() -> bool:
     """
     try:
         result = run_command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader,nounits"])
-        return result.returncode == 0 and result.stdout.strip()
+        return result.returncode == 0 and bool(result.stdout.strip())
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
