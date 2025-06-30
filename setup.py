@@ -54,7 +54,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "ai-energy-profile=sample_collection_scripts.profile:main",
+            "ai-energy-profile=sample-collection-scripts.profile:main",
             "ai-energy-launch=example_usage:main",
         ],
     },
