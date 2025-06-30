@@ -1,4 +1,31 @@
 #!/bin/bash
+#
+# =============================================================================
+# QUICK CONFIGURATION GUIDE
+# =============================================================================
+#
+# To switch between GPU types, edit these variables in the Configuration section:
+#
+# For NVIDIA A100:
+#   GPU_TYPE="A100"           # Automatically sets GA100, 1215MHz mem, 1410MHz core
+#
+# For NVIDIA V100:
+#   GPU_TYPE="V100"           # Automatically sets GV100, 877MHz mem, 1380MHz core
+#
+# To switch between profiling tools:
+#
+# For DCGMI profiling:
+#   PROFILING_TOOL="dcgmi"    # Uses ./profile.py and ./control.sh
+#
+# For nvidia-smi profiling:
+#   PROFILING_TOOL="nvidia-smi" # Uses ./profile_smi.py and ./control_smi.sh
+#
+# Required scripts for each configuration:
+#   DCGMI:      profile.py, control.sh (existing)
+#   nvidia-smi: profile_smi.py, control_smi.sh (new alternatives)
+#
+# =============================================================================
+#
 """
 AI Inference Energy Profiling Launch Script.
 
@@ -7,25 +34,36 @@ across different GPU frequencies. It systematically tests various core frequenci
 while monitoring power consumption and performance metrics.
 
 The script:
-1. Iterates through a range of GPU core frequencies
-2. Runs each AI application multiple times per frequency
-3. Collects power and performance data using GPU profiling tools
-4. Saves results for analysis
+1. Supports both NVIDIA A100 and V100 GPUs with optimized frequency ranges
+2. Allows switching between DCGMI and nvidia-smi profiling tools
+3. Iterates through GPU-specific core frequency ranges
+4. Runs each AI application multiple times per frequency
+5. Collects power and performance data using selected profiling tools
+6. Saves results for analysis with consistent naming conventions
+
+Features:
+- GPU Type Selection: Easy switching between A100 and V100 configurations
+- Profiling Tool Selection: Support for both DCGMI and nvidia-smi
+- Automatic Configuration: GPU-specific frequencies and parameters
+- Comprehensive Logging: Detailed progress and error reporting
+- Robust Error Handling: Graceful failure recovery and cleanup
 
 Usage:
     ./launch.sh
 
 Configuration:
     Edit the variables in the Configuration section below to customize:
+    - GPU_TYPE: "A100" or "V100" for automatic configuration
+    - PROFILING_TOOL: "dcgmi" or "nvidia-smi" for tool selection
     - Number of runs per frequency
-    - GPU architecture and frequencies
     - Applications to test
     - Output directories
 
 Requirements:
-    - NVIDIA GPU with DCGMI support
-    - AI inference applications (LLaMA, Stable Diffusion, etc.)
-    - GPU profiling tools (dcgmi, profile script)
+    - NVIDIA GPU (A100 or V100)
+    - GPU profiling tools (DCGMI or nvidia-smi)
+    - AI inference applications (LLaMA, Stable Diffusion, LSTM, etc.)
+    - Corresponding profiling and control scripts
     - Bash 4.0+ for associative arrays
 
 Author: AI Inference Energy Research Team
@@ -37,25 +75,54 @@ set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 # Configuration Section
 # ============================================================================
 
+# GPU Architecture Selection (A100 or V100)
+# Set to "A100" for NVIDIA A100 GPUs or "V100" for NVIDIA V100 GPUs
+readonly GPU_TYPE="A100"  # Options: "A100" or "V100"
+
+# Profiling Tool Selection (DCGMI or NVIDIA-SMI)
+# Set to "dcgmi" for DCGMI tools or "nvidia-smi" for nvidia-smi equivalent
+readonly PROFILING_TOOL="dcgmi"  # Options: "dcgmi" or "nvidia-smi"
+
 # Experiment configuration
 readonly NUM_RUNS=2
 readonly PROFILING_MODE="dvfs"
-readonly GPU_ARCH="GA100"  # A100 architecture
 readonly SLEEP_INTERVAL=1  # seconds between runs
 
-# GPU frequency configuration
-readonly MEMORY_FREQ=1215  # A100 memory frequency (MHz)
-readonly DEFAULT_CORE_FREQ=1410  # A100 default core frequency (MHz)
-
-# A100 core frequencies for testing (MHz)
-readonly CORE_FREQUENCIES=(
-    1410 1395 1380 1365 1350 1335 1320 1305 1290 1275
-    1260 1245 1230 1215 1200 1185 1170 1155 1140 1125
-    1110 1095 1080 1065 1050 1035 1020 1005 990 975
-    960 945 930 915 900 885 870 855 840 825
-    810 795 780 765 750 735 720 705 690 675
-    660 645 630 615 600 585 570 555 540 525 510
-)
+# GPU-specific configuration based on architecture
+if [[ "$GPU_TYPE" == "A100" ]]; then
+    readonly GPU_ARCH="GA100"
+    readonly MEMORY_FREQ=1215  # A100 memory frequency (MHz)
+    readonly DEFAULT_CORE_FREQ=1410  # A100 default core frequency (MHz)
+    
+    # A100 core frequencies for testing (MHz)
+    readonly CORE_FREQUENCIES=(
+        1410 1395 1380 1365 1350 1335 1320 1305 1290 1275
+        1260 1245 1230 1215 1200 1185 1170 1155 1140 1125
+        1110 1095 1080 1065 1050 1035 1020 1005 990 975
+        960 945 930 915 900 885 870 855 840 825
+        810 795 780 765 750 735 720 705 690 675
+        660 645 630 615 600 585 570 555 540 525 510
+    )
+elif [[ "$GPU_TYPE" == "V100" ]]; then
+    readonly GPU_ARCH="GV100"
+    readonly MEMORY_FREQ=877  # V100 memory frequency (MHz)
+    readonly DEFAULT_CORE_FREQ=1380  # V100 default core frequency (MHz)
+    
+    # V100 core frequencies for testing (MHz)
+    readonly CORE_FREQUENCIES=(
+        1380 1372 1365 1357 1350 1342 1335 1327 1320 1312 1305 1297 1290 1282 1275 1267 
+        1260 1252 1245 1237 1230 1222 1215 1207 1200 1192 1185 1177 1170 1162 1155 1147 
+        1140 1132 1125 1117 1110 1102 1095 1087 1080 1072 1065 1057 1050 1042 1035 1027 
+        1020 1012 1005 997 990 982 975 967 960 952 945 937 930 922 915 907 900 892 885 877 
+        870 862 855 847 840 832 825 817 810 802 795 787 780 772 765 757 750 742 735 727 
+        720 712 705 697 690 682 675 667 660 652 645 637 630 622 615 607 600 592 585 577 
+        570 562 555 547 540 532 525 517 510 502 495 487 480 472 465 457 450 442 435 427 
+        420 412 405
+    )
+else
+    log_error "Unsupported GPU type: $GPU_TYPE. Supported types: A100, V100"
+    exit 1
+fi
 
 # Application configuration
 declare -A APPLICATIONS=(
@@ -73,8 +140,18 @@ declare -A APP_PARAMS=(
 # File and directory configuration
 readonly TEMP_OUTPUT_FILE="changeme"
 readonly RESULTS_DIR="results"
-readonly PROFILE_SCRIPT="./profile"
-readonly CONTROL_SCRIPT="./control"
+
+# Profiling tool configuration
+if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
+    readonly PROFILE_SCRIPT="./profile.py"  # Python-based DCGMI profiler
+    readonly CONTROL_SCRIPT="./control.sh"  # DCGMI-based frequency control
+elif [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
+    readonly PROFILE_SCRIPT="./profile_smi.py"  # nvidia-smi based profiler (if exists)
+    readonly CONTROL_SCRIPT="./control_smi.sh"  # nvidia-smi based frequency control (if exists)
+else
+    log_error "Unsupported profiling tool: $PROFILING_TOOL. Supported tools: dcgmi, nvidia-smi"
+    exit 1
+fi
 
 # ============================================================================
 # Utility Functions
@@ -105,19 +182,46 @@ GPU frequencies for AI inference workloads.
 
 Configuration:
     Edit the Configuration section in this script to customize:
+    
+    GPU Configuration:
+    - GPU Type: $GPU_TYPE (Supported: A100, V100)
+    - GPU Architecture: $GPU_ARCH
+    - Profiling Tool: $PROFILING_TOOL (Supported: dcgmi, nvidia-smi)
+    
+    Experiment Configuration:
     - Number of runs per frequency: $NUM_RUNS
-    - GPU architecture: $GPU_ARCH
     - Memory frequency: ${MEMORY_FREQ}MHz
     - Core frequencies: ${#CORE_FREQUENCIES[@]} frequencies from ${CORE_FREQUENCIES[0]} to ${CORE_FREQUENCIES[-1]}MHz
     - Applications: ${!APPLICATIONS[*]}
+
+GPU Type Selection:
+    To switch between GPU types, edit the GPU_TYPE variable:
+    - For A100: GPU_TYPE="A100"
+    - For V100: GPU_TYPE="V100"
+    
+    This automatically configures:
+    - Architecture identifier (GA100/GV100)
+    - Memory frequencies (1215MHz/877MHz)
+    - Default core frequencies (1410MHz/1380MHz)
+    - Available frequency ranges
+
+Profiling Tool Selection:
+    To switch between profiling tools, edit the PROFILING_TOOL variable:
+    - For DCGMI: PROFILING_TOOL="dcgmi"
+    - For nvidia-smi: PROFILING_TOOL="nvidia-smi"
+    
+    This automatically selects the appropriate scripts:
+    - DCGMI: ./profile.py and ./control.sh
+    - nvidia-smi: ./profile_smi.py and ./control_smi.sh
 
 Output:
     Results are saved to the '$RESULTS_DIR' directory with the naming convention:
     \$ARCH-\$MODE-\$APP-\$FREQ-\$ITERATION
 
 Requirements:
-    - NVIDIA GPU with DCGMI support
-    - GPU profiling and control scripts (profile, control)
+    - NVIDIA GPU (A100 or V100)
+    - GPU profiling tools (DCGMI or nvidia-smi)
+    - GPU profiling and control scripts
     - AI inference applications
     - Sufficient disk space for results
 
@@ -127,20 +231,48 @@ EOF
 # Function to check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
+    log_info "GPU Type: $GPU_TYPE ($GPU_ARCH)"
+    log_info "Profiling Tool: $PROFILING_TOOL"
     
     # Check required scripts
     local required_scripts=("$PROFILE_SCRIPT" "$CONTROL_SCRIPT")
     for script in "${required_scripts[@]}"; do
         if [[ ! -x "$script" ]]; then
             log_error "Required script not found or not executable: $script"
+            log_info "Make sure the script exists and is executable: chmod +x $script"
             return 1
         fi
     done
     
-    # Check DCGMI availability
-    if ! command -v dcgmi &> /dev/null; then
-        log_error "dcgmi command not found. Please install NVIDIA DCGMI tools."
-        return 1
+    # Check profiling tool availability
+    if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
+        if ! command -v dcgmi &> /dev/null; then
+            log_error "dcgmi command not found. Please install NVIDIA DCGMI tools."
+            log_info "Install DCGMI: https://developer.nvidia.com/dcgm"
+            return 1
+        fi
+        log_info "✓ DCGMI available"
+    elif [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
+        if ! command -v nvidia-smi &> /dev/null; then
+            log_error "nvidia-smi command not found. Please install NVIDIA drivers."
+            return 1
+        fi
+        log_info "✓ nvidia-smi available"
+    fi
+    
+    # Check GPU type compatibility
+    if command -v nvidia-smi &> /dev/null; then
+        local gpu_name
+        gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -n1)
+        log_info "Detected GPU: $gpu_name"
+        
+        if [[ "$GPU_TYPE" == "A100" && ! "$gpu_name" =~ A100 ]]; then
+            log_warning "GPU type set to A100 but detected GPU doesn't appear to be A100: $gpu_name"
+            log_warning "Consider changing GPU_TYPE in the configuration section"
+        elif [[ "$GPU_TYPE" == "V100" && ! "$gpu_name" =~ V100 ]]; then
+            log_warning "GPU type set to V100 but detected GPU doesn't appear to be V100: $gpu_name"
+            log_warning "Consider changing GPU_TYPE in the configuration section"
+        fi
     fi
     
     # Create results directory
@@ -339,13 +471,18 @@ main() {
     
     log_info "Starting AI inference energy profiling experiment"
     log_info "Configuration:"
+    log_info "  GPU Type: $GPU_TYPE"
     log_info "  GPU Architecture: $GPU_ARCH"
+    log_info "  Profiling Tool: $PROFILING_TOOL"
     log_info "  Profiling Mode: $PROFILING_MODE"
     log_info "  Runs per frequency: $NUM_RUNS"
     log_info "  Memory frequency: ${MEMORY_FREQ}MHz"
-    log_info "  Core frequencies: ${#CORE_FREQUENCIES[@]} frequencies"
+    log_info "  Default core frequency: ${DEFAULT_CORE_FREQ}MHz"
+    log_info "  Core frequencies: ${#CORE_FREQUENCIES[@]} frequencies (${CORE_FREQUENCIES[0]}-${CORE_FREQUENCIES[-1]}MHz)"
     log_info "  Applications: ${!APPLICATIONS[*]}"
     log_info "  Results directory: $RESULTS_DIR"
+    log_info "  Profile script: $PROFILE_SCRIPT"
+    log_info "  Control script: $CONTROL_SCRIPT"
     
     # Check command line arguments
     if (( $# > 0 )); then
