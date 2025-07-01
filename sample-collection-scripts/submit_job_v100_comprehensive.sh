@@ -7,8 +7,8 @@
 #
 
 #SBATCH --job-name=LSTM_V100_COMPREHENSIVE
-#SBATCH --output=%x.%j.o
-#SBATCH --error=%x.%j.e
+#SBATCH --output=%x.%j.out
+#SBATCH --error=%x.%j.err
 #SBATCH --partition=matador
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:v100:1
