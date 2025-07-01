@@ -1,47 +1,85 @@
-# AI Inference Energy Profiling Framework
+# AI Inference Energy Profi### Research & Experimental Capabilities
 
-This repository contains a comprehensive framework for studying **energy-efficient GPU frequency selection for AI inference workloads**. Building on prior work in analytical and machine learning-based DVFS (Dynamic Voltage and Frequency Scaling), this project investigates how modern AI inference tasks—such as large language models (LLMs), diffusion-based image generation, and retrieval-augmented generation (RAG)—respond to core frequency scaling on **NVIDIA A100 and H100 GPUs**.
+- 📊 **Comprehensive Profiling**: GPU power consumption, utilization, temperature, and performance metrics
+- 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 103 V100 frequencies (1380-405 MHz)
+- ⚡ **Energy Analysis**: Detailed power vs performance trade-off analysis across frequency ranges
+- 📈 **Statistical Rigor**: Multiple runs per frequency with configurable parameters for statistical significance
+- 🔬 **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
+- 🏗️ **HPC Cluster Ready**: Native SLURM integration with partition-specific configurationsamework
+
+A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **dual GPU architecture support (A100/V100)**, **intelligent tool fallback**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
-As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework extends prior DVFS optimization approaches to emerging AI inference scenarios and evaluates their effectiveness using state-of-the-art open-source models.
+As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100 and V100 GPUs** across various AI inference tasks.
 
-### Supported AI Models
+### ✨ Key Features
+
+- 🔧 **Complete CLI Interface**: Configure all experiments via command-line arguments with --help support
+- 🎯 **Dual GPU Support**: Native A100 (toreador partition) and V100 (matador partition) configurations 
+- 🛠️ **Multiple Profiling Tools**: Support for both DCGMI and nvidia-smi profiling with automatic fallback
+- 📊 **Flexible Experiment Modes**: DVFS (full frequency sweep) or baseline (single frequency) modes
+- 🚀 **HPC Integration**: Ready-to-use SLURM submission scripts for cluster environments
+- ⚡ **Intelligent Fallback**: Automatic tool selection when DCGMI is unavailable
+- 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
+- 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
+- 🐍 **Python 3.6+ Compatible**: Works on older cluster environments
+
+### Supported AI Models & Applications
 
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
-- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: Latent diffusion model for high-quality image generation
-- **[ICEAGE](https://...)**: Retrieval-augmented inference pipeline for scientific data (future work)
+- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: Latent diffusion model for high-quality image generation  
+- **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
+- **Custom Applications**: Framework supports any Python-based AI inference workload
 
-### Research Goals
+### Research & Experimental Capabilities
 
-- 📊 Profile GPU power consumption, utilization, and performance across DVFS settings
-- 🔄 Adapt analytical and ML-based frequency prediction models from HPC studies to AI workloads
-- ⚡ Evaluate energy savings and throughput impact on modern inference tasks
-- 📈 Provide reproducible benchmarks and analysis for A100 and H100 platforms
-- 🔬 Enable research into energy-efficient AI deployment strategies
+- 📊 **Comprehensive Profiling**: GPU power consumption, utilization, temperature, and performance metrics
+- 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 103 V100 frequencies (1380-405 MHz)
+- ⚡ **Energy Analysis**: Detailed power vs performance trade-off analysis across frequency ranges
+- 📈 **Statistical Rigor**: Multiple runs per frequency with configurable parameters for statistical significance
+- � **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
 
 ## 🏗️ Repository Structure
 
 ```
 ai-inference-energy/
 ├── README.md                           # Project documentation
-├── requirements.txt                    # Python dependencies
-├── config.py                          # Configuration settings
-├── utils.py                           # Utility functions
+├── requirements.txt                    # Python dependencies  
+├── setup.py                           # Package installation
+├── config.py                          # Centralized configuration (Python 3.6+ compatible)
+├── utils.py                           # Utility functions and helpers
 │
 ├── app-llama-collection/               # LLaMA inference applications
 │   └── LlamaViaHF.py                  # LLaMA text generation via Hugging Face
 │
-├── app-stable-diffusion-collection/    # Stable Diffusion applications
+├── app-stable-diffusion-collection/    # Stable Diffusion applications  
 │   └── StableDiffusionViaHF.py        # Image generation via Hugging Face
 │
-└── sample-collection-scripts/          # Profiling and experiment scripts
-    ├── profile.py                     # GPU power/performance profiler
-    ├── control.sh                     # GPU frequency control
-    ├── launch.sh                      # Experiment orchestration
-    ├── clean.sh                       # Workspace cleanup
-    ├── submit_job.sh                  # SLURM job submission
-    └── test.sh                        # MPI test template
+├── app-lstm/                          # LSTM benchmark application
+│   └── lstm.py                        # Sentiment analysis benchmark
+│
+├── documentation/                      # 📚 Comprehensive documentation
+│   ├── USAGE_EXAMPLES.md              # CLI usage examples and automation
+│   ├── SUBMIT_JOBS_README.md          # SLURM usage documentation
+│   ├── CLI_ENHANCEMENT_SUMMARY.md     # Technical implementation details
+│   ├── REFACTORING_SUMMARY.md         # Complete refactoring overview
+│   ├── PYTHON36_COMPATIBILITY_FIX.md  # Python 3.6 compatibility guide
+│   └── QUICK_FIX_GUIDE.md             # Troubleshooting and fixes
+│
+└── sample-collection-scripts/          # 🚀 Enhanced profiling framework
+    ├── launch.sh                      # 🎯 Main experiment orchestration (CLI enhanced)
+    ├── profile.py                     # DCGMI-based GPU profiler
+    ├── profile_smi.py                 # nvidia-smi alternative profiler  
+    ├── control.sh                     # DCGMI frequency control
+    ├── control_smi.sh                 # nvidia-smi frequency control
+    ├── clean.sh                       # Enhanced workspace cleanup
+    │
+    ├── submit_job.sh                  # 🎯 Main SLURM submission (A100/toreador)
+    ├── submit_job_v100_baseline.sh    # V100 baseline profiling (matador)
+    ├── submit_job_custom_app.sh       # Custom application examples
+    ├── submit_job_comprehensive.sh    # Full DVFS study
+    └── submit_job_v100_comprehensive.sh # V100 comprehensive profiling
 ```
 
 ## 🚀 Quick Start
@@ -54,9 +92,9 @@ ai-inference-energy/
 - CUDA-compatible driver
 
 #### Software Requirements
-- Python 3.8+
+- Python 3.6+ (tested on Python 3.6-3.11)
 - CUDA Toolkit 11.0+
-- NVIDIA DCGMI tools
+- NVIDIA DCGMI tools (automatically falls back to nvidia-smi if unavailable)
 - Hugging Face account with model access
 
 #### HPC Environment (Optional)
@@ -83,10 +121,10 @@ ai-inference-energy/
    # Follow prompts to enter your HF token
    ```
 
-4. **Verify GPU and DCGMI setup**
+4. **Verify GPU and profiling tool setup**
    ```bash
    nvidia-smi                    # Check GPU status
-   dcgmi discovery --list        # Verify DCGMI access
+   dcgmi discovery --list        # Verify DCGMI access (optional - will fallback to nvidia-smi)
    ```
 
 5. **Make scripts executable**
@@ -125,35 +163,88 @@ cd sample-collection-scripts
 ./control.sh 1215 1200
 ```
 
-#### 3. Full Experiment Suite
+#### 3. Enhanced Full Experiment Suite
 
-**Clean workspace and run complete frequency sweep:**
+**Complete CLI-driven experiments:**
 ```bash
 cd sample-collection-scripts
-./clean.sh -f                   # Clean previous results
-./launch.sh                     # Run complete experiment
+
+# Show all available options
+./launch.sh --help
+
+# Default A100 DVFS experiment with DCGMI
+./launch.sh
+
+# V100 baseline experiment with nvidia-smi fallback
+./launch.sh --gpu-type V100 --profiling-mode baseline --profiling-tool nvidia-smi
+
+# Custom application profiling
+./launch.sh \
+  --app-name "StableDiffusion" \
+  --app-executable "stable_diffusion" \
+  --app-params "--prompt 'A beautiful landscape' --steps 20"
+
+# Quick test configuration
+./launch.sh --num-runs 1 --sleep-interval 0
 ```
 
 #### 4. HPC Cluster Deployment
 
-**Submit to SLURM scheduler:**
+**Multiple SLURM submission options:**
 ```bash
+# Main A100 submission (toreador partition)
 sbatch submit_job.sh
+
+# V100 baseline profiling (matador partition)
+sbatch submit_job_v100_baseline.sh
+
+# Custom application profiling
+sbatch submit_job_custom_app.sh
+
+# Comprehensive DVFS study (all frequencies)
+sbatch submit_job_comprehensive.sh
 ```
+
+**📚 For detailed examples, see [`documentation/USAGE_EXAMPLES.md`](documentation/USAGE_EXAMPLES.md) and [`documentation/SUBMIT_JOBS_README.md`](documentation/SUBMIT_JOBS_README.md)**
 
 ## 🔧 Configuration
 
 ### GPU Frequency Settings
 
-The framework supports comprehensive frequency scaling for NVIDIA A100 GPUs:
+The framework supports comprehensive frequency scaling for both GPU architectures:
 
+#### **A100 GPU (Toreador Partition)**
 - **Memory Frequency**: 1215 MHz (A100 default)
 - **Core Frequencies**: 61 different settings from 1410 MHz down to 510 MHz
-- **Frequency Control**: Via DCGMI interface
+- **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
+
+#### **V100 GPU (Matador Partition)**  
+- **Memory Frequency**: 877 MHz (V100 default)
+- **Core Frequencies**: 103 different settings from 1380 MHz down to 405 MHz
+- **Frequency Control**: Via nvidia-smi interface
+
+### Command-Line Interface
+
+The `launch.sh` script accepts comprehensive command-line arguments for flexible experiment configuration:
+
+```bash
+./launch.sh [OPTIONS]
+
+Options:
+  --gpu-type TYPE          GPU type: A100 or V100 (default: A100)
+  --profiling-tool TOOL    Profiling tool: dcgmi or nvidia-smi (default: dcgmi)
+  --profiling-mode MODE    Mode: dvfs or baseline (default: dvfs)
+  --num-runs NUM           Number of runs per frequency (default: 2)
+  --sleep-interval SEC     Sleep between runs in seconds (default: 1)
+  --app-name NAME          Application display name (default: LSTM)
+  --app-executable PATH    Application executable path (default: lstm)
+  --app-params "PARAMS"    Application parameters (default: "")
+  -h, --help              Show help and examples
+```
 
 ### Experiment Parameters
 
-Key configuration options in `config.py`:
+Key configuration options in `config.py` (Python 3.6+ compatible):
 
 ```python
 # Profiling settings
@@ -165,9 +256,13 @@ DCGMI_FIELDS = [1001, 1002, ...]  # GPU metrics to collect
 LLAMA_MODEL_NAME = "huggyllama/llama-7b"
 STABLE_DIFFUSION_MODEL_NAME = "CompVis/stable-diffusion-v1-4"
 
-# GPU settings
+# A100 GPU settings (Toreador partition)
 A100_MEMORY_FREQ = 1215           # MHz
 A100_DEFAULT_CORE_FREQ = 1410     # MHz
+
+# V100 GPU settings (Matador partition)
+V100_MEMORY_FREQ = 877            # MHz
+V100_DEFAULT_CORE_FREQ = 1380     # MHz
 ```
 
 ## 📊 Output and Results
@@ -217,7 +312,7 @@ plt.title('LLaMA Inference: Frequency vs Performance')
 
 ### Custom Applications
 
-To add new AI applications:
+To add new AI applications to the framework:
 
 1. **Create application script** following the pattern:
    ```python
@@ -235,80 +330,113 @@ To add new AI applications:
        main()
    ```
 
-2. **Update configuration** in `launch.sh`:
+2. **Run with launch script**:
    ```bash
-   declare -A APPLICATIONS=(
-       ["LSTM"]="lstm"
-       ["MyApp"]="my_app"  # Add your application
-   )
+   ./launch.sh \
+     --app-name "MyApp" \
+     --app-executable "my_app" \
+     --app-params "--model bert-base --batch-size 32"
    ```
 
-### Custom Profiling
+### GPU-Specific Configurations
 
-For specialized profiling needs:
-
-```python
-from sample-collection-scripts.profile import GPUProfiler
-
-# Custom profiling setup
-profiler = GPUProfiler(
-    output_file="custom_profile.csv",
-    interval_ms=25,  # Higher sampling rate
-    gpu_id=0
-)
-
-# Profile custom command
-result = profiler.profile_command("my_custom_inference_script.py")
-print(f"Execution time: {result['duration']:.2f}s")
+#### **A100 Configuration (Toreador)**
+```bash
+./launch.sh \
+  --gpu-type A100 \
+  --profiling-tool dcgmi \
+  --profiling-mode dvfs
 ```
 
-### Frequency Optimization
+#### **V100 Configuration (Matador)**
+```bash
+./launch.sh \
+  --gpu-type V100 \
+  --profiling-tool nvidia-smi \
+  --profiling-mode baseline
+```
 
-The framework supports custom frequency optimization strategies:
+### Profiling Tool Selection & Fallback
+
+The framework supports intelligent profiling tool selection:
 
 ```bash
-# Test specific frequency range
-CORE_FREQUENCIES=(1410 1350 1290 1230 1170 1110)  # Edit in launch.sh
+# Prefer DCGMI (will fallback to nvidia-smi if unavailable)
+./launch.sh --profiling-tool dcgmi
 
-# Run subset of applications
-APPLICATIONS=(["LLaMA"]="llama")  # Edit in launch.sh
+# Force nvidia-smi usage
+./launch.sh --profiling-tool nvidia-smi
+
+# Test profiling tool availability
+dcgmi discovery --list  # Check DCGMI
+nvidia-smi              # Check nvidia-smi
+```
+
+### Experiment Automation
+
+#### **Batch Testing Multiple Configurations**
+```bash
+#!/bin/bash
+# Test script for multiple GPU types and applications
+
+for gpu in A100 V100; do
+  for app in "LSTM" "StableDiffusion"; do
+    ./launch.sh \
+      --gpu-type $gpu \
+      --app-name $app \
+      --profiling-mode baseline \
+      --num-runs 1
+  done
+done
 ```
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
-#### GPU Access Problems
+#### GPU Access & Tool Problems
 ```bash
-# Check GPU visibility
+# Check GPU visibility and type
 nvidia-smi
 
-# Verify DCGMI permissions
+# Check DCGMI availability (optional)
 dcgmi discovery --list
+
+# Test profiling tool fallback
+./launch.sh --profiling-tool dcgmi  # Will auto-fallback to nvidia-smi if needed
 
 # Reset GPU if needed
 sudo nvidia-smi --gpu-reset
 ```
 
-#### Model Download Issues
+#### Python & Environment Issues
 ```bash
-# Re-authenticate with Hugging Face
-huggingface-cli logout
-huggingface-cli login
+# Check Python version (3.6+ required)
+python --version
 
-# Check model access
-python -c "from transformers import AutoTokenizer; AutoTokenizer.from_pretrained('huggyllama/llama-7b')"
+# Test config module compatibility
+python -c "import config; print('Config loaded successfully')"
+
+# Check HuggingFace authentication
+huggingface-cli whoami
 ```
 
-#### Memory Issues
+#### SLURM & Partition Issues
 ```bash
-# Monitor GPU memory
-watch -n 1 nvidia-smi
+# Check available partitions
+sinfo
 
-# Clear GPU memory in Python
-import torch
-torch.cuda.empty_cache()
+# Check A100 nodes (toreador)
+sinfo -p toreador
+
+# Check V100 nodes (matador)
+sinfo -p matador
+
+# Test SLURM job submission
+sbatch --test-only submit_job.sh
 ```
+
+**📚 For detailed troubleshooting, see [`documentation/QUICK_FIX_GUIDE.md`](documentation/QUICK_FIX_GUIDE.md)**
 
 ### Performance Optimization
 
@@ -317,12 +445,25 @@ torch.cuda.empty_cache()
 - Run experiments during low system load
 - Use dedicated GPU nodes when possible
 - Increase sampling interval for longer workloads
+- Use `--profiling-mode baseline` for quick testing
 
 #### For Faster Experiments
-- Reduce number of frequencies tested
-- Decrease number of runs per frequency
-- Use smaller model variants for initial testing
-- Parallelize experiments across multiple GPUs
+- Use `--num-runs 1` for quick tests
+- Set `--sleep-interval 0` to reduce delays
+- Use `--profiling-mode baseline` (single frequency)
+- Test with smaller model variants first
+- Use V100 nodes with `--gpu-type V100` for availability
+
+## 📚 Documentation
+
+The framework includes comprehensive documentation:
+
+- **[USAGE_EXAMPLES.md](documentation/USAGE_EXAMPLES.md)**: Complete CLI usage examples and automation scripts
+- **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC usage
+- **[CLI_ENHANCEMENT_SUMMARY.md](documentation/CLI_ENHANCEMENT_SUMMARY.md)**: Technical implementation details
+- **[REFACTORING_SUMMARY.md](documentation/REFACTORING_SUMMARY.md)**: Complete refactoring overview
+- **[PYTHON36_COMPATIBILITY_FIX.md](documentation/PYTHON36_COMPATIBILITY_FIX.md)**: Python 3.6 compatibility guide
+- **[QUICK_FIX_GUIDE.md](documentation/QUICK_FIX_GUIDE.md)**: Troubleshooting and quick fixes
 
 ## 🤝 Contributing
 
