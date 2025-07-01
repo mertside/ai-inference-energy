@@ -14,7 +14,6 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
 #SBATCH --gpus-per-node=1
-#SBATCH --reservation=ghazanfar
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=01:00:00
@@ -27,7 +26,7 @@ readonly CONDA_ENV="tensorflow"
 readonly LAUNCH_SCRIPT="./launch.sh"
 
 # V100 baseline configuration with fewer runs for quick testing
-LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 2 --sleep-interval 1"
+LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-interval 1"
 
 # Logging function
 log_info() {
