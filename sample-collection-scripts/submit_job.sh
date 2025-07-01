@@ -36,9 +36,9 @@
 # Author: AI Inference Energy Research Team
 #
 
-#SBATCH --job-name=AI_INFERENCE_ENERGY_PROFILING
-#SBATCH --output=%x.%j.out
-#SBATCH --error=%x.%j.err
+#SBATCH --job-name=LSTM_A100_DATA
+#SBATCH --output=%x.%j.o
+#SBATCH --error=%x.%j.e
 #SBATCH --partition=toreador
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16

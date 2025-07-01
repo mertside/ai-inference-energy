@@ -7,13 +7,13 @@
 # requiring no special frequency control permissions.
 #
 
-#SBATCH --job-name=AI_ENERGY_V100_BASELINE
-#SBATCH --output=%x.%j.out
-#SBATCH --error=%x.%j.err
-#SBATCH --partition=toreador
+#SBATCH --job-name=LSTM_V100_DATA
+#SBATCH --output=%x.%j.o
+#SBATCH --error=%x.%j.e
+#SBATCH --partition=matador
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=16
-#SBATCH --gpus-per-node=1
+#SBATCH --gres=gpu:v100:1
+#SBATCH --ntasks=40
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=01:00:00

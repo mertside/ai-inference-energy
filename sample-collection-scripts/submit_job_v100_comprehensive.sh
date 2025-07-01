@@ -1,22 +1,21 @@
 #!/bin/bash
 #
-# Example SLURM Job Submission Script - Comprehensive DVFS Study
+# Example SLURM Job Submission Script - V100 Comprehensive DVFS Study
 #
 # This script demonstrates how to run comprehensive DVFS experiments
-# with multiple runs across all frequencies for detailed energy analysis.
+# on V100 GPUs with multiple runs across all frequencies.
 #
 
-#SBATCH --job-name=LSTM_A100_COMPREHENSIVE
+#SBATCH --job-name=LSTM_V100_COMPREHENSIVE
 #SBATCH --output=%x.%j.o
 #SBATCH --error=%x.%j.e
-#SBATCH --partition=toreador
+#SBATCH --partition=matador
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=16
-#SBATCH --gpus-per-node=1
-#SBATCH --reservation=ghazanfar
+#SBATCH --gres=gpu:v100:1
+#SBATCH --ntasks=40
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
-#SBATCH --time=08:00:00  # Longer time for comprehensive study
+#SBATCH --time=10:00:00  # Longer time for comprehensive study (V100 has more frequencies)
 
 # Enable strict error handling
 set -euo pipefail
@@ -25,17 +24,17 @@ set -euo pipefail
 readonly CONDA_ENV="tensorflow"
 readonly LAUNCH_SCRIPT="./launch.sh"
 
-# Comprehensive DVFS configuration
-# This will test all A100 frequencies (61 frequencies) with 5 runs each
-# Total runs: 61 * 5 = 305 runs (estimated 6-8 hours)
-LAUNCH_ARGS="--gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --sleep-interval 2 --app-name LSTM --app-executable lstm --app-params '> results/LSTM_comprehensive_output.log'"
+# Comprehensive DVFS configuration for V100
+# This will test all V100 frequencies (105 frequencies) with 3 runs each
+# Total runs: 105 * 3 = 315 runs (estimated 8-10 hours)
+LAUNCH_ARGS="--gpu-type V100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 3 --sleep-interval 2 --app-name LSTM --app-executable lstm --app-params '> results/LSTM_V100_comprehensive_output.log'"
 
-# Alternative comprehensive configurations (uncomment one):
-# V100 comprehensive study
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
+# Alternative configurations (uncomment one):
+# V100 with nvidia-smi (if DCGMI not available)
+# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode dvfs --num-runs 3"
 
-# A100 with nvidia-smi (if DCGMI not available)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-tool nvidia-smi --profiling-mode dvfs --num-runs 3"
+# V100 baseline for testing
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 2"
 
 # Logging function
 log_info() {
@@ -52,10 +51,10 @@ log_warning() {
 
 # Main execution
 main() {
-    log_info "Starting comprehensive DVFS profiling job"
+    log_info "Starting V100 comprehensive DVFS profiling job"
     log_info "Configuration: $LAUNCH_ARGS"
-    log_warning "This is a long-running job (estimated 6-8 hours)"
-    log_warning "Make sure you have sufficient time allocation"
+    log_warning "This is a long-running job (estimated 8-10 hours)"
+    log_warning "V100 has 105 frequencies vs A100's 61 frequencies"
     
     # Load modules
     module load gcc cuda cudnn
@@ -66,10 +65,10 @@ main() {
     
     # Display estimated runtime
     log_info "=== Estimated Runtime ==="
-    log_info "GPU: A100 (61 frequencies)"
-    log_info "Runs per frequency: 5"
-    log_info "Total runs: ~305"
-    log_info "Estimated time: 6-8 hours"
+    log_info "GPU: V100 (105 frequencies)"
+    log_info "Runs per frequency: 3"
+    log_info "Total runs: ~315"
+    log_info "Estimated time: 8-10 hours"
     log_info "========================="
     
     # Verify sufficient disk space
@@ -90,7 +89,7 @@ main() {
         local hours=$((total_time / 3600))
         local minutes=$(((total_time % 3600) / 60))
         
-        log_info "Comprehensive DVFS profiling completed successfully"
+        log_info "V100 comprehensive DVFS profiling completed successfully"
         log_info "Total runtime: ${hours}h ${minutes}m"
         
         # Display results summary
@@ -100,14 +99,14 @@ main() {
             log_info "Generated $result_count result files"
             
             # Check for performance CSV
-            if [[ -f "results/GA100-dvfs-lstm-perf.csv" ]]; then
+            if [[ -f "results/GV100-dvfs-lstm-perf.csv" ]]; then
                 local csv_lines
-                csv_lines=$(wc -l < "results/GA100-dvfs-lstm-perf.csv")
+                csv_lines=$(wc -l < "results/GV100-dvfs-lstm-perf.csv")
                 log_info "Performance data points: $csv_lines"
             fi
         fi
     else
-        log_error "Comprehensive DVFS profiling failed"
+        log_error "V100 comprehensive DVFS profiling failed"
         exit 1
     fi
 }

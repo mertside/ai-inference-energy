@@ -6,9 +6,9 @@
 # custom applications (e.g., Stable Diffusion, LLaMA, etc.)
 #
 
-#SBATCH --job-name=AI_ENERGY_CUSTOM_APP
-#SBATCH --output=%x.%j.out
-#SBATCH --error=%x.%j.err
+#SBATCH --job-name=LSTM_A100_CUSTOM
+#SBATCH --output=%x.%j.o
+#SBATCH --error=%x.%j.e
 #SBATCH --partition=toreador
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
