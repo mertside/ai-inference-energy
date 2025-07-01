@@ -49,7 +49,7 @@ except ImportError:
     
     def validate_dcgmi_available():
         try:
-            subprocess.run(["dcgmi", "--version"], capture_output=True, check=True)
+            subprocess.run(["dcgmi", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -196,7 +196,8 @@ class GPUProfiler:
             result = subprocess.run(
                 command,
                 shell=True,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True
             )
             
