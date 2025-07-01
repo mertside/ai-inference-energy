@@ -52,7 +52,7 @@ except ImportError:
     def validate_gpu_available():
         try:
             subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], 
-                         capture_output=True, check=True)
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -266,7 +266,8 @@ class NvidiaSmiProfiler:
             result = subprocess.run(
                 command,
                 shell=True,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True
             )
             
