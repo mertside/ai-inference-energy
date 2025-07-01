@@ -379,13 +379,15 @@ GPU TYPE SELECTION:
         - Core frequency range: 1380-405MHz (103 frequencies)
 
 PROFILING TOOL SELECTION:
-    dcgmi: Uses DCGMI tools for profiling
+    dcgmi: Uses DCGMI tools for profiling (recommended)
         - Profile script: ./profile.py
         - Control script: ./control.sh (DVFS mode only)
+        - Auto-fallback: If dcgmi is not available, automatically switches to nvidia-smi
     
     nvidia-smi: Uses nvidia-smi for profiling
         - Profile script: ./profile_smi.py
         - Control script: ./control_smi.sh (DVFS mode only)
+        - Fallback option: Used automatically when dcgmi is not available
 
 PROFILING MODE SELECTION:
     dvfs: Full frequency sweep experiments
@@ -430,7 +432,7 @@ check_prerequisites() {
     log_info "Profiling Tool: $PROFILING_TOOL"
     log_info "Profiling Mode: $PROFILING_MODE"
     
-    # Check required scripts
+    # Check required scripts (after potential profiling tool fallback)
     local required_scripts=("$PROFILE_SCRIPT")
     
     # Only check control script for DVFS mode
@@ -438,22 +440,66 @@ check_prerequisites() {
         required_scripts+=("$CONTROL_SCRIPT")
     fi
     
+    log_info "Checking required scripts for $PROFILING_TOOL profiling..."
     for script in "${required_scripts[@]}"; do
         if [[ ! -x "$script" ]]; then
             log_error "Required script not found or not executable: $script"
             log_info "Make sure the script exists and is executable: chmod +x $script"
+            
+            # Provide helpful suggestions based on profiling tool
+            if [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
+                log_info "For nvidia-smi profiling, you need:"
+                log_info "  - ./profile_smi.py (nvidia-smi based profiler)"
+                if [[ "$PROFILING_MODE" == "dvfs" ]]; then
+                    log_info "  - ./control_smi.sh (nvidia-smi based frequency control)"
+                fi
+            elif [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
+                log_info "For DCGMI profiling, you need:"
+                log_info "  - ./profile.py (DCGMI based profiler)"
+                if [[ "$PROFILING_MODE" == "dvfs" ]]; then
+                    log_info "  - ./control.sh (DCGMI based frequency control)"
+                fi
+            fi
             return 1
         fi
     done
     
-    # Check profiling tool availability
+    log_info "✓ All required scripts found and executable"
+    
+    # Check profiling tool availability with automatic fallback
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
         if ! command -v dcgmi &> /dev/null; then
-            log_error "dcgmi command not found. Please install NVIDIA DCGMI tools."
-            log_info "Install DCGMI: https://developer.nvidia.com/dcgm"
-            return 1
+            log_warning "DCGMI command not found. Attempting automatic fallback to nvidia-smi..."
+            
+            # Check if nvidia-smi is available for fallback
+            if command -v nvidia-smi &> /dev/null; then
+                log_info "✓ nvidia-smi available - switching to nvidia-smi profiling"
+                log_info "Reconfiguring profiling tool from dcgmi to nvidia-smi"
+                
+                # Switch profiling tool
+                PROFILING_TOOL="nvidia-smi"
+                
+                # Reconfigure scripts for nvidia-smi
+                PROFILE_SCRIPT="./profile_smi.py"
+                if [[ "$PROFILING_MODE" == "dvfs" ]]; then
+                    CONTROL_SCRIPT="./control_smi.sh"
+                fi
+                
+                log_info "Updated configuration:"
+                log_info "  - Profile script: $PROFILE_SCRIPT"
+                if [[ "$PROFILING_MODE" == "dvfs" ]]; then
+                    log_info "  - Control script: $CONTROL_SCRIPT"
+                fi
+            else
+                log_error "Neither dcgmi nor nvidia-smi commands are available."
+                log_error "Please install either:"
+                log_error "  - NVIDIA DCGMI tools: https://developer.nvidia.com/dcgm"
+                log_error "  - NVIDIA drivers (includes nvidia-smi)"
+                return 1
+            fi
+        else
+            log_info "✓ DCGMI available"
         fi
-        log_info "✓ DCGMI available"
     elif [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
         if ! command -v nvidia-smi &> /dev/null; then
             log_error "nvidia-smi command not found. Please install NVIDIA drivers."
@@ -748,7 +794,7 @@ main() {
     fi
     
     log_info "Starting AI inference energy profiling experiment"
-    log_info "Configuration:"
+    log_info "Final Configuration (after any automatic adjustments):"
     log_info "  GPU Type: $GPU_TYPE"
     log_info "  GPU Architecture: $GPU_ARCH"
     log_info "  Profiling Tool: $PROFILING_TOOL"
