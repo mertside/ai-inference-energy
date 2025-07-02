@@ -59,9 +59,9 @@ EOF
 
 # Function to check if we're in the right directory
 check_directory() {
-    if [[ ! -f "submit_lstm_a100_baseline.sh" ]]; then
-        print_error "Example scripts not found in current directory"
-        print_info "Please run this script from the examples/ directory"
+    if [[ ! -f "../sample-collection-scripts/submit_lstm_a100_baseline.sh" ]]; then
+        print_error "Example scripts not found in the expected directory"
+        print_info "Please ensure the scripts are located in the sample-collection-scripts/ directory"
         print_info "Current directory: $(pwd)"
         exit 1
     fi
