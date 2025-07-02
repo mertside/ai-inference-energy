@@ -1,21 +1,20 @@
 #!/bin/bash
 #
-# Example SLURM Job Submission Script - H100 Custom Application Profiling
+# Example SLURM Job Submission Script - A100 Custom Application Profiling
 #
-# This script demonstrates how to run custom applications on H100 GPUs with
+# This script demonstrates how to run custom applications on A100 GPUs with
 # configurable profiling parameters. Modify the LAUNCH_ARGS to test different
 # applications, frequencies, and configurations.
 #
 
-#SBATCH --job-name=CUSTOM_H100_PROFILING
+#SBATCH --job-name=CUSTOM_A100_PROFILING
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
-#SBATCH --partition=h100-build
-#SBATCH --nodelist=rpg-93-9
+#SBATCH --partition=toreador
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --gres=gpu:1
+#SBATCH --ntasks-per-node=16
+#SBATCH --gpus-per-node=1
+#SBATCH --reservation=ghazanfar
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=03:00:00
@@ -27,21 +26,24 @@ set -euo pipefail
 readonly CONDA_ENV="tensorflow"
 readonly LAUNCH_SCRIPT="./launch.sh"
 
-# Custom H100 application configuration
+# Custom A100 application configuration
 # Modify these parameters for your specific use case:
 #
 # Example configurations:
 # 1. Custom DVFS study with 5 runs per frequency
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 #
 # 2. Baseline profiling with custom application
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log'"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log'"
 #
 # 3. LLaMA model profiling
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
+#
+# 4. Stable Diffusion profiling
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3"
 
-# Default: H100 baseline with extended runs for statistical significance
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
+# Default: A100 baseline with extended runs for statistical significance
+LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
 
 # Logging functions
 log_info() {
@@ -58,27 +60,25 @@ log_warning() {
 
 # Main execution
 main() {
-    log_info "Starting H100 custom application profiling job"
+    log_info "Starting A100 custom application profiling job"
     log_info "Configuration: $LAUNCH_ARGS"
     
-    # Load modules (REPACSS-specific)
-    module load cuda
+    # Load modules (HPCC-specific)
+    module load gcc cuda cudnn
     
     # Activate conda
     source "$HOME/conda/etc/profile.d/conda.sh"
     conda activate "$CONDA_ENV"
     
-    # Display H100 capabilities
-    log_info "=== REPACSS H100 Profiling Capabilities ==="
-    log_info "Cluster: REPACSS at Texas Tech University"
-    log_info "Partition: h100-build"
-    log_info "Node: rpg-93-9"
-    log_info "Architecture: GH100 (Next-generation Hopper)"
-    log_info "Memory frequency: 1593 MHz"
-    log_info "Core frequency range: 1755-210 MHz (104 frequencies)"
-    log_info "DVFS step size: 15 MHz"
+    # Display A100 capabilities
+    log_info "=== HPCC A100 Profiling Capabilities ==="
+    log_info "Cluster: HPCC at Texas Tech University"
+    log_info "Partition: toreador"
+    log_info "Architecture: GA100 (Ampere)"
+    log_info "Memory frequency: 1215 MHz"
+    log_info "Core frequency range: 1410-510 MHz (61 frequencies)"
     log_info "Profiling tools: DCGMI (preferred) or nvidia-smi"
-    log_info "============================================"
+    log_info "=========================================="
     
     # Display GPU information
     log_info "=== GPU Detection ==="
@@ -90,9 +90,9 @@ main() {
     log_info "===================="
     
     # Run experiment
-    log_info "Starting H100 profiling experiment..."
+    log_info "Starting A100 profiling experiment..."
     if eval "$LAUNCH_SCRIPT $LAUNCH_ARGS"; then
-        log_info "H100 custom application profiling completed successfully"
+        log_info "A100 custom application profiling completed successfully"
         
         # Display results summary
         log_info "=== Results Summary ==="
@@ -106,7 +106,7 @@ main() {
         log_info "======================"
         
     else
-        log_error "H100 custom application profiling failed"
+        log_error "A100 custom application profiling failed"
         log_error "Check the error logs above for details"
         exit 1
     fi

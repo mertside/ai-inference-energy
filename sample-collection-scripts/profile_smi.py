@@ -18,7 +18,7 @@ Note:
     This is an alternative to the DCGMI-based profile.py script.
     nvidia-smi may have different metrics and sampling capabilities compared to DCGMI.
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 import os

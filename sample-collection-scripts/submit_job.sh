@@ -33,7 +33,7 @@
 #     - Application details
 #     - Number of runs and intervals
 #
-# Author: AI Inference Energy Research Team
+# Author: Mert Side
 #
 
 #SBATCH --job-name=LSTM_A100_DATA

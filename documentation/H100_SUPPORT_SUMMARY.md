@@ -13,10 +13,11 @@ The AI Inference Energy Profiling Framework now includes **comprehensive H100 GP
 - **Total Frequencies**: 104 different DVFS settings
 - **Automatic Detection**: Framework detects H100 GPUs and warns about mismatches
 
-#### **New SLURM Submit Scripts**
+#### **New SLURM Submit Scripts (REPACSS-configured)**
 - **`submit_job_h100_baseline.sh`** - Quick H100 baseline profiling (1 hour)
 - **`submit_job_h100_comprehensive.sh`** - Full DVFS study (12+ hours)
 - **`submit_job_h100_custom_app.sh`** - Custom application profiling
+- **`h100_interactive.sh`** - Interactive session helper script
 
 #### **Updated Control Scripts**
 - **`control.sh`** and **`control_smi.sh`** now include H100 examples
@@ -27,14 +28,17 @@ The AI Inference Energy Profiling Framework now includes **comprehensive H100 GP
 - Updated README files with H100 information
 - Configuration matrices include H100 specifications
 
-### 🚀 Quick Start with H100
+### 🚀 Quick Start with H100 (REPACSS)
 
 ```bash
 # Test H100 baseline (quick validation)
 ./launch.sh --gpu-type H100 --profiling-mode baseline --num-runs 3
 
-# Submit H100 SLURM job
+# Submit H100 SLURM job to REPACSS
 sbatch submit_job_h100_baseline.sh
+
+# Interactive session on specific H100 node
+./h100_interactive.sh
 
 # Custom H100 application
 ./launch.sh --gpu-type H100 --app-name "MyApp" --app-executable "my_app"
@@ -55,11 +59,14 @@ sbatch submit_job_h100_comprehensive.sh
 | Total Freqs | 61 | 103 | 104 |
 | Est. DVFS Time | 6-8 hours | 8-10 hours | 12-15 hours |
 
-### ⚠️ Important H100 Notes
+### ⚠️ Important H100 Notes (REPACSS-specific)
 
 1. **Runtime**: H100 comprehensive studies take 12-15 hours (104 frequencies)
 2. **Power**: H100s have high power consumption (400-700W)
-3. **Partition**: Update partition name in SLURM scripts for your cluster
+3. **REPACSS Configuration**: 
+   - Partition: `h100-build`
+   - Node: `rpg-93-9` (specific H100 node)
+   - Interactive: `interactive -p h100-build -g 1 -w rpg-93-9`
 4. **Permissions**: H100 frequency control requires appropriate DCGMI/nvidia-smi permissions
 
 ### 🔧 Cluster-Specific Adjustments

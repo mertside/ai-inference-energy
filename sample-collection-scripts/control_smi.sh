@@ -24,7 +24,7 @@ Note:
     This is an alternative to the DCGMI-based control.sh script.
     nvidia-smi may have different capabilities and limitations compared to DCGMI.
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures

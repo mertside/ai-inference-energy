@@ -19,7 +19,7 @@ Requirements:
     - DCGMI tools installed and accessible
     - Appropriate permissions to modify GPU frequencies
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures

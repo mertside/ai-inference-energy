@@ -18,7 +18,7 @@ The script removes:
     - log.* files
     - Temporary profiling files
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures

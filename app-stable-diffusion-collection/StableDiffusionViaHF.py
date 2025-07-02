@@ -11,7 +11,7 @@ Requirements:
     - Login via: huggingface-cli login
     - CUDA-compatible GPU
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 import sys

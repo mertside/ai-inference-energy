@@ -7,7 +7,8 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 ### **Usage and Examples**
 - **`USAGE_EXAMPLES.md`** - Complete CLI usage examples and automation scripts
 - **`SUBMIT_JOBS_README.md`** - SLURM job submission guide and HPC cluster usage
-- **`H100_USAGE_GUIDE.md`** - Comprehensive H100 GPU support and usage guide
+- **`A100_USAGE_GUIDE.md`** - Comprehensive A100 GPU support and usage guide (HPCC)
+- **`H100_USAGE_GUIDE.md`** - Comprehensive H100 GPU support and usage guide (REPACSS)
 
 ### **Technical Implementation**  
 - **`CLI_ENHANCEMENT_SUMMARY.md`** - Technical details of CLI enhancements and new features
@@ -24,9 +25,10 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 
 ### For New Users
 1. **Start with:** [`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md) - Learn the CLI interface
-2. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide
-3. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
-4. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
+2. **A100 Users:** [`A100_USAGE_GUIDE.md`](A100_USAGE_GUIDE.md) - Complete A100 support guide (HPCC)
+3. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide (REPACSS)
+4. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
+5. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
 
 ### For Developers
 1. **Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Codebase structure

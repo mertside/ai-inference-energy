@@ -76,7 +76,7 @@
 #     - Corresponding profiling and control scripts
 #     - Bash 4.0+ for associative arrays
 #
-# Author: AI Inference Energy Research Team
+# Author: Mert Side
 #
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures

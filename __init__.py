@@ -4,12 +4,12 @@ AI Inference Energy Profiling Framework
 A comprehensive framework for studying energy-efficient GPU frequency selection
 for AI inference workloads on NVIDIA A100 and H100 GPUs.
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 __version__ = "1.0.0"
-__author__ = "AI Inference Energy Research Team"
-__email__ = "research-team@example.com"
+__author__ = "Mert Side"
+__email__ = "mert.side@ttu.edu"
 
 # Import main configuration and utilities
 try:

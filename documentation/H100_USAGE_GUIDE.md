@@ -20,7 +20,7 @@ This guide provides comprehensive information for using the AI Inference Energy 
 ### SLURM Job Submission
 
 ```bash
-# Quick baseline test
+# Quick baseline test (REPACSS H100 node)
 sbatch submit_job_h100_baseline.sh
 
 # Custom application profiling
@@ -28,6 +28,14 @@ sbatch submit_job_h100_custom_app.sh
 
 # Full DVFS study (WARNING: 12+ hours)
 sbatch submit_job_h100_comprehensive.sh
+
+# Interactive session for testing
+interactive -p h100-build -g 1 -w rpg-93-9
+
+# OR use the helper script
+./h100_interactive.sh          # Start interactive session
+./h100_interactive.sh test     # Run quick test (in session)
+./h100_interactive.sh status   # Check node availability
 ```
 
 ## 🔧 H100 GPU Specifications
@@ -46,9 +54,12 @@ sbatch submit_job_h100_comprehensive.sh
 ```
 
 ### SLURM Configuration
-- **Partition**: h100 (adjust based on your cluster)
-- **GPU Resource**: `--gres=gpu:h100:1`
-- **Recommended CPUs**: 32 (`--ntasks=32`)
+- **Cluster**: REPACSS at Texas Tech University
+- **Partition**: h100-build
+- **Node**: rpg-93-9 (specific H100 node)
+- **GPU Resource**: `--gres=gpu:1`
+- **Recommended CPUs**: 8 (`--cpus-per-task=8`)
+- **Interactive Sessions**: `interactive -p h100-build -g 1 -w rpg-93-9`
 
 ## 📊 Performance Characteristics
 
@@ -162,10 +173,17 @@ print(f'Average execution time: {data.iloc[:, 1].mean():.2f}s')
 - Some frequencies may be power-limited
 
 ### 4. Cluster-Specific Adjustments
-You may need to adjust:
-- Partition name (change `h100` to your cluster's H100 partition)
-- Module names in SLURM scripts
-- GPU resource specification (`--gres=gpu:h100:1`)
+The scripts are now configured for REPACSS at Texas Tech University:
+- **Partition**: `h100-build` 
+- **Node**: `rpg-93-9` (specific H100 node)
+- **GPU Resource**: `--gres=gpu:1`
+- **Modules**: Only `cuda` module loaded
+- **Interactive**: `interactive -p h100-build -g 1 -w rpg-93-9`
+
+If using a different cluster, you may need to adjust:
+- Partition name and node specification
+- GPU resource specification
+- Module names and availability
 
 ## 🐛 Troubleshooting
 

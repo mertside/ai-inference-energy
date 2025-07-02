@@ -11,7 +11,7 @@ Usage:
 Arguments:
     --demo-mode    Run in demonstration mode (shorter experiments)
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 import sys

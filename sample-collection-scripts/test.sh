@@ -17,7 +17,7 @@ Requirements:
     - GCC and OpenMPI modules
     - Access to the specified partition
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 #SBATCH --job-name=MPI_test

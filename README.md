@@ -212,10 +212,15 @@ cd sample-collection-scripts
 # Main A100 submission (toreador partition)
 sbatch submit_job.sh
 
+# A100-specific scripts
+sbatch submit_job_a100_baseline.sh
+sbatch submit_job_a100_comprehensive.sh
+sbatch submit_job_a100_custom_app.sh
+
 # V100 baseline profiling (matador partition)
 sbatch submit_job_v100_baseline.sh
 
-# H100 baseline profiling (h100 partition)
+# H100 baseline profiling (REPACSS h100-build partition)
 sbatch submit_job_h100_baseline.sh
 
 # Custom application profiling
@@ -246,10 +251,11 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 - **Core Frequencies**: 103 different settings from 1380 MHz down to 405 MHz
 - **Frequency Control**: Via nvidia-smi interface
 
-#### **H100 GPU (H100 Partition)**
+#### **H100 GPU (REPACSS)**
 - **Memory Frequency**: 1593 MHz (H100 default)
 - **Core Frequencies**: 104 different settings from 1755 MHz down to 210 MHz in 15MHz steps
 - **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
+- **Cluster**: REPACSS at Texas Tech University (node: rpg-93-9)
 
 ### Command-Line Interface
 
@@ -384,7 +390,7 @@ To add new AI applications to the framework:
   --profiling-mode baseline
 ```
 
-#### **H100 Configuration (H100)**
+#### **H100 Configuration (REPACSS)**
 ```bash
 ./launch.sh \
   --gpu-type H100 \
