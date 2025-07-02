@@ -91,13 +91,23 @@ def run_command(
         subprocess.TimeoutExpired: If command times out
     """
     try:
-        result = subprocess.run(
-            command,
-            timeout=timeout,
-            capture_output=capture_output,
-            text=True,
-            check=check
-        )
+        # Python 3.6 compatibility: use stdout/stderr instead of capture_output
+        if capture_output:
+            result = subprocess.run(
+                command,
+                timeout=timeout,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=check
+            )
+        else:
+            result = subprocess.run(
+                command,
+                timeout=timeout,
+                text=True,
+                check=check
+            )
         return result
     except subprocess.CalledProcessError as e:
         logger = logging.getLogger("ai_inference_energy")

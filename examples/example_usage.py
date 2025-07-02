@@ -20,8 +20,8 @@ import argparse
 import time
 from pathlib import Path
 
-# Add current directory to path for imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from config import gpu_config, model_config, profiling_config

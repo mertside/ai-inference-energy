@@ -1,0 +1,116 @@
+# Examples Directory
+
+This directory contains example scripts and usage demonstrations for the AI Inference Energy Profiling Framework.
+
+## Example Files
+
+### **Framework Usage Examples**
+- **`example_usage.py`** - Comprehensive demonstration of framework capabilities
+
+## Overview
+
+The examples in this directory demonstrate real-world usage patterns and provide templates for building custom profiling experiments.
+
+## Running Examples
+
+### Framework Usage Example
+```bash
+cd examples
+python example_usage.py
+```
+
+### Demo Mode (Shorter Experiments)
+```bash
+cd examples  
+python example_usage.py --demo-mode
+```
+
+## Example Scripts Description
+
+### `example_usage.py`
+A comprehensive demonstration script that shows:
+- ✅ Configuration loading and validation
+- ✅ GPU profiling setup and execution
+- ✅ Application integration examples
+- ✅ Error handling and logging
+- ✅ Results processing and analysis
+
+**Features:**
+- Configurable demo mode for quick testing
+- Multiple application examples (LSTM, LLaMA, Stable Diffusion)
+- Professional logging and error handling
+- Automatic cleanup and resource management
+
+**Usage Scenarios:**
+- Learning framework capabilities
+- Testing new installations
+- Developing custom profiling workflows
+- Debugging and troubleshooting
+
+## Requirements
+
+- Python 3.6+
+- All framework dependencies (see `../requirements.txt`)
+- Access to GPU for profiling examples
+- Proper framework installation and configuration
+
+## Creating New Examples
+
+### Example Template
+```python
+#!/usr/bin/env python3
+"""
+Example: [Description]
+"""
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import profiling_config
+from utils import setup_logging
+
+def main():
+    """Main example function."""
+    logger = setup_logging()
+    logger.info("Starting example")
+    
+    # Example implementation here
+    
+    logger.info("Example completed")
+
+if __name__ == "__main__":
+    main()
+```
+
+### Best Practices for Examples
+1. **Clear Documentation**: Include purpose and usage instructions
+2. **Error Handling**: Demonstrate proper error handling patterns
+3. **Logging**: Use framework logging utilities
+4. **Resource Cleanup**: Properly clean up resources
+5. **Configurability**: Allow customization via arguments or configuration
+
+## Integration
+
+These examples integrate with:
+- **Main framework** (`../sample-collection-scripts/`)
+- **Configuration system** (`../config.py`)
+- **Utility functions** (`../utils.py`)
+- **Application modules** (`../app-*/`)
+
+## Related Documentation
+
+For more information:
+- **[`../documentation/USAGE_EXAMPLES.md`](../documentation/USAGE_EXAMPLES.md)** - CLI usage examples
+- **[`../README.md`](../README.md)** - Main project documentation
+- **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework guide
+
+## Contributing Examples
+
+When adding new examples:
+1. **Follow** the template structure
+2. **Include** clear documentation and comments
+3. **Test** thoroughly before committing
+4. **Update** this README with new example descriptions
+5. **Maintain** consistent coding style and patterns

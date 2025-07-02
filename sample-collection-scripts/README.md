@@ -1,71 +1,136 @@
-# Sample Collection Scripts - README
+# Sample Collection Scripts - Enhanced Profiling Framework
 
-This directory contains the core scripts for running AI inference energy profiling experiments.
+This directory contains the core scripts for running AI inference energy profiling experiments with **complete command-line interface support**.
+
+## ✨ New Features
+
+- 🔧 **Complete CLI Interface**: Configure all experiments via command-line arguments
+- 🎯 **Dual GPU Support**: Native A100 and V100 configurations
+- 🛠️ **Intelligent Tool Fallback**: Automatic fallback from DCGMI to nvidia-smi
+- 📊 **Flexible Modes**: DVFS (full frequency sweep) or baseline (single frequency)
+- 🚀 **Enhanced SLURM Integration**: Multiple job submission scripts
 
 ## Quick Start
 
-### Basic Usage
+### CLI-Based Usage (Recommended)
+```bash
+# Show all available options
+./launch.sh --help
+
+# Default A100 DVFS experiment
+./launch.sh
+
+# V100 baseline experiment 
+./launch.sh --gpu-type V100 --profiling-mode baseline
+
+# Custom application profiling
+./launch.sh \
+  --app-name "StableDiffusion" \
+  --app-executable "stable_diffusion" \
+  --app-params "--prompt 'A beautiful landscape' --steps 20"
+```
+
+### Legacy Usage (Still Supported)
 ```bash
 # Clean previous results
 ./clean.sh -f
 
-# Run complete experiment
+# Run with defaults
 ./launch.sh
+```
+
+## Command-Line Interface
+
+The `launch.sh` script now accepts comprehensive command-line arguments:
+
+```bash
+./launch.sh [OPTIONS]
+
+Options:
+  --gpu-type TYPE          GPU type: A100 or V100 (default: A100)
+  --profiling-tool TOOL    Profiling tool: dcgmi or nvidia-smi (default: dcgmi)
+  --profiling-mode MODE    Mode: dvfs or baseline (default: dvfs)
+  --num-runs NUM           Number of runs per frequency (default: 2)
+  --sleep-interval SEC     Sleep between runs in seconds (default: 1)
+  --app-name NAME          Application display name (default: LSTM)
+  --app-executable PATH    Application executable path (default: lstm)
+  --app-params "PARAMS"    Application parameters (default: "")
+  -h, --help              Show help and examples
 ```
 
 ### GPU Configuration
 
-#### A100 GPU (Default)
+#### A100 GPU (Toreador Partition)
 ```bash
-# Edit launch.sh and set:
-GPU_TYPE="A100"
+./launch.sh --gpu-type A100
 ```
 - Architecture: GA100
 - Memory: 1215 MHz
 - Core frequencies: 1410-510 MHz (61 frequencies)
+- SLURM partition: toreador
 
-#### V100 GPU
+#### V100 GPU (Matador Partition)
 ```bash
-# Edit launch.sh and set:
-GPU_TYPE="V100"
+./launch.sh --gpu-type V100
 ```
 - Architecture: GV100  
 - Memory: 877 MHz
-- Core frequencies: 1380-405 MHz (105 frequencies)
+- Core frequencies: 1380-405 MHz (103 frequencies)
+- SLURM partition: matador
 
 ### Profiling Tool Selection
 
-#### DCGMI (Default)
+#### DCGMI (Default with Automatic Fallback)
 ```bash
-# Edit launch.sh and set:
-PROFILING_TOOL="dcgmi"
+./launch.sh --profiling-tool dcgmi
 ```
 - Uses: `profile.py` and `control.sh`
 - Requires: DCGMI tools installed
 - Features: Comprehensive GPU metrics
+- **Automatic fallback** to nvidia-smi if DCGMI unavailable
 
 #### nvidia-smi (Alternative)
 ```bash
-# Edit launch.sh and set:
-PROFILING_TOOL="nvidia-smi"
+./launch.sh --profiling-tool nvidia-smi
 ```
 - Uses: `profile_smi.py` and `control_smi.sh`
 - Requires: NVIDIA drivers (nvidia-smi)
 - Features: Standard GPU monitoring
+### Experiment Modes
+
+#### DVFS Mode (Default)
+```bash
+./launch.sh --profiling-mode dvfs
+```
+- **Full frequency sweep** across all supported frequencies
+- Comprehensive energy analysis
+- Longer execution time (1-6 hours depending on configuration)
+
+#### Baseline Mode
+```bash
+./launch.sh --profiling-mode baseline
+```
+- **Single frequency** at default GPU settings
+- Quick profiling for testing and validation
+- Shorter execution time (~30 minutes)
 
 ## Script Overview
 
 ### Core Scripts
-- **`launch.sh`** - Main experiment orchestration
-- **`profile.py`** - DCGMI-based GPU profiling  
-- **`profile_smi.py`** - nvidia-smi-based GPU profiling
+- **`launch.sh`** - 🎯 Main experiment orchestration (CLI enhanced)
+- **`profile.py`** - DCGMI-based GPU profiler  
+- **`profile_smi.py`** - nvidia-smi-based GPU profiler
 - **`control.sh`** - DCGMI-based frequency control
 - **`control_smi.sh`** - nvidia-smi-based frequency control
-- **`clean.sh`** - Workspace cleanup
+- **`clean.sh`** - Enhanced workspace cleanup
+- **`lstm.py`** - LSTM benchmark application
 
 ### SLURM Scripts
-- **`submit_job.sh`** - SLURM job submission
-- **`test.sh`** - MPI test template
+- **`submit_job.sh`** - Main A100 SLURM submission (toreador)
+- **`submit_job_v100_baseline.sh`** - V100 baseline profiling (matador)
+- **`submit_job_custom_app.sh`** - Custom application examples
+- **`submit_job_comprehensive.sh`** - Full DVFS study
+- **`submit_job_v100_comprehensive.sh`** - V100 comprehensive profiling
 
 ## Configuration Matrix
 
@@ -159,38 +224,85 @@ dcgmi discovery --list
 
 ## Examples
 
-### A100 with DCGMI
+### Basic Usage Examples
+
+#### Default A100 DVFS Experiment
 ```bash
-# Edit launch.sh:
+./launch.sh
+```
+
+#### V100 Baseline Testing
+```bash
+./launch.sh --gpu-type V100 --profiling-mode baseline --num-runs 1
+```
+
+#### Custom Application Profiling
+```bash
+# Stable Diffusion
+./launch.sh \
+  --app-name "StableDiffusion" \
+  --app-executable "../app-stable-diffusion-collection/StableDiffusionViaHF" \
+  --app-params "--prompt 'A beautiful landscape' --steps 20"
+
+# LLaMA
+./launch.sh \
+  --app-name "LLaMA" \
+  --app-executable "../app-llama-collection/LlamaViaHF" \
+  --app-params "--max-length 100"
+```
+
+#### Quick Testing Configuration
+```bash
+./launch.sh --num-runs 1 --sleep-interval 0 --profiling-mode baseline
+```
+
+#### Comprehensive Experiment
+```bash
+./launch.sh --gpu-type A100 --profiling-mode dvfs --num-runs 3
+```
+
+### SLURM Usage Examples
+
+#### Submit A100 Job
+```bash
+sbatch submit_job.sh
+```
+
+#### Submit V100 Baseline Job
+```bash
+sbatch submit_job_v100_baseline.sh
+```
+
+#### Submit Custom Application Job
+```bash
+sbatch submit_job_custom_app.sh
+```
+
+### Legacy Configuration (Still Supported)
+
+If you prefer to edit the script directly instead of using CLI arguments:
+
+#### A100 with DCGMI
+```bash
+# Edit launch.sh configuration section:
 GPU_TYPE="A100"
 PROFILING_TOOL="dcgmi"
-
-# Run
-./launch.sh
+PROFILING_MODE="dvfs"
 ```
 
-### V100 with nvidia-smi
+#### V100 with nvidia-smi
 ```bash  
-# Edit launch.sh:
+# Edit launch.sh configuration section:
 GPU_TYPE="V100"
 PROFILING_TOOL="nvidia-smi"
-
-# Run
-./launch.sh
+PROFILING_MODE="baseline"
 ```
 
-### Custom Application
-```bash
-# Edit launch.sh:
-declare -A APPLICATIONS=(
-    ["LSTM"]="lstm"
-    ["MyApp"]="my_custom_app"
-)
+## 📚 Documentation
 
-declare -A APP_PARAMS=(
-    ["LSTM"]=" > results/LSTM_RUN_OUT"
-    ["MyApp"]=" > results/MY_APP_OUT"
-)
-```
+For detailed information, see:
+- **[`../documentation/USAGE_EXAMPLES.md`](../documentation/USAGE_EXAMPLES.md)** - Comprehensive CLI usage examples
+- **[`../documentation/SUBMIT_JOBS_README.md`](../documentation/SUBMIT_JOBS_README.md)** - SLURM job submission guide
+- **[`../documentation/CLI_ENHANCEMENT_SUMMARY.md`](../documentation/CLI_ENHANCEMENT_SUMMARY.md)** - Technical implementation details
 
 For more details, see the main project README.md

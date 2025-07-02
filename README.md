@@ -51,29 +51,46 @@ ai-inference-energy/
 ├── utils.py                           # Utility functions and helpers
 │
 ├── app-llama-collection/               # LLaMA inference applications
+│   ├── README.md                      # LLaMA application documentation
 │   └── LlamaViaHF.py                  # LLaMA text generation via Hugging Face
 │
 ├── app-stable-diffusion-collection/    # Stable Diffusion applications  
+│   ├── README.md                      # Stable Diffusion documentation
 │   └── StableDiffusionViaHF.py        # Image generation via Hugging Face
 │
 ├── app-lstm/                          # LSTM benchmark application
+│   ├── README.md                      # LSTM benchmark documentation
 │   └── lstm.py                        # Sentiment analysis benchmark
 │
+├── examples/                          # 📋 Usage examples and demonstrations
+│   ├── README.md                      # Examples documentation
+│   └── example_usage.py               # Comprehensive framework usage demo
+│
+├── tests/                             # 🧪 Test suite and validation scripts
+│   ├── README.md                      # Test documentation
+│   ├── test_config.py                 # Configuration testing
+│   ├── test_subprocess_fix.py         # Subprocess compatibility testing
+│   └── test_python36_compatibility.sh # Python 3.6+ compatibility test
+│
 ├── documentation/                      # 📚 Comprehensive documentation
+│   ├── README.md                      # Documentation index
 │   ├── USAGE_EXAMPLES.md              # CLI usage examples and automation
 │   ├── SUBMIT_JOBS_README.md          # SLURM usage documentation
 │   ├── CLI_ENHANCEMENT_SUMMARY.md     # Technical implementation details
 │   ├── REFACTORING_SUMMARY.md         # Complete refactoring overview
 │   ├── PYTHON36_COMPATIBILITY_FIX.md  # Python 3.6 compatibility guide
+│   ├── SUBPROCESS_FIX_SUMMARY.md      # Recent subprocess fix documentation
 │   └── QUICK_FIX_GUIDE.md             # Troubleshooting and fixes
 │
 └── sample-collection-scripts/          # 🚀 Enhanced profiling framework
+    ├── README.md                      # Profiling framework documentation
     ├── launch.sh                      # 🎯 Main experiment orchestration (CLI enhanced)
     ├── profile.py                     # DCGMI-based GPU profiler
     ├── profile_smi.py                 # nvidia-smi alternative profiler  
     ├── control.sh                     # DCGMI frequency control
     ├── control_smi.sh                 # nvidia-smi frequency control
     ├── clean.sh                       # Enhanced workspace cleanup
+    ├── lstm.py                        # LSTM benchmark application
     │
     ├── submit_job.sh                  # 🎯 Main SLURM submission (A100/toreador)
     ├── submit_job_v100_baseline.sh    # V100 baseline profiling (matador)

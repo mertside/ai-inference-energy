@@ -3,6 +3,12 @@
 Quick test script to check if config.py loads correctly.
 """
 
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 try:
     from config import profiling_config, gpu_config, model_config, system_config
     print("✓ Config module loaded successfully")
