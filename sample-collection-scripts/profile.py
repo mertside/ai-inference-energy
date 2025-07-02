@@ -14,7 +14,7 @@ Requirements:
     - DCGMI tools installed and accessible
     - Appropriate permissions to run GPU monitoring tools
 
-Author: AI Inference Energy Research Team
+Author: Mert Side
 """
 
 import os

@@ -68,6 +68,8 @@ Options:
 - Memory: 1215 MHz
 - Core frequencies: 1410-510 MHz (61 frequencies)
 - SLURM partition: toreador
+- Cluster: HPCC at Texas Tech University
+- Interactive helper: `./interactive_a100.sh`
 
 #### V100 GPU (Matador Partition)
 ```bash
@@ -77,15 +79,18 @@ Options:
 - Memory: 877 MHz
 - Core frequencies: 1380-405 MHz (103 frequencies)
 - SLURM partition: matador
+- Interactive helper: `./interactive_v100.sh`
 
-#### H100 GPU (H100 Partition)
+#### H100 GPU (REPACSS h100-build Partition)
 ```bash
 ./launch.sh --gpu-type H100
 ```
 - Architecture: GH100  
 - Memory: 1593 MHz
 - Core frequencies: 1755-210 MHz (104 frequencies in 15MHz steps)
-- SLURM partition: h100
+- SLURM partition: h100-build (node: rpg-93-9)
+- Cluster: REPACSS at Texas Tech University
+- Interactive helper: `./interactive_h100.sh`
 
 ### Profiling Tool Selection
 
@@ -134,15 +139,32 @@ Options:
 - **`clean.sh`** - Enhanced workspace cleanup
 - **`lstm.py`** - LSTM benchmark application
 
+### Interactive Helpers
+- **`interactive_a100.sh`** - A100 interactive session helper (HPCC toreador)
+- **`interactive_v100.sh`** - V100 interactive session helper (HPCC matador)  
+- **`interactive_h100.sh`** - H100 interactive session helper (REPACSS h100-build)
+
+Each interactive helper provides:
+- Quick interactive session startup
+- GPU detection and framework testing
+- Node status checking
+- Usage examples and troubleshooting
+
 ### SLURM Scripts
 - **`submit_job.sh`** - Main A100 SLURM submission (toreador)
 - **`submit_job_v100_baseline.sh`** - V100 baseline profiling (matador)
-- **`submit_job_custom_app.sh`** - Custom application examples
-- **`submit_job_comprehensive.sh`** - Full DVFS study
+- **`submit_job.sh`** - Main A100 DVFS experiment (original)
+- **`submit_job_a100_baseline.sh`** - A100 baseline profiling (quick test)
+- **`submit_job_a100_comprehensive.sh`** - A100 comprehensive DVFS study
+- **`submit_job_a100_custom_app.sh`** - A100 custom application examples
+- **`submit_job_v100_baseline.sh`** - V100 baseline profiling
 - **`submit_job_v100_comprehensive.sh`** - V100 comprehensive profiling
+- **`submit_job_v100_custom_app.sh`** - V100 custom application examples
 - **`submit_job_h100_baseline.sh`** - H100 baseline profiling
 - **`submit_job_h100_comprehensive.sh`** - H100 comprehensive profiling  
 - **`submit_job_h100_custom_app.sh`** - H100 custom application examples
+- **`submit_job_custom_app.sh`** - Custom application examples
+- **`submit_job_comprehensive.sh`** - Full DVFS study
 
 ## Configuration Matrix
 
@@ -285,6 +307,11 @@ sbatch submit_job.sh
 #### Submit V100 Baseline Job
 ```bash
 sbatch submit_job_v100_baseline.sh
+```
+
+#### Submit V100 Custom Application Job
+```bash
+sbatch submit_job_v100_custom_app.sh
 ```
 
 #### Submit Custom Application Job

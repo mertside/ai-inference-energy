@@ -1,15 +1,43 @@
 # Examples Directory
 
-This directory contains example scripts and usage demonstrations for the AI Inference Energy Profiling Framework.
+This directory contains example scripts and usage demonstrations for the AI Inference Energy Profiling Framework, including comprehensive A100 SLURM job submission examples.
 
 ## Example Files
 
 ### **Framework Usage Examples**
 - **`example_usage.py`** - Comprehensive demonstration of framework capabilities
 
+### **A100 SLURM Job Examples**
+- **`submit_lstm_a100_baseline.sh`** - LSTM baseline profiling on A100
+- **`submit_lstm_a100_comprehensive.sh`** - LSTM comprehensive profiling with frequency sweeps
+- **`submit_lstm_a100_custom.sh`** - LSTM custom frequency profiling
+- **`submit_stablediffusion_a100_baseline.sh`** - Stable Diffusion profiling example
+- **`submit_custom_app_a100_template.sh`** - Template for custom applications
+- **`submit_helper.sh`** - Interactive helper for submitting jobs
+- **`A100_EXAMPLES_README.md`** - Detailed guide for A100 examples
+
+## Quick Start for A100 Examples
+
+### Using the Submit Helper (Recommended)
+```bash
+cd examples/
+./submit_helper.sh                    # Show help
+./submit_helper.sh lstm-baseline      # Submit quick LSTM test
+./submit_helper.sh lstm-comprehensive # Submit full analysis
+./submit_helper.sh status             # Check job status
+```
+
+### Manual Submission
+```bash
+# Edit email address in script first
+nano submit_lstm_a100_baseline.sh
+# Submit job
+sbatch submit_lstm_a100_baseline.sh
+```
+
 ## Overview
 
-The examples in this directory demonstrate real-world usage patterns and provide templates for building custom profiling experiments.
+The examples in this directory demonstrate real-world usage patterns and provide templates for building custom profiling experiments on various GPU types.
 
 ## Running Examples
 

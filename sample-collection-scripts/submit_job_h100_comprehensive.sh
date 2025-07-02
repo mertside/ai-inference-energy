@@ -12,10 +12,12 @@
 #SBATCH --job-name=LSTM_H100_COMPREHENSIVE
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
-#SBATCH --partition=h100
+#SBATCH --partition=h100-build
+#SBATCH --nodelist=rpg-93-9
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:h100:1
-#SBATCH --ntasks=32
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu:1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=12:00:00  # Longer time for comprehensive H100 study
@@ -51,8 +53,8 @@ main() {
     log_warning "This is a very long-running job (estimated 12+ hours)"
     log_warning "H100 has 104 frequencies vs A100's 61 and V100's 103 frequencies"
     
-    # Load modules (adjust module names as needed for your cluster)
-    module load gcc cuda cudnn
+    # Load modules (REPACSS-specific)
+    module load cuda
     
     # Activate conda
     source "$HOME/conda/etc/profile.d/conda.sh"
@@ -67,7 +69,10 @@ main() {
     log_info "========================="
     
     # Display GPU information
-    log_info "=== H100 GPU Information ==="
+    log_info "=== REPACSS H100 Node Information ==="
+    log_info "Cluster: REPACSS at Texas Tech University"
+    log_info "Partition: h100-build"
+    log_info "Node: rpg-93-9"
     log_info "Architecture: GH100"
     log_info "Memory frequency: 1593 MHz"
     log_info "Max core frequency: 1755 MHz"
