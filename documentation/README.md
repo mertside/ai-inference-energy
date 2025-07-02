@@ -7,6 +7,7 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 ### **Usage and Examples**
 - **`USAGE_EXAMPLES.md`** - Complete CLI usage examples and automation scripts
 - **`SUBMIT_JOBS_README.md`** - SLURM job submission guide and HPC cluster usage
+- **`H100_USAGE_GUIDE.md`** - Comprehensive H100 GPU support and usage guide
 
 ### **Technical Implementation**  
 - **`CLI_ENHANCEMENT_SUMMARY.md`** - Technical details of CLI enhancements and new features
@@ -23,8 +24,9 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 
 ### For New Users
 1. **Start with:** [`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md) - Learn the CLI interface
-2. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
-3. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
+2. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide
+3. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
+4. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
 
 ### For Developers
 1. **Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Codebase structure
@@ -46,6 +48,7 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 # Basic usage examples
 ./launch.sh                                    # Default A100 DVFS
 ./launch.sh --gpu-type V100 --profiling-mode baseline  # V100 baseline
+./launch.sh --gpu-type H100 --profiling-mode baseline  # H100 baseline
 ./launch.sh --app-name "CustomApp" --app-executable "my_app"  # Custom app
 ```
 

@@ -7,16 +7,16 @@
 - 🔬 **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
 - 🏗️ **HPC Cluster Ready**: Native SLURM integration with partition-specific configurationsamework
 
-A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **dual GPU architecture support (A100/V100)**, **intelligent tool fallback**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
+A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
-As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100 and V100 GPUs** across various AI inference tasks.
+As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
 
 ### ✨ Key Features
 
 - 🔧 **Complete CLI Interface**: Configure all experiments via command-line arguments with --help support
-- 🎯 **Dual GPU Support**: Native A100 (toreador partition) and V100 (matador partition) configurations 
+- 🎯 **Triple GPU Support**: Native A100 (toreador), V100 (matador), and H100 configurations 
 - 🛠️ **Multiple Profiling Tools**: Support for both DCGMI and nvidia-smi profiling with automatic fallback
 - 📊 **Flexible Experiment Modes**: DVFS (full frequency sweep) or baseline (single frequency) modes
 - 🚀 **HPC Integration**: Ready-to-use SLURM submission scripts for cluster environments
@@ -215,11 +215,17 @@ sbatch submit_job.sh
 # V100 baseline profiling (matador partition)
 sbatch submit_job_v100_baseline.sh
 
+# H100 baseline profiling (h100 partition)
+sbatch submit_job_h100_baseline.sh
+
 # Custom application profiling
 sbatch submit_job_custom_app.sh
+sbatch submit_job_h100_custom_app.sh
 
 # Comprehensive DVFS study (all frequencies)
 sbatch submit_job_comprehensive.sh
+sbatch submit_job_v100_comprehensive.sh
+sbatch submit_job_h100_comprehensive.sh
 ```
 
 **📚 For detailed examples, see [`documentation/USAGE_EXAMPLES.md`](documentation/USAGE_EXAMPLES.md) and [`documentation/SUBMIT_JOBS_README.md`](documentation/SUBMIT_JOBS_README.md)**
@@ -228,7 +234,7 @@ sbatch submit_job_comprehensive.sh
 
 ### GPU Frequency Settings
 
-The framework supports comprehensive frequency scaling for both GPU architectures:
+The framework supports comprehensive frequency scaling for all three GPU architectures:
 
 #### **A100 GPU (Toreador Partition)**
 - **Memory Frequency**: 1215 MHz (A100 default)
@@ -239,6 +245,11 @@ The framework supports comprehensive frequency scaling for both GPU architecture
 - **Memory Frequency**: 877 MHz (V100 default)
 - **Core Frequencies**: 103 different settings from 1380 MHz down to 405 MHz
 - **Frequency Control**: Via nvidia-smi interface
+
+#### **H100 GPU (H100 Partition)**
+- **Memory Frequency**: 1593 MHz (H100 default)
+- **Core Frequencies**: 104 different settings from 1755 MHz down to 210 MHz in 15MHz steps
+- **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
 
 ### Command-Line Interface
 
@@ -371,6 +382,14 @@ To add new AI applications to the framework:
   --gpu-type V100 \
   --profiling-tool nvidia-smi \
   --profiling-mode baseline
+```
+
+#### **H100 Configuration (H100)**
+```bash
+./launch.sh \
+  --gpu-type H100 \
+  --profiling-tool dcgmi \
+  --profiling-mode dvfs
 ```
 
 ### Profiling Tool Selection & Fallback

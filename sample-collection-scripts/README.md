@@ -78,6 +78,15 @@ Options:
 - Core frequencies: 1380-405 MHz (103 frequencies)
 - SLURM partition: matador
 
+#### H100 GPU (H100 Partition)
+```bash
+./launch.sh --gpu-type H100
+```
+- Architecture: GH100  
+- Memory: 1593 MHz
+- Core frequencies: 1755-210 MHz (104 frequencies in 15MHz steps)
+- SLURM partition: h100
+
 ### Profiling Tool Selection
 
 #### DCGMI (Default with Automatic Fallback)
@@ -131,6 +140,9 @@ Options:
 - **`submit_job_custom_app.sh`** - Custom application examples
 - **`submit_job_comprehensive.sh`** - Full DVFS study
 - **`submit_job_v100_comprehensive.sh`** - V100 comprehensive profiling
+- **`submit_job_h100_baseline.sh`** - H100 baseline profiling
+- **`submit_job_h100_comprehensive.sh`** - H100 comprehensive profiling  
+- **`submit_job_h100_custom_app.sh`** - H100 custom application examples
 
 ## Configuration Matrix
 
@@ -140,6 +152,8 @@ Options:
 | A100 | nvidia-smi | profile_smi.py | control_smi.sh | 1215 MHz | 1410 MHz |
 | V100 | dcgmi | profile.py | control.sh | 877 MHz | 1380 MHz |
 | V100 | nvidia-smi | profile_smi.py | control_smi.sh | 877 MHz | 1380 MHz |
+| H100 | dcgmi | profile.py | control.sh | 1593 MHz | 1755 MHz |
+| H100 | nvidia-smi | profile_smi.py | control_smi.sh | 1593 MHz | 1755 MHz |
 
 ## Individual Script Usage
 

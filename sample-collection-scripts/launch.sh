@@ -12,6 +12,9 @@
 # For NVIDIA V100:
 #   GPU_TYPE="V100"           # Automatically sets GV100, 877MHz mem, 1380MHz core
 #
+# For NVIDIA H100:
+#   GPU_TYPE="H100"           # Automatically sets GH100, 1593MHz mem, 1755MHz core
+#
 # To switch between profiling tools:
 #
 # For DCGMI profiling:
@@ -41,7 +44,7 @@
 # while monitoring power consumption and performance metrics.
 #
 # The script:
-# 1. Supports both NVIDIA A100 and V100 GPUs with optimized frequency ranges
+# 1. Supports NVIDIA A100, V100, and H100 GPUs with optimized frequency ranges
 # 2. Allows switching between DCGMI and nvidia-smi profiling tools
 # 3. Iterates through GPU-specific core frequency ranges
 # 4. Runs each AI application multiple times per frequency
@@ -49,7 +52,7 @@
 # 6. Saves results for analysis with consistent naming conventions
 #
 # Features:
-# - GPU Type Selection: Easy switching between A100 and V100 configurations
+# - GPU Type Selection: Easy switching between A100, V100, and H100 configurations
 # - Profiling Tool Selection: Support for both DCGMI and nvidia-smi
 # - Automatic Configuration: GPU-specific frequencies and parameters
 # - Comprehensive Logging: Detailed progress and error reporting
@@ -60,14 +63,14 @@
 #
 # Configuration:
 #     Use command-line options to customize:
-#     - GPU_TYPE: "A100" or "V100" for automatic configuration
+#     - GPU_TYPE: "A100", "V100", or "H100" for automatic configuration
 #     - PROFILING_TOOL: "dcgmi" or "nvidia-smi" for tool selection
 #     - Number of runs per frequency
 #     - Applications to test
 #     - Output directories
 #
 # Requirements:
-#     - NVIDIA GPU (A100 or V100)
+#     - NVIDIA GPU (A100, V100, or H100)
 #     - GPU profiling tools (DCGMI or nvidia-smi)
 #     - AI inference applications (LLaMA, Stable Diffusion, LSTM, etc.)
 #     - Corresponding profiling and control scripts
@@ -82,8 +85,8 @@ set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 # Configuration Section - Default Values (can be overridden by parameters)
 # ============================================================================
 
-# Default GPU Architecture Selection (A100 or V100)
-DEFAULT_GPU_TYPE="A100"  # Options: "A100" or "V100"
+# Default GPU Architecture Selection (A100, V100, or H100)
+DEFAULT_GPU_TYPE="A100"  # Options: "A100", "V100", or "H100"
 
 # Default Profiling Tool Selection (DCGMI or NVIDIA-SMI)
 DEFAULT_PROFILING_TOOL="dcgmi"  # Options: "dcgmi" or "nvidia-smi"
@@ -133,7 +136,7 @@ parse_arguments() {
         case "$1" in
             --gpu-type)
                 if [[ -z "${2:-}" ]]; then
-                    log_error "Option --gpu-type requires a value (A100 or V100)"
+                    log_error "Option --gpu-type requires a value (A100, V100, or H100)"
                     return 1
                 fi
                 GPU_TYPE="$2"
@@ -221,8 +224,8 @@ parse_arguments() {
     done
     
     # Validate GPU type
-    if [[ "$GPU_TYPE" != "A100" && "$GPU_TYPE" != "V100" ]]; then
-        log_error "Invalid GPU type: $GPU_TYPE. Supported types: A100, V100"
+    if [[ "$GPU_TYPE" != "A100" && "$GPU_TYPE" != "V100" && "$GPU_TYPE" != "H100" ]]; then
+        log_error "Invalid GPU type: $GPU_TYPE. Supported types: A100, V100, H100"
         return 1
     fi
     
@@ -280,8 +283,27 @@ configure_gpu_settings() {
             570 562 555 547 540 532 525 517 510 502 495 487 480 472 465 457 450 442 435 427 
             420 412 405
         )
+    elif [[ "$GPU_TYPE" == "H100" ]]; then
+        GPU_ARCH="GH100"
+        MEMORY_FREQ=1593  # H100 memory frequency (MHz)
+        DEFAULT_CORE_FREQ=1755  # H100 default core frequency (MHz)
+        
+        # H100 core frequencies for testing (MHz) - 210-1755 MHz in 15-MHz steps
+        CORE_FREQUENCIES=(
+            1755 1740 1725 1710 1695 1680 1665 1650 1635 1620
+            1605 1590 1575 1560 1545 1530 1515 1500 1485 1470
+            1455 1440 1425 1410 1395 1380 1365 1350 1335 1320
+            1305 1290 1275 1260 1245 1230 1215 1200 1185 1170
+            1155 1140 1125 1110 1095 1080 1065 1050 1035 1020
+            1005 990 975 960 945 930 915 900 885 870
+            855 840 825 810 795 780 765 750 735 720
+            705 690 675 660 645 630 615 600 585 570
+            555 540 525 510 495 480 465 450 435 420
+            405 390 375 360 345 330 315 300 285 270
+            255 240 225 210
+        )
     else
-        log_error "Unsupported GPU type: $GPU_TYPE. Supported types: A100, V100"
+        log_error "Unsupported GPU type: $GPU_TYPE. Supported types: A100, V100, H100"
         return 1
     fi
     
@@ -342,7 +364,7 @@ This script runs comprehensive energy profiling experiments across different
 GPU frequencies for AI inference workloads.
 
 OPTIONS:
-    --gpu-type TYPE           GPU type: A100 or V100 (default: $DEFAULT_GPU_TYPE)
+    --gpu-type TYPE           GPU type: A100, V100, or H100 (default: $DEFAULT_GPU_TYPE)
     --profiling-tool TOOL     Profiling tool: dcgmi or nvidia-smi (default: $DEFAULT_PROFILING_TOOL)
     --profiling-mode MODE     Profiling mode: dvfs or baseline (default: $DEFAULT_PROFILING_MODE)
     --num-runs NUM            Number of runs per frequency (default: $DEFAULT_NUM_RUNS)
@@ -358,6 +380,9 @@ EXAMPLES:
     
     # Run baseline profiling on V100
     ./launch.sh --gpu-type V100 --profiling-mode baseline
+    
+    # Run baseline profiling on H100
+    ./launch.sh --gpu-type H100 --profiling-mode baseline
     
     # Custom application with specific parameters
     ./launch.sh --app-name "MyApp" --app-executable "my_script" --app-params "--input data.txt > results/MyApp_output.log"
@@ -377,6 +402,12 @@ GPU TYPE SELECTION:
         - Memory frequency: 877MHz
         - Default core frequency: 1380MHz
         - Core frequency range: 1380-405MHz (103 frequencies)
+    
+    H100: Automatically configures for NVIDIA H100 GPUs
+        - Architecture: GH100
+        - Memory frequency: 1593MHz
+        - Default core frequency: 1755MHz
+        - Core frequency range: 1755-210MHz (104 frequencies)
 
 PROFILING TOOL SELECTION:
     dcgmi: Uses DCGMI tools for profiling (recommended)
@@ -519,6 +550,9 @@ check_prerequisites() {
             log_warning "Consider changing GPU_TYPE in the configuration section"
         elif [[ "$GPU_TYPE" == "V100" && ! "$gpu_name" =~ V100 ]]; then
             log_warning "GPU type set to V100 but detected GPU doesn't appear to be V100: $gpu_name"
+            log_warning "Consider changing GPU_TYPE in the configuration section"
+        elif [[ "$GPU_TYPE" == "H100" && ! "$gpu_name" =~ H100 ]]; then
+            log_warning "GPU type set to H100 but detected GPU doesn't appear to be H100: $gpu_name"
             log_warning "Consider changing GPU_TYPE in the configuration section"
         fi
     fi
