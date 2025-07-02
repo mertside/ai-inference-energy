@@ -159,7 +159,7 @@ class NvidiaSmiProfiler:
                     command,
                     stdout=output,
                     stderr=subprocess.PIPE,
-                    text=True
+                    universal_newlines=True  # Python 3.6 compatible (text=True in 3.7+)
                 )
                 
                 # Wait for stop signal or process completion
@@ -268,7 +268,7 @@ class NvidiaSmiProfiler:
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                universal_newlines=True  # Python 3.6 compatible (text=True in 3.7+)
             )
             
             app_duration = time.time() - app_start_time

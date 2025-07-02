@@ -16,17 +16,22 @@ Both the `capture_output` parameter and the `text` parameter were introduced in 
 ### Files Modified:
 
 1. **`utils.py`** (Latest Fix - July 2, 2025)
-   - **Function:** `run_command()` (lines 71-97)
-   - **Issue:** Used `capture_output=True` parameter in `subprocess.run()`
-   - **Fix:** Replaced with Python 3.6 compatible `stdout=subprocess.PIPE, stderr=subprocess.PIPE`
+   - **Function:** `run_command()` (lines 95-116)
+   - **Issue:** Used `capture_output=True` and `text=True` parameters in `subprocess.run()`
+   - **Fix:** Replaced with Python 3.6 compatible `stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True`
 
-2. **`sample-collection-scripts/profile.py`** (Previous Fix)
-   - Line 52: Fixed DCGMI version check
-   - Line 196-201: Fixed application execution subprocess call
+2. **`sample-collection-scripts/profile.py`** (Latest Fix - July 2, 2025) 
+   - **Function:** `profile_command()` (line 201)
+   - **Issue:** Used `text=True` parameter in `subprocess.run()`
+   - **Fix:** Replaced with `universal_newlines=True`
 
-3. **`sample-collection-scripts/profile_smi.py`** (Previous Fix)
-   - Line 54-55: Fixed nvidia-smi validation check
-   - Line 266-271: Fixed application execution subprocess call
+3. **`sample-collection-scripts/profile_smi.py`** (Latest Fix - July 2, 2025)
+   - **Functions:** GPU monitoring setup (line 162) and `profile_command()` (line 271)
+   - **Issue:** Used `text=True` parameter in `subprocess.Popen()` and `subprocess.run()`
+   - **Fix:** Replaced with `universal_newlines=True`
+
+4. **Previous Fixes** (Earlier)
+   - Fixed DCGMI version check and application execution subprocess calls
 
 ### Before (Python 3.7+ only):
 ```python
