@@ -512,7 +512,7 @@ The framework includes comprehensive documentation:
 If you use this framework in your research, please cite:
 
 ```bibtex
-@misc{Side:2025:AIEngergy:GitHub,
+@misc{Side:2025:AIEnergy:GitHub,
   title={AI Inference Energy Profiling Framework},
   author={Side, Mert},
   year={2025},
