@@ -92,20 +92,21 @@ def run_command(
     """
     try:
         # Python 3.6 compatibility: use stdout/stderr instead of capture_output
+        # and universal_newlines instead of text
         if capture_output:
             result = subprocess.run(
                 command,
                 timeout=timeout,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True,
+                universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
                 check=check
             )
         else:
             result = subprocess.run(
                 command,
                 timeout=timeout,
-                text=True,
+                universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
                 check=check
             )
         return result

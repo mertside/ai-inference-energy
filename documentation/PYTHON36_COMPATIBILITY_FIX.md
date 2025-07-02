@@ -1,10 +1,15 @@
 # Python 3.6 Compatibility Fix Summary
 
-## Issue Resolved (Latest Update)
+## Issue Resolved (Latest Updates)
+
+### **Second Fix - July 2, 2025 (12:17 PM)**
+Fixed the `TypeError: __init__() got an unexpected keyword argument 'text'` error that occurred after fixing the first `capture_output` issue.
+
+### **First Fix - July 2, 2025 (11:45 AM)** 
 Fixed the `TypeError: __init__() got an unexpected keyword argument 'capture_output'` error that was occurring when running the profiling scripts on Python 3.6.
 
 ## Root Cause
-The `capture_output` parameter was introduced in Python 3.7, but the cluster environment uses Python 3.6. This caused runtime errors when the profiling scripts tried to execute subprocess commands through the `utils.py` module.
+Both the `capture_output` parameter and the `text` parameter were introduced in Python 3.7, but the cluster environment uses Python 3.6. This caused sequential runtime errors when the profiling scripts tried to execute subprocess commands through the `utils.py` module.
 
 ## Changes Made
 
@@ -30,7 +35,7 @@ result = subprocess.run(
     command,
     timeout=timeout,
     capture_output=capture_output,  # ❌ Not available in Python 3.6
-    text=True,
+    text=True,                      # ❌ Not available in Python 3.6
     check=check
 )
 ```
@@ -42,16 +47,16 @@ if capture_output:
     result = subprocess.run(
         command,
         timeout=timeout,
-        stdout=subprocess.PIPE,     # ✅ Python 3.6 compatible
-        stderr=subprocess.PIPE,     # ✅ Python 3.6 compatible
-        text=True,
+        stdout=subprocess.PIPE,        # ✅ Python 3.6 compatible
+        stderr=subprocess.PIPE,        # ✅ Python 3.6 compatible
+        universal_newlines=True,       # ✅ Python 3.6 compatible (text=True in 3.7+)
         check=check
     )
 else:
     result = subprocess.run(
         command,
         timeout=timeout,
-        text=True,
+        universal_newlines=True,       # ✅ Python 3.6 compatible (text=True in 3.7+)
         check=check
     )
 ```
@@ -75,8 +80,9 @@ else:
    ```
 
 ### Error Signatures Fixed
-- **Before Fix:** `TypeError: __init__() got an unexpected keyword argument 'capture_output'`
-- **After Fix:** Scripts execute without subprocess-related errors
+- **First Error (Fixed):** `TypeError: __init__() got an unexpected keyword argument 'capture_output'`
+- **Second Error (Fixed):** `TypeError: __init__() got an unexpected keyword argument 'text'`
+- **After Both Fixes:** Scripts execute without subprocess-related errors
 
 ## Impact
 This fix ensures that the profiling scripts can run successfully on Python 3.6+ environments, including HPC cluster installations. The framework now works correctly across Python 3.6, 3.7, 3.8, 3.9, 3.10, and 3.11.
