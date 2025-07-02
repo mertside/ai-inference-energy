@@ -1,4 +1,4 @@
-# AI Inference Energy Profi### Research & Experimental Capabilities
+# AI Inference Energy
 
 - 📊 **Comprehensive Profiling**: GPU power consumption, utilization, temperature, and performance metrics
 - 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 103 V100 frequencies (1380-405 MHz)
@@ -465,33 +465,6 @@ The framework includes comprehensive documentation:
 - **[PYTHON36_COMPATIBILITY_FIX.md](documentation/PYTHON36_COMPATIBILITY_FIX.md)**: Python 3.6 compatibility guide
 - **[QUICK_FIX_GUIDE.md](documentation/QUICK_FIX_GUIDE.md)**: Troubleshooting and quick fixes
 
-## 🤝 Contributing
-
-We welcome contributions to improve the framework:
-
-### Development Setup
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-pip install pytest black flake8
-
-# Run code formatting
-black . --line-length 88
-
-# Run linting
-flake8 --max-line-length 88
-
-# Run tests
-pytest tests/
-```
-
-### Adding New Features
-1. Follow the existing code structure and documentation patterns
-2. Add comprehensive error handling and logging
-3. Update configuration files as needed
-4. Include usage examples in docstrings
-5. Add tests for new functionality
-
 ## 📝 Citation
 
 If you use this framework in your research, please cite:
@@ -499,32 +472,11 @@ If you use this framework in your research, please cite:
 ```bibtex
 @misc{Side:2025:AIEngergy:GitHub,
   title={AI Inference Energy Profiling Framework},
-  author={AI Inference Energy Research Team},
+  author={Side, Mert},
   year={2025},
   url={https://github.com/mertside/ai-inference-energy}
 }
 ```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- NVIDIA for DCGMI profiling tools
-- Hugging Face for AI model hosting and libraries
-- The open-source AI community for model development
-- HPC centers providing computational resources
-
-## 📞 Support
-
-For questions and support:
-
-- 📧 **Email**: research-team@example.com
-- 💬 **Issues**: Use GitHub issues for bug reports and feature requests
-- 📖 **Documentation**: Comprehensive docs available in the repository
-- 🤝 **Community**: Join our research community discussions
-
 ---
 
 **Happy profiling! ⚡🔬**
