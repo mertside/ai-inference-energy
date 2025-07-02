@@ -14,7 +14,6 @@
 #SBATCH --nodelist=rpg-93-9
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
