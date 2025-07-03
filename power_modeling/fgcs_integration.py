@@ -33,7 +33,7 @@ from pathlib import Path
 from .models.model_factory import FGCSModelFactory, ModelPipeline
 from .models.fgcs_models import FGCSPowerModel, PerformanceMetricsCalculator
 from .models.ensemble_models import ModelEvaluator
-from ..edp_analysis.edp_calculator import FGCSEDPOptimizer, DVFSOptimizationPipeline
+from edp_analysis.edp_calculator import FGCSEDPOptimizer, DVFSOptimizationPipeline
 from .feature_engineering.preprocessing import DataPreprocessor
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ class FGCSPowerModelingFramework:
                      870, 862, 855, 847, 840, 832, 825, 817, 810, 802, 795, 787, 780, 772, 765, 757, 750, 742, 735, 727, 
                      720, 712, 705, 697, 690, 682, 675, 667, 660, 652, 645, 637, 630, 622, 615, 607, 600, 592, 585, 577, 
                      570, 562, 555, 547, 540, 532, 525, 517, 510, 502, 495, 487, 480, 472, 465, 457, 450, 442, 435, 427, 
-                     420, 412, 405],  # 103 frequencies
+                     420, 412, 405],  # 131 frequencies
             'A100': [1410, 1395, 1380, 1365, 1350, 1335, 1320, 1305, 1290, 1275,
                      1260, 1245, 1230, 1215, 1200, 1185, 1170, 1155, 1140, 1125,
                      1110, 1095, 1080, 1065, 1050, 1035, 1020, 1005, 990, 975,

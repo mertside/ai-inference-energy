@@ -588,7 +588,8 @@ class ModelPipeline:
                         model.fit(X_train, y_train)
                     
                     # Evaluate model
-                    metrics = ModelEvaluator.evaluate_model(model, X_test, y_test, model_name)
+                    from ..models.ensemble_models import ModelEvaluator as EnsembleEvaluator
+                    metrics = EnsembleEvaluator.evaluate_model(model, X_test, y_test, model_name)
                     evaluation_results[model_name] = metrics
                     trained_models[model_name] = model
                     
@@ -663,31 +664,5 @@ class ModelPipeline:
             return result_df
 
 
-# FGCS Model Factory (for backward compatibility)
-class FGCSModelFactory(PowerModelFactory):
-    """Factory specifically for FGCS models."""
-    
-    @staticmethod
-    def create_fgcs_power_model():
-        """Create the original FGCS power model."""
-        return FGCSPowerModel()
-    
-    @staticmethod
-    def create_polynomial_model(degree: int = 2):
-        """Create polynomial power model."""
-        return PolynomialPowerModel(degree=degree)
-    
-    @staticmethod
-    def create_enhanced_rf_model():
-        """Create enhanced Random Forest model."""
-        return EnhancedRandomForestModel()
-    
-    @staticmethod
-    def create_xgboost_model():
-        """Create XGBoost power model."""
-        return XGBoostPowerModel()
-
-
 # Convenience functions for backward compatibility
 create_model = PowerModelFactory.create_model
-tune_hyperparameters = PowerModelFactory.tune_hyperparameters

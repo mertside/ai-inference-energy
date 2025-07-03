@@ -117,9 +117,10 @@ class PowerModelingTester:
             })
             
             optimal_config = calculator.find_optimal_configuration(df, metric='edp')
-            assert 'frequency' in optimal_config
-            assert 'energy' in optimal_config
-            assert 'execution_time' in optimal_config
+            assert 'optimal_frequency' in optimal_config
+            assert 'optimal_energy' in optimal_config
+            assert 'optimal_delay' in optimal_config
+            assert 'optimal_score' in optimal_config
             
             logger.info("✓ EDP/ED2P calculations test passed")
             self.passed_tests += 1
@@ -187,7 +188,7 @@ class PowerModelingTester:
                 frequencies = framework.frequency_configs[gpu_type]
                 
                 # Verify frequency counts
-                expected_counts = {'V100': 103, 'A100': 61, 'H100': 104}
+                expected_counts = {'V100': 131, 'A100': 61, 'H100': 104}
                 actual_count = len(frequencies)
                 expected_count = expected_counts[gpu_type]
                 
