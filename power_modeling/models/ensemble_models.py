@@ -49,19 +49,21 @@ class EnhancedRandomForestModel:
     def get_hyperparameter_grid(self) -> Dict[str, List]:
         """
         Get hyperparameter grid based on FGCS 2023 methodology.
+        Uses conservative parameters to avoid invalid combinations.
         
         Returns:
             Dictionary of hyperparameter ranges
         """
         return {
-            'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
-            'max_features': ['auto', 'sqrt', 'log2'],
-            'max_depth': [int(x) for x in np.linspace(10, 110, num=11)] + [None],
-            'min_samples_split': [2, 5, 10, 15, 20],
-            'min_samples_leaf': [1, 2, 4, 8],
-            'bootstrap': [True, False],
+            'n_estimators': [200, 500, 800, 1000],
+            'max_features': ['sqrt', 'log2', None],
+            'max_depth': [10, 30, 50, 80, None],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 4],
             'criterion': ['squared_error', 'absolute_error'],
-            'max_samples': [None, 0.8, 0.9, 1.0]
+            # Only use bootstrap=True to avoid max_samples conflicts
+            'bootstrap': [True],
+            'max_samples': [0.8, 0.9, 1.0]
         }
         
     def optimize_hyperparameters(self, X_train: np.ndarray, y_train: np.ndarray) -> Dict[str, Any]:
@@ -77,8 +79,18 @@ class EnhancedRandomForestModel:
         """
         logger.info(f"Optimizing Random Forest hyperparameters using {self.optimization_method} search")
         
+        # Create base model with safe defaults
         base_rf = RandomForestRegressor(random_state=self.random_state, n_jobs=-1)
         param_grid = self.get_hyperparameter_grid()
+        
+        # Validate that criterion values are supported
+        try:
+            test_rf = RandomForestRegressor(criterion='squared_error', n_estimators=10)
+            test_rf.fit(X_train[:10], y_train[:10])  # Quick test
+        except Exception as e:
+            logger.warning(f"squared_error criterion not supported, falling back to mse: {e}")
+            # Update param grid to use older criterion names
+            param_grid['criterion'] = ['mse', 'mae']
         
         if self.optimization_method == 'random':
             search = RandomizedSearchCV(
@@ -94,12 +106,13 @@ class EnhancedRandomForestModel:
         elif self.optimization_method == 'grid':
             # Reduced grid for grid search to prevent excessive computation
             reduced_grid = {
-                'n_estimators': [200, 500, 1000],
-                'max_features': ['auto', 'sqrt'],
-                'max_depth': [10, 50, 100, None],
-                'min_samples_split': [2, 5, 10],
-                'min_samples_leaf': [1, 2, 4],
-                'bootstrap': [True, False]
+                'n_estimators': [200, 500],
+                'max_features': ['sqrt', 'log2'],
+                'max_depth': [10, 50, None],
+                'min_samples_split': [2, 5],
+                'min_samples_leaf': [1, 2],
+                'bootstrap': [True],  # Only bootstrap=True to avoid max_samples conflicts
+                'max_samples': [0.8, 1.0]
             }
             search = GridSearchCV(
                 estimator=base_rf,

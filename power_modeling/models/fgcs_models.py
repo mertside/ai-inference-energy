@@ -191,7 +191,16 @@ class PerformanceMetricsCalculator:
         dram_values = []
         
         # Read and process data
-        df = pd.read_csv(time_data_file, delim_whitespace=True, on_bad_lines='skip')
+        try:
+            # Try newer pandas version first
+            df = pd.read_csv(time_data_file, sep=r'\s+', on_bad_lines='skip')
+        except TypeError:
+            # Fall back to older pandas version
+            try:
+                df = pd.read_csv(time_data_file, sep=r'\s+', error_bad_lines=False)
+            except TypeError:
+                # Final fallback for very old pandas versions
+                df = pd.read_csv(time_data_file, sep=r'\s+')
         
         # Clean data
         columns_to_remove = ['Entity', '#']

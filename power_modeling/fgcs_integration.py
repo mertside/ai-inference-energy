@@ -116,7 +116,16 @@ class FGCSPowerModelingFramework:
             )
             
             # Load the raw data for further processing
-            raw_data = pd.read_csv(data_file, delim_whitespace=True, on_bad_lines='skip')
+            try:
+                # Try newer pandas version first
+                raw_data = pd.read_csv(data_file, sep=r'\s+', on_bad_lines='skip')
+            except TypeError:
+                # Fall back to older pandas version
+                try:
+                    raw_data = pd.read_csv(data_file, sep=r'\s+', error_bad_lines=False)
+                except TypeError:
+                    # Final fallback for very old pandas versions
+                    raw_data = pd.read_csv(data_file, sep=r'\s+')
             cleaned_data = self.preprocessor.clean_data(raw_data)
             
             result = {
