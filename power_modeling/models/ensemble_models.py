@@ -15,7 +15,8 @@ from sklearn.base import BaseEstimator, RegressorMixin
 try:
     from xgboost import XGBRegressor
     XGBOOST_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError, Exception) as e:
+    # Handle XGBoost import issues including library loading errors
     XGBOOST_AVAILABLE = False
     XGBRegressor = None
 
@@ -61,9 +62,8 @@ class EnhancedRandomForestModel:
             'min_samples_split': [2, 5, 10],
             'min_samples_leaf': [1, 2, 4],
             'criterion': ['squared_error', 'absolute_error'],
-            # Only use bootstrap=True to avoid max_samples conflicts
-            'bootstrap': [True],
-            'max_samples': [0.8, 0.9, 1.0]
+            'bootstrap': [True]
+            # Removed max_samples entirely - causes issues with older sklearn versions
         }
         
     def optimize_hyperparameters(self, X_train: np.ndarray, y_train: np.ndarray) -> Dict[str, Any]:
@@ -111,8 +111,8 @@ class EnhancedRandomForestModel:
                 'max_depth': [10, 50, None],
                 'min_samples_split': [2, 5],
                 'min_samples_leaf': [1, 2],
-                'bootstrap': [True],  # Only bootstrap=True to avoid max_samples conflicts
-                'max_samples': [0.8, 1.0]
+                'bootstrap': [True]
+                # Removed max_samples entirely - causes issues with older sklearn versions
             }
             search = GridSearchCV(
                 estimator=base_rf,
@@ -154,7 +154,7 @@ class EnhancedRandomForestModel:
             # Use default parameters
             self.model = RandomForestRegressor(
                 n_estimators=1000,
-                max_features='auto',
+                max_features='sqrt',  # Changed from 'auto' for older sklearn compatibility
                 max_depth=None,
                 min_samples_split=2,
                 min_samples_leaf=1,
