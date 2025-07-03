@@ -40,6 +40,14 @@ from .models.ensemble_models import (
 # Import preprocessing utilities
 from .feature_engineering.preprocessing import DataPreprocessor
 
+# Import validation utilities
+from .validation import (
+    ModelValidationMetrics,
+    CrossValidationAnalyzer,
+    PowerModelValidator,
+    generate_validation_report
+)
+
 # Version and metadata
 __version__ = "1.0.0"
 __author__ = "Mert Side"
@@ -64,6 +72,12 @@ __all__ = [
     'PerformanceMetricsCalculator',
     'ModelEvaluator',
     'DataPreprocessor',
+    
+    # Validation
+    'ModelValidationMetrics',
+    'CrossValidationAnalyzer',
+    'PowerModelValidator',
+    'generate_validation_report',
     
     # Metadata
     '__version__',
