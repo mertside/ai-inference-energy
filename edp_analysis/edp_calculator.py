@@ -1,21 +1,25 @@
 """
-Energy-Delay Product (EDP) Analysis Module
+Core EDP Calculator Module
 
-This module implements the EDP calculation and optimization algorithms as described in:
+This module implements the fundamental Energy-Delay Product (EDP) calculations as described in:
 "Energy-efficient DVFS scheduling for mixed-criticality systems"
 Future Generation Computer Systems, 2023
 
-Key features:
-- EDP calculation (Energy × Delay)
-- ED²P calculation (Energy × Delay²) 
-- Pareto frontier analysis
-- Multi-objective optimization
-- Frequency-performance trade-off analysis
+Core functionality:
+- EDP calculation (Energy * Delay)
+- ED²P calculation (Energy * Delay²) 
+- Basic optimization metrics
+- Utility functions for energy calculations
+
+For optimization analysis, see optimization_analyzer.py
+For energy profiling, see energy_profiler.py  
+For performance profiling, see performance_profiler.py
+For visualization, see the visualization/ package
 """
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Tuple, Optional, Union, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -98,6 +102,9 @@ class EDPCalculator:
         """
         Find optimal configuration that minimizes the specified metric.
         
+        NOTE: This method provides basic optimization. For advanced multi-objective 
+        optimization, use the OptimizationAnalyzer class.
+        
         Args:
             df: DataFrame with profiling results
             energy_col: Column name for energy values
@@ -156,12 +163,14 @@ class EDPCalculator:
         
         return result
     
-    def generate_pareto_frontier(self, 
-                                df: pd.DataFrame,
-                                energy_col: str = 'energy',
-                                delay_col: str = 'execution_time') -> pd.DataFrame:
+    def basic_pareto_analysis(self, 
+                             df: pd.DataFrame,
+                             energy_col: str = 'energy',
+                             delay_col: str = 'execution_time') -> pd.DataFrame:
         """
-        Generate Pareto frontier for energy-delay trade-offs.
+        Generate basic Pareto frontier for energy-delay trade-offs.
+        
+        NOTE: For advanced Pareto analysis, use the OptimizationAnalyzer class.
         
         Args:
             df: DataFrame with profiling results
@@ -186,63 +195,9 @@ class EDPCalculator:
                 pareto_points.append(idx)
         
         pareto_df = sorted_df.iloc[pareto_points].copy()
-        logger.info(f"Pareto frontier contains {len(pareto_df)} points out of {len(df)} total points")
+        logger.info(f"Basic Pareto frontier contains {len(pareto_df)} points out of {len(df)} total points")
         
         return pareto_df
-    
-    def analyze_frequency_sweep(self,
-                               df: pd.DataFrame,
-                               power_col: str = 'power',
-                               time_col: str = 'execution_time',
-                               frequency_col: str = 'frequency') -> Dict:
-        """
-        Analyze complete frequency sweep results and provide comprehensive metrics.
-        
-        Args:
-            df: DataFrame with frequency sweep results
-            power_col: Column name for power values (Watts)
-            time_col: Column name for execution time (seconds)
-            frequency_col: Column name for frequency values (MHz)
-            
-        Returns:
-            Dictionary with comprehensive analysis results
-        """
-        if df.empty:
-            raise ValueError("DataFrame is empty")
-        
-        # Calculate energy if not present
-        if 'energy' not in df.columns:
-            df = df.copy()
-            df['energy'] = df[power_col] * df[time_col]
-        
-        # Perform all optimizations
-        edp_optimal = self.find_optimal_configuration(df, 'energy', time_col, frequency_col, 'edp')
-        ed2p_optimal = self.find_optimal_configuration(df, 'energy', time_col, frequency_col, 'ed2p')
-        weighted_optimal = self.find_optimal_configuration(df, 'energy', time_col, frequency_col, 'weighted')
-        
-        # Generate Pareto frontier
-        pareto_frontier = self.generate_pareto_frontier(df, 'energy', time_col)
-        
-        # Calculate additional metrics
-        freq_range = df[frequency_col].max() - df[frequency_col].min()
-        energy_range = df['energy'].max() - df['energy'].min()
-        time_range = df[time_col].max() - df[time_col].min()
-        
-        analysis_result = {
-            'edp_optimization': edp_optimal,
-            'ed2p_optimization': ed2p_optimal,
-            'weighted_optimization': weighted_optimal,
-            'pareto_frontier': pareto_frontier,
-            'frequency_range': freq_range,
-            'energy_range': energy_range,
-            'time_range': time_range,
-            'total_configurations': len(df),
-            'pareto_points': len(pareto_frontier)
-        }
-        
-        logger.info(f"Frequency sweep analysis completed for {len(df)} configurations")
-        
-        return analysis_result
 
 
 def calculate_energy_from_power_time(df: pd.DataFrame, 
@@ -588,3 +543,193 @@ class DVFSOptimizationPipeline:
         }
         
         return recommendations
+
+# Enhanced EDP calculation with feature selection integration
+def calculate_edp_with_features(df: pd.DataFrame, 
+                               energy_col: str = 'energy',
+                               delay_col: str = 'execution_time',
+                               use_feature_selection: bool = True,
+                               gpu_type: str = 'V100') -> Dict[str, Any]:
+    """
+    Calculate EDP metrics with optional feature selection and FGCS integration.
+    
+    Args:
+        df: DataFrame with profiling data
+        energy_col: Energy column name
+        delay_col: Delay/execution time column name
+        use_feature_selection: Whether to apply feature selection
+        gpu_type: GPU type for FGCS feature engineering
+        
+    Returns:
+        Dictionary with EDP results and feature analysis
+    """
+    logger.info("Calculating EDP with enhanced feature analysis")
+    
+    results = {
+        'edp_analysis': {},
+        'feature_analysis': {},
+        'optimization_results': {}
+    }
+    
+    # Apply feature selection if requested
+    if use_feature_selection:
+        try:
+            from .feature_selection import create_optimized_feature_set
+            df_optimized, feature_analysis = create_optimized_feature_set(
+                df, gpu_type=gpu_type, target_col='power', max_features=8
+            )
+            results['feature_analysis'] = feature_analysis
+            df_to_use = df_optimized
+            logger.info("Applied feature selection and engineering")
+        except ImportError:
+            logger.warning("Feature selection module not available, using original data")
+            df_to_use = df
+    else:
+        df_to_use = df
+    
+    # Basic EDP calculations
+    calculator = EDPCalculator()
+    
+    # Ensure we have energy and delay columns
+    if energy_col not in df_to_use.columns and 'power' in df_to_use.columns and delay_col in df_to_use.columns:
+        df_to_use = df_to_use.copy()
+        df_to_use[energy_col] = df_to_use['power'] * df_to_use[delay_col]
+        logger.info("Calculated energy from power × time")
+    
+    if energy_col in df_to_use.columns and delay_col in df_to_use.columns:
+        # Calculate EDP metrics
+        edp_values = calculator.calculate_edp(df_to_use[energy_col], df_to_use[delay_col])
+        ed2p_values = calculator.calculate_ed2p(df_to_use[energy_col], df_to_use[delay_col])
+        
+        # Add to DataFrame for analysis
+        df_to_use = df_to_use.copy()
+        df_to_use['edp'] = edp_values
+        df_to_use['ed2p'] = ed2p_values
+        
+        # Find optimal configurations
+        optimal_config = calculator.find_optimal_configuration(
+            df_to_use, energy_col, delay_col, 'frequency' if 'frequency' in df_to_use.columns else 'sm_clock'
+        )
+        
+        results['edp_analysis'] = {
+            'edp_values': edp_values.tolist() if hasattr(edp_values, 'tolist') else [edp_values],
+            'ed2p_values': ed2p_values.tolist() if hasattr(ed2p_values, 'tolist') else [ed2p_values],
+            'optimal_config': optimal_config,
+            'statistics': {
+                'mean_edp': np.mean(edp_values),
+                'std_edp': np.std(edp_values),
+                'min_edp': np.min(edp_values),
+                'max_edp': np.max(edp_values),
+                'mean_ed2p': np.mean(ed2p_values),
+                'std_ed2p': np.std(ed2p_values),
+                'min_ed2p': np.min(ed2p_values),
+                'max_ed2p': np.max(ed2p_values)
+            }
+        }
+        
+        # Integration with FGCS optimizer if available
+        try:
+            fgcs_results = FGCSEDPOptimizer.analyze_dvfs_optimization(df_to_use, "Enhanced_Analysis")
+            results['optimization_results'] = fgcs_results
+            logger.info("Integrated FGCS optimization analysis")
+        except Exception as e:
+            logger.warning(f"FGCS optimization failed: {e}")
+    
+    else:
+        logger.error(f"Required columns not found: {energy_col}, {delay_col}")
+        results['error'] = f"Missing required columns: {energy_col}, {delay_col}"
+    
+    return results
+
+
+def analyze_feature_importance_for_edp(df: pd.DataFrame,
+                                     target_metrics: List[str] = ['energy', 'execution_time'],
+                                     gpu_type: str = 'V100') -> Dict[str, Any]:
+    """
+    Analyze feature importance specifically for EDP optimization.
+    
+    Args:
+        df: DataFrame with profiling data and features
+        target_metrics: Target metrics to analyze (['energy', 'execution_time', 'power'])
+        gpu_type: GPU type for FGCS-specific analysis
+        
+    Returns:
+        Feature importance analysis results
+    """
+    logger.info("Analyzing feature importance for EDP optimization")
+    
+    results = {
+        'feature_importance': {},
+        'correlation_analysis': {},
+        'fgcs_compatibility': {},
+        'recommendations': []
+    }
+    
+    try:
+        from .feature_selection import FGCSFeatureEngineering, EDPFeatureSelector
+        
+        # Apply FGCS feature engineering
+        feature_engineer = FGCSFeatureEngineering(gpu_type=gpu_type)
+        df_features = feature_engineer.extract_fgcs_features(df)
+        df_interactions = feature_engineer.create_interaction_features(df_features)
+        
+        # Validate FGCS compatibility
+        validation_results = feature_engineer.validate_features(df_interactions)
+        results['fgcs_compatibility'] = validation_results
+        
+        # Analyze feature importance for each target metric
+        for target in target_metrics:
+            if target in df_interactions.columns:
+                # Statistical feature selection
+                selector = EDPFeatureSelector(selection_method='model_based')
+                selected_features = selector.select_features_for_edp(
+                    df_interactions, target_col=target, max_features=10
+                )
+                
+                results['feature_importance'][target] = {
+                    'selected_features': selected_features,
+                    'importance_scores': selector.feature_importance_scores,
+                    'analysis': selector.get_feature_analysis()
+                }
+                
+                # Correlation analysis
+                numeric_cols = df_interactions.select_dtypes(include=[np.number]).columns.tolist()
+                if target in numeric_cols:
+                    correlations = df_interactions[numeric_cols].corr()[target].sort_values(
+                        key=abs, ascending=False
+                    )[1:11]  # Top 10 excluding self-correlation
+                    results['correlation_analysis'][target] = correlations.to_dict()
+        
+        # Generate recommendations
+        if len(validation_results['missing_fgcs_features']) > 0:
+            results['recommendations'].append(
+                f"Consider collecting missing FGCS features: {validation_results['missing_fgcs_features']}"
+            )
+        
+        if validation_results['data_quality']['total_samples'] < 100:
+            results['recommendations'].append(
+                "Consider collecting more samples for robust feature analysis"
+            )
+        
+        # Check if key features are highly correlated with targets
+        for target in target_metrics:
+            if target in results['correlation_analysis']:
+                high_corr_features = [
+                    f for f, corr in results['correlation_analysis'][target].items() 
+                    if abs(corr) > 0.7
+                ]
+                if high_corr_features:
+                    results['recommendations'].append(
+                        f"High correlation features for {target}: {high_corr_features}"
+                    )
+        
+        logger.info("Feature importance analysis completed successfully")
+        
+    except ImportError as e:
+        logger.warning(f"Feature selection module not available: {e}")
+        results['error'] = "Feature selection capabilities not available"
+    except Exception as e:
+        logger.error(f"Feature importance analysis failed: {e}")
+        results['error'] = str(e)
+    
+    return results

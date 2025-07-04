@@ -1,10 +1,37 @@
 # EDP Analysis Module
 
-This module provides Energy-Delay Product (EDP) and Energy-Delay² Product (ED²P) optimization capabilities for GPU applications.
+Enhanced Energy-Delay Product (EDP) and Energy-Delay² Product (ED²P) optimization framework inspired by FGCS 2023 methodology.
 
 ## 🔍 Overview
 
-The EDP Analysis module implements optimization algorithms for finding optimal GPU frequencies that minimize energy-delay trade-offs in compute workloads. This is particularly useful for ML/AI applications where you need to balance performance and energy efficiency.
+The EDP Analysis module provides a comprehensive framework for energy-performance optimization in GPU applications, implementing advanced methodologies from the "Energy-efficient DVFS scheduling for mixed-criticality systems" paper (FGCS 2023). This framework is designed for production use with robust error handling, advanced feature selection, and comprehensive visualization capabilities.
+
+## ✨ Enhanced Features
+
+### 🧠 **Advanced Feature Selection**
+- FGCS-inspired feature engineering (FP activity, DRAM activity, clock frequencies)
+- Statistical and model-based feature selection methods
+- Correlation-based feature filtering and validation
+- GPU-specific feature importance analysis
+
+### 🎯 **Multi-Objective Optimization**
+- EDP (Energy × Delay) optimization for balanced trade-offs
+- ED²P (Energy × Delay²) optimization for performance-prioritized scenarios
+- Pareto frontier analysis for multi-objective decision making
+- Configuration recommendations with justification
+
+### 📊 **Comprehensive Visualization**
+- Feature importance plots for EDP optimization
+- FGCS model validation and comparison plots
+- Energy efficiency analysis and breakdown
+- Performance scaling and throughput analysis
+- Interactive EDP dashboards and comprehensive reports
+
+### 🔬 **FGCS 2023 Integration**
+- Exact implementation of FGCS power and performance models
+- Validated coefficient sets for V100, A100, and H100 GPUs
+- Log-transformed feature engineering for improved accuracy
+- Statistical validation and model comparison
 
 ## 📊 Key Metrics
 
@@ -12,22 +39,73 @@ The EDP Analysis module implements optimization algorithms for finding optimal G
 - **ED²P (Energy-Delay² Product)**: `Energy × Execution_Time²`
 - **Energy Improvement**: Percentage reduction in energy consumption vs baseline
 - **Time Improvement**: Percentage reduction in execution time vs baseline
+- **Feature Importance**: Relative contribution of features to EDP optimization
+- **Energy Efficiency**: Performance per watt and energy per operation
 
 ## 🚀 Quick Usage
 
+### Basic EDP Analysis
 ```python
-from edp_analysis.edp_calculator import calculate_edp_metrics
+from edp_analysis import EDPCalculator, EnergyProfiler, PerformanceProfiler
 
-# Calculate EDP metrics for your application
-results = calculate_edp_metrics(
-    power_data=your_power_measurements,
-    runtime_data=your_performance_data,
-    baseline_frequency=1000,  # MHz
-    target_frequencies=[800, 900, 1000, 1100, 1200]
+# Initialize components
+calculator = EDPCalculator()
+energy_profiler = EnergyProfiler()
+performance_profiler = PerformanceProfiler()
+
+# Calculate EDP metrics
+results = calculator.calculate_edp_metrics(
+    energy_data=your_energy_measurements,
+    delay_data=your_performance_data,
+    frequencies=[800, 900, 1000, 1100, 1200]
 )
 
 print(f"EDP optimal frequency: {results['edp_optimal']['frequency']} MHz")
-print(f"ED²P optimal frequency: {results['ed2p_optimal']['frequency']} MHz")
+print(f"Expected energy savings: {results['edp_optimal']['energy_improvement']:.1f}%")
+```
+
+### Enhanced Analysis with Feature Selection
+```python
+from edp_analysis import calculate_edp_with_features, analyze_feature_importance_for_edp
+
+# Advanced EDP analysis with feature selection
+enhanced_results = calculate_edp_with_features(
+    df=profiling_data,
+    energy_col='energy',
+    delay_col='execution_time',
+    use_feature_selection=True,
+    gpu_type='V100'
+)
+
+# Analyze feature importance
+feature_analysis = analyze_feature_importance_for_edp(
+    df=profiling_data,
+    target_metrics=['energy', 'execution_time'],
+    gpu_type='V100'
+)
+
+print(f"Top features for EDP optimization: {feature_analysis['top_features']}")
+```
+
+### Comprehensive Visualization
+```python
+from edp_analysis.visualization import EDPPlotter, PowerPlotter, PerformancePlotter
+
+# Create comprehensive dashboard
+edp_plotter = EDPPlotter()
+dashboard = edp_plotter.create_comprehensive_edp_dashboard(
+    profiling_data=your_data,
+    optimization_results=optimization_results,
+    feature_importance=feature_importance,
+    app_name="Your Application"
+)
+
+# Power analysis with FGCS validation
+power_plotter = PowerPlotter()
+validation_plot = power_plotter.plot_fgcs_power_validation(
+    df=validation_data,
+    app_name="Your Application"
+)
 ```
 
 ## 🔧 Core Features
