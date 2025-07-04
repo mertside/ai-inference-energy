@@ -527,6 +527,32 @@ class FGCSModelFactory:
         logger.info(f"Created {len(models)} models in suite")
         return models
 
+    @staticmethod
+    def create_model_pipeline(model_types: Optional[List[str]] = None) -> 'ModelPipeline':
+        """
+        Create a ModelPipeline instance for end-to-end modeling workflows.
+        
+        Args:
+            model_types: List of model types to include in pipeline.
+                        If None, uses default FGCS model selection.
+        
+        Returns:
+            ModelPipeline instance ready for training and evaluation
+        """
+        logger.info("Creating FGCS model pipeline")
+        
+        # Use FGCS-optimized model selection if not specified
+        if model_types is None:
+            model_types = [
+                'fgcs_original', 
+                'polynomial_deg2', 
+                'random_forest_enhanced', 
+                'linear'
+            ]
+            
+        return ModelPipeline(model_types=model_types)
+    
+
 
 class ModelPipeline:
     """
@@ -607,16 +633,18 @@ class ModelPipeline:
         self.evaluation_results = evaluation_results
         
         # Find best model
+        best_model_name = None
         if evaluation_results:
             best_model_name = max(evaluation_results.keys(), 
                                 key=lambda x: evaluation_results[x]['r2'])
-            self.best_model = (best_model_name, trained_models[best_model_name])
+            self.best_model = trained_models[best_model_name]
             logger.info(f"Best model: {best_model_name} (R² = {evaluation_results[best_model_name]['r2']:.4f})")
         
         return {
             'models': trained_models,
             'evaluations': evaluation_results,
-            'best_model': self.best_model
+            'best_model': self.best_model,
+            'best_model_name': best_model_name
         }
     
     def predict_power_across_frequencies(self, fp_activity: float, dram_activity: float,
@@ -634,14 +662,13 @@ class ModelPipeline:
             DataFrame with predictions across frequencies
         """
         if model_name is None and self.best_model is not None:
-            model_name = self.best_model[0]
+            model = self.best_model  # best_model is now the actual model, not a tuple
         elif model_name is None:
             raise ValueError("No trained models available")
-            
-        if model_name not in self.models:
+        elif model_name not in self.models:
             raise ValueError(f"Model {model_name} not found in trained models")
-            
-        model = self.models[model_name]
+        else:
+            model = self.models[model_name]
         
         if isinstance(model, FGCSPowerModel):
             # Use FGCS model's built-in frequency prediction
@@ -657,8 +684,8 @@ class ModelPipeline:
             predictions = model.predict(features.values)
             
             result_df = pd.DataFrame({
-                'sm_app_clock': frequencies,
-                'predicted_power': predictions
+                'frequency': frequencies,
+                'power': predictions
             })
             
             return result_df

@@ -175,8 +175,9 @@ class FGCSPowerModelingFramework:
         
         self.trained_models = results['models']
         self.best_model = results['best_model']
+        self.best_model_name = results['best_model_name']
         
-        logger.info(f"Model training complete. Best model: {self.best_model[0] if self.best_model else 'None'}")
+        logger.info(f"Model training complete. Best model: {self.best_model_name if self.best_model_name else 'None'}")
         return results
     
     def predict_power_sweep(self, fp_activity: float, dram_activity: float,
@@ -229,7 +230,7 @@ class FGCSPowerModelingFramework:
             logger.info("No trained models found, using FGCS original model")
             power_model = FGCSModelFactory.create_fgcs_power_model()
         else:
-            power_model = self.best_model[1] if self.best_model else list(self.trained_models.values())[0]
+            power_model = self.best_model if self.best_model else list(self.trained_models.values())[0]
         
         # Create optimization pipeline
         optimizer = DVFSOptimizationPipeline(power_model)

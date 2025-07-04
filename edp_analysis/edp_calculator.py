@@ -423,8 +423,19 @@ class FGCSEDPOptimizer:
         baseline_energy = df[energy_col].max()  # Worst case energy
         baseline_time = df[time_col].max()      # Worst case time
         
-        edp_energy_improvement = (baseline_energy - edp_energy) / baseline_energy * 100
-        edp_time_improvement = (baseline_time - edp_time) / baseline_time * 100
+        # Calculate energy improvement with proper error handling
+        if baseline_energy > 0 and not np.isnan(baseline_energy) and not np.isnan(edp_energy):
+            edp_energy_improvement = (baseline_energy - edp_energy) / baseline_energy * 100
+        else:
+            edp_energy_improvement = 0.0
+            logger.warning(f"Cannot calculate energy improvement: baseline_energy={baseline_energy}, edp_energy={edp_energy}")
+        
+        # Calculate time improvement with proper error handling
+        if baseline_time > 0 and not np.isnan(baseline_time) and not np.isnan(edp_time):
+            edp_time_improvement = (baseline_time - edp_time) / baseline_time * 100
+        else:
+            edp_time_improvement = 0.0
+            logger.warning(f"Cannot calculate time improvement: baseline_time={baseline_time}, edp_time={edp_time}")
         
         results = {
             'application': app_name,
