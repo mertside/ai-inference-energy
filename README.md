@@ -130,15 +130,12 @@ ai-inference-energy/
 │   ├── test_subprocess_fix.py           # Subprocess compatibility testing
 │   └── test_python36_compatibility.sh   # Python 3.6+ compatibility test
 │
-├── documentation/                       # 📚 Comprehensive documentation
-│   ├── README.md                        # Documentation index
+├── documentation/                       # 📚 Essential documentation (streamlined)
+│   ├── README.md                        # Documentation index and quick reference
+│   ├── GPU_USAGE_GUIDE.md               # Complete GPU support guide (A100/V100/H100)
 │   ├── USAGE_EXAMPLES.md                # CLI usage examples and automation
-│   ├── SUBMIT_JOBS_README.md            # SLURM usage documentation
-│   ├── CLI_ENHANCEMENT_SUMMARY.md       # Technical implementation details
-│   ├── REFACTORING_SUMMARY.md           # Complete refactoring overview
-│   ├── PYTHON36_COMPATIBILITY_FIX.md    # Python 3.6 compatibility guide
-│   ├── SUBPROCESS_FIX_SUMMARY.md        # Recent subprocess fix documentation
-│   └── QUICK_FIX_GUIDE.md               # Troubleshooting and fixes
+│   ├── SUBMIT_JOBS_README.md            # SLURM usage and HPC deployment
+│   └── README_POWER_MODELING.md         # Power modeling and EDP optimization guide
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
@@ -579,7 +576,7 @@ sinfo -p matador
 sbatch --test-only submit_job.sh
 ```
 
-**📚 For detailed troubleshooting, see [`documentation/QUICK_FIX_GUIDE.md`](documentation/QUICK_FIX_GUIDE.md)**
+**📚 For detailed troubleshooting, see [`documentation/GPU_USAGE_GUIDE.md`](documentation/GPU_USAGE_GUIDE.md) troubleshooting sections**
 
 ### Performance Optimization
 
@@ -599,14 +596,21 @@ sbatch --test-only submit_job.sh
 
 ## 📚 Documentation
 
-The framework includes comprehensive documentation:
+The framework includes **streamlined, production-ready documentation** focused on practical usage:
 
+### 🎯 **Essential Guides**
+- **[GPU_USAGE_GUIDE.md](documentation/GPU_USAGE_GUIDE.md)**: Complete GPU support guide for A100, V100, and H100 across HPCC and REPACSS clusters
 - **[USAGE_EXAMPLES.md](documentation/USAGE_EXAMPLES.md)**: Complete CLI usage examples and automation scripts
-- **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC usage
-- **[CLI_ENHANCEMENT_SUMMARY.md](documentation/CLI_ENHANCEMENT_SUMMARY.md)**: Technical implementation details
-- **[REFACTORING_SUMMARY.md](documentation/REFACTORING_SUMMARY.md)**: Complete refactoring overview
-- **[PYTHON36_COMPATIBILITY_FIX.md](documentation/PYTHON36_COMPATIBILITY_FIX.md)**: Python 3.6 compatibility guide
-- **[QUICK_FIX_GUIDE.md](documentation/QUICK_FIX_GUIDE.md)**: Troubleshooting and quick fixes
+- **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC cluster deployment
+- **[README_POWER_MODELING.md](documentation/README_POWER_MODELING.md)**: Production-ready power modeling and EDP optimization framework
+
+### 📋 **Additional Module Documentation**
+- **[power_modeling/README.md](power_modeling/README.md)**: Core power modeling framework documentation
+- **[edp_analysis/README.md](edp_analysis/README.md)**: EDP analysis module documentation
+- **[examples/README.md](examples/README.md)**: Usage examples and demonstrations
+- **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
+
+All documentation follows consistent patterns with **practical examples**, **real commands**, and **comprehensive troubleshooting** sections.
 
 ## 📝 Citation
 
