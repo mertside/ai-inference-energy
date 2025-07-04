@@ -1,154 +1,117 @@
 # Documentation Directory
 
-This directory contains comprehensive documentation for the AI Inference Energy Profiling Framework, including production-ready power modeling and EDP optimization documentation.
+This directory contains concise, production-ready documentation for the AI Inference Energy Profiling Framework.
 
-## Documentation Files
+## 📚 Core Documentation
 
-### **Usage and Examples**
-- **`USAGE_EXAMPLES.md`** - Complete CLI usage examples and automation scripts
-- **`SUBMIT_JOBS_README.md`** - SLURM job submission guide and HPC cluster usage
-- **`A100_USAGE_GUIDE.md`** - Comprehensive A100 GPU support and usage guide (HPCC)
-- **`H100_USAGE_GUIDE.md`** - Comprehensive H100 GPU support and usage guide (REPACSS)
-- **`README_POWER_MODELING.md`** - **Production-ready** power modeling and EDP optimization framework
+### **Essential Guides**
+- **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - **Complete GPU support guide** for A100, V100, and H100 across HPCC and REPACSS clusters
+- **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - CLI usage examples and automation scripts
+- **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - SLURM job submission and HPC cluster deployment
+- **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - **Production-ready** power modeling and EDP optimization framework
 
-### **Technical Implementation**  
-- **`CLI_ENHANCEMENT_SUMMARY.md`** - Technical details of CLI enhancements and new features
-- **`REFACTORING_SUMMARY.md`** - Complete overview of the codebase refactoring process
-
-### **Compatibility and Fixes**
-- **`PYTHON36_COMPATIBILITY_FIX.md`** - Python 3.6 compatibility guide and fixes
-- **`SUBPROCESS_FIX_SUMMARY.md`** - Recent subprocess compatibility fix documentation
-
-### **Troubleshooting**
-- **`QUICK_FIX_GUIDE.md`** - Common issues, troubleshooting steps, and quick fixes
-
-## ✨ Latest Documentation Updates (v1.0.0)
-
-### Production-Ready Features Documented
-- ✅ **Power Modeling Framework**: Complete documentation for production-ready power models
-- ✅ **EDP Optimization**: Comprehensive EDP/ED²P optimization with error handling
-- ✅ **Robustness Improvements**: Documentation of runtime warning elimination and edge case handling
-- ✅ **Error Handling**: Complete guide to error handling and troubleshooting
-
-## Documentation Overview
+## 🚀 Quick Start Paths
 
 ### For New Users
-1. **Start with:** [`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md) - Learn the CLI interface
-2. **Power Modeling:** [`README_POWER_MODELING.md`](README_POWER_MODELING.md) - **Production-ready framework**
-3. **A100 Users:** [`A100_USAGE_GUIDE.md`](A100_USAGE_GUIDE.md) - Complete A100 support guide (HPCC)
-4. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide (REPACSS)
-5. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
-6. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
+1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Start here for GPU-specific setup and usage
+2. **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - Learn the CLI interface with examples
+3. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Submit jobs to HPC clusters
 
-### For Researchers and Advanced Users
-1. **Power Modeling:** [`README_POWER_MODELING.md`](README_POWER_MODELING.md) - Complete framework with EDP optimization
-2. **Framework Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Implementation details
-3. **Error Handling:** [`README_POWER_MODELING.md#robustness`](README_POWER_MODELING.md) - Production robustness features
+### For Researchers and Advanced Users  
+1. **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - Advanced power modeling and EDP optimization
+2. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Complete GPU specifications and performance characteristics
 
-### For Developers
-1. **Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Codebase structure
-2. **New Features:** [`CLI_ENHANCEMENT_SUMMARY.md`](CLI_ENHANCEMENT_SUMMARY.md) - Implementation details
-3. **Compatibility:** [`PYTHON36_COMPATIBILITY_FIX.md`](PYTHON36_COMPATIBILITY_FIX.md) - Python version support
+### For HPC System Administrators
+1. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Cluster integration and job management
+2. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - GPU resource specifications and requirements
 
-### For System Administrators
-1. **Setup:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Installation and configuration
-2. **HPC Integration:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - Cluster deployment
-3. **Recent Fixes:** [`SUBPROCESS_FIX_SUMMARY.md`](SUBPROCESS_FIX_SUMMARY.md) - Latest updates
+## 🔍 Quick Reference
 
-## Quick Reference
-
-### Command-Line Interface
+### GPU-Specific Commands
 ```bash
-# Show all options
-./launch.sh --help
+# A100 (HPCC toreador partition)
+./launch.sh --gpu-type A100 --profiling-mode baseline
+sbatch submit_job_a100_baseline.sh
 
-# Basic usage examples
-./launch.sh                                    # Default A100 DVFS
-./launch.sh --gpu-type V100 --profiling-mode baseline  # V100 baseline
-./launch.sh --gpu-type H100 --profiling-mode baseline  # H100 baseline
-./launch.sh --app-name "CustomApp" --app-executable "my_app"  # Custom app
+# V100 (HPCC matador partition)  
+./launch.sh --gpu-type V100 --profiling-mode baseline
+sbatch submit_job_v100_baseline.sh
+
+# H100 (REPACSS h100-build partition)
+./launch.sh --gpu-type H100 --profiling-mode baseline  
+sbatch submit_job_h100_baseline.sh
 ```
 
-### SLURM Job Submission
+### Power Modeling Framework
 ```bash
-sbatch submit_job.sh                    # A100 main job
-sbatch submit_job_v100_baseline.sh     # V100 baseline
-sbatch submit_job_custom_app.sh        # Custom applications
-sbatch submit_job_comprehensive.sh     # Full DVFS study
+# Quick power analysis
+python -c "
+from power_modeling import analyze_application
+results = analyze_application('profiling_data.csv', app_name='MyApp', gpu_type='A100')
+print(f'Optimal frequency: {results[\"summary\"][\"optimal_frequency\"]} MHz')
+"
+
+# Advanced framework usage
+python -c "
+from power_modeling import FGCSPowerModelingFramework
+framework = FGCSPowerModelingFramework(gpu_type='A100')
+results = framework.analyze_from_file('data/profiling.csv', app_name='MyApp')
+"
 ```
 
 ### Troubleshooting Commands
 ```bash
-# Test configuration
-python tests/test_config.py
-
-# Test subprocess compatibility  
-python tests/test_subprocess_fix.py
-
-# Comprehensive compatibility test
-./tests/test_python36_compatibility.sh
-
-# Check GPU and tools
+# Check GPU and tools availability
 nvidia-smi
 dcgmi discovery --list
+
+# Test framework configuration  
+./launch.sh --help
+./launch.sh --gpu-type A100 --profiling-mode baseline --num-runs 1
+
+# Interactive sessions for testing
+./interactive_a100.sh test   # A100 testing
+./interactive_v100.sh test   # V100 testing  
+./interactive_h100.sh test   # H100 testing
 ```
 
-## Documentation Standards
+## 📋 Documentation Standards
 
-### File Naming Convention
-- `*_EXAMPLES.md` - Usage examples and tutorials
-- `*_README.md` - Component-specific documentation  
-- `*_SUMMARY.md` - Technical implementation summaries
-- `*_FIX.md` - Problem resolution and compatibility fixes
-- `*_GUIDE.md` - Step-by-step guides and troubleshooting
+All documentation follows consistent patterns:
+- **Overview** with quick start examples
+- **Detailed configuration** options and parameters  
+- **Practical examples** with real commands
+- **Troubleshooting** with common issues and solutions
+- **Cross-references** to related documentation
 
-### Content Structure
-1. **Overview** - Brief description and purpose
-2. **Quick Start** - Immediate usage examples
-3. **Detailed Examples** - Comprehensive usage scenarios
-4. **Configuration** - Parameter and option details
-5. **Troubleshooting** - Common issues and solutions
-6. **Integration** - How it fits with other components
+## 🔗 Related Files
 
-## Maintenance
+### Project Root Documentation
+- **[`../README.md`](../README.md)** - Main project overview and installation guide
+- **[`../power_modeling/README.md`](../power_modeling/README.md)** - Power modeling module documentation
+- **[`../edp_analysis/README.md`](../edp_analysis/README.md)** - EDP optimization module documentation
+- **[`../examples/README.md`](../examples/README.md)** - Usage examples and demonstrations
 
-### Updating Documentation
-- Update examples when CLI changes
-- Add new troubleshooting entries for common issues
-- Keep version compatibility information current
-- Verify all examples work with latest code
+### Application-Specific Documentation  
+- **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework and scripts
+- **[`../app-llama-collection/README.md`](../app-llama-collection/README.md)** - LLaMA inference application
+- **[`../app-stable-diffusion-collection/README.md`](../app-stable-diffusion-collection/README.md)** - Stable Diffusion application
 
-### Adding New Documentation
-1. Follow naming conventions
-2. Include practical examples
-3. Cross-reference related documents
-4. Update this index file
+## 📞 Support and Contribution
 
-## Related Files
+### Getting Help
+- 📖 Check the relevant documentation file for your use case
+- 🔍 Use browser search (Ctrl+F / Cmd+F) within documentation files  
+- 🐛 Check troubleshooting sections for common issues
+- 💬 Submit GitHub issues for bugs or feature requests
 
-### Project Root
-- **`README.md`** - Main project documentation and overview
-- **`requirements.txt`** - Python dependencies
-- **`setup.py`** - Package installation instructions
+### Contributing Documentation
+1. **Follow** established structure: Overview → Examples → Configuration → Troubleshooting
+2. **Include** practical, tested examples with real commands
+3. **Cross-reference** related documentation appropriately
+4. **Test** all commands and examples before submitting
+5. **Update** this index file when adding new documentation
 
-### Application Directories
-- **`app-*/README.md`** - Individual application documentation
-- **`sample-collection-scripts/README.md`** - Profiling framework documentation
-- **`tests/README.md`** - Test suite documentation
+---
 
-## Support
-
-For additional help:
-- 📖 **Read** the relevant documentation file
-- 🔍 **Search** this directory for specific topics
-- 🐛 **Check** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) for common issues
-- 💬 **Submit** GitHub issues for framework bugs or feature requests
-
-## Contributing
-
-When contributing documentation:
-1. **Follow** the established structure and style
-2. **Include** practical examples and code snippets
-3. **Test** all commands and examples before submitting
-4. **Update** cross-references and index files
-5. **Maintain** consistent formatting and organization
+**Framework Status**: ✅ **Production Ready (v1.0.0)** - Complete documentation for production deployment
