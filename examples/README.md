@@ -1,11 +1,13 @@
 # Examples Directory
 
-This directory contains example scripts and usage demonstrations for the AI Inference Energy Profiling Framework, including comprehensive A100 SLURM job submission examples.
+This directory contains example scripts and usage demonstrations for the AI Inference Energy Profiling Framework, including comprehensive A100 SLURM job submission examples and production-ready power modeling demonstrations.
 
 ## Example Files
 
 ### **Framework Usage Examples**
-- **`example_usage.py`** - Comprehensive demonstration of framework capabilities
+- **`example_usage.py`** - Comprehensive demonstration of framework capabilities with robust error handling
+- **`power_modeling_example.py`** - Power modeling framework usage, model training, and validation
+- **`edp_optimization_example.py`** - EDP optimization, frequency selection, and robustness testing
 
 ### **A100 SLURM Job Examples**
 - **`submit_lstm_a100_baseline.sh`** - LSTM baseline profiling on A100
@@ -15,6 +17,14 @@ This directory contains example scripts and usage demonstrations for the AI Infe
 - **`submit_custom_app_a100_template.sh`** - Template for custom applications
 - **`submit_helper.sh`** - Interactive helper for submitting jobs
 - **`A100_EXAMPLES_README.md`** - Detailed guide for A100 examples
+
+## ✨ Latest Improvements (v1.0.0)
+
+### Production-Ready Features
+- ✅ **Comprehensive Error Handling**: All examples now include robust error handling for edge cases
+- ✅ **Runtime Warning Elimination**: Examples run without mathematical warnings or errors
+- ✅ **Input Validation**: Automatic validation of configuration parameters and data inputs
+- ✅ **Graceful Fallbacks**: Examples handle invalid inputs and provide meaningful feedback
 
 ## Quick Start for A100 Examples
 
@@ -47,33 +57,56 @@ cd examples
 python example_usage.py
 ```
 
+### Power Modeling Examples
+```bash
+# Quick power analysis demonstration
+python power_modeling_example.py
+
+# EDP optimization example
+python edp_optimization_example.py
+```
+
 ### Demo Mode (Shorter Experiments)
 ```bash
 cd examples  
 python example_usage.py --demo-mode
 ```
 
+### Robustness Testing
+```bash
+# Test error handling and edge cases
+python example_usage.py --test-robustness
+
+# Validate with intentionally problematic data
+python power_modeling_example.py --validate-edge-cases
+
+# Test EDP calculation robustness
+python edp_optimization_example.py --test-error-handling
+```
+
 ## Example Scripts Description
 
 ### `example_usage.py`
 A comprehensive demonstration script that shows:
-- ✅ Configuration loading and validation
-- ✅ GPU profiling setup and execution
-- ✅ Application integration examples
-- ✅ Error handling and logging
-- ✅ Results processing and analysis
+- ✅ Configuration loading and validation with error handling
+- ✅ GPU profiling setup and execution with robustness checks
+- ✅ Application integration examples with edge case handling
+- ✅ Production-ready error handling and logging
+- ✅ Results processing and analysis with validation
+- ✅ **NEW**: Division by zero protection and NaN handling
 
 **Features:**
 - Configurable demo mode for quick testing
 - Multiple application examples (LSTM, LLaMA, Stable Diffusion)
 - Professional logging and error handling
 - Automatic cleanup and resource management
+- **Enhanced robustness** for production environments
 
 **Usage Scenarios:**
-- Learning framework capabilities
-- Testing new installations
-- Developing custom profiling workflows
-- Debugging and troubleshooting
+- Learning framework capabilities safely
+- Testing new installations with comprehensive validation
+- Developing custom profiling workflows with error handling
+- Debugging and troubleshooting with detailed logging
 
 ## Requirements
 
