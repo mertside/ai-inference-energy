@@ -344,6 +344,6 @@ PROFILING_MODE="baseline"
 For detailed information, see:
 - **[`../documentation/USAGE_EXAMPLES.md`](../documentation/USAGE_EXAMPLES.md)** - Comprehensive CLI usage examples
 - **[`../documentation/SUBMIT_JOBS_README.md`](../documentation/SUBMIT_JOBS_README.md)** - SLURM job submission guide
-- **[`../documentation/CLI_ENHANCEMENT_SUMMARY.md`](../documentation/CLI_ENHANCEMENT_SUMMARY.md)** - Technical implementation details
+- **[`../documentation/GPU_USAGE_GUIDE.md`](../documentation/GPU_USAGE_GUIDE.md)** - Complete GPU support and troubleshooting guide
 
 For more details, see the main project README.md
