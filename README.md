@@ -1,13 +1,6 @@
 # AI Inference Energy
 
-- 📊 **Comprehensive Profiling**: GPU power consumption, utilization, temperature, and performance metrics
-- 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 103 V100 frequencies (1380-405 MHz)
-- ⚡ **Energy Analysis**: Detailed power vs performance trade-off analysis across frequency ranges
-- 📈 **Statistical Rigor**: Multiple runs per frequency with configurable parameters for statistical significance
-- 🔬 **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
-- 🏗️ **HPC Cluster Ready**: Native SLURM integration with partition-specific configurationsamework
-
-A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
+A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **advanced power modeling**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
@@ -24,6 +17,45 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
 - 🐍 **Python 3.6+ Compatible**: Works on older cluster environments
+- 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization (**NEW!**)
+- ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection (**NEW!**)
+- 🔬 **Model Validation**: Comprehensive validation framework with robust error handling (**NEW!**)
+
+### 🔋 Power Modeling Framework
+
+This framework now includes a comprehensive power modeling system extracted and modernized from the FGCS 2023 paper:
+
+#### **Core Models**
+- **FGCS Original**: Exact implementation from FGCS 2023 paper with validated coefficients
+- **Polynomial Models**: Configurable polynomial regression (degree 1-5)
+- **Enhanced Random Forest**: Tuned ensemble with 500+ trees and feature engineering
+- **XGBoost**: GPU-accelerated gradient boosting with automatic hyperparameter tuning
+- **Ensemble Methods**: Automatic model combination and selection
+
+#### **Optimization Features**
+- **EDP Optimization**: Energy-Delay Product minimization for balanced trade-offs
+- **ED²P Optimization**: Energy-Delay² Product for performance-prioritized optimization
+- **Multi-objective Analysis**: Pareto frontier identification and trade-off analysis
+- **Intelligent Recommendations**: Context-aware frequency selection with justification
+
+#### **GPU Support & Frequencies**
+- **V100**: 103 production frequencies (1380-405 MHz) with validated ranges
+- **A100**: 61 production frequencies (1410-510 MHz) with DCGMI integration
+- **H100**: 104 production frequencies (1755-210 MHz) with 15MHz step validation
+
+#### **Validation & Robustness**
+- **Statistical Validation**: K-fold cross-validation with confidence intervals
+- **Error Handling**: Robust division-by-zero protection and NaN value handling
+- **Energy Metrics**: Power-specific accuracy measures and frequency validation
+- **Comprehensive Testing**: 28+ test cases covering all framework components
+
+```python
+# Quick power analysis - One line of code!
+from power_modeling import analyze_application
+results = analyze_application("profiling_data.csv", gpu_type="V100")
+print(f"Optimal frequency: {results['summary']['optimal_frequency']}")
+print(f"Energy savings: {results['summary']['energy_savings']}")
+```
 
 ### Supported AI Models & Applications
 
@@ -44,58 +76,84 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 
 ```
 ai-inference-energy/
-├── README.md                           # Project documentation
-├── requirements.txt                    # Python dependencies  
-├── setup.py                           # Package installation
-├── config.py                          # Centralized configuration (Python 3.6+ compatible)
-├── utils.py                           # Utility functions and helpers
+├── README.md                            # Project documentation
+├── requirements.txt                     # Python dependencies  
+├── setup.py                             # Package installation
+├── config.py                            # Centralized configuration (Python 3.6+ compatible)
+├── utils.py                             # Utility functions and helpers
 │
-├── app-llama-collection/               # LLaMA inference applications
-│   ├── README.md                      # LLaMA application documentation
-│   └── LlamaViaHF.py                  # LLaMA text generation via Hugging Face
+├── app-llama-collection/                # LLaMA inference applications
+│   ├── README.md                        # LLaMA application documentation
+│   └── LlamaViaHF.py                    # LLaMA text generation via Hugging Face
+│  
+├── app-stable-diffusion-collection/     # Stable Diffusion applications  
+│   ├── README.md                        # Stable Diffusion documentation
+│   └── StableDiffusionViaHF.py          # Image generation via Hugging Face
 │
-├── app-stable-diffusion-collection/    # Stable Diffusion applications  
-│   ├── README.md                      # Stable Diffusion documentation
-│   └── StableDiffusionViaHF.py        # Image generation via Hugging Face
+├── app-lstm/                            # LSTM benchmark application
+│   ├── README.md                        # LSTM benchmark documentation
+│   └── lstm.py                          # Sentiment analysis benchmark
 │
-├── app-lstm/                          # LSTM benchmark application
-│   ├── README.md                      # LSTM benchmark documentation
-│   └── lstm.py                        # Sentiment analysis benchmark
+├── power_modeling/                      # 🧠 Advanced Power Modeling Framework
+│   ├── README.md                        # Comprehensive power modeling documentation
+│   ├── __init__.py                      # High-level framework interface with quick analysis
+│   ├── fgcs_integration.py              # Complete FGCS 2023 framework integration
+│   ├── models/                          # ML model implementations
+│   │   ├── fgcs_models.py               # FGCS original + polynomial models
+│   │   ├── ensemble_models.py           # Random Forest + XGBoost models
+│   │   └── model_factory.py             # Model factory and training pipeline
+│   ├── feature_engineering/             # Data preprocessing and feature engineering
+│   │   └── preprocessing.py             # Advanced data preparation utilities
+│   ├── validation/                      # Model validation and testing framework
+│   │   ├── metrics.py                   # Comprehensive validation metrics
+│   │   └── test_validation.py           # Validation test suite
+│   └── examples/                        # Usage examples and demonstrations
+│       └── demo_framework.py            # Complete framework usage examples
 │
-├── examples/                          # 📋 Usage examples and demonstrations
-│   ├── README.md                      # Examples documentation
-│   └── example_usage.py               # Comprehensive framework usage demo
+├── edp_analysis/                        # ⚡ Energy-Delay Product Analysis
+│   ├── __init__.py                      # EDP analysis module exports
+│   └── edp_calculator.py                # EDP/ED²P optimization with robust error handling
 │
-├── tests/                             # 🧪 Test suite and validation scripts
-│   ├── README.md                      # Test documentation
-│   ├── test_config.py                 # Configuration testing
-│   ├── test_subprocess_fix.py         # Subprocess compatibility testing
-│   └── test_python36_compatibility.sh # Python 3.6+ compatibility test
+├── examples/                            # 📋 Usage examples and demonstrations
+│   ├── README.md                        # Comprehensive examples documentation
+│   ├── simple_power_modeling_demo.py    # Basic power modeling demonstration
+│   ├── power_modeling_example.py        # Advanced power modeling usage
+│   └── edp_optimization_example.py      # EDP optimization examples
 │
-├── documentation/                      # 📚 Comprehensive documentation
-│   ├── README.md                      # Documentation index
-│   ├── USAGE_EXAMPLES.md              # CLI usage examples and automation
-│   ├── SUBMIT_JOBS_README.md          # SLURM usage documentation
-│   ├── CLI_ENHANCEMENT_SUMMARY.md     # Technical implementation details
-│   ├── REFACTORING_SUMMARY.md         # Complete refactoring overview
-│   ├── PYTHON36_COMPATIBILITY_FIX.md  # Python 3.6 compatibility guide
-│   ├── SUBPROCESS_FIX_SUMMARY.md      # Recent subprocess fix documentation
-│   └── QUICK_FIX_GUIDE.md             # Troubleshooting and fixes
+├── tests/                               # 🧪 Comprehensive test suite
+│   ├── README.md                        # Test documentation and coverage
+│   ├── test_power_modeling_framework.py # Complete power modeling tests (28+ tests)
+│   ├── test_integration.py              # Integration and system tests
+│   ├── test_configuration.py            # Configuration and compatibility tests
+│   ├── README.md                        # Test documentation
+│   ├── test_config.py                   # Configuration testing
+│   ├── test_subprocess_fix.py           # Subprocess compatibility testing
+│   └── test_python36_compatibility.sh   # Python 3.6+ compatibility test
 │
-└── sample-collection-scripts/          # 🚀 Enhanced profiling framework
-    ├── README.md                      # Profiling framework documentation
-    ├── launch.sh                      # 🎯 Main experiment orchestration (CLI enhanced)
-    ├── profile.py                     # DCGMI-based GPU profiler
-    ├── profile_smi.py                 # nvidia-smi alternative profiler  
-    ├── control.sh                     # DCGMI frequency control
-    ├── control_smi.sh                 # nvidia-smi frequency control
-    ├── clean.sh                       # Enhanced workspace cleanup
-    ├── lstm.py                        # LSTM benchmark application
+├── documentation/                       # 📚 Comprehensive documentation
+│   ├── README.md                        # Documentation index
+│   ├── USAGE_EXAMPLES.md                # CLI usage examples and automation
+│   ├── SUBMIT_JOBS_README.md            # SLURM usage documentation
+│   ├── CLI_ENHANCEMENT_SUMMARY.md       # Technical implementation details
+│   ├── REFACTORING_SUMMARY.md           # Complete refactoring overview
+│   ├── PYTHON36_COMPATIBILITY_FIX.md    # Python 3.6 compatibility guide
+│   ├── SUBPROCESS_FIX_SUMMARY.md        # Recent subprocess fix documentation
+│   └── QUICK_FIX_GUIDE.md               # Troubleshooting and fixes
+│
+└── sample-collection-scripts/           # 🚀 Enhanced profiling framework
+    ├── README.md                        # Profiling framework documentation
+    ├── launch.sh                        # 🎯 Main experiment orchestration (CLI enhanced)
+    ├── profile.py                       # DCGMI-based GPU profiler
+    ├── profile_smi.py                   # nvidia-smi alternative profiler  
+    ├── control.sh                       # DCGMI frequency control
+    ├── control_smi.sh                   # nvidia-smi frequency control
+    ├── clean.sh                         # Enhanced workspace cleanup
+    ├── lstm.py                          # LSTM benchmark application
     │
-    ├── submit_job.sh                  # 🎯 Main SLURM submission (A100/toreador)
-    ├── submit_job_v100_baseline.sh    # V100 baseline profiling (matador)
-    ├── submit_job_custom_app.sh       # Custom application examples
-    ├── submit_job_comprehensive.sh    # Full DVFS study
+    ├── submit_job.sh                    # 🎯 Main SLURM submission (A100/toreador)
+    ├── submit_job_v100_baseline.sh      # V100 baseline profiling (matador)
+    ├── submit_job_custom_app.sh         # Custom application examples
+    ├── submit_job_comprehensive.sh      # Full DVFS study
     └── submit_job_v100_comprehensive.sh # V100 comprehensive profiling
 ```
 
@@ -231,6 +289,49 @@ sbatch submit_job_h100_custom_app.sh
 sbatch submit_job_comprehensive.sh
 sbatch submit_job_v100_comprehensive.sh
 sbatch submit_job_h100_comprehensive.sh
+```
+
+#### 5. Power Modeling and EDP Optimization
+
+**Quick power analysis from profiling data:**
+```python
+from power_modeling import analyze_application
+
+# Analyze profiling results
+results = analyze_application(
+    profiling_file="results/application_profiling.csv",
+    gpu_type="V100"
+)
+
+print(f"Optimal frequency: {results['summary']['optimal_frequency']}")
+print(f"Energy savings: {results['summary']['energy_savings']}")
+```
+
+**Full framework usage with model training:**
+```python
+from power_modeling import FGCSPowerModelingFramework
+import pandas as pd
+
+# Initialize framework with multiple models
+framework = FGCSPowerModelingFramework(
+    model_types=['fgcs_original', 'random_forest_enhanced', 'xgboost'],
+    gpu_type='V100'
+)
+
+# Train models on your data
+training_data = pd.read_csv("training_data.csv")
+training_results = framework.train_models(training_data, target_column='power')
+print(f"Best model: {training_results['best_model_name']}")
+
+# Optimize application for EDP
+optimization_results = framework.optimize_application(
+    fp_activity=0.3,
+    dram_activity=0.15,
+    baseline_runtime=1.0,
+    app_name="MyApp"
+)
+
+print(f"EDP optimal frequency: {optimization_results['edp_optimal']['frequency']}")
 ```
 
 **📚 For detailed examples, see [`documentation/USAGE_EXAMPLES.md`](documentation/USAGE_EXAMPLES.md) and [`documentation/SUBMIT_JOBS_README.md`](documentation/SUBMIT_JOBS_README.md)**

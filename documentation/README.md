@@ -1,6 +1,6 @@
 # Documentation Directory
 
-This directory contains comprehensive documentation for the AI Inference Energy Profiling Framework.
+This directory contains comprehensive documentation for the AI Inference Energy Profiling Framework, including production-ready power modeling and EDP optimization documentation.
 
 ## Documentation Files
 
@@ -9,6 +9,7 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 - **`SUBMIT_JOBS_README.md`** - SLURM job submission guide and HPC cluster usage
 - **`A100_USAGE_GUIDE.md`** - Comprehensive A100 GPU support and usage guide (HPCC)
 - **`H100_USAGE_GUIDE.md`** - Comprehensive H100 GPU support and usage guide (REPACSS)
+- **`README_POWER_MODELING.md`** - **Production-ready** power modeling and EDP optimization framework
 
 ### **Technical Implementation**  
 - **`CLI_ENHANCEMENT_SUMMARY.md`** - Technical details of CLI enhancements and new features
@@ -21,14 +22,28 @@ This directory contains comprehensive documentation for the AI Inference Energy 
 ### **Troubleshooting**
 - **`QUICK_FIX_GUIDE.md`** - Common issues, troubleshooting steps, and quick fixes
 
+## ✨ Latest Documentation Updates (v1.0.0)
+
+### Production-Ready Features Documented
+- ✅ **Power Modeling Framework**: Complete documentation for production-ready power models
+- ✅ **EDP Optimization**: Comprehensive EDP/ED²P optimization with error handling
+- ✅ **Robustness Improvements**: Documentation of runtime warning elimination and edge case handling
+- ✅ **Error Handling**: Complete guide to error handling and troubleshooting
+
 ## Documentation Overview
 
 ### For New Users
 1. **Start with:** [`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md) - Learn the CLI interface
-2. **A100 Users:** [`A100_USAGE_GUIDE.md`](A100_USAGE_GUIDE.md) - Complete A100 support guide (HPCC)
-3. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide (REPACSS)
-4. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
-5. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
+2. **Power Modeling:** [`README_POWER_MODELING.md`](README_POWER_MODELING.md) - **Production-ready framework**
+3. **A100 Users:** [`A100_USAGE_GUIDE.md`](A100_USAGE_GUIDE.md) - Complete A100 support guide (HPCC)
+4. **H100 Users:** [`H100_USAGE_GUIDE.md`](H100_USAGE_GUIDE.md) - Complete H100 support guide (REPACSS)
+5. **HPC Users:** [`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md) - SLURM job submission
+6. **Troubleshooting:** [`QUICK_FIX_GUIDE.md`](QUICK_FIX_GUIDE.md) - Common issues and solutions
+
+### For Researchers and Advanced Users
+1. **Power Modeling:** [`README_POWER_MODELING.md`](README_POWER_MODELING.md) - Complete framework with EDP optimization
+2. **Framework Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Implementation details
+3. **Error Handling:** [`README_POWER_MODELING.md#robustness`](README_POWER_MODELING.md) - Production robustness features
 
 ### For Developers
 1. **Architecture:** [`REFACTORING_SUMMARY.md`](REFACTORING_SUMMARY.md) - Codebase structure

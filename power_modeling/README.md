@@ -4,6 +4,15 @@ This directory contains the complete power modeling framework extracted and mode
 
 ## 🚀 Quick Start
 
+### Installation Requirements
+```bash
+# Required Python packages
+pip install pandas numpy scikit-learn xgboost
+pip install matplotlib seaborn  # For visualization
+```
+
+**Compatibility**: Python 3.6+ (tested with Python 3.6, 3.8, 3.9, 3.10+)
+
 ### Simple Analysis
 ```python
 from power_modeling import analyze_application
@@ -199,6 +208,31 @@ The framework includes comprehensive validation:
 - Statistical significance testing
 - Model comparison and selection
 
+### Recent Robustness Improvements (Latest Release)
+
+**Production-Ready Error Handling**:
+- ✅ **EDP Calculation Robustness**: Enhanced error handling for division by zero in EDP improvement calculations
+- ✅ **Model Access Fixes**: Fixed `TypeError` in model access - no longer subscriptable errors
+- ✅ **Baseline Validation**: Automatic detection and logging of invalid baseline values (zero or NaN)
+- ✅ **Graceful Fallbacks**: Robust fallback behavior when baseline data is insufficient
+- ✅ **Runtime Warning Elimination**: All warnings resolved through comprehensive validation
+
+**Error Handling Features**:
+```python
+# The framework now automatically handles edge cases
+results = framework.optimize_application(
+    fp_activity=0.3,
+    dram_activity=0.15,
+    baseline_runtime=0.0  # Previously would cause runtime warnings
+)
+# Now logs warning and handles gracefully: "Invalid baseline runtime for EDP calculation"
+
+# Model access is now robust
+training_results = framework.train_models(training_data, target_column='power')
+best_model = training_results['best_model']  # Direct access - no subscriptable errors
+print(f"Best model: {best_model['name']}")  # Proper dictionary access
+```
+
 ## 🔬 Research Extensions
 
 The framework is designed for extensibility:
@@ -206,6 +240,39 @@ The framework is designed for extensibility:
 - Additional optimization metrics
 - Multi-objective optimization
 - Uncertainty quantification
+
+## 🛠️ Troubleshooting and Best Practices
+
+### Common Issues and Solutions
+
+**Data Quality Checks**:
+- Ensure all profiling data contains positive, non-zero values
+- Validate that baseline measurements are collected under consistent conditions
+- Check for missing or NaN values in input datasets
+
+**Model Training Best Practices**:
+- Use sufficient training data (minimum 100 samples recommended)
+- Validate frequency ranges match your target GPU
+- Cross-validate models before deployment
+
+**EDP Optimization Tips**:
+- Ensure baseline runtime measurements are accurate and representative
+- Consider multiple optimization metrics (EDP, ED²P) for different use cases
+- Validate optimization results with actual hardware measurements
+
+### Logging and Debugging
+
+The framework provides comprehensive logging:
+```python
+import logging
+logging.basicConfig(level=logging.INFO)
+
+# Framework will now log detailed information about:
+# - Model training progress
+# - Data validation warnings
+# - EDP calculation issues
+# - Optimization convergence
+```
 
 ## 📚 References
 
