@@ -54,7 +54,11 @@ class LlamaTextGenerator:
     """
 
     def __init__(
-        self, model_name: str = None, device: int = 0, torch_dtype: str = "float16", logger: Optional[logging.Logger] = None
+        self,
+        model_name: str = None,
+        device: int = 0,
+        torch_dtype: str = "float16",
+        logger: Optional[logging.Logger] = None,
     ):
         """
         Initialize the LLaMA text generator.
@@ -142,7 +146,9 @@ class LlamaTextGenerator:
             # Extract generated text
             generated_texts = [output["generated_text"] for output in outputs]
 
-            self.logger.info(f"Successfully generated {len(generated_texts)} text sequence(s)")
+            self.logger.info(
+                f"Successfully generated {len(generated_texts)} text sequence(s)"
+            )
 
             return generated_texts
 

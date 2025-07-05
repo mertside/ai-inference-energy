@@ -108,7 +108,9 @@ class GPUFeatureExtractor:
         # Remove rows with all NaN values
         df = df.dropna(how="all")
 
-        logger.info(f"Extracted basic features from {len(df)} samples with {len(df.columns)} features")
+        logger.info(
+            f"Extracted basic features from {len(df)} samples with {len(df.columns)} features"
+        )
 
         return df
 
@@ -151,19 +153,27 @@ class GPUFeatureExtractor:
 
         # Compute utilization efficiency metrics
         if "SMACT" in df.columns and "DRAMA" in df.columns:
-            df["compute_memory_ratio"] = df["SMACT"] / (df["DRAMA"] + 1e-6)  # Avoid division by zero
-            df["compute_memory_ratio"] = df["compute_memory_ratio"].replace([np.inf, -np.inf], 0)
+            df["compute_memory_ratio"] = df["SMACT"] / (
+                df["DRAMA"] + 1e-6
+            )  # Avoid division by zero
+            df["compute_memory_ratio"] = df["compute_memory_ratio"].replace(
+                [np.inf, -np.inf], 0
+            )
 
         # Power efficiency metrics
         if "POWER" in df.columns and "SMACT" in df.columns:
             df["power_per_utilization"] = df["POWER"] / (df["SMACT"] + 1e-6)
-            df["power_per_utilization"] = df["power_per_utilization"].replace([np.inf, -np.inf], 0)
+            df["power_per_utilization"] = df["power_per_utilization"].replace(
+                [np.inf, -np.inf], 0
+            )
 
         logger.info(f"Calculated derived features, total features: {len(df.columns)}")
 
         return df
 
-    def remove_highly_correlated_features(self, df: pd.DataFrame, target_col: str = None) -> pd.DataFrame:
+    def remove_highly_correlated_features(
+        self, df: pd.DataFrame, target_col: str = None
+    ) -> pd.DataFrame:
         """
         Remove highly correlated features to reduce multicollinearity.
 
@@ -194,20 +204,30 @@ class GPUFeatureExtractor:
         self.correlation_matrix = corr_matrix
 
         # Find pairs of highly correlated features
-        upper_triangle = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+        upper_triangle = corr_matrix.where(
+            np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+        )
 
         # Find features to drop
-        to_drop = [column for column in upper_triangle.columns if any(upper_triangle[column] > self.correlation_threshold)]
+        to_drop = [
+            column
+            for column in upper_triangle.columns
+            if any(upper_triangle[column] > self.correlation_threshold)
+        ]
 
         # Keep features that are more correlated with target if available
         if target_col and target_col in df.columns:
-            target_correlations = df[feature_cols + [target_col]].corr()[target_col].abs()
+            target_correlations = (
+                df[feature_cols + [target_col]].corr()[target_col].abs()
+            )
 
             # For each pair of highly correlated features, keep the one more correlated with target
             refined_drop = []
             for col in to_drop:
                 # Find what it's correlated with
-                correlated_features = upper_triangle.index[upper_triangle[col] > self.correlation_threshold].tolist()
+                correlated_features = upper_triangle.index[
+                    upper_triangle[col] > self.correlation_threshold
+                ].tolist()
 
                 if correlated_features:
                     # Compare target correlations and keep the better one
@@ -236,7 +256,11 @@ class GPUFeatureExtractor:
         return df_reduced
 
     def select_top_features(
-        self, df: pd.DataFrame, target_col: str, n_features: int = 10, method: str = "f_regression"
+        self,
+        df: pd.DataFrame,
+        target_col: str,
+        n_features: int = 10,
+        method: str = "f_regression",
     ) -> pd.DataFrame:
         """
         Select top N features using statistical methods.
@@ -289,15 +313,21 @@ class GPUFeatureExtractor:
         self.selected_features = selected_feature_names
 
         # Create result DataFrame
-        result_df = pd.DataFrame(X_selected, columns=selected_feature_names, index=X.index)
+        result_df = pd.DataFrame(
+            X_selected, columns=selected_feature_names, index=X.index
+        )
         result_df[target_col] = y
 
-        logger.info(f"Selected top {len(selected_feature_names)} features using {method}")
+        logger.info(
+            f"Selected top {len(selected_feature_names)} features using {method}"
+        )
         logger.info(f"Selected features: {selected_feature_names}")
 
         return result_df
 
-    def calculate_feature_correlations(self, df: pd.DataFrame, target_col: str) -> Dict[str, float]:
+    def calculate_feature_correlations(
+        self, df: pd.DataFrame, target_col: str
+    ) -> Dict[str, float]:
         """
         Calculate correlations between features and target variable.
 
@@ -319,11 +349,15 @@ class GPUFeatureExtractor:
                 # Get overlapping non-null values
                 mask = ~(df[col].isna() | df[target_col].isna())
                 if mask.sum() > 1:  # Need at least 2 points for correlation
-                    corr, p_value = pearsonr(df.loc[mask, col], df.loc[mask, target_col])
+                    corr, p_value = pearsonr(
+                        df.loc[mask, col], df.loc[mask, target_col]
+                    )
                     correlations[col] = corr
 
         # Sort by absolute correlation
-        correlations = dict(sorted(correlations.items(), key=lambda x: abs(x[1]), reverse=True))
+        correlations = dict(
+            sorted(correlations.items(), key=lambda x: abs(x[1]), reverse=True)
+        )
 
         logger.info(f"Calculated correlations for {len(correlations)} features")
 
@@ -354,7 +388,9 @@ class GPUFeatureExtractor:
         summary_df = pd.DataFrame(summary)
 
         if self.feature_importance:
-            importance_scores = [self.feature_importance.get(feat, 0) for feat in summary_df["feature"]]
+            importance_scores = [
+                self.feature_importance.get(feat, 0) for feat in summary_df["feature"]
+            ]
             summary_df["importance_score"] = importance_scores
 
         return (
@@ -365,7 +401,10 @@ class GPUFeatureExtractor:
 
 
 def process_dcgmi_data(
-    df: pd.DataFrame, target_col: str = "POWER", n_features: int = 10, remove_outliers: bool = True
+    df: pd.DataFrame,
+    target_col: str = "POWER",
+    n_features: int = 10,
+    remove_outliers: bool = True,
 ) -> Dict[str, Any]:
     """
     Complete preprocessing pipeline for DCGMI data.
@@ -399,7 +438,9 @@ def process_dcgmi_data(
         lower_bound = Q1 - 1.5 * IQR
         upper_bound = Q3 + 1.5 * IQR
 
-        outlier_mask = (df_reduced[target_col] >= lower_bound) & (df_reduced[target_col] <= upper_bound)
+        outlier_mask = (df_reduced[target_col] >= lower_bound) & (
+            df_reduced[target_col] <= upper_bound
+        )
         df_reduced = df_reduced[outlier_mask]
 
         logger.info(f"Removed {(~outlier_mask).sum()} outliers")
@@ -422,6 +463,8 @@ def process_dcgmi_data(
         "extractor": extractor,
     }
 
-    logger.info(f"DCGMI data processing complete: {len(df_final)} samples, {len(df_final.columns)-1} features")
+    logger.info(
+        f"DCGMI data processing complete: {len(df_final)} samples, {len(df_final.columns)-1} features"
+    )
 
     return result

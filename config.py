@@ -326,7 +326,25 @@ class ProfilingConfig:
     """Configuration for power and performance profiling."""
 
     # DCGMI monitoring fields
-    DCGMI_FIELDS = [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 203, 204, 210, 211, 155, 156, 110]
+    DCGMI_FIELDS = [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        203,
+        204,
+        210,
+        211,
+        155,
+        156,
+        110,
+    ]
 
     # Profiling intervals
     DEFAULT_INTERVAL_MS = 50  # milliseconds

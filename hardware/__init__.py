@@ -9,12 +9,12 @@ Current Implementation:
 
 Future Implementation:
 - Power Monitoring Module: Unified power measurement interface
-- Performance Counters Module: Standardized performance metric collection  
+- Performance Counters Module: Standardized performance metric collection
 - Device Manager Module: Multi-GPU coordination and management
 
 Usage:
     from hardware.gpu_info import GPUSpecifications, get_gpu_info
-    
+
     # Get GPU specifications
     gpu_info = get_gpu_info('V100')
     frequencies = gpu_info.get_available_frequencies()
@@ -70,7 +70,11 @@ def get_module_info():
         "version": __version__,
         "description": __description__,
         "implemented_modules": ["gpu_info"],
-        "planned_modules": ["power_monitoring", "performance_counters", "device_manager"],
+        "planned_modules": [
+            "power_monitoring",
+            "performance_counters",
+            "device_manager",
+        ],
         "supported_gpus": get_supported_gpus(),
         "total_gpu_specifications": len(get_supported_gpus()),
         "example_usage": {

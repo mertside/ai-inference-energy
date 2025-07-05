@@ -32,11 +32,34 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from config import profiling_config
-    from utils import get_timestamp, run_command, setup_logging, validate_dcgmi_available
+    from utils import (
+        get_timestamp,
+        run_command,
+        setup_logging,
+        validate_dcgmi_available,
+    )
 except ImportError:
     # Fallback configuration if imports fail
     class ProfilingConfig:
-        DCGMI_FIELDS = [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 203, 204, 210, 211, 155, 156, 110]
+        DCGMI_FIELDS = [
+            1001,
+            1002,
+            1003,
+            1004,
+            1005,
+            1006,
+            1007,
+            1008,
+            1009,
+            1010,
+            203,
+            204,
+            210,
+            211,
+            155,
+            156,
+            110,
+        ]
         DEFAULT_INTERVAL_MS = 50
         TEMP_OUTPUT_FILE = "changeme"
 
@@ -48,7 +71,12 @@ except ImportError:
 
     def validate_dcgmi_available():
         try:
-            subprocess.run(["dcgmi", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            subprocess.run(
+                ["dcgmi", "--version"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -66,7 +94,11 @@ class GPUProfiler:
     """
 
     def __init__(
-        self, output_file: str = None, interval_ms: int = None, gpu_id: int = 0, logger: Optional[logging.Logger] = None
+        self,
+        output_file: str = None,
+        interval_ms: int = None,
+        gpu_id: int = 0,
+        logger: Optional[logging.Logger] = None,
     ):
         """
         Initialize the GPU profiler.
@@ -86,7 +118,9 @@ class GPUProfiler:
 
         # Validate DCGMI availability
         if not validate_dcgmi_available():
-            raise RuntimeError("DCGMI not available. Please install NVIDIA DCGMI tools.")
+            raise RuntimeError(
+                "DCGMI not available. Please install NVIDIA DCGMI tools."
+            )
 
     def _build_dcgmi_command(self) -> List[str]:
         """
@@ -97,7 +131,16 @@ class GPUProfiler:
         """
         fields_str = ",".join(str(field) for field in profiling_config.DCGMI_FIELDS)
 
-        command = ["dcgmi", "dmon", "-i", str(self.gpu_id), "-e", fields_str, "-d", str(self.interval_ms)]
+        command = [
+            "dcgmi",
+            "dmon",
+            "-i",
+            str(self.gpu_id),
+            "-e",
+            fields_str,
+            "-d",
+            str(self.interval_ms),
+        ]
 
         return command
 
@@ -105,18 +148,25 @@ class GPUProfiler:
         """Start GPU monitoring in a separate process."""
         try:
             command = self._build_dcgmi_command()
-            self.logger.info(f"Starting GPU monitoring with command: {' '.join(command)}")
+            self.logger.info(
+                f"Starting GPU monitoring with command: {' '.join(command)}"
+            )
             self.logger.info(f"Output file: {self.output_file}")
             self.logger.info(f"Sampling interval: {self.interval_ms}ms")
 
             # Start monitoring process with output redirection
             with open(self.output_file, "w") as output:
                 self.monitoring_process = subprocess.Popen(
-                    command, stdout=output, stderr=subprocess.PIPE, preexec_fn=os.setsid  # Create new process group
+                    command,
+                    stdout=output,
+                    stderr=subprocess.PIPE,
+                    preexec_fn=os.setsid,  # Create new process group
                 )
 
             self.start_time = time.time()
-            self.logger.info(f"GPU monitoring started (PID: {self.monitoring_process.pid})")
+            self.logger.info(
+                f"GPU monitoring started (PID: {self.monitoring_process.pid})"
+            )
 
         except Exception as e:
             self.logger.error(f"Failed to start GPU monitoring: {e}")
@@ -146,7 +196,9 @@ class GPUProfiler:
             return duration
 
         except subprocess.TimeoutExpired:
-            self.logger.warning("Monitoring process did not terminate gracefully, forcing kill")
+            self.logger.warning(
+                "Monitoring process did not terminate gracefully, forcing kill"
+            )
             os.killpg(os.getpgid(self.monitoring_process.pid), signal.SIGKILL)
             return time.time() - self.start_time if self.start_time else 0.0
         except Exception as e:
@@ -222,7 +274,9 @@ class GPUProfiler:
             self.stop_monitoring()
 
 
-def profile_application(command: str, output_file: str = None, interval_ms: int = None, gpu_id: int = 0) -> Dict[str, Any]:
+def profile_application(
+    command: str, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
+) -> Dict[str, Any]:
     """
     Convenience function to profile an application with GPU monitoring.
 
@@ -235,7 +289,9 @@ def profile_application(command: str, output_file: str = None, interval_ms: int 
     Returns:
         Dictionary containing profiling results
     """
-    profiler = GPUProfiler(output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id)
+    profiler = GPUProfiler(
+        output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id
+    )
 
     try:
         return profiler.profile_command(command)
@@ -248,8 +304,12 @@ def main():
     import argparse
 
     # Set up argument parsing
-    parser = argparse.ArgumentParser(description="GPU power profiling utility for AI inference workloads")
-    parser.add_argument("command", nargs="*", help="Command to profile (if empty, just monitors GPU)")
+    parser = argparse.ArgumentParser(
+        description="GPU power profiling utility for AI inference workloads"
+    )
+    parser.add_argument(
+        "command", nargs="*", help="Command to profile (if empty, just monitors GPU)"
+    )
     parser.add_argument(
         "-o",
         "--output",
@@ -263,8 +323,12 @@ def main():
         default=profiling_config.DEFAULT_INTERVAL_MS,
         help=f"Sampling interval in milliseconds (default: {profiling_config.DEFAULT_INTERVAL_MS})",
     )
-    parser.add_argument("-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
+    parser.add_argument(
+        "-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logging"
+    )
 
     args = parser.parse_args()
 
@@ -277,7 +341,12 @@ def main():
 
     try:
         # Profile the command
-        result = profile_application(command=command, output_file=args.output, interval_ms=args.interval, gpu_id=args.gpu)
+        result = profile_application(
+            command=command,
+            output_file=args.output,
+            interval_ms=args.interval,
+            gpu_id=args.gpu,
+        )
 
         # Display results
         logger.info("Profiling completed successfully")

@@ -46,7 +46,9 @@ class EnergyProfiler:
         logger.info(f"Energy profiler initialized: {power_units}, {time_units}")
 
     def calculate_energy_from_power_time(
-        self, power: Union[float, np.ndarray, pd.Series], time: Union[float, np.ndarray, pd.Series]
+        self,
+        power: Union[float, np.ndarray, pd.Series],
+        time: Union[float, np.ndarray, pd.Series],
     ) -> Union[float, np.ndarray]:
         """
         Calculate energy consumption from power and time measurements.
@@ -92,26 +94,37 @@ class EnergyProfiler:
             raise ValueError("Profiling data is empty")
 
         required_cols = [power_col, time_col]
-        missing_cols = [col for col in required_cols if col not in profiling_data.columns]
+        missing_cols = [
+            col for col in required_cols if col not in profiling_data.columns
+        ]
         if missing_cols:
             raise ValueError(f"Missing required columns: {missing_cols}")
 
         result_df = profiling_data.copy()
 
         # Calculate energy for each measurement
-        result_df["energy_joules"] = self.calculate_energy_from_power_time(result_df[power_col], result_df[time_col])
+        result_df["energy_joules"] = self.calculate_energy_from_power_time(
+            result_df[power_col], result_df[time_col]
+        )
 
         # Calculate derived metrics
-        result_df["power_efficiency"] = result_df["energy_joules"] / result_df[time_col]  # J/s = W
+        result_df["power_efficiency"] = (
+            result_df["energy_joules"] / result_df[time_col]
+        )  # J/s = W
 
         if frequency_col in result_df.columns:
-            result_df["energy_per_mhz"] = result_df["energy_joules"] / result_df[frequency_col]
+            result_df["energy_per_mhz"] = (
+                result_df["energy_joules"] / result_df[frequency_col]
+            )
 
         logger.info(f"Processed {len(result_df)} energy measurements")
         return result_df
 
     def aggregate_multi_run_energy(
-        self, run_data: List[pd.DataFrame], group_by_cols: List[str] = ["frequency"], energy_col: str = "energy_joules"
+        self,
+        run_data: List[pd.DataFrame],
+        group_by_cols: List[str] = ["frequency"],
+        energy_col: str = "energy_joules",
     ) -> pd.DataFrame:
         """
         Aggregate energy measurements across multiple runs.
@@ -131,7 +144,11 @@ class EnergyProfiler:
         combined_df = pd.concat(run_data, ignore_index=True)
 
         # Calculate statistics for each group
-        stats_df = combined_df.groupby(group_by_cols)[energy_col].agg(["mean", "std", "min", "max", "count"]).reset_index()
+        stats_df = (
+            combined_df.groupby(group_by_cols)[energy_col]
+            .agg(["mean", "std", "min", "max", "count"])
+            .reset_index()
+        )
 
         # Rename columns for clarity
         stats_df.rename(
@@ -146,10 +163,14 @@ class EnergyProfiler:
         )
 
         # Calculate confidence intervals (95%)
-        stats_df[f"{energy_col}_ci_95"] = 1.96 * stats_df[f"{energy_col}_std"] / np.sqrt(stats_df["num_runs"])
+        stats_df[f"{energy_col}_ci_95"] = (
+            1.96 * stats_df[f"{energy_col}_std"] / np.sqrt(stats_df["num_runs"])
+        )
 
         # Calculate coefficient of variation (CV)
-        stats_df[f"{energy_col}_cv"] = stats_df[f"{energy_col}_std"] / stats_df[f"{energy_col}_mean"]
+        stats_df[f"{energy_col}_cv"] = (
+            stats_df[f"{energy_col}_std"] / stats_df[f"{energy_col}_mean"]
+        )
 
         logger.info(f"Aggregated energy data for {len(stats_df)} configurations")
         return stats_df
@@ -190,7 +211,9 @@ class EnergyProfiler:
                         df = pd.read_csv(file_path, sep=r"\s+")
 
                 # Process the profiling run
-                processed_df = self.process_profiling_run(df, power_col, time_col, frequency_col)
+                processed_df = self.process_profiling_run(
+                    df, power_col, time_col, frequency_col
+                )
                 processed_df["run_id"] = i
                 processed_df["source_file"] = Path(file_path).name
 
@@ -227,7 +250,9 @@ class EnergyProfiler:
             "total_files": len(file_paths),
         }
 
-        logger.info(f"Energy profiling complete: {len(run_data)}/{len(file_paths)} files processed")
+        logger.info(
+            f"Energy profiling complete: {len(run_data)}/{len(file_paths)} files processed"
+        )
 
         return results
 
@@ -262,16 +287,22 @@ class EnergyProfiler:
         elif baseline_frequency is not None and "frequency" in energy_data.columns:
             baseline_row = energy_data[energy_data["frequency"] == baseline_frequency]
             if baseline_row.empty:
-                raise ValueError(f"Baseline frequency {baseline_frequency} not found in data")
+                raise ValueError(
+                    f"Baseline frequency {baseline_frequency} not found in data"
+                )
             baseline = baseline_row[energy_col].iloc[0]
-            logger.info(f"Using baseline from {baseline_frequency} MHz: {baseline:.4f} J")
+            logger.info(
+                f"Using baseline from {baseline_frequency} MHz: {baseline:.4f} J"
+            )
         else:
             baseline = energy_data[energy_col].max()  # Use maximum as baseline
             logger.info(f"Using maximum energy as baseline: {baseline:.4f} J")
 
         # Calculate normalized values
         result_df["energy_normalized"] = result_df[energy_col] / baseline
-        result_df["energy_improvement_percent"] = (1 - result_df["energy_normalized"]) * 100
+        result_df["energy_improvement_percent"] = (
+            1 - result_df["energy_normalized"]
+        ) * 100
 
         return result_df
 
@@ -315,7 +346,9 @@ class EnergyProfiler:
         std_col = f'{energy_col.replace("_mean", "_std")}'
         high_variance_measurements = []
         if std_col in energy_data.columns:
-            high_cv_mask = (energy_data[std_col] / energy_data[energy_col]) > cv_threshold
+            high_cv_mask = (
+                energy_data[std_col] / energy_data[energy_col]
+            ) > cv_threshold
             high_variance_measurements = energy_data[high_cv_mask]
 
         # Generate validation results
@@ -328,7 +361,9 @@ class EnergyProfiler:
             "outliers_detected": len(outliers),
             "outlier_values": outliers.tolist(),
             "high_variance_measurements": len(high_variance_measurements),
-            "data_quality_score": self._calculate_quality_score(cv, len(outliers), len(energy_values)),
+            "data_quality_score": self._calculate_quality_score(
+                cv, len(outliers), len(energy_values)
+            ),
             "recommendations": [],
         }
 
@@ -349,13 +384,19 @@ class EnergyProfiler:
             )
 
         if not validation_results["recommendations"]:
-            validation_results["recommendations"].append("Energy measurements appear to be of good quality.")
+            validation_results["recommendations"].append(
+                "Energy measurements appear to be of good quality."
+            )
 
-        logger.info(f"Energy validation complete: Quality score = {validation_results['data_quality_score']:.2f}")
+        logger.info(
+            f"Energy validation complete: Quality score = {validation_results['data_quality_score']:.2f}"
+        )
 
         return validation_results
 
-    def _calculate_quality_score(self, cv: float, num_outliers: int, total_measurements: int) -> float:
+    def _calculate_quality_score(
+        self, cv: float, num_outliers: int, total_measurements: int
+    ) -> float:
         """Calculate a quality score (0-1) for energy measurements."""
         # Base score from coefficient of variation
         cv_score = max(0, 1 - cv)  # Lower CV is better
@@ -369,7 +410,11 @@ class EnergyProfiler:
         return quality_score
 
     def calculate_fgcs_compatible_energy(
-        self, df: pd.DataFrame, power_col: str = "power", time_col: str = "execution_time", frequency_col: str = "frequency"
+        self,
+        df: pd.DataFrame,
+        power_col: str = "power",
+        time_col: str = "execution_time",
+        frequency_col: str = "frequency",
     ) -> pd.DataFrame:
         """
         Calculate energy metrics compatible with FGCS methodology.
@@ -389,7 +434,9 @@ class EnergyProfiler:
 
         # Basic energy calculation
         if power_col in df_energy.columns and time_col in df_energy.columns:
-            df_energy["energy"] = (df_energy[power_col] * self.power_scale) * (df_energy[time_col] * self.time_scale)
+            df_energy["energy"] = (df_energy[power_col] * self.power_scale) * (
+                df_energy[time_col] * self.time_scale
+            )
 
             # FGCS-style logarithmic transformations
             df_energy["n_power_usage"] = np.log1p(df_energy[power_col])
@@ -414,7 +461,11 @@ class EnergyProfiler:
         return df_energy
 
     def analyze_energy_efficiency_across_frequencies(
-        self, df: pd.DataFrame, power_col: str = "power", time_col: str = "execution_time", frequency_col: str = "frequency"
+        self,
+        df: pd.DataFrame,
+        power_col: str = "power",
+        time_col: str = "execution_time",
+        frequency_col: str = "frequency",
     ) -> Dict[str, Any]:
         """
         Analyze energy efficiency patterns across different frequencies.
@@ -431,7 +482,9 @@ class EnergyProfiler:
         logger.info("Analyzing energy efficiency across frequencies")
 
         # Calculate FGCS-compatible energy metrics
-        df_energy = self.calculate_fgcs_compatible_energy(df, power_col, time_col, frequency_col)
+        df_energy = self.calculate_fgcs_compatible_energy(
+            df, power_col, time_col, frequency_col
+        )
 
         # Group by frequency for analysis
         if frequency_col in df_energy.columns:
@@ -455,9 +508,13 @@ class EnergyProfiler:
                     "std_time": group[time_col].std(),
                     "avg_energy": group["energy"].mean(),
                     "std_energy": group["energy"].std(),
-                    "power_efficiency": group[power_col].mean() / freq if freq > 0 else 0,  # Power per MHz
+                    "power_efficiency": (
+                        group[power_col].mean() / freq if freq > 0 else 0
+                    ),  # Power per MHz
                     "energy_efficiency": (
-                        group["energy"].mean() / group[time_col].mean() if group[time_col].mean() > 0 else 0
+                        group["energy"].mean() / group[time_col].mean()
+                        if group[time_col].mean() > 0
+                        else 0
                     ),  # Energy per time
                 }
 
@@ -465,9 +522,18 @@ class EnergyProfiler:
 
             # Calculate overall efficiency metrics
             all_frequencies = list(efficiency_analysis["frequency_analysis"].keys())
-            all_energies = [efficiency_analysis["frequency_analysis"][f]["avg_energy"] for f in all_frequencies]
-            all_times = [efficiency_analysis["frequency_analysis"][f]["avg_time"] for f in all_frequencies]
-            all_powers = [efficiency_analysis["frequency_analysis"][f]["avg_power"] for f in all_frequencies]
+            all_energies = [
+                efficiency_analysis["frequency_analysis"][f]["avg_energy"]
+                for f in all_frequencies
+            ]
+            all_times = [
+                efficiency_analysis["frequency_analysis"][f]["avg_time"]
+                for f in all_frequencies
+            ]
+            all_powers = [
+                efficiency_analysis["frequency_analysis"][f]["avg_power"]
+                for f in all_frequencies
+            ]
 
             # Find efficiency sweet spots
             min_energy_idx = np.argmin(all_energies)
@@ -487,15 +553,21 @@ class EnergyProfiler:
             }
 
             # Generate optimization insights
-            energy_savings = (max(all_energies) - min(all_energies)) / max(all_energies) * 100
+            energy_savings = (
+                (max(all_energies) - min(all_energies)) / max(all_energies) * 100
+            )
             time_penalty = (max(all_times) - min(all_times)) / min(all_times) * 100
 
             efficiency_analysis["optimization_insights"] = {
                 "max_energy_savings_percent": energy_savings,
                 "max_time_penalty_percent": time_penalty,
-                "energy_vs_performance_tradeoff": energy_savings / time_penalty if time_penalty > 0 else float("inf"),
+                "energy_vs_performance_tradeoff": (
+                    energy_savings / time_penalty if time_penalty > 0 else float("inf")
+                ),
                 "frequency_sweep_effectiveness": (
-                    len(all_frequencies) / (max(all_frequencies) - min(all_frequencies)) * 100
+                    len(all_frequencies)
+                    / (max(all_frequencies) - min(all_frequencies))
+                    * 100
                     if len(all_frequencies) > 1
                     else 0
                 ),
@@ -517,7 +589,9 @@ class EnergyProfiler:
                     "Consider testing more frequency points for comprehensive analysis"
                 )
 
-            logger.info(f"Energy efficiency analysis complete: {len(all_frequencies)} frequencies analyzed")
+            logger.info(
+                f"Energy efficiency analysis complete: {len(all_frequencies)} frequencies analyzed"
+            )
             return efficiency_analysis
 
         else:
@@ -525,7 +599,11 @@ class EnergyProfiler:
             return {"error": f"Frequency column '{frequency_col}' not found"}
 
     def validate_energy_measurements(
-        self, df: pd.DataFrame, power_col: str = "power", time_col: str = "execution_time", tolerance: float = 0.1
+        self,
+        df: pd.DataFrame,
+        power_col: str = "power",
+        time_col: str = "execution_time",
+        tolerance: float = 0.1,
     ) -> Dict[str, Any]:
         """
         Validate energy measurement quality and consistency.
@@ -541,20 +619,37 @@ class EnergyProfiler:
         """
         logger.info("Validating energy measurement quality")
 
-        validation_results = {"data_quality": {}, "measurement_consistency": {}, "outlier_analysis": {}, "recommendations": []}
+        validation_results = {
+            "data_quality": {},
+            "measurement_consistency": {},
+            "outlier_analysis": {},
+            "recommendations": [],
+        }
 
         # Data quality checks
         total_samples = len(df)
-        missing_power = df[power_col].isnull().sum() if power_col in df.columns else total_samples
-        missing_time = df[time_col].isnull().sum() if time_col in df.columns else total_samples
+        missing_power = (
+            df[power_col].isnull().sum() if power_col in df.columns else total_samples
+        )
+        missing_time = (
+            df[time_col].isnull().sum() if time_col in df.columns else total_samples
+        )
 
         validation_results["data_quality"] = {
             "total_samples": total_samples,
             "missing_power_measurements": missing_power,
             "missing_time_measurements": missing_time,
             "data_completeness": 1 - max(missing_power, missing_time) / total_samples,
-            "power_range": (df[power_col].min(), df[power_col].max()) if power_col in df.columns else None,
-            "time_range": (df[time_col].min(), df[time_col].max()) if time_col in df.columns else None,
+            "power_range": (
+                (df[power_col].min(), df[power_col].max())
+                if power_col in df.columns
+                else None
+            ),
+            "time_range": (
+                (df[time_col].min(), df[time_col].max())
+                if time_col in df.columns
+                else None
+            ),
         }
 
         # Measurement consistency analysis
@@ -571,7 +666,11 @@ class EnergyProfiler:
                 for freq, group in freq_groups:
                     if len(group) > 1:
                         group_energy = group[power_col] * group[time_col]
-                        cv = group_energy.std() / group_energy.mean() if group_energy.mean() > 0 else float("inf")
+                        cv = (
+                            group_energy.std() / group_energy.mean()
+                            if group_energy.mean() > 0
+                            else float("inf")
+                        )
                         consistency_metrics[freq] = {
                             "sample_count": len(group),
                             "energy_cv": cv,
@@ -581,15 +680,24 @@ class EnergyProfiler:
                 validation_results["measurement_consistency"] = consistency_metrics
 
                 # Overall consistency score
-                consistent_freqs = sum(1 for metrics in consistency_metrics.values() if metrics["is_consistent"])
+                consistent_freqs = sum(
+                    1
+                    for metrics in consistency_metrics.values()
+                    if metrics["is_consistent"]
+                )
                 total_freqs = len(consistency_metrics)
-                validation_results["overall_consistency_score"] = consistent_freqs / total_freqs if total_freqs > 0 else 0
+                validation_results["overall_consistency_score"] = (
+                    consistent_freqs / total_freqs if total_freqs > 0 else 0
+                )
 
         # Outlier detection
         if power_col in df.columns:
             power_q1, power_q3 = df[power_col].quantile([0.25, 0.75])
             power_iqr = power_q3 - power_q1
-            power_outliers = df[(df[power_col] < power_q1 - 1.5 * power_iqr) | (df[power_col] > power_q3 + 1.5 * power_iqr)]
+            power_outliers = df[
+                (df[power_col] < power_q1 - 1.5 * power_iqr)
+                | (df[power_col] > power_q3 + 1.5 * power_iqr)
+            ]
 
             validation_results["outlier_analysis"]["power_outliers"] = {
                 "count": len(power_outliers),
@@ -600,7 +708,10 @@ class EnergyProfiler:
         if time_col in df.columns:
             time_q1, time_q3 = df[time_col].quantile([0.25, 0.75])
             time_iqr = time_q3 - time_q1
-            time_outliers = df[(df[time_col] < time_q1 - 1.5 * time_iqr) | (df[time_col] > time_q3 + 1.5 * time_iqr)]
+            time_outliers = df[
+                (df[time_col] < time_q1 - 1.5 * time_iqr)
+                | (df[time_col] > time_q3 + 1.5 * time_iqr)
+            ]
 
             validation_results["outlier_analysis"]["time_outliers"] = {
                 "count": len(time_outliers),
@@ -614,12 +725,18 @@ class EnergyProfiler:
                 f"Data completeness is {validation_results['data_quality']['data_completeness']:.1%} - consider collecting more complete measurements"
             )
 
-        if "overall_consistency_score" in validation_results and validation_results["overall_consistency_score"] < 0.8:
+        if (
+            "overall_consistency_score" in validation_results
+            and validation_results["overall_consistency_score"] < 0.8
+        ):
             validation_results["recommendations"].append(
                 f"Measurement consistency is {validation_results['overall_consistency_score']:.1%} - consider increasing measurement repetitions"
             )
 
-        if any(analysis["percentage"] > 5 for analysis in validation_results["outlier_analysis"].values()):
+        if any(
+            analysis["percentage"] > 5
+            for analysis in validation_results["outlier_analysis"].values()
+        ):
             validation_results["recommendations"].append(
                 "High percentage of outliers detected - review measurement conditions"
             )
@@ -629,7 +746,10 @@ class EnergyProfiler:
 
 
 def calculate_energy_from_power_time(
-    df: pd.DataFrame, power_col: str = "power", time_col: str = "execution_time", energy_col: str = "energy"
+    df: pd.DataFrame,
+    power_col: str = "power",
+    time_col: str = "execution_time",
+    energy_col: str = "energy",
 ) -> pd.DataFrame:
     """
     Convenience function to calculate energy from power and time.
@@ -645,11 +765,15 @@ def calculate_energy_from_power_time(
     """
     profiler = EnergyProfiler()
     df = df.copy()
-    df[energy_col] = profiler.calculate_energy_from_power_time(df[power_col], df[time_col])
+    df[energy_col] = profiler.calculate_energy_from_power_time(
+        df[power_col], df[time_col]
+    )
     return df
 
 
-def validate_energy_data_quality(energy_data: pd.DataFrame, energy_col: str = "energy", cv_threshold: float = 0.2) -> bool:
+def validate_energy_data_quality(
+    energy_data: pd.DataFrame, energy_col: str = "energy", cv_threshold: float = 0.2
+) -> bool:
     """
     Quick validation of energy data quality.
 
@@ -662,6 +786,11 @@ def validate_energy_data_quality(energy_data: pd.DataFrame, energy_col: str = "e
         True if data quality is acceptable
     """
     profiler = EnergyProfiler()
-    validation_results = profiler.validate_energy_measurements(energy_data, energy_col, cv_threshold)
+    validation_results = profiler.validate_energy_measurements(
+        energy_data, energy_col, cv_threshold
+    )
 
-    return validation_results["cv_acceptable"] and validation_results["outliers_detected"] == 0
+    return (
+        validation_results["cv_acceptable"]
+        and validation_results["outliers_detected"] == 0
+    )

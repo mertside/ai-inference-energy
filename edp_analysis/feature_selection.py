@@ -20,7 +20,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.feature_selection import RFE, SelectFromModel, SelectKBest, f_regression, mutual_info_regression
+from sklearn.feature_selection import (
+    RFE,
+    SelectFromModel,
+    SelectKBest,
+    f_regression,
+    mutual_info_regression,
+)
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
@@ -101,7 +107,9 @@ class FGCSFeatureEngineering:
             features_df["n_energy"] = np.log1p(features_df["energy"])
 
         # Store feature names
-        self.feature_names = [col for col in features_df.columns if col.startswith(("fp_", "dram_", "n_"))]
+        self.feature_names = [
+            col for col in features_df.columns if col.startswith(("fp_", "dram_", "n_"))
+        ]
 
         logger.info(f"Extracted {len(self.feature_names)} FGCS features")
         return features_df
@@ -114,7 +122,9 @@ class FGCSFeatureEngineering:
         elif "sm_clock" in df.columns or "frequency" in df.columns:
             # Estimate based on frequency (higher freq -> likely higher FP activity)
             freq_col = "sm_clock" if "sm_clock" in df.columns else "frequency"
-            normalized_freq = (df[freq_col] - df[freq_col].min()) / (df[freq_col].max() - df[freq_col].min())
+            normalized_freq = (df[freq_col] - df[freq_col].min()) / (
+                df[freq_col].max() - df[freq_col].min()
+            )
             return 0.2 + 0.4 * normalized_freq  # Range: 0.2 to 0.6
         else:
             # Default moderate FP activity
@@ -145,12 +155,24 @@ class FGCSFeatureEngineering:
         features_df = df.copy()
 
         # FGCS-specific interactions
-        if "fp_activity" in features_df.columns and "n_sm_app_clock" in features_df.columns:
-            features_df["fp_x_clock"] = features_df["fp_activity"] * features_df["n_sm_app_clock"]
-            features_df["fp_x_clock_sq"] = features_df["fp_activity"] * (features_df["n_sm_app_clock"] ** 2)
+        if (
+            "fp_activity" in features_df.columns
+            and "n_sm_app_clock" in features_df.columns
+        ):
+            features_df["fp_x_clock"] = (
+                features_df["fp_activity"] * features_df["n_sm_app_clock"]
+            )
+            features_df["fp_x_clock_sq"] = features_df["fp_activity"] * (
+                features_df["n_sm_app_clock"] ** 2
+            )
 
-        if "dram_activity" in features_df.columns and "n_sm_app_clock" in features_df.columns:
-            features_df["dram_x_clock"] = features_df["dram_activity"] * features_df["n_sm_app_clock"]
+        if (
+            "dram_activity" in features_df.columns
+            and "n_sm_app_clock" in features_df.columns
+        ):
+            features_df["dram_x_clock"] = (
+                features_df["dram_activity"] * features_df["n_sm_app_clock"]
+            )
 
         # Polynomial features for core activities
         if "fp_activity" in features_df.columns:
@@ -164,7 +186,9 @@ class FGCSFeatureEngineering:
         if "n_sm_app_clock" in features_df.columns:
             features_df["n_sm_app_clock_sq"] = features_df["n_sm_app_clock"] ** 2
 
-        logger.info(f"Created {len(features_df.columns) - len(df.columns)} interaction features")
+        logger.info(
+            f"Created {len(features_df.columns) - len(df.columns)} interaction features"
+        )
         return features_df
 
     def validate_features(self, df: pd.DataFrame) -> Dict[str, Any]:
@@ -213,7 +237,9 @@ class FGCSFeatureEngineering:
                     feature_range = (df[feature].min(), df[feature].max())
                     validation_results["feature_ranges"][feature] = feature_range
                     # Check if log-transformed clock frequencies are reasonable
-                    if feature_range[0] < 6 or feature_range[1] > 8:  # log(400) ~ 6, log(1500) ~ 7.3
+                    if (
+                        feature_range[0] < 6 or feature_range[1] > 8
+                    ):  # log(400) ~ 6, log(1500) ~ 7.3
                         validation_results["recommendations"].append(
                             f"Log clock frequency range unusual: {feature_range}, check frequency units"
                         )
@@ -222,8 +248,12 @@ class FGCSFeatureEngineering:
 
         # Data quality checks
         validation_results["data_quality"]["total_samples"] = len(df)
-        validation_results["data_quality"]["missing_values"] = df.isnull().sum().to_dict()
-        validation_results["data_quality"]["infinite_values"] = np.isinf(df.select_dtypes(include=[np.number])).sum().to_dict()
+        validation_results["data_quality"]["missing_values"] = (
+            df.isnull().sum().to_dict()
+        )
+        validation_results["data_quality"]["infinite_values"] = (
+            np.isinf(df.select_dtypes(include=[np.number])).sum().to_dict()
+        )
 
         # Recommendations
         if len(validation_results["missing_fgcs_features"]) > 0:
@@ -232,9 +262,13 @@ class FGCSFeatureEngineering:
             )
 
         if validation_results["data_quality"]["total_samples"] < 50:
-            validation_results["recommendations"].append("Sample size < 50 may be insufficient for reliable modeling")
+            validation_results["recommendations"].append(
+                "Sample size < 50 may be insufficient for reliable modeling"
+            )
 
-        logger.info(f"Feature validation complete: {len(validation_results['fgcs_core_features'])}/3 core features found")
+        logger.info(
+            f"Feature validation complete: {len(validation_results['fgcs_core_features'])}/3 core features found"
+        )
         return validation_results
 
 
@@ -260,7 +294,9 @@ class EDPFeatureSelector:
 
         logger.info(f"EDP feature selector initialized with method: {selection_method}")
 
-    def select_features_for_edp(self, df: pd.DataFrame, target_col: str = "power", max_features: int = 10) -> List[str]:
+    def select_features_for_edp(
+        self, df: pd.DataFrame, target_col: str = "power", max_features: int = 10
+    ) -> List[str]:
         """
         Select optimal features for EDP prediction.
 
@@ -307,7 +343,9 @@ class EDPFeatureSelector:
         logger.info(f"FGCS feature selection: {len(selected)} features selected")
         return selected
 
-    def _select_statistical_features(self, df: pd.DataFrame, target_col: str, max_features: int) -> List[str]:
+    def _select_statistical_features(
+        self, df: pd.DataFrame, target_col: str, max_features: int
+    ) -> List[str]:
         """Select features using statistical methods."""
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         feature_cols = [col for col in numeric_cols if col != target_col]
@@ -320,19 +358,25 @@ class EDPFeatureSelector:
         y = df[target_col].fillna(0)
 
         # F-statistic based selection
-        selector = SelectKBest(score_func=f_regression, k=min(max_features, len(feature_cols)))
+        selector = SelectKBest(
+            score_func=f_regression, k=min(max_features, len(feature_cols))
+        )
         X_selected = selector.fit_transform(X, y)
         selected_indices = selector.get_support(indices=True)
         selected = [feature_cols[i] for i in selected_indices]
 
         # Store scores for analysis
-        self.feature_importance_scores["f_scores"] = dict(zip(feature_cols, selector.scores_))
+        self.feature_importance_scores["f_scores"] = dict(
+            zip(feature_cols, selector.scores_)
+        )
 
         self.selected_features = selected
         logger.info(f"Statistical feature selection: {len(selected)} features selected")
         return selected
 
-    def _select_model_based_features(self, df: pd.DataFrame, target_col: str, max_features: int) -> List[str]:
+    def _select_model_based_features(
+        self, df: pd.DataFrame, target_col: str, max_features: int
+    ) -> List[str]:
         """Select features using model-based importance."""
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         feature_cols = [col for col in numeric_cols if col != target_col]
@@ -352,7 +396,9 @@ class EDPFeatureSelector:
         importance_scores = dict(zip(feature_cols, rf.feature_importances_))
 
         # Select top features
-        sorted_features = sorted(importance_scores.items(), key=lambda x: x[1], reverse=True)
+        sorted_features = sorted(
+            importance_scores.items(), key=lambda x: x[1], reverse=True
+        )
         selected = [f[0] for f in sorted_features[:max_features]]
 
         self.feature_importance_scores["rf_importance"] = importance_scores
@@ -361,7 +407,9 @@ class EDPFeatureSelector:
         logger.info(f"Model-based feature selection: {len(selected)} features selected")
         return selected
 
-    def _select_comprehensive_features(self, df: pd.DataFrame, target_col: str, max_features: int) -> List[str]:
+    def _select_comprehensive_features(
+        self, df: pd.DataFrame, target_col: str, max_features: int
+    ) -> List[str]:
         """Comprehensive feature selection combining multiple methods."""
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
         feature_cols = [col for col in numeric_cols if col != target_col]
@@ -377,23 +425,35 @@ class EDPFeatureSelector:
         # Add top statistical features
         if len(selected_features) < max_features:
             remaining_slots = max_features - len(selected_features)
-            stat_features = self._select_statistical_features(df, target_col, remaining_slots * 2)
+            stat_features = self._select_statistical_features(
+                df, target_col, remaining_slots * 2
+            )
             for feature in stat_features:
-                if feature not in selected_features and len(selected_features) < max_features:
+                if (
+                    feature not in selected_features
+                    and len(selected_features) < max_features
+                ):
                     selected_features.add(feature)
 
         # Add top model-based features
         if len(selected_features) < max_features:
             remaining_slots = max_features - len(selected_features)
-            model_features = self._select_model_based_features(df, target_col, remaining_slots * 2)
+            model_features = self._select_model_based_features(
+                df, target_col, remaining_slots * 2
+            )
             for feature in model_features:
-                if feature not in selected_features and len(selected_features) < max_features:
+                if (
+                    feature not in selected_features
+                    and len(selected_features) < max_features
+                ):
                     selected_features.add(feature)
 
         selected = list(selected_features)
         self.selected_features = selected
 
-        logger.info(f"Comprehensive feature selection: {len(selected)} features selected")
+        logger.info(
+            f"Comprehensive feature selection: {len(selected)} features selected"
+        )
         return selected
 
     def get_feature_analysis(self) -> Dict[str, Any]:
@@ -415,7 +475,10 @@ class EDPFeatureSelector:
 
 
 def create_optimized_feature_set(
-    df: pd.DataFrame, gpu_type: str = "V100", target_col: str = "power", max_features: int = 8
+    df: pd.DataFrame,
+    gpu_type: str = "V100",
+    target_col: str = "power",
+    max_features: int = 8,
 ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
     Create an optimized feature set for EDP analysis.
@@ -441,13 +504,18 @@ def create_optimized_feature_set(
 
     # Step 3: Feature selection
     selector = EDPFeatureSelector(selection_method="comprehensive")
-    selected_features = selector.select_features_for_edp(df_interactions, target_col, max_features)
+    selected_features = selector.select_features_for_edp(
+        df_interactions, target_col, max_features
+    )
 
     # Step 4: Create final feature set
     final_columns = selected_features + [target_col]
     if "energy" in df_interactions.columns and "energy" not in final_columns:
         final_columns.append("energy")
-    if "execution_time" in df_interactions.columns and "execution_time" not in final_columns:
+    if (
+        "execution_time" in df_interactions.columns
+        and "execution_time" not in final_columns
+    ):
         final_columns.append("execution_time")
 
     # Keep only columns that exist in the DataFrame
@@ -462,8 +530,14 @@ def create_optimized_feature_set(
         },
         "validation": validation_results,
         "selection": selector.get_feature_analysis(),
-        "final_feature_set": {"features": selected_features, "total_columns": len(final_columns), "target_column": target_col},
+        "final_feature_set": {
+            "features": selected_features,
+            "total_columns": len(final_columns),
+            "target_column": target_col,
+        },
     }
 
-    logger.info(f"Feature optimization complete: {len(selected_features)} features selected")
+    logger.info(
+        f"Feature optimization complete: {len(selected_features)} features selected"
+    )
     return df_final, analysis_results

@@ -17,7 +17,13 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from hardware import compare_gpus, get_gpu_info, get_module_info, get_supported_gpus, validate_gpu_configuration
+from hardware import (
+    compare_gpus,
+    get_gpu_info,
+    get_module_info,
+    get_supported_gpus,
+    validate_gpu_configuration,
+)
 
 
 def demonstrate_gpu_specifications(gpu_type: str):
@@ -70,7 +76,9 @@ def demonstrate_gpu_specifications(gpu_type: str):
         power_spec = gpu_info.get_power_specification()
         print(f"\n⚡ Power Specifications:")
         print(f"  TDP: {power_spec.tdp_watts}W")
-        print(f"  Power Range: {power_spec.min_power_watts}W - {power_spec.max_power_watts}W")
+        print(
+            f"  Power Range: {power_spec.min_power_watts}W - {power_spec.max_power_watts}W"
+        )
         print(f"  Power Connectors: {', '.join(power_spec.power_connectors)}")
         if power_spec.power_efficiency:
             print(f"  Power Efficiency: {power_spec.power_efficiency} GFLOPS/W")
@@ -87,7 +95,9 @@ def demonstrate_gpu_specifications(gpu_type: str):
         fgcs_freqs = gpu_info.get_fgcs_compatible_frequencies()
         print(f"\n🔬 FGCS Compatibility:")
         print(f"  Validated Frequencies: {fgcs_freqs}")
-        print(f"  Baseline Frequency: {gpu_info.specifications['fgcs']['baseline_frequency']} MHz")
+        print(
+            f"  Baseline Frequency: {gpu_info.specifications['fgcs']['baseline_frequency']} MHz"
+        )
 
         # Workload recommendations
         print(f"\n🎯 Workload Recommendations:")
@@ -122,14 +132,21 @@ def demonstrate_frequency_validation(gpu_type: str):
         print(f"\nConfiguration Validation:")
         memory_freq = gpu_info.get_memory_specification().frequency_mhz
 
-        test_configs = [(1200, memory_freq), (1500, memory_freq), (2000, memory_freq), (1200, 1000)]  # Wrong memory frequency
+        test_configs = [
+            (1200, memory_freq),
+            (1500, memory_freq),
+            (2000, memory_freq),
+            (1200, 1000),
+        ]  # Wrong memory frequency
 
         for core_freq, mem_freq in test_configs:
             validation = validate_gpu_configuration(gpu_type, core_freq, mem_freq)
             status = "✅ Valid" if validation["overall_valid"] else "❌ Invalid"
             print(f"  Core: {core_freq} MHz, Memory: {mem_freq} MHz - {status}")
             if not validation["overall_valid"]:
-                issues = [k for k, v in validation.items() if not v and k != "overall_valid"]
+                issues = [
+                    k for k, v in validation.items() if not v and k != "overall_valid"
+                ]
                 print(f"    Issues: {', '.join(issues)}")
 
     except ValueError as e:
@@ -149,7 +166,14 @@ def demonstrate_gpu_comparison():
     print(f"{'Metric':<25} {'V100':<15} {'A100':<15} {'H100':<15}")
     print("-" * 70)
 
-    metrics = ["architecture", "frequency_count", "memory_size", "sm_count", "cuda_cores", "tdp"]
+    metrics = [
+        "architecture",
+        "frequency_count",
+        "memory_size",
+        "sm_count",
+        "cuda_cores",
+        "tdp",
+    ]
 
     for metric in metrics:
         values = []
@@ -160,14 +184,19 @@ def demonstrate_gpu_comparison():
             else:
                 values.append("N/A")
 
-        print(f"{metric.replace('_', ' ').title():<25} {values[0]:<15} {values[1]:<15} {values[2]:<15}")
+        print(
+            f"{metric.replace('_', ' ').title():<25} {values[0]:<15} {values[1]:<15} {values[2]:<15}"
+        )
 
     # Performance evolution
     print(f"\n📈 Performance Evolution:")
     for gpu in ["V100", "A100", "H100"]:
         if gpu in comparison and "error" not in comparison[gpu]:
             specs = comparison[gpu]
-            print(f"  {gpu}: {specs['cuda_cores']} CUDA cores, " f"{specs['memory_size']}, {specs['tdp']}")
+            print(
+                f"  {gpu}: {specs['cuda_cores']} CUDA cores, "
+                f"{specs['memory_size']}, {specs['tdp']}"
+            )
 
 
 def demonstrate_integration_examples():
@@ -188,7 +217,9 @@ def demonstrate_integration_examples():
         gpu_info = get_gpu_info(gpu_type)
         inference_freq = gpu_info.get_optimal_frequency_for_workload("inference")
         training_freq = gpu_info.get_optimal_frequency_for_workload("training")
-        print(f"   {gpu_type}: Inference={inference_freq} MHz, Training={training_freq} MHz")
+        print(
+            f"   {gpu_type}: Inference={inference_freq} MHz, Training={training_freq} MHz"
+        )
 
     # Example 3: Configuration validation pipeline
     print("\n3. Configuration Validation Pipeline:")
@@ -221,9 +252,18 @@ def demonstrate_integration_examples():
 def main():
     """Main demonstration function."""
     parser = argparse.ArgumentParser(description="Hardware GPU Info Module Example")
-    parser.add_argument("--gpu-type", choices=["V100", "A100", "H100"], default="V100", help="GPU type to demonstrate")
-    parser.add_argument("--compare-all", action="store_true", help="Show comparison of all GPU types")
-    parser.add_argument("--integration", action="store_true", help="Show framework integration examples")
+    parser.add_argument(
+        "--gpu-type",
+        choices=["V100", "A100", "H100"],
+        default="V100",
+        help="GPU type to demonstrate",
+    )
+    parser.add_argument(
+        "--compare-all", action="store_true", help="Show comparison of all GPU types"
+    )
+    parser.add_argument(
+        "--integration", action="store_true", help="Show framework integration examples"
+    )
 
     args = parser.parse_args()
 

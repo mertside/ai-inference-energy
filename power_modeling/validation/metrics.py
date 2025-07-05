@@ -12,7 +12,12 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+    r2_score,
+)
 from sklearn.model_selection import KFold, cross_val_score
 
 logger = logging.getLogger(__name__)
@@ -22,7 +27,9 @@ class ModelValidationMetrics:
     """Comprehensive model validation metrics calculator."""
 
     @staticmethod
-    def calculate_basic_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def calculate_basic_metrics(
+        y_true: np.ndarray, y_pred: np.ndarray
+    ) -> Dict[str, float]:
         """
         Calculate basic regression metrics.
 
@@ -45,7 +52,9 @@ class ModelValidationMetrics:
         return metrics
 
     @staticmethod
-    def calculate_relative_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def calculate_relative_metrics(
+        y_true: np.ndarray, y_pred: np.ndarray
+    ) -> Dict[str, float]:
         """
         Calculate relative accuracy metrics.
 
@@ -59,15 +68,22 @@ class ModelValidationMetrics:
         mean_true = np.mean(y_true)
         relative_metrics = {
             "relative_mae": mean_absolute_error(y_true, y_pred) / mean_true * 100,
-            "relative_rmse": np.sqrt(mean_squared_error(y_true, y_pred)) / mean_true * 100,
-            "accuracy_within_5pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.05) * 100,
-            "accuracy_within_10pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.10) * 100,
-            "accuracy_within_15pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.15) * 100,
+            "relative_rmse": np.sqrt(mean_squared_error(y_true, y_pred))
+            / mean_true
+            * 100,
+            "accuracy_within_5pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.05)
+            * 100,
+            "accuracy_within_10pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.10)
+            * 100,
+            "accuracy_within_15pct": np.mean(np.abs(y_true - y_pred) / y_true <= 0.15)
+            * 100,
         }
         return relative_metrics
 
     @staticmethod
-    def calculate_energy_specific_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    def calculate_energy_specific_metrics(
+        y_true: np.ndarray, y_pred: np.ndarray
+    ) -> Dict[str, float]:
         """
         Calculate energy-specific validation metrics.
 
@@ -84,9 +100,14 @@ class ModelValidationMetrics:
 
         energy_metrics = {
             "energy_mae": mean_absolute_error(energy_true, energy_pred),
-            "energy_mape": mean_absolute_percentage_error(energy_true, energy_pred) * 100,
+            "energy_mape": mean_absolute_percentage_error(energy_true, energy_pred)
+            * 100,
             "total_energy_error": np.abs(np.sum(energy_true) - np.sum(energy_pred)),
-            "relative_total_energy_error": np.abs(np.sum(energy_true) - np.sum(energy_pred)) / np.sum(energy_true) * 100,
+            "relative_total_energy_error": np.abs(
+                np.sum(energy_true) - np.sum(energy_pred)
+            )
+            / np.sum(energy_true)
+            * 100,
         }
         return energy_metrics
 
@@ -171,7 +192,9 @@ class PowerModelValidator:
         self.metrics_calculator = ModelValidationMetrics()
         self.cv_analyzer = CrossValidationAnalyzer()
 
-    def validate_power_model(self, model, X_test: np.ndarray, y_test: np.ndarray, model_name: str = "Model") -> Dict[str, Any]:
+    def validate_power_model(
+        self, model, X_test: np.ndarray, y_test: np.ndarray, model_name: str = "Model"
+    ) -> Dict[str, Any]:
         """
         Comprehensive validation of a power model.
 
@@ -191,8 +214,12 @@ class PowerModelValidator:
 
         # Calculate all metrics
         basic_metrics = self.metrics_calculator.calculate_basic_metrics(y_test, y_pred)
-        relative_metrics = self.metrics_calculator.calculate_relative_metrics(y_test, y_pred)
-        energy_metrics = self.metrics_calculator.calculate_energy_specific_metrics(y_test, y_pred)
+        relative_metrics = self.metrics_calculator.calculate_relative_metrics(
+            y_test, y_pred
+        )
+        energy_metrics = self.metrics_calculator.calculate_energy_specific_metrics(
+            y_test, y_pred
+        )
 
         # Combine all metrics
         validation_results = {
@@ -200,12 +227,18 @@ class PowerModelValidator:
             "basic_metrics": basic_metrics,
             "relative_metrics": relative_metrics,
             "energy_metrics": energy_metrics,
-            "predictions": {"y_true": y_test, "y_pred": y_pred, "residuals": y_test - y_pred},
+            "predictions": {
+                "y_true": y_test,
+                "y_pred": y_pred,
+                "residuals": y_test - y_pred,
+            },
         }
 
         return validation_results
 
-    def compare_models(self, models: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Any]:
+    def compare_models(
+        self, models: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray
+    ) -> Dict[str, Any]:
         """
         Compare multiple models using validation metrics.
 
@@ -222,12 +255,18 @@ class PowerModelValidator:
         comparison_results = {}
 
         for model_name, model in models.items():
-            comparison_results[model_name] = self.validate_power_model(model, X_test, y_test, model_name)
+            comparison_results[model_name] = self.validate_power_model(
+                model, X_test, y_test, model_name
+            )
 
         # Create comparison summary
         summary = self._create_comparison_summary(comparison_results)
 
-        return {"individual_results": comparison_results, "summary": summary, "best_model": summary["best_model"]}
+        return {
+            "individual_results": comparison_results,
+            "summary": summary,
+            "best_model": summary["best_model"],
+        }
 
     def _create_comparison_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
         """Create a summary of model comparison results."""
@@ -242,7 +281,9 @@ class PowerModelValidator:
                     "rmse": result["basic_metrics"]["rmse"],
                     "mape": result["basic_metrics"]["mape"],
                     "relative_mae": result["relative_metrics"]["relative_mae"],
-                    "accuracy_within_10pct": result["relative_metrics"]["accuracy_within_10pct"],
+                    "accuracy_within_10pct": result["relative_metrics"][
+                        "accuracy_within_10pct"
+                    ],
                 }
             )
 
@@ -252,7 +293,11 @@ class PowerModelValidator:
         best_idx = summary_df["r2"].idxmax()
         best_model = summary_df.loc[best_idx, "model"]
 
-        return {"summary_table": summary_df, "best_model": best_model, "best_metrics": summary_df.loc[best_idx].to_dict()}
+        return {
+            "summary_table": summary_df,
+            "best_model": best_model,
+            "best_metrics": summary_df.loc[best_idx].to_dict(),
+        }
 
     def validate_frequency_predictions(
         self, model, fp_activity: float, dram_activity: float, frequencies: List[int]
@@ -288,14 +333,17 @@ class PowerModelValidator:
                 "monotonic_increasing": pred_df["power"].is_monotonic_increasing,
                 "power_range": (pred_df["power"].min(), pred_df["power"].max()),
                 "power_gradient": np.gradient(pred_df["power"].values),
-                "reasonable_range": (pred_df["power"].min() > 0) and (pred_df["power"].max() < 1000),
+                "reasonable_range": (pred_df["power"].min() > 0)
+                and (pred_df["power"].max() < 1000),
             },
         }
 
         return validation_results
 
 
-def generate_validation_report(validation_results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def generate_validation_report(
+    validation_results: Dict[str, Any], output_file: Optional[str] = None
+) -> str:
     """
     Generate a comprehensive validation report.
 
@@ -337,7 +385,9 @@ def generate_validation_report(validation_results: Dict[str, Any], output_file: 
             report_lines.append(f"  MAE: {result['basic_metrics']['mae']:.2f} W")
             report_lines.append(f"  RMSE: {result['basic_metrics']['rmse']:.2f} W")
             report_lines.append(f"  MAPE: {result['basic_metrics']['mape']:.2f}%")
-            report_lines.append(f"  Accuracy within 10%: {result['relative_metrics']['accuracy_within_10pct']:.1f}%")
+            report_lines.append(
+                f"  Accuracy within 10%: {result['relative_metrics']['accuracy_within_10pct']:.1f}%"
+            )
 
     # Generate report string
     report = "\n".join(report_lines)
@@ -352,4 +402,9 @@ def generate_validation_report(validation_results: Dict[str, Any], output_file: 
 
 
 # Export key classes
-__all__ = ["ModelValidationMetrics", "CrossValidationAnalyzer", "PowerModelValidator", "generate_validation_report"]
+__all__ = [
+    "ModelValidationMetrics",
+    "CrossValidationAnalyzer",
+    "PowerModelValidator",
+    "generate_validation_report",
+]

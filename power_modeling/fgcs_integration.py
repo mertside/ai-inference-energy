@@ -12,13 +12,13 @@ extracted from the FGCS 2023 paper. It integrates:
 
 Usage:
     from power_modeling.fgcs_integration import FGCSPowerModelingFramework
-    
+
     # Initialize framework
     framework = FGCSPowerModelingFramework()
-    
+
     # Train models on your data
     results = framework.train_and_evaluate(training_data, test_data)
-    
+
     # Optimize application
     optimization = framework.optimize_application(app_data)
 """
@@ -58,7 +58,11 @@ class FGCSPowerModelingFramework:
             model_types: List of model types to use
             gpu_type: GPU type for frequency configurations
         """
-        self.model_types = model_types or ["fgcs_original", "polynomial_deg2", "random_forest_enhanced"]
+        self.model_types = model_types or [
+            "fgcs_original",
+            "polynomial_deg2",
+            "random_forest_enhanced",
+        ]
         self.gpu_type = gpu_type
         self.preprocessor = DataPreprocessor()
         self.model_pipeline = ModelPipeline(model_types=self.model_types)
@@ -339,9 +343,13 @@ class FGCSPowerModelingFramework:
             ],  # 86 frequencies ≥510 MHz
         }
 
-        logger.info(f"FGCS Framework initialized for {gpu_type} with models: {self.model_types}")
+        logger.info(
+            f"FGCS Framework initialized for {gpu_type} with models: {self.model_types}"
+        )
 
-    def load_profiling_data(self, data_file: str, app_name: str = "application") -> Dict[str, Any]:
+    def load_profiling_data(
+        self, data_file: str, app_name: str = "application"
+    ) -> Dict[str, Any]:
         """
         Load and preprocess profiling data from CSV file.
 
@@ -356,7 +364,9 @@ class FGCSPowerModelingFramework:
 
         try:
             # Calculate performance metrics using FGCS methodology
-            fp_activity, dram_activity = PerformanceMetricsCalculator.calculate_metrics(data_file, n_runs=3)
+            fp_activity, dram_activity = PerformanceMetricsCalculator.calculate_metrics(
+                data_file, n_runs=3
+            )
 
             # Load the raw data for further processing
             try:
@@ -380,7 +390,9 @@ class FGCSPowerModelingFramework:
                 "data_file": data_file,
             }
 
-            logger.info(f"Data loaded successfully: FP={fp_activity:.4f}, DRAM={dram_activity:.4f}")
+            logger.info(
+                f"Data loaded successfully: FP={fp_activity:.4f}, DRAM={dram_activity:.4f}"
+            )
             return result
 
         except Exception as e:
@@ -388,7 +400,10 @@ class FGCSPowerModelingFramework:
             raise
 
     def train_models(
-        self, training_data: pd.DataFrame, target_column: str = "power", test_size: float = 0.2
+        self,
+        training_data: pd.DataFrame,
+        target_column: str = "power",
+        test_size: float = 0.2,
     ) -> Dict[str, Any]:
         """
         Train all models in the pipeline.
@@ -411,7 +426,9 @@ class FGCSPowerModelingFramework:
         # Split data
         from sklearn.model_selection import train_test_split
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=42
+        )
 
         # Train models
         results = self.model_pipeline.train_models(X_train, y_train, X_test, y_test)
@@ -420,7 +437,9 @@ class FGCSPowerModelingFramework:
         self.best_model = results["best_model"]
         self.best_model_name = results["best_model_name"]
 
-        logger.info(f"Model training complete. Best model: {self.best_model_name if self.best_model_name else 'None'}")
+        logger.info(
+            f"Model training complete. Best model: {self.best_model_name if self.best_model_name else 'None'}"
+        )
         return results
 
     def predict_power_sweep(
@@ -443,12 +462,16 @@ class FGCSPowerModelingFramework:
             DataFrame with power predictions across frequencies
         """
         if frequencies is None:
-            frequencies = self.frequency_configs.get(self.gpu_type, self.frequency_configs["V100"])
+            frequencies = self.frequency_configs.get(
+                self.gpu_type, self.frequency_configs["V100"]
+            )
 
         logger.info(f"Predicting power across {len(frequencies)} frequencies")
 
         # Use the model pipeline to make predictions
-        result = self.model_pipeline.predict_power_across_frequencies(fp_activity, dram_activity, frequencies, model_name)
+        result = self.model_pipeline.predict_power_across_frequencies(
+            fp_activity, dram_activity, frequencies, model_name
+        )
 
         return result
 
@@ -480,21 +503,32 @@ class FGCSPowerModelingFramework:
             logger.info("No trained models found, using FGCS original model")
             power_model = FGCSModelFactory.create_fgcs_power_model()
         else:
-            power_model = self.best_model if self.best_model else list(self.trained_models.values())[0]
+            power_model = (
+                self.best_model
+                if self.best_model
+                else list(self.trained_models.values())[0]
+            )
 
         # Create optimization pipeline
         optimizer = DVFSOptimizationPipeline(power_model)
 
         if frequencies is None:
-            frequencies = self.frequency_configs.get(self.gpu_type, self.frequency_configs["V100"])
+            frequencies = self.frequency_configs.get(
+                self.gpu_type, self.frequency_configs["V100"]
+            )
 
         # Run optimization
-        results = optimizer.optimize_application(fp_activity, dram_activity, baseline_runtime, frequencies, app_name)
+        results = optimizer.optimize_application(
+            fp_activity, dram_activity, baseline_runtime, frequencies, app_name
+        )
 
         return results
 
     def analyze_from_file(
-        self, profiling_file: str, performance_file: Optional[str] = None, app_name: str = "Application"
+        self,
+        profiling_file: str,
+        performance_file: Optional[str] = None,
+        app_name: str = "Application",
     ) -> Dict[str, Any]:
         """
         Complete analysis pipeline from profiling files.
@@ -514,15 +548,22 @@ class FGCSPowerModelingFramework:
 
         # Get baseline runtime
         if performance_file:
-            baseline_runtime = PerformanceMetricsCalculator.get_baseline_runtime(performance_file, app_name)
+            baseline_runtime = PerformanceMetricsCalculator.get_baseline_runtime(
+                performance_file, app_name
+            )
         else:
             # Use a default baseline
             baseline_runtime = 1.0
-            logger.warning("No performance file provided, using default baseline runtime")
+            logger.warning(
+                "No performance file provided, using default baseline runtime"
+            )
 
         # Run optimization
         optimization_results = self.optimize_application(
-            profiling_data["fp_activity"], profiling_data["dram_activity"], baseline_runtime, app_name
+            profiling_data["fp_activity"],
+            profiling_data["dram_activity"],
+            baseline_runtime,
+            app_name,
         )
 
         # Combine results
@@ -534,7 +575,9 @@ class FGCSPowerModelingFramework:
             "metadata": {
                 "gpu_type": self.gpu_type,
                 "models_used": self.model_types,
-                "best_model": self.best_model[0] if self.best_model else "fgcs_original",
+                "best_model": (
+                    self.best_model[0] if self.best_model else "fgcs_original"
+                ),
             },
         }
 
@@ -558,7 +601,9 @@ class FGCSPowerModelingFramework:
 
         return summary
 
-    def save_results(self, results: Dict, output_dir: str = "results") -> Dict[str, str]:
+    def save_results(
+        self, results: Dict, output_dir: str = "results"
+    ) -> Dict[str, str]:
         """
         Save analysis results to files.
 
@@ -577,7 +622,9 @@ class FGCSPowerModelingFramework:
         # Save frequency sweep data
         if "frequency_sweep_data" in results["optimization_results"]:
             sweep_file = output_path / f"{app_name}_frequency_sweep.csv"
-            results["optimization_results"]["frequency_sweep_data"].to_csv(sweep_file, index=False)
+            results["optimization_results"]["frequency_sweep_data"].to_csv(
+                sweep_file, index=False
+            )
 
         # Save optimization results
         opt_file = output_path / f"{app_name}_optimization_results.json"
@@ -602,7 +649,11 @@ class FGCSPowerModelingFramework:
             f.write(f"ED²P Optimal Frequency: {summary['ed2p_frequency']}\n")
 
         saved_files = {
-            "frequency_sweep": str(sweep_file) if "frequency_sweep_data" in results["optimization_results"] else None,
+            "frequency_sweep": (
+                str(sweep_file)
+                if "frequency_sweep_data" in results["optimization_results"]
+                else None
+            ),
             "optimization_results": str(opt_file),
             "summary": str(summary_file),
         }

@@ -1,7 +1,7 @@
 """
 Visualization Package for EDP Analysis
 
-This package provides comprehensive visualization capabilities for the AI Inference Energy 
+This package provides comprehensive visualization capabilities for the AI Inference Energy
 Profiling Framework, including EDP analysis, power consumption, and performance visualization.
 
 Enhanced with FGCS 2023 methodology integration:
@@ -13,7 +13,7 @@ Enhanced with FGCS 2023 methodology integration:
 
 Modules:
 - edp_plots: Energy-Delay Product visualization with feature importance
-- power_plots: Power consumption analysis and FGCS validation plots  
+- power_plots: Power consumption analysis and FGCS validation plots
 - performance_plots: Performance analysis and throughput visualization
 
 The visualization modules handle conditional imports for matplotlib, seaborn, and other

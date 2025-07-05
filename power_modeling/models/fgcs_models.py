@@ -31,12 +31,16 @@ class PolynomialPowerModel:
         """
         self.degree = degree
         self.include_bias = include_bias
-        self.poly_features = PolynomialFeatures(degree=degree, include_bias=include_bias)
+        self.poly_features = PolynomialFeatures(
+            degree=degree, include_bias=include_bias
+        )
         self.model = LinearRegression()
         self.is_trained = False
         self.feature_names = None
 
-    def fit(self, features: pd.DataFrame, power_values: pd.Series) -> "PolynomialPowerModel":
+    def fit(
+        self, features: pd.DataFrame, power_values: pd.Series
+    ) -> "PolynomialPowerModel":
         """
         Train the polynomial power model.
 
@@ -104,7 +108,9 @@ class FGCSPowerModel:
         }
         self.is_trained = True  # Model uses fixed coefficients
 
-    def predict_power(self, fp_activity: float, dram_activity: float, sm_clock_frequencies: List[int]) -> pd.DataFrame:
+    def predict_power(
+        self, fp_activity: float, dram_activity: float, sm_clock_frequencies: List[int]
+    ) -> pd.DataFrame:
         """
         Predict power consumption across frequency range.
 
@@ -129,7 +135,9 @@ class FGCSPowerModel:
 
         return df
 
-    def predict_runtime(self, app_df: pd.DataFrame, baseline_time: float, fp_activity: float) -> pd.DataFrame:
+    def predict_runtime(
+        self, app_df: pd.DataFrame, baseline_time: float, fp_activity: float
+    ) -> pd.DataFrame:
         """
         Predict runtime using FGCS polynomial model.
 
@@ -159,9 +167,13 @@ class FGCSPowerModel:
         )
 
         # Convert log predictions back to real values
-        app_df["predicted_n_to_r_power_usage"] = np.expm1(app_df["predicted_n_power_usage"])
+        app_df["predicted_n_to_r_power_usage"] = np.expm1(
+            app_df["predicted_n_power_usage"]
+        )
         app_df["predicted_n_to_r_run_time"] = np.expm1(app_df["predicted_n_run_time"])
-        app_df["predicted_n_to_r_energy"] = app_df["predicted_n_to_r_run_time"] * app_df["predicted_n_to_r_power_usage"]
+        app_df["predicted_n_to_r_energy"] = (
+            app_df["predicted_n_to_r_run_time"] * app_df["predicted_n_to_r_power_usage"]
+        )
         app_df["predicted_n_energy"] = np.log1p(app_df["predicted_n_to_r_energy"])
 
         return app_df
@@ -182,7 +194,9 @@ class PerformanceMetricsCalculator:
         Returns:
             Tuple of (fp_avg, dram_avg)
         """
-        logger.info(f"Computing average metrics for {n_runs} runs from {time_data_file}")
+        logger.info(
+            f"Computing average metrics for {n_runs} runs from {time_data_file}"
+        )
 
         fp64_values = []
         fp32_values = []

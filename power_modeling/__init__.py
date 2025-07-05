@@ -12,10 +12,10 @@ Main Components:
 
 Usage:
     from power_modeling import FGCSPowerModelingFramework, analyze_application
-    
+
     # Quick analysis
     results = analyze_application("profiling_data.csv", app_name="MyApp")
-    
+
     # Full framework
     framework = FGCSPowerModelingFramework()
     results = framework.analyze_from_file("profiling_data.csv")
@@ -26,14 +26,27 @@ from .feature_engineering.preprocessing import DataPreprocessor
 
 # Import core framework
 from .fgcs_integration import FGCSPowerModelingFramework, analyze_application
-from .models.ensemble_models import EnhancedRandomForestModel, ModelEvaluator, XGBoostPowerModel
-from .models.fgcs_models import FGCSPowerModel, PerformanceMetricsCalculator, PolynomialPowerModel
+from .models.ensemble_models import (
+    EnhancedRandomForestModel,
+    ModelEvaluator,
+    XGBoostPowerModel,
+)
+from .models.fgcs_models import (
+    FGCSPowerModel,
+    PerformanceMetricsCalculator,
+    PolynomialPowerModel,
+)
 
 # Import model factories and key model classes
 from .models.model_factory import FGCSModelFactory, ModelPipeline
 
 # Import validation utilities
-from .validation import CrossValidationAnalyzer, ModelValidationMetrics, PowerModelValidator, generate_validation_report
+from .validation import (
+    CrossValidationAnalyzer,
+    ModelValidationMetrics,
+    PowerModelValidator,
+    generate_validation_report,
+)
 
 # Version and metadata
 __version__ = "1.0.0"

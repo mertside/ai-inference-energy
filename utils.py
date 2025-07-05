@@ -14,7 +14,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
-def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None, log_format: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    log_level: str = "INFO",
+    log_file: Optional[str] = None,
+    log_format: Optional[str] = None,
+) -> logging.Logger:
     """
     Set up logging configuration for the application.
 
@@ -65,7 +69,10 @@ def ensure_directory(directory_path: str) -> None:
 
 
 def run_command(
-    command: List[str], timeout: Optional[int] = None, capture_output: bool = True, check: bool = True
+    command: List[str],
+    timeout: Optional[int] = None,
+    capture_output: bool = True,
+    check: bool = True,
 ) -> subprocess.CompletedProcess:
     """
     Run a system command with proper error handling.
@@ -97,7 +104,10 @@ def run_command(
             )
         else:
             result = subprocess.run(
-                command, timeout=timeout, universal_newlines=True, check=check  # Python 3.6 compatible (text=True in 3.7+)
+                command,
+                timeout=timeout,
+                universal_newlines=True,
+                check=check,  # Python 3.6 compatible (text=True in 3.7+)
             )
         return result
     except subprocess.CalledProcessError as e:
@@ -121,7 +131,9 @@ def validate_gpu_available() -> bool:
         True if GPU is available, False otherwise
     """
     try:
-        result = run_command(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader,nounits"])
+        result = run_command(
+            ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader,nounits"]
+        )
         return result.returncode == 0 and bool(result.stdout.strip())
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False

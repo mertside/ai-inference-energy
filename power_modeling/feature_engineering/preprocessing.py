@@ -77,7 +77,9 @@ class DataPreprocessor:
         logger.info(f"Cleaned data shape: {clean_data.shape}")
         return clean_data
 
-    def normalize_features(self, data: pd.DataFrame, features: List[str] = None, fit_scalers: bool = True) -> pd.DataFrame:
+    def normalize_features(
+        self, data: pd.DataFrame, features: List[str] = None, fit_scalers: bool = True
+    ) -> pd.DataFrame:
         """
         Normalize features using the specified method.
 
@@ -90,7 +92,13 @@ class DataPreprocessor:
             DataFrame with normalized features
         """
         if features is None:
-            features = ["power_usage", "fp_active", "dram_active", "sm_app_clock", "runtime"]
+            features = [
+                "power_usage",
+                "fp_active",
+                "dram_active",
+                "sm_app_clock",
+                "runtime",
+            ]
 
         logger.info(f"Normalizing features using {self.normalization_method} method")
 
@@ -103,12 +111,16 @@ class DataPreprocessor:
                 elif self.normalization_method == "minmax":
                     if fit_scalers:
                         scaler = MinMaxScaler()
-                        normalized_data[f"n_{feature}"] = scaler.fit_transform(data[feature].values.reshape(-1, 1)).flatten()
+                        normalized_data[f"n_{feature}"] = scaler.fit_transform(
+                            data[feature].values.reshape(-1, 1)
+                        ).flatten()
                         self.scalers[feature] = scaler
                     else:
                         if feature in self.scalers:
                             normalized_data[f"n_{feature}"] = (
-                                self.scalers[feature].transform(data[feature].values.reshape(-1, 1)).flatten()
+                                self.scalers[feature]
+                                .transform(data[feature].values.reshape(-1, 1))
+                                .flatten()
                             )
                         else:
                             logger.warning(f"No scaler found for {feature}")
@@ -116,12 +128,16 @@ class DataPreprocessor:
                 elif self.normalization_method == "standard":
                     if fit_scalers:
                         scaler = StandardScaler()
-                        normalized_data[f"n_{feature}"] = scaler.fit_transform(data[feature].values.reshape(-1, 1)).flatten()
+                        normalized_data[f"n_{feature}"] = scaler.fit_transform(
+                            data[feature].values.reshape(-1, 1)
+                        ).flatten()
                         self.scalers[feature] = scaler
                     else:
                         if feature in self.scalers:
                             normalized_data[f"n_{feature}"] = (
-                                self.scalers[feature].transform(data[feature].values.reshape(-1, 1)).flatten()
+                                self.scalers[feature]
+                                .transform(data[feature].values.reshape(-1, 1))
+                                .flatten()
                             )
                         else:
                             logger.warning(f"No scaler found for {feature}")
@@ -129,12 +145,16 @@ class DataPreprocessor:
                 elif self.normalization_method == "none":
                     normalized_data[f"n_{feature}"] = data[feature]
                 else:
-                    logger.warning(f"Unknown normalization method: {self.normalization_method}")
+                    logger.warning(
+                        f"Unknown normalization method: {self.normalization_method}"
+                    )
                     normalized_data[f"n_{feature}"] = data[feature]
 
         return normalized_data
 
-    def denormalize_predictions(self, predictions: np.ndarray, feature_name: str) -> np.ndarray:
+    def denormalize_predictions(
+        self, predictions: np.ndarray, feature_name: str
+    ) -> np.ndarray:
         """
         Denormalize predictions back to original scale.
 
@@ -149,14 +169,20 @@ class DataPreprocessor:
             return np.expm1(predictions)
         elif self.normalization_method in ["minmax", "standard"]:
             if feature_name in self.scalers:
-                return self.scalers[feature_name].inverse_transform(predictions.reshape(-1, 1)).flatten()
+                return (
+                    self.scalers[feature_name]
+                    .inverse_transform(predictions.reshape(-1, 1))
+                    .flatten()
+                )
             else:
                 logger.warning(f"No scaler found for {feature_name}")
                 return predictions
         else:
             return predictions
 
-    def create_polynomial_features(self, data: pd.DataFrame, features: List[str], degree: int = 2) -> pd.DataFrame:
+    def create_polynomial_features(
+        self, data: pd.DataFrame, features: List[str], degree: int = 2
+    ) -> pd.DataFrame:
         """
         Create polynomial features for enhanced modeling.
 
@@ -210,14 +236,22 @@ class DataPreprocessor:
         logger.info(f"Splitting data with test_size={test_size}")
 
         if feature_columns is None:
-            feature_columns = [col for col in data.columns if col != target_column and col != "application"]
+            feature_columns = [
+                col
+                for col in data.columns
+                if col != target_column and col != "application"
+            ]
 
         X = data[feature_columns]
         y = data[target_column]
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state
+        )
 
-        logger.info(f"Training set size: {X_train.shape[0]}, Test set size: {X_test.shape[0]}")
+        logger.info(
+            f"Training set size: {X_train.shape[0]}, Test set size: {X_test.shape[0]}"
+        )
 
         return X_train, X_test, y_train, y_test
 
@@ -254,7 +288,9 @@ class DataPreprocessor:
         # Filter to available features
         available_features = [f for f in features if f in clean_data.columns]
         if not available_features:
-            raise ValueError(f"No requested features found in data. Available: {list(clean_data.columns)}")
+            raise ValueError(
+                f"No requested features found in data. Available: {list(clean_data.columns)}"
+            )
 
         # Normalize if requested
         if normalize:
@@ -266,12 +302,20 @@ class DataPreprocessor:
 
         # Create polynomial features if requested
         if polynomial_degree and polynomial_degree > 1:
-            processed_data = self.create_polynomial_features(processed_data, modeling_features, polynomial_degree)
+            processed_data = self.create_polynomial_features(
+                processed_data, modeling_features, polynomial_degree
+            )
             # Update feature list to include polynomial features
-            modeling_features = [col for col in processed_data.columns if col.startswith("poly_") or col in modeling_features]
+            modeling_features = [
+                col
+                for col in processed_data.columns
+                if col.startswith("poly_") or col in modeling_features
+            ]
 
         # Split data
-        X_train, X_test, y_train, y_test = self.split_data(processed_data, target, modeling_features)
+        X_train, X_test, y_train, y_test = self.split_data(
+            processed_data, target, modeling_features
+        )
 
         return {
             "X_train": X_train,

@@ -76,19 +76,25 @@ class PerformanceProfiler:
 
         # Calculate throughput (inverse of time)
         metrics["mean_throughput"] = 1.0 / metrics["mean_time"]
-        metrics["throughput_range"] = (1.0 / metrics["min_time"]) - (1.0 / metrics["max_time"])
+        metrics["throughput_range"] = (1.0 / metrics["min_time"]) - (
+            1.0 / metrics["max_time"]
+        )
 
         # Performance relative to baseline
         if baseline_time is not None:
             baseline_time_scaled = baseline_time * self.time_scale
             metrics["speedup"] = baseline_time_scaled / metrics["mean_time"]
-            metrics["performance_improvement"] = (1 - metrics["mean_time"] / baseline_time_scaled) * 100
+            metrics["performance_improvement"] = (
+                1 - metrics["mean_time"] / baseline_time_scaled
+            ) * 100
 
         # Frequency scaling analysis
         if frequencies is not None:
             freqs = np.array(frequencies)
             if len(freqs) == len(times):
-                metrics["frequency_performance_correlation"] = np.corrcoef(freqs, 1 / times)[0, 1]
+                metrics["frequency_performance_correlation"] = np.corrcoef(
+                    freqs, 1 / times
+                )[0, 1]
 
                 # Calculate ideal scaling (if baseline provided)
                 if baseline_frequency is not None and baseline_time is not None:
@@ -120,7 +126,9 @@ class PerformanceProfiler:
             raise ValueError("Performance data is empty")
 
         required_cols = [frequency_col, time_col]
-        missing_cols = [col for col in required_cols if col not in performance_data.columns]
+        missing_cols = [
+            col for col in required_cols if col not in performance_data.columns
+        ]
         if missing_cols:
             raise ValueError(f"Missing required columns: {missing_cols}")
 
@@ -135,7 +143,9 @@ class PerformanceProfiler:
         if baseline_frequency is not None:
             baseline_mask = df[frequency_col] == baseline_frequency
             if not baseline_mask.any():
-                logger.warning(f"Baseline frequency {baseline_frequency} not found, using maximum frequency")
+                logger.warning(
+                    f"Baseline frequency {baseline_frequency} not found, using maximum frequency"
+                )
                 baseline_frequency = df[frequency_col].max()
                 baseline_mask = df[frequency_col] == baseline_frequency
         else:
@@ -168,7 +178,10 @@ class PerformanceProfiler:
             "baseline_time": baseline_time,
             "baseline_throughput": baseline_throughput,
             "frequency_range": (df[frequency_col].min(), df[frequency_col].max()),
-            "time_range": (df[time_col].min() * self.time_scale, df[time_col].max() * self.time_scale),
+            "time_range": (
+                df[time_col].min() * self.time_scale,
+                df[time_col].max() * self.time_scale,
+            ),
             "throughput_range": (df["throughput"].min(), df["throughput"].max()),
             "freq_time_correlation": freq_time_corr,
             "freq_throughput_correlation": freq_throughput_corr,
@@ -192,7 +205,9 @@ class PerformanceProfiler:
             "processed_data": df,
         }
 
-        logger.info(f"Frequency scaling analysis complete: {len(df)} configurations analyzed")
+        logger.info(
+            f"Frequency scaling analysis complete: {len(df)} configurations analyzed"
+        )
         return scaling_results
 
     def calculate_baseline_performance(
@@ -248,7 +263,10 @@ class PerformanceProfiler:
             "baseline_throughput": 1.0 / baseline_time,
             "total_configurations": len(df),
             "frequency_range": (df[frequency_col].min(), df[frequency_col].max()),
-            "time_range": (df[time_col].min() * self.time_scale, df[time_col].max() * self.time_scale),
+            "time_range": (
+                df[time_col].min() * self.time_scale,
+                df[time_col].max() * self.time_scale,
+            ),
             "best_performance": {
                 "min_time": df[time_col].min() * self.time_scale,
                 "max_throughput": (1.0 / df[time_col].min()) / self.time_scale,
@@ -261,11 +279,16 @@ class PerformanceProfiler:
         baseline_metrics["max_speedup_potential"] = baseline_time / min_time
         baseline_metrics["max_time_reduction"] = (1 - min_time / baseline_time) * 100
 
-        logger.info(f"Baseline calculated for {app_name}: {baseline_freq} MHz, {baseline_time:.4f}s")
+        logger.info(
+            f"Baseline calculated for {app_name}: {baseline_freq} MHz, {baseline_time:.4f}s"
+        )
         return baseline_metrics
 
     def aggregate_performance_runs(
-        self, run_data: List[pd.DataFrame], group_by_cols: List[str] = ["frequency"], time_col: str = "execution_time"
+        self,
+        run_data: List[pd.DataFrame],
+        group_by_cols: List[str] = ["frequency"],
+        time_col: str = "execution_time",
     ) -> pd.DataFrame:
         """
         Aggregate performance measurements across multiple runs.
@@ -289,7 +312,9 @@ class PerformanceProfiler:
 
         # Calculate statistics for each group
         stats_df = (
-            combined_df.groupby(group_by_cols)[f"{time_col}_scaled"].agg(["mean", "std", "min", "max", "count"]).reset_index()
+            combined_df.groupby(group_by_cols)[f"{time_col}_scaled"]
+            .agg(["mean", "std", "min", "max", "count"])
+            .reset_index()
         )
 
         # Rename columns for clarity
@@ -306,9 +331,15 @@ class PerformanceProfiler:
 
         # Calculate additional metrics
         stats_df["throughput_mean"] = 1.0 / stats_df[f"{time_col}_mean"]
-        stats_df["throughput_std"] = stats_df[f"{time_col}_std"] / (stats_df[f"{time_col}_mean"] ** 2)
-        stats_df[f"{time_col}_cv"] = stats_df[f"{time_col}_std"] / stats_df[f"{time_col}_mean"]
-        stats_df[f"{time_col}_ci_95"] = 1.96 * stats_df[f"{time_col}_std"] / np.sqrt(stats_df["num_runs"])
+        stats_df["throughput_std"] = stats_df[f"{time_col}_std"] / (
+            stats_df[f"{time_col}_mean"] ** 2
+        )
+        stats_df[f"{time_col}_cv"] = (
+            stats_df[f"{time_col}_std"] / stats_df[f"{time_col}_mean"]
+        )
+        stats_df[f"{time_col}_ci_95"] = (
+            1.96 * stats_df[f"{time_col}_std"] / np.sqrt(stats_df["num_runs"])
+        )
 
         logger.info(f"Aggregated performance data for {len(stats_df)} configurations")
         return stats_df
@@ -392,7 +423,9 @@ class PerformanceProfiler:
             )
 
         if not anomaly_results["recommendations"]:
-            anomaly_results["recommendations"].append("Performance measurements appear consistent.")
+            anomaly_results["recommendations"].append(
+                "Performance measurements appear consistent."
+            )
 
         logger.info(f"Anomaly detection complete: {len(outliers)} outliers found")
         return anomaly_results
@@ -418,7 +451,9 @@ class PerformanceProfiler:
         Returns:
             DataFrame with predicted performance metrics
         """
-        logger.info(f"Predicting performance scaling from {baseline_frequency} MHz to {len(target_frequencies)} frequencies")
+        logger.info(
+            f"Predicting performance scaling from {baseline_frequency} MHz to {len(target_frequencies)} frequencies"
+        )
 
         # Get baseline performance
         baseline_data = df[df[frequency_col] == baseline_frequency]
@@ -452,7 +487,9 @@ class PerformanceProfiler:
             predictions.append(prediction)
 
         predictions_df = pd.DataFrame(predictions)
-        logger.info(f"Generated performance predictions for {len(target_frequencies)} frequencies")
+        logger.info(
+            f"Generated performance predictions for {len(target_frequencies)} frequencies"
+        )
         return predictions_df
 
     def analyze_fgcs_performance_model(
@@ -511,12 +548,16 @@ class PerformanceProfiler:
                 + runtime_coeffs[0] * fp_activity
                 + runtime_coeffs[1] * (7.230563 - df_analysis["n_sm_app_clock"])
                 + runtime_coeffs[2] * (fp_activity**2)
-                + runtime_coeffs[3] * fp_activity * (7.230563 - df_analysis["n_sm_app_clock"])
+                + runtime_coeffs[3]
+                * fp_activity
+                * (7.230563 - df_analysis["n_sm_app_clock"])
                 + runtime_coeffs[4] * ((7.230563 - df_analysis["n_sm_app_clock"]) ** 2)
             )
 
             # Convert back to real values
-            df_analysis["fgcs_predicted_time"] = np.expm1(df_analysis["fgcs_predicted_n_run_time"])
+            df_analysis["fgcs_predicted_time"] = np.expm1(
+                df_analysis["fgcs_predicted_n_run_time"]
+            )
 
             # Calculate prediction accuracy if actual times are available
             accuracy_metrics = {}
@@ -531,7 +572,10 @@ class PerformanceProfiler:
                     predicted_valid = predicted_times[valid_mask]
 
                     mae = np.mean(np.abs(actual_valid - predicted_valid))
-                    mape = np.mean(np.abs((actual_valid - predicted_valid) / actual_valid)) * 100
+                    mape = (
+                        np.mean(np.abs((actual_valid - predicted_valid) / actual_valid))
+                        * 100
+                    )
                     rmse = np.sqrt(np.mean((actual_valid - predicted_valid) ** 2))
 
                     accuracy_metrics = {
@@ -542,7 +586,9 @@ class PerformanceProfiler:
                         "total_predictions": len(df_analysis),
                     }
 
-                    logger.info(f"FGCS model accuracy: MAE={mae:.3f}s, MAPE={mape:.1f}%, RMSE={rmse:.3f}s")
+                    logger.info(
+                        f"FGCS model accuracy: MAE={mae:.3f}s, MAPE={mape:.1f}%, RMSE={rmse:.3f}s"
+                    )
 
             # Performance analysis results
             analysis_results = {
@@ -552,9 +598,9 @@ class PerformanceProfiler:
                     "runtime_coefficients": runtime_coeffs,
                     "baseline_coefficient": B0,
                 },
-                "predictions": df_analysis[[frequency_col, "fgcs_predicted_time", "fgcs_predicted_n_run_time"]].to_dict(
-                    "records"
-                ),
+                "predictions": df_analysis[
+                    [frequency_col, "fgcs_predicted_time", "fgcs_predicted_n_run_time"]
+                ].to_dict("records"),
                 "accuracy_metrics": accuracy_metrics,
                 "performance_insights": {},
                 "recommendations": [],
@@ -567,12 +613,22 @@ class PerformanceProfiler:
 
                 analysis_results["performance_insights"] = {
                     "fastest_frequency": df_analysis.loc[min_time_idx, frequency_col],
-                    "fastest_time": df_analysis.loc[min_time_idx, "fgcs_predicted_time"],
+                    "fastest_time": df_analysis.loc[
+                        min_time_idx, "fgcs_predicted_time"
+                    ],
                     "slowest_frequency": df_analysis.loc[max_time_idx, frequency_col],
-                    "slowest_time": df_analysis.loc[max_time_idx, "fgcs_predicted_time"],
-                    "performance_range": (df_analysis["fgcs_predicted_time"].min(), df_analysis["fgcs_predicted_time"].max()),
+                    "slowest_time": df_analysis.loc[
+                        max_time_idx, "fgcs_predicted_time"
+                    ],
+                    "performance_range": (
+                        df_analysis["fgcs_predicted_time"].min(),
+                        df_analysis["fgcs_predicted_time"].max(),
+                    ),
                     "performance_improvement_potential": (
-                        (df_analysis["fgcs_predicted_time"].max() - df_analysis["fgcs_predicted_time"].min())
+                        (
+                            df_analysis["fgcs_predicted_time"].max()
+                            - df_analysis["fgcs_predicted_time"].min()
+                        )
                         / df_analysis["fgcs_predicted_time"].max()
                         * 100
                     ),
@@ -584,8 +640,13 @@ class PerformanceProfiler:
                     f"High prediction error (MAPE: {accuracy_metrics['mape']:.1f}%) - consider collecting more training data"
                 )
 
-            if "performance_improvement_potential" in analysis_results["performance_insights"]:
-                improvement = analysis_results["performance_insights"]["performance_improvement_potential"]
+            if (
+                "performance_improvement_potential"
+                in analysis_results["performance_insights"]
+            ):
+                improvement = analysis_results["performance_insights"][
+                    "performance_improvement_potential"
+                ]
                 if improvement > 20:
                     analysis_results["recommendations"].append(
                         f"Significant performance variation ({improvement:.1f}%) - frequency optimization recommended"
@@ -625,13 +686,21 @@ class PerformanceProfiler:
             df_throughput["throughput_per_second"] = 1.0 / df_throughput[time_col]
 
             if workload_size is not None:
-                df_throughput["operations_per_second"] = workload_size / df_throughput[time_col]
-                df_throughput["time_per_operation"] = df_throughput[time_col] / workload_size
+                df_throughput["operations_per_second"] = (
+                    workload_size / df_throughput[time_col]
+                )
+                df_throughput["time_per_operation"] = (
+                    df_throughput[time_col] / workload_size
+                )
 
         # Frequency-normalized throughput
         if frequency_col in df_throughput.columns:
-            df_throughput["throughput_per_mhz"] = df_throughput["throughput_per_second"] / df_throughput[frequency_col]
-            df_throughput["efficiency_score"] = df_throughput["throughput_per_mhz"] * 1000  # Scale for readability
+            df_throughput["throughput_per_mhz"] = (
+                df_throughput["throughput_per_second"] / df_throughput[frequency_col]
+            )
+            df_throughput["efficiency_score"] = (
+                df_throughput["throughput_per_mhz"] * 1000
+            )  # Scale for readability
 
         # Statistical analysis
         throughput_metrics = {
@@ -652,11 +721,17 @@ class PerformanceProfiler:
             }
 
             # Coefficient of variation
-            cv = df_throughput["throughput_per_second"].std() / df_throughput["throughput_per_second"].mean()
+            cv = (
+                df_throughput["throughput_per_second"].std()
+                / df_throughput["throughput_per_second"].mean()
+            )
             throughput_metrics["basic_metrics"]["coefficient_of_variation"] = cv
 
         # Frequency-based analysis
-        if frequency_col in df_throughput.columns and len(df_throughput[frequency_col].unique()) > 1:
+        if (
+            frequency_col in df_throughput.columns
+            and len(df_throughput[frequency_col].unique()) > 1
+        ):
             freq_groups = df_throughput.groupby(frequency_col)
 
             frequency_analysis = {}
@@ -665,18 +740,27 @@ class PerformanceProfiler:
                     "frequency": freq,
                     "sample_count": len(group),
                     "avg_throughput": (
-                        group["throughput_per_second"].mean() if "throughput_per_second" in group.columns else None
+                        group["throughput_per_second"].mean()
+                        if "throughput_per_second" in group.columns
+                        else None
                     ),
                     "avg_execution_time": group[time_col].mean(),
                     "throughput_stability": (
-                        1 / (group["throughput_per_second"].std() / group["throughput_per_second"].mean())
-                        if "throughput_per_second" in group.columns and group["throughput_per_second"].std() > 0
+                        1
+                        / (
+                            group["throughput_per_second"].std()
+                            / group["throughput_per_second"].mean()
+                        )
+                        if "throughput_per_second" in group.columns
+                        and group["throughput_per_second"].std() > 0
                         else float("inf")
                     ),
                 }
 
                 if "throughput_per_mhz" in group.columns:
-                    freq_metrics["normalized_efficiency"] = group["throughput_per_mhz"].mean()
+                    freq_metrics["normalized_efficiency"] = group[
+                        "throughput_per_mhz"
+                    ].mean()
 
                 frequency_analysis[freq] = freq_metrics
 
@@ -685,18 +769,26 @@ class PerformanceProfiler:
             # Find optimal frequencies
             if frequency_analysis:
                 max_throughput_freq = max(
-                    frequency_analysis.keys(), key=lambda f: frequency_analysis[f]["avg_throughput"] or 0
+                    frequency_analysis.keys(),
+                    key=lambda f: frequency_analysis[f]["avg_throughput"] or 0,
                 )
-                min_time_freq = min(frequency_analysis.keys(), key=lambda f: frequency_analysis[f]["avg_execution_time"])
+                min_time_freq = min(
+                    frequency_analysis.keys(),
+                    key=lambda f: frequency_analysis[f]["avg_execution_time"],
+                )
 
                 throughput_metrics["optimization_insights"] = [
                     f"Maximum throughput at {max_throughput_freq} MHz: {frequency_analysis[max_throughput_freq]['avg_throughput']:.2f} ops/sec",
                     f"Minimum execution time at {min_time_freq} MHz: {frequency_analysis[min_time_freq]['avg_execution_time']:.3f} sec",
                 ]
 
-                if "normalized_efficiency" in frequency_analysis[list(frequency_analysis.keys())[0]]:
+                if (
+                    "normalized_efficiency"
+                    in frequency_analysis[list(frequency_analysis.keys())[0]]
+                ):
                     max_efficiency_freq = max(
-                        frequency_analysis.keys(), key=lambda f: frequency_analysis[f]["normalized_efficiency"]
+                        frequency_analysis.keys(),
+                        key=lambda f: frequency_analysis[f]["normalized_efficiency"],
                     )
                     throughput_metrics["optimization_insights"].append(
                         f"Maximum efficiency at {max_efficiency_freq} MHz: {frequency_analysis[max_efficiency_freq]['normalized_efficiency']:.6f} ops/sec/MHz"
@@ -715,7 +807,9 @@ class FGCSPerformanceCalculator:
     """
 
     @staticmethod
-    def calculate_fgcs_metrics(profiling_file: str, n_runs: int = 3) -> Tuple[float, float]:
+    def calculate_fgcs_metrics(
+        profiling_file: str, n_runs: int = 3
+    ) -> Tuple[float, float]:
         """
         Calculate FGCS-compatible FP and DRAM activity metrics.
 
@@ -820,7 +914,9 @@ class FGCSPerformanceCalculator:
                 return perf_df["execution_time"].mean()
 
         except Exception as e:
-            logger.warning(f"Could not load baseline runtime from {performance_file}: {e}")
+            logger.warning(
+                f"Could not load baseline runtime from {performance_file}: {e}"
+            )
 
         # Default baseline
         logger.warning(f"Using default baseline runtime for {app_name}")
@@ -828,7 +924,9 @@ class FGCSPerformanceCalculator:
 
 
 def quick_performance_analysis(
-    profiling_data: pd.DataFrame, frequency_col: str = "frequency", time_col: str = "execution_time"
+    profiling_data: pd.DataFrame,
+    frequency_col: str = "frequency",
+    time_col: str = "execution_time",
 ) -> Dict[str, Any]:
     """
     Quick performance analysis for profiling data.
@@ -849,7 +947,9 @@ def quick_performance_analysis(
 
     # Frequency scaling analysis if frequencies available
     if frequency_col in profiling_data.columns:
-        scaling_results = profiler.analyze_frequency_scaling(profiling_data, frequency_col, time_col)
+        scaling_results = profiler.analyze_frequency_scaling(
+            profiling_data, frequency_col, time_col
+        )
         metrics.update(scaling_results)
 
     return metrics

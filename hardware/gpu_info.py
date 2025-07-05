@@ -15,17 +15,17 @@ Key Features:
 
 Supported GPUs:
 - Tesla V100 (Volta architecture)
-- A100 (Ampere architecture) 
+- A100 (Ampere architecture)
 - H100 (Hopper architecture)
 
 Usage:
     from hardware.gpu_info import GPUSpecifications, get_gpu_info
-    
+
     # Get GPU specifications
     gpu_info = GPUSpecifications('V100')
     freq_range = gpu_info.get_frequency_range()
     memory_specs = gpu_info.get_memory_specifications()
-    
+
     # Quick lookup
     specs = get_gpu_info('A100')
 """
@@ -124,7 +124,10 @@ class GPUSpecifications:
         """
         self.gpu_type = gpu_type.upper()
         if self.gpu_type not in self._get_supported_gpus():
-            raise ValueError(f"Unsupported GPU type: {gpu_type}. " f"Supported: {', '.join(self._get_supported_gpus())}")
+            raise ValueError(
+                f"Unsupported GPU type: {gpu_type}. "
+                f"Supported: {', '.join(self._get_supported_gpus())}"
+            )
 
         self.specifications = self._load_specifications()
         logger.info(f"GPU specifications loaded for {self.gpu_type}")
@@ -441,7 +444,13 @@ GPU_SPECIFICATIONS = {
                 510,
             ],
         },
-        "memory": {"size_gb": 32, "type": "HBM2", "bandwidth_gb_s": 900, "frequency_mhz": 877, "bus_width": 4096},
+        "memory": {
+            "size_gb": 32,
+            "type": "HBM2",
+            "bandwidth_gb_s": 900,
+            "frequency_mhz": 877,
+            "bus_width": 4096,
+        },
         "compute": {
             "sm_count": 80,
             "cuda_cores": 5120,
@@ -459,13 +468,30 @@ GPU_SPECIFICATIONS = {
             "power_connectors": ["SXM2"],
             "power_efficiency": 52.3,  # GFLOPS/W
         },
-        "thermal": {"max_temp_c": 89, "throttle_temp_c": 87, "idle_temp_c": 35, "cooling_solution": "Passive (SXM2)"},
+        "thermal": {
+            "max_temp_c": 89,
+            "throttle_temp_c": 87,
+            "idle_temp_c": 35,
+            "cooling_solution": "Passive (SXM2)",
+        },
         "fgcs": {
-            "validated_frequencies": [1380, 1200, 1000, 800, 600, 510],  # Updated: replaced 405 with 510
+            "validated_frequencies": [
+                1380,
+                1200,
+                1000,
+                800,
+                600,
+                510,
+            ],  # Updated: replaced 405 with 510
             "baseline_frequency": 1380,
             "memory_frequency": 877,
         },
-        "workload_recommendations": {"inference": 1200, "training": 1380, "compute": 1300, "memory_bound": 1000},
+        "workload_recommendations": {
+            "inference": 1200,
+            "training": 1380,
+            "compute": 1300,
+            "memory_bound": 1000,
+        },
     },
     "A100": {
         "architecture": GPUArchitecture.AMPERE,
@@ -565,13 +591,23 @@ GPU_SPECIFICATIONS = {
             "power_connectors": ["SXM4"],
             "power_efficiency": 78.0,  # GFLOPS/W
         },
-        "thermal": {"max_temp_c": 93, "throttle_temp_c": 90, "idle_temp_c": 30, "cooling_solution": "Passive (SXM4)"},
+        "thermal": {
+            "max_temp_c": 93,
+            "throttle_temp_c": 90,
+            "idle_temp_c": 30,
+            "cooling_solution": "Passive (SXM4)",
+        },
         "fgcs": {
             "validated_frequencies": [1410, 1200, 1000, 800, 600, 510],
             "baseline_frequency": 1410,
             "memory_frequency": 1215,
         },
-        "workload_recommendations": {"inference": 1275, "training": 1410, "compute": 1350, "memory_bound": 1100},
+        "workload_recommendations": {
+            "inference": 1275,
+            "training": 1410,
+            "compute": 1350,
+            "memory_bound": 1100,
+        },
     },
     "H100": {
         "architecture": GPUArchitecture.HOPPER,
@@ -696,7 +732,12 @@ GPU_SPECIFICATIONS = {
             "power_connectors": ["SXM5"],
             "power_efficiency": 95.7,  # GFLOPS/W
         },
-        "thermal": {"max_temp_c": 89, "throttle_temp_c": 87, "idle_temp_c": 28, "cooling_solution": "Passive (SXM5)"},
+        "thermal": {
+            "max_temp_c": 89,
+            "throttle_temp_c": 87,
+            "idle_temp_c": 28,
+            "cooling_solution": "Passive (SXM5)",
+        },
         "fgcs": {
             "validated_frequencies": [
                 1785,
@@ -766,7 +807,9 @@ def compare_gpus(gpu_types: List[str]) -> Dict[str, Dict[str, Any]]:
     return comparison
 
 
-def validate_gpu_configuration(gpu_type: str, frequency: int, memory_freq: Optional[int] = None) -> Dict[str, bool]:
+def validate_gpu_configuration(
+    gpu_type: str, frequency: int, memory_freq: Optional[int] = None
+) -> Dict[str, bool]:
     """
     Validate a GPU configuration.
 
@@ -796,7 +839,12 @@ def validate_gpu_configuration(gpu_type: str, frequency: int, memory_freq: Optio
         return results
 
     except ValueError:
-        return {"gpu_type_valid": False, "frequency_valid": False, "memory_freq_valid": False, "overall_valid": False}
+        return {
+            "gpu_type_valid": False,
+            "frequency_valid": False,
+            "memory_freq_valid": False,
+            "overall_valid": False,
+        }
 
 
 if __name__ == "__main__":
@@ -816,7 +864,9 @@ if __name__ == "__main__":
 
         # Show some available frequencies
         frequencies = gpu_info.get_available_frequencies()
-        print(f"  Sample Frequencies: {frequencies[:5]}...{frequencies[-5:]} ({len(frequencies)} total)")
+        print(
+            f"  Sample Frequencies: {frequencies[:5]}...{frequencies[-5:]} ({len(frequencies)} total)"
+        )
 
     # Comparison example
     print(f"\n\nGPU Comparison:")
@@ -825,4 +875,7 @@ if __name__ == "__main__":
 
     for gpu, specs in comparison.items():
         if "error" not in specs:
-            print(f"{gpu}: {specs['frequency_count']} frequencies, " f"{specs['memory_size']}, {specs['tdp']}")
+            print(
+                f"{gpu}: {specs['frequency_count']} frequencies, "
+                f"{specs['memory_size']}, {specs['tdp']}"
+            )

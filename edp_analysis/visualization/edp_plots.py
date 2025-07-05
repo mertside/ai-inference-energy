@@ -38,7 +38,9 @@ try:
     HAS_SEABORN = True
 except ImportError:
     HAS_SEABORN = False
-    logger.warning("Seaborn not available. Some advanced plotting features will be limited.")
+    logger.warning(
+        "Seaborn not available. Some advanced plotting features will be limited."
+    )
 
 try:
     from mpl_toolkits.mplot3d import Axes3D
@@ -52,7 +54,9 @@ except ImportError:
 def check_plotting_dependencies():
     """Check if required plotting libraries are available."""
     if not HAS_MATPLOTLIB:
-        raise ImportError("Matplotlib is required for EDP plotting. Install with: pip install matplotlib")
+        raise ImportError(
+            "Matplotlib is required for EDP plotting. Install with: pip install matplotlib"
+        )
 
 
 class EDPPlotter:
@@ -111,14 +115,24 @@ class EDPPlotter:
         fig, ax = plt.subplots(figsize=self.figsize)
 
         # Main EDP curve
-        ax.plot(df[frequency_col], edp_values, "b-o", linewidth=2, markersize=6, label="EDP")
+        ax.plot(
+            df[frequency_col], edp_values, "b-o", linewidth=2, markersize=6, label="EDP"
+        )
 
         # Highlight optimal frequency if provided
         if optimal_freq is not None:
             optimal_row = df[df[frequency_col] == optimal_freq]
             if not optimal_row.empty:
-                optimal_edp = optimal_row[energy_col].iloc[0] * optimal_row[time_col].iloc[0]
-                ax.plot(optimal_freq, optimal_edp, "ro", markersize=10, label=f"Optimal ({optimal_freq} MHz)")
+                optimal_edp = (
+                    optimal_row[energy_col].iloc[0] * optimal_row[time_col].iloc[0]
+                )
+                ax.plot(
+                    optimal_freq,
+                    optimal_edp,
+                    "ro",
+                    markersize=10,
+                    label=f"Optimal ({optimal_freq} MHz)",
+                )
 
         ax.set_xlabel("Frequency (MHz)")
         ax.set_ylabel("Energy-Delay Product (J·s)")
@@ -163,7 +177,13 @@ class EDPPlotter:
 
         # Main scatter plot colored by frequency
         scatter = ax.scatter(
-            df[time_col], df[energy_col], c=df[frequency_col], cmap="viridis", alpha=0.7, s=60, label="Configurations"
+            df[time_col],
+            df[energy_col],
+            c=df[frequency_col],
+            cmap="viridis",
+            alpha=0.7,
+            s=60,
+            label="Configurations",
         )
 
         # Add colorbar
@@ -175,7 +195,12 @@ class EDPPlotter:
             # Sort by time for proper line connection
             pareto_sorted = pareto_df.sort_values(time_col)
             ax.plot(
-                pareto_sorted[time_col], pareto_sorted[energy_col], "r-o", linewidth=2, markersize=8, label="Pareto Frontier"
+                pareto_sorted[time_col],
+                pareto_sorted[energy_col],
+                "r-o",
+                linewidth=2,
+                markersize=8,
+                label="Pareto Frontier",
             )
 
         # Highlight optimal points if provided
@@ -266,7 +291,13 @@ class EDPPlotter:
             # Add value labels on bars
             for bar, value in zip(bars, values):
                 height = bar.get_height()
-                axes[i].text(bar.get_x() + bar.get_width() / 2.0, height, f"{value:.2f}", ha="center", va="bottom")
+                axes[i].text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    height,
+                    f"{value:.2f}",
+                    ha="center",
+                    va="bottom",
+                )
 
         plt.suptitle(title)
         plt.tight_layout()
@@ -312,7 +343,9 @@ class EDPPlotter:
         ax = fig.add_subplot(111, projection="3d")
 
         # Create surface plot
-        scatter = ax.scatter(df[x_col], df[y_col], edp_values, c=edp_values, cmap="viridis", s=60)
+        scatter = ax.scatter(
+            df[x_col], df[y_col], edp_values, c=edp_values, cmap="viridis", s=60
+        )
 
         ax.set_xlabel(f'{x_col.replace("_", " ").title()}')
         ax.set_ylabel(f'{y_col.replace("_", " ").title()}')
@@ -451,7 +484,9 @@ def plot_edp_heatmap(
     df_work["edp"] = df_work[energy_col] * df_work[time_col]
 
     # Pivot for heatmap
-    heatmap_data = df_work.pivot_table(values="edp", index=y_col, columns=x_col, aggfunc="mean")
+    heatmap_data = df_work.pivot_table(
+        values="edp", index=y_col, columns=x_col, aggfunc="mean"
+    )
 
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -477,7 +512,9 @@ def plot_edp_heatmap(
 
 
 def create_optimization_summary_plot(
-    optimization_results: Dict, app_name: str = "Application", save_path: Optional[str] = None
+    optimization_results: Dict,
+    app_name: str = "Application",
+    save_path: Optional[str] = None,
 ) -> Figure:
     """
     Create a comprehensive summary plot of optimization results.
@@ -522,7 +559,15 @@ def create_optimization_summary_plot(
         summary_text += f"  Energy: {ed2p_optimal.energy:.2f} J\n"
         summary_text += f"  Time: {ed2p_optimal.execution_time:.2f} s\n"
 
-    ax2.text(0.1, 0.9, summary_text, transform=ax2.transAxes, fontsize=10, verticalalignment="top", fontfamily="monospace")
+    ax2.text(
+        0.1,
+        0.9,
+        summary_text,
+        transform=ax2.transAxes,
+        fontsize=10,
+        verticalalignment="top",
+        fontfamily="monospace",
+    )
 
     # Statistics plot
     ax3 = fig.add_subplot(gs[1, 2])
@@ -535,7 +580,15 @@ def create_optimization_summary_plot(
     stats_text += f"Energy Range: {stats.get('energy_range', 0):.2f} J\n"
     stats_text += f"Time Range: {stats.get('time_range', 0):.2f} s\n"
 
-    ax3.text(0.1, 0.9, stats_text, transform=ax3.transAxes, fontsize=10, verticalalignment="top", fontfamily="monospace")
+    ax3.text(
+        0.1,
+        0.9,
+        stats_text,
+        transform=ax3.transAxes,
+        fontsize=10,
+        verticalalignment="top",
+        fontfamily="monospace",
+    )
 
     # Improvement bar chart
     ax4 = fig.add_subplot(gs[2, :])
@@ -543,11 +596,19 @@ def create_optimization_summary_plot(
     improvements = []
     labels = []
 
-    if edp_optimal and hasattr(edp_optimal, "energy_improvement") and edp_optimal.energy_improvement:
+    if (
+        edp_optimal
+        and hasattr(edp_optimal, "energy_improvement")
+        and edp_optimal.energy_improvement
+    ):
         improvements.append(edp_optimal.energy_improvement)
         labels.append("EDP Energy\nImprovement (%)")
 
-    if edp_optimal and hasattr(edp_optimal, "time_improvement") and edp_optimal.time_improvement:
+    if (
+        edp_optimal
+        and hasattr(edp_optimal, "time_improvement")
+        and edp_optimal.time_improvement
+    ):
         improvements.append(edp_optimal.time_improvement)
         labels.append("EDP Time\nImprovement (%)")
 
@@ -559,7 +620,13 @@ def create_optimization_summary_plot(
         # Add value labels
         for bar, value in zip(bars, improvements):
             height = bar.get_height()
-            ax4.text(bar.get_x() + bar.get_width() / 2.0, height, f"{value:.1f}%", ha="center", va="bottom")
+            ax4.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f"{value:.1f}%",
+                ha="center",
+                va="bottom",
+            )
 
     plt.suptitle(f"Optimization Analysis Summary: {app_name}", fontsize=16)
 
@@ -589,7 +656,9 @@ def create_optimization_summary_plot(
             Matplotlib Figure object
         """
         # Sort features by importance
-        sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+        sorted_features = sorted(
+            feature_importance.items(), key=lambda x: x[1], reverse=True
+        )
         sorted_features = sorted_features[:max_features]
 
         features, importance = zip(*sorted_features)
@@ -762,7 +831,12 @@ def create_optimization_summary_plot(
         # Plot 2: Energy vs Time Trade-off
         ax2 = fig.add_subplot(gs[0, 1])
         scatter = ax2.scatter(
-            profiling_data[energy_col], profiling_data[time_col], c=profiling_data[freq_col], cmap="viridis", s=80, alpha=0.7
+            profiling_data[energy_col],
+            profiling_data[time_col],
+            c=profiling_data[freq_col],
+            cmap="viridis",
+            s=80,
+            alpha=0.7,
         )
         ax2.set_xlabel("Energy (J)")
         ax2.set_ylabel("Execution Time (s)")
@@ -772,7 +846,13 @@ def create_optimization_summary_plot(
         # Plot 3: Power vs Frequency
         ax3 = fig.add_subplot(gs[0, 2])
         if "power" in profiling_data.columns:
-            ax3.plot(profiling_data[freq_col], profiling_data["power"], "g-o", linewidth=2, markersize=6)
+            ax3.plot(
+                profiling_data[freq_col],
+                profiling_data["power"],
+                "g-o",
+                linewidth=2,
+                markersize=6,
+            )
             ax3.set_xlabel("Frequency (MHz)")
             ax3.set_ylabel("Power (W)")
             ax3.set_title("Power vs Frequency")
@@ -780,9 +860,15 @@ def create_optimization_summary_plot(
 
         # Plot 4: Optimization Summary
         ax4 = fig.add_subplot(gs[1, 0])
-        if "edp_optimal" in optimization_results and "ed2p_optimal" in optimization_results:
+        if (
+            "edp_optimal" in optimization_results
+            and "ed2p_optimal" in optimization_results
+        ):
             metrics = ["EDP Optimal", "ED²P Optimal"]
-            frequencies = [optimization_results["edp_optimal"]["frequency"], optimization_results["ed2p_optimal"]["frequency"]]
+            frequencies = [
+                optimization_results["edp_optimal"]["frequency"],
+                optimization_results["ed2p_optimal"]["frequency"],
+            ]
             colors = ["red", "purple"]
             bars = ax4.bar(metrics, frequencies, color=colors, alpha=0.7)
             ax4.set_ylabel("Optimal Frequency (MHz)")
@@ -791,20 +877,46 @@ def create_optimization_summary_plot(
             # Add value labels
             for bar, freq in zip(bars, frequencies):
                 height = bar.get_height()
-                ax4.text(bar.get_x() + bar.get_width() / 2.0, height + 10, f"{freq} MHz", ha="center", va="bottom")
+                ax4.text(
+                    bar.get_x() + bar.get_width() / 2.0,
+                    height + 10,
+                    f"{freq} MHz",
+                    ha="center",
+                    va="bottom",
+                )
 
         # Plot 5: Pareto Frontier (if we have multiple objectives)
         ax5 = fig.add_subplot(gs[1, 1])
-        ax5.scatter(profiling_data[energy_col], profiling_data[time_col], alpha=0.6, s=60, label="All Points")
+        ax5.scatter(
+            profiling_data[energy_col],
+            profiling_data[time_col],
+            alpha=0.6,
+            s=60,
+            label="All Points",
+        )
 
         # Highlight optimal points
         if "edp_optimal" in optimization_results:
             edp_opt = optimization_results["edp_optimal"]
-            ax5.scatter([edp_opt["energy"]], [edp_opt["runtime"]], color="red", s=120, marker="*", label="EDP Optimal")
+            ax5.scatter(
+                [edp_opt["energy"]],
+                [edp_opt["runtime"]],
+                color="red",
+                s=120,
+                marker="*",
+                label="EDP Optimal",
+            )
 
         if "ed2p_optimal" in optimization_results:
             ed2p_opt = optimization_results["ed2p_optimal"]
-            ax5.scatter([ed2p_opt["energy"]], [ed2p_opt["runtime"]], color="purple", s=120, marker="*", label="ED²P Optimal")
+            ax5.scatter(
+                [ed2p_opt["energy"]],
+                [ed2p_opt["runtime"]],
+                color="purple",
+                s=120,
+                marker="*",
+                label="ED²P Optimal",
+            )
 
         ax5.set_xlabel("Energy (J)")
         ax5.set_ylabel("Execution Time (s)")
@@ -814,8 +926,17 @@ def create_optimization_summary_plot(
 
         # Plot 6: Energy Efficiency
         ax6 = fig.add_subplot(gs[1, 2])
-        efficiency = 1.0 / (profiling_data[energy_col] * profiling_data[time_col])  # Inverse of EDP
-        ax6.plot(profiling_data[freq_col], efficiency, "orange", linewidth=2, marker="o", markersize=6)
+        efficiency = 1.0 / (
+            profiling_data[energy_col] * profiling_data[time_col]
+        )  # Inverse of EDP
+        ax6.plot(
+            profiling_data[freq_col],
+            efficiency,
+            "orange",
+            linewidth=2,
+            marker="o",
+            markersize=6,
+        )
         ax6.set_xlabel("Frequency (MHz)")
         ax6.set_ylabel("Energy Efficiency (1/EDP)")
         ax6.set_title("Energy Efficiency vs Frequency")
@@ -824,7 +945,9 @@ def create_optimization_summary_plot(
         # Plot 7: Feature Importance (if available)
         if feature_importance is not None:
             ax7 = fig.add_subplot(gs[2, :])
-            sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+            sorted_features = sorted(
+                feature_importance.items(), key=lambda x: x[1], reverse=True
+            )
             sorted_features = sorted_features[:15]  # Top 15 features
 
             features, importance = zip(*sorted_features)
@@ -847,7 +970,11 @@ def create_optimization_summary_plot(
                 ax7.text(v + 0.01, i, f"{v:.3f}", va="center", ha="left", fontsize=9)
 
         # Add overall title
-        fig.suptitle(f"Comprehensive EDP Analysis Dashboard - {app_name}", fontsize=16, fontweight="bold")
+        fig.suptitle(
+            f"Comprehensive EDP Analysis Dashboard - {app_name}",
+            fontsize=16,
+            fontweight="bold",
+        )
 
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches="tight")

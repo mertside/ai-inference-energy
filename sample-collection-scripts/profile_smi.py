@@ -75,7 +75,11 @@ class NvidiaSmiProfiler:
     """
 
     def __init__(
-        self, output_file: str = None, interval_ms: int = None, gpu_id: int = 0, logger: Optional[logging.Logger] = None
+        self,
+        output_file: str = None,
+        interval_ms: int = None,
+        gpu_id: int = 0,
+        logger: Optional[logging.Logger] = None,
     ):
         """
         Initialize the nvidia-smi GPU profiler.
@@ -96,7 +100,9 @@ class NvidiaSmiProfiler:
 
         # Validate nvidia-smi availability
         if not validate_gpu_available():
-            raise RuntimeError("nvidia-smi not available. Please install NVIDIA drivers.")
+            raise RuntimeError(
+                "nvidia-smi not available. Please install NVIDIA drivers."
+            )
 
     def _build_nvidia_smi_command(self) -> List[str]:
         """
@@ -125,7 +131,9 @@ class NvidiaSmiProfiler:
         ]
 
         # Convert interval from ms to seconds for nvidia-smi
-        interval_sec = max(1, self.interval_ms // 1000)  # nvidia-smi uses seconds, minimum 1s
+        interval_sec = max(
+            1, self.interval_ms // 1000
+        )  # nvidia-smi uses seconds, minimum 1s
 
         command = [
             "nvidia-smi",
@@ -196,14 +204,18 @@ class NvidiaSmiProfiler:
         try:
             self.logger.info(f"Starting nvidia-smi GPU monitoring")
             self.logger.info(f"Output file: {self.output_file}")
-            self.logger.info(f"Sampling interval: {self.interval_ms}ms (nvidia-smi uses 1s minimum)")
+            self.logger.info(
+                f"Sampling interval: {self.interval_ms}ms (nvidia-smi uses 1s minimum)"
+            )
             self.logger.info(f"GPU ID: {self.gpu_id}")
 
             # Reset stop flag
             self.stop_monitoring_flag.clear()
 
             # Start monitoring in a separate thread
-            monitoring_thread = threading.Thread(target=self._monitoring_worker, daemon=True)
+            monitoring_thread = threading.Thread(
+                target=self._monitoring_worker, daemon=True
+            )
             monitoring_thread.start()
 
             # Give the thread time to start
@@ -240,7 +252,9 @@ class NvidiaSmiProfiler:
                     self.logger.warning("Had to force kill nvidia-smi process")
 
             duration = time.time() - self.start_time if self.start_time else 0.0
-            self.logger.info(f"nvidia-smi GPU monitoring stopped. Duration: {duration:.2f}s")
+            self.logger.info(
+                f"nvidia-smi GPU monitoring stopped. Duration: {duration:.2f}s"
+            )
 
             return duration
 
@@ -317,7 +331,9 @@ class NvidiaSmiProfiler:
             self.stop_monitoring()
 
 
-def profile_application(command: str, output_file: str = None, interval_ms: int = None, gpu_id: int = 0) -> Dict[str, Any]:
+def profile_application(
+    command: str, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
+) -> Dict[str, Any]:
     """
     Convenience function to profile an application with nvidia-smi GPU monitoring.
 
@@ -330,7 +346,9 @@ def profile_application(command: str, output_file: str = None, interval_ms: int 
     Returns:
         Dictionary containing profiling results
     """
-    profiler = NvidiaSmiProfiler(output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id)
+    profiler = NvidiaSmiProfiler(
+        output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id
+    )
 
     try:
         return profiler.profile_command(command)
@@ -343,8 +361,12 @@ def main():
     import argparse
 
     # Set up argument parsing
-    parser = argparse.ArgumentParser(description="GPU power profiling utility using nvidia-smi for AI inference workloads")
-    parser.add_argument("command", nargs="*", help="Command to profile (if empty, just monitors GPU)")
+    parser = argparse.ArgumentParser(
+        description="GPU power profiling utility using nvidia-smi for AI inference workloads"
+    )
+    parser.add_argument(
+        "command", nargs="*", help="Command to profile (if empty, just monitors GPU)"
+    )
     parser.add_argument(
         "-o",
         "--output",
@@ -358,8 +380,12 @@ def main():
         default=profiling_config.DEFAULT_INTERVAL_MS,
         help=f"Sampling interval in milliseconds (default: {profiling_config.DEFAULT_INTERVAL_MS}, nvidia-smi uses 1s minimum)",
     )
-    parser.add_argument("-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
+    parser.add_argument(
+        "-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose logging"
+    )
 
     args = parser.parse_args()
 
@@ -372,7 +398,12 @@ def main():
 
     try:
         # Profile the command
-        result = profile_application(command=command, output_file=args.output, interval_ms=args.interval, gpu_id=args.gpu)
+        result = profile_application(
+            command=command,
+            output_file=args.output,
+            interval_ms=args.interval,
+            gpu_id=args.gpu,
+        )
 
         # Display results
         logger.info("Profiling completed successfully using nvidia-smi")

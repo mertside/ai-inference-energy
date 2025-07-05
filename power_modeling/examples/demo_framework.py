@@ -22,7 +22,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from power_modeling import FGCSPowerModelingFramework, analyze_application
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -137,12 +139,15 @@ def demo_full_framework():
 
     # Initialize framework
     framework = FGCSPowerModelingFramework(
-        model_types=["fgcs_original", "polynomial_deg2", "random_forest_enhanced"], gpu_type="V100"
+        model_types=["fgcs_original", "polynomial_deg2", "random_forest_enhanced"],
+        gpu_type="V100",
     )
 
     # Train models
     print("\n🤖 Training Models...")
-    training_results = framework.train_models(sample_data, target_column="power", test_size=0.2)
+    training_results = framework.train_models(
+        sample_data, target_column="power", test_size=0.2
+    )
 
     print(f"  Best model: {training_results['best_model'][0]}")
     print(f"  R² score: {training_results['best_model'][2]:.4f}")
@@ -151,7 +156,9 @@ def demo_full_framework():
     # Predict power across frequency range
     print("\n⚡ Power Prediction Sweep...")
     power_sweep = framework.predict_power_sweep(
-        fp_activity=0.3, dram_activity=0.15, frequencies=[800, 900, 1000, 1100, 1200, 1300, 1400]
+        fp_activity=0.3,
+        dram_activity=0.15,
+        frequencies=[800, 900, 1000, 1100, 1200, 1300, 1400],
     )
 
     print("  Frequency (MHz) | Power (W)")
@@ -224,7 +231,10 @@ def demo_gpu_comparison():
         framework = FGCSPowerModelingFramework(gpu_type=gpu_type)
         freq_range = framework.frequency_configs[gpu_type]
 
-        print(f"  {gpu_type}: {min(freq_range)}-{max(freq_range)} MHz " f"({len(freq_range)} frequencies)")
+        print(
+            f"  {gpu_type}: {min(freq_range)}-{max(freq_range)} MHz "
+            f"({len(freq_range)} frequencies)"
+        )
 
 
 def main():

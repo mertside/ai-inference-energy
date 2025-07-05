@@ -116,15 +116,21 @@ def demo_edp_calculations():
             d = delay[i]
             edp_val = edp[i]
             ed2p_val = ed2p[i]
-            logger.info(f"{freq:8} | {e:8.1f} | {d:7.2f} | {edp_val:6.1f} | {ed2p_val:6.1f}")
+            logger.info(
+                f"{freq:8} | {e:8.1f} | {d:7.2f} | {edp_val:6.1f} | {ed2p_val:6.1f}"
+            )
 
         # Find optimal configurations
         min_edp_idx = np.argmin(edp)
         min_ed2p_idx = np.argmin(ed2p)
 
         logger.info(f"\nOptimal configurations:")
-        logger.info(f"EDP optimal: {frequencies[min_edp_idx]} MHz (EDP = {edp[min_edp_idx]:.1f})")
-        logger.info(f"ED2P optimal: {frequencies[min_ed2p_idx]} MHz (ED2P = {ed2p[min_ed2p_idx]:.1f})")
+        logger.info(
+            f"EDP optimal: {frequencies[min_edp_idx]} MHz (EDP = {edp[min_edp_idx]:.1f})"
+        )
+        logger.info(
+            f"ED2P optimal: {frequencies[min_ed2p_idx]} MHz (ED2P = {ed2p[min_ed2p_idx]:.1f})"
+        )
 
         return True
 
@@ -157,11 +163,17 @@ def demo_fgcs_optimizer():
 
         # Run EDP optimization
         edp_freq, edp_time, edp_power, edp_energy = FGCSEDPOptimizer.edp_optimal(df)
-        logger.info(f"✓ EDP optimal: {edp_freq} MHz, {edp_time}s, {edp_power}W, {edp_energy}J")
+        logger.info(
+            f"✓ EDP optimal: {edp_freq} MHz, {edp_time}s, {edp_power}W, {edp_energy}J"
+        )
 
         # Run ED2P optimization
-        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = FGCSEDPOptimizer.ed2p_optimal(df)
-        logger.info(f"✓ ED2P optimal: {ed2p_freq} MHz, {ed2p_time}s, {ed2p_power}W, {ed2p_energy}J")
+        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = FGCSEDPOptimizer.ed2p_optimal(
+            df
+        )
+        logger.info(
+            f"✓ ED2P optimal: {ed2p_freq} MHz, {ed2p_time}s, {ed2p_power}W, {ed2p_energy}J"
+        )
 
         # Run full DVFS optimization analysis
         results = FGCSEDPOptimizer.analyze_dvfs_optimization(df, "DemoApp")
@@ -170,7 +182,9 @@ def demo_fgcs_optimizer():
         # Show optimization results
         logger.info("\nOptimization Results:")
         logger.info(f"EDP Optimal Frequency: {results['edp_optimal']['frequency']} MHz")
-        logger.info(f"ED2P Optimal Frequency: {results['ed2p_optimal']['frequency']} MHz")
+        logger.info(
+            f"ED2P Optimal Frequency: {results['ed2p_optimal']['frequency']} MHz"
+        )
         logger.info(f"Min Energy Frequency: {results['min_energy']['frequency']} MHz")
         logger.info(f"Min Time Frequency: {results['min_time']['frequency']} MHz")
 
@@ -199,13 +213,18 @@ def demo_high_level_framework():
 
         # Test power prediction sweep
         power_sweep = framework.predict_power_sweep(
-            fp_activity=0.3, dram_activity=0.15, frequencies=[1000, 1100, 1200, 1300, 1400]
+            fp_activity=0.3,
+            dram_activity=0.15,
+            frequencies=[1000, 1100, 1200, 1300, 1400],
         )
         logger.info(f"✓ Power sweep completed: {len(power_sweep)} predictions")
 
         # Test application optimization
         optimization_results = framework.optimize_application(
-            fp_activity=0.3, dram_activity=0.15, baseline_runtime=1.0, app_name="DemoApp"
+            fp_activity=0.3,
+            dram_activity=0.15,
+            baseline_runtime=1.0,
+            app_name="DemoApp",
         )
         logger.info("✓ Application optimization completed")
 
@@ -216,7 +235,9 @@ def demo_high_level_framework():
         logger.info("\nOptimization Recommendations:")
         logger.info(f"Primary: {primary['frequency']} - {primary['reason']}")
         logger.info(f"Expected energy savings: {primary['expected_energy_savings']}")
-        logger.info(f"Expected performance impact: {primary['expected_performance_impact']}")
+        logger.info(
+            f"Expected performance impact: {primary['expected_performance_impact']}"
+        )
 
         return True
 

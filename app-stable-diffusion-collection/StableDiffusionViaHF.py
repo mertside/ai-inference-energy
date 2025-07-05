@@ -34,7 +34,9 @@ except ImportError:
     # Fallback configuration if imports fail
     class ModelConfig:
         STABLE_DIFFUSION_MODEL_NAME = "CompVis/stable-diffusion-v1-4"
-        STABLE_DIFFUSION_DEFAULT_PROMPT = "a photo of an astronaut riding a horse on mars"
+        STABLE_DIFFUSION_DEFAULT_PROMPT = (
+            "a photo of an astronaut riding a horse on mars"
+        )
         STABLE_DIFFUSION_OUTPUT_FILE = "astronaut_rides_horse.png"
 
     model_config = ModelConfig()
@@ -192,7 +194,12 @@ class StableDiffusionGenerator:
         """
         return self.generate_image(model_config.STABLE_DIFFUSION_DEFAULT_PROMPT)
 
-    def save_images(self, images: List[Image.Image], base_filename: str = None, output_dir: str = ".") -> List[str]:
+    def save_images(
+        self,
+        images: List[Image.Image],
+        base_filename: str = None,
+        output_dir: str = ".",
+    ) -> List[str]:
         """
         Save generated images to files.
 
@@ -205,7 +212,9 @@ class StableDiffusionGenerator:
             List of saved file paths
         """
         if base_filename is None:
-            base_filename = model_config.STABLE_DIFFUSION_OUTPUT_FILE.replace(".png", "")
+            base_filename = model_config.STABLE_DIFFUSION_OUTPUT_FILE.replace(
+                ".png", ""
+            )
 
         saved_files = []
 

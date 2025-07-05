@@ -30,7 +30,9 @@ try:
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
-    logger.warning("Matplotlib not available. Power plotting functions will be limited.")
+    logger.warning(
+        "Matplotlib not available. Power plotting functions will be limited."
+    )
 
 try:
     import seaborn as sns
@@ -38,7 +40,9 @@ try:
     HAS_SEABORN = True
 except ImportError:
     HAS_SEABORN = False
-    logger.warning("Seaborn not available. Some advanced plotting features will be limited.")
+    logger.warning(
+        "Seaborn not available. Some advanced plotting features will be limited."
+    )
 
 try:
     from mpl_toolkits.mplot3d import Axes3D
@@ -52,7 +56,9 @@ except ImportError:
 def check_plotting_dependencies():
     """Check if required plotting libraries are available."""
     if not HAS_MATPLOTLIB:
-        raise ImportError("Matplotlib is required for power plotting. Install with: pip install matplotlib")
+        raise ImportError(
+            "Matplotlib is required for power plotting. Install with: pip install matplotlib"
+        )
 
 
 class PowerPlotter:
@@ -111,14 +117,27 @@ class PowerPlotter:
         fig, ax = plt.subplots(figsize=self.figsize)
 
         # Main power curve
-        ax.plot(df[frequency_col], df[power_col], "b-o", linewidth=2, markersize=6, label="Power Consumption")
+        ax.plot(
+            df[frequency_col],
+            df[power_col],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Power Consumption",
+        )
 
         # Highlight optimal frequency if provided
         if optimal_freq is not None:
             optimal_row = df[df[frequency_col] == optimal_freq]
             if not optimal_row.empty:
                 optimal_power = optimal_row[power_col].iloc[0]
-                ax.plot(optimal_freq, optimal_power, "ro", markersize=10, label=f"Optimal ({optimal_freq} MHz)")
+                ax.plot(
+                    optimal_freq,
+                    optimal_power,
+                    "ro",
+                    markersize=10,
+                    label=f"Optimal ({optimal_freq} MHz)",
+                )
 
         ax.set_xlabel("Frequency (MHz)")
         ax.set_ylabel("Power (W)")
@@ -193,10 +212,18 @@ class PowerPlotter:
         df_work = df.copy()
         df_work["efficiency"] = df_work[performance_col] / df_work[power_col]
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5))
+        fig, (ax1, ax2) = plt.subplots(
+            2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5)
+        )
 
         # Plot 1: Power efficiency vs frequency
-        ax1.plot(df_work[frequency_col], df_work["efficiency"], "g-o", linewidth=2, markersize=6)
+        ax1.plot(
+            df_work[frequency_col],
+            df_work["efficiency"],
+            "g-o",
+            linewidth=2,
+            markersize=6,
+        )
         ax1.set_xlabel("Frequency (MHz)")
         ax1.set_ylabel("Efficiency (Performance/Watt)")
         ax1.set_title("Power Efficiency vs Frequency")
@@ -207,18 +234,36 @@ class PowerPlotter:
         max_eff_freq = df_work.loc[max_eff_idx, frequency_col]
         max_eff_val = df_work.loc[max_eff_idx, "efficiency"]
 
-        ax1.plot(max_eff_freq, max_eff_val, "ro", markersize=10, label=f"Most Efficient ({max_eff_freq} MHz)")
+        ax1.plot(
+            max_eff_freq,
+            max_eff_val,
+            "ro",
+            markersize=10,
+            label=f"Most Efficient ({max_eff_freq} MHz)",
+        )
         ax1.legend()
 
         # Plot 2: Performance vs Power scatter
-        ax2.scatter(df_work[power_col], df_work[performance_col], c=df_work[frequency_col], cmap="viridis", s=60)
+        ax2.scatter(
+            df_work[power_col],
+            df_work[performance_col],
+            c=df_work[frequency_col],
+            cmap="viridis",
+            s=60,
+        )
         ax2.set_xlabel("Power (W)")
         ax2.set_ylabel("Performance")
         ax2.set_title("Performance vs Power")
         ax2.grid(True, alpha=0.3)
 
         # Add colorbar for frequency
-        scatter = ax2.scatter(df_work[power_col], df_work[performance_col], c=df_work[frequency_col], cmap="viridis", s=60)
+        scatter = ax2.scatter(
+            df_work[power_col],
+            df_work[performance_col],
+            c=df_work[frequency_col],
+            cmap="viridis",
+            s=60,
+        )
         cbar = plt.colorbar(scatter, ax=ax2)
         cbar.set_label("Frequency (MHz)")
 
@@ -257,7 +302,15 @@ class PowerPlotter:
         colors = plt.cm.tab10(np.linspace(0, 1, len(data_dict)))
 
         for i, (app_name, df) in enumerate(data_dict.items()):
-            ax.plot(df[frequency_col], df[power_col], "o-", color=colors[i], linewidth=2, markersize=6, label=app_name)
+            ax.plot(
+                df[frequency_col],
+                df[power_col],
+                "o-",
+                color=colors[i],
+                linewidth=2,
+                markersize=6,
+                label=app_name,
+            )
 
         ax.set_xlabel("Frequency (MHz)")
         ax.set_ylabel("Power (W)")
@@ -323,12 +376,24 @@ class PowerPlotter:
         merged_df = pd.merge(actual_df, predicted_df, on=frequency_col, how="inner")
 
         # Plot 1: Actual vs Predicted scatter
-        ax1.scatter(merged_df[actual_power_col], merged_df[predicted_power_col], alpha=0.7)
+        ax1.scatter(
+            merged_df[actual_power_col], merged_df[predicted_power_col], alpha=0.7
+        )
 
         # Add perfect prediction line
-        min_val = min(merged_df[actual_power_col].min(), merged_df[predicted_power_col].min())
-        max_val = max(merged_df[actual_power_col].max(), merged_df[predicted_power_col].max())
-        ax1.plot([min_val, max_val], [min_val, max_val], "r--", linewidth=2, label="Perfect Prediction")
+        min_val = min(
+            merged_df[actual_power_col].min(), merged_df[predicted_power_col].min()
+        )
+        max_val = max(
+            merged_df[actual_power_col].max(), merged_df[predicted_power_col].max()
+        )
+        ax1.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            "r--",
+            linewidth=2,
+            label="Perfect Prediction",
+        )
 
         ax1.set_xlabel("Actual Power (W)")
         ax1.set_ylabel("Predicted Power (W)")
@@ -337,7 +402,9 @@ class PowerPlotter:
         ax1.grid(True, alpha=0.3)
 
         # Calculate and display R²
-        correlation_matrix = np.corrcoef(merged_df[actual_power_col], merged_df[predicted_power_col])
+        correlation_matrix = np.corrcoef(
+            merged_df[actual_power_col], merged_df[predicted_power_col]
+        )
         r_squared = correlation_matrix[0, 1] ** 2
         ax1.text(
             0.05,
@@ -357,9 +424,21 @@ class PowerPlotter:
         ax2.grid(True, alpha=0.3)
 
         # Plot 3: Both curves vs frequency
-        ax3.plot(actual_df[frequency_col], actual_df[actual_power_col], "b-o", linewidth=2, markersize=6, label="Actual")
         ax3.plot(
-            predicted_df[frequency_col], predicted_df[predicted_power_col], "r-s", linewidth=2, markersize=6, label="Predicted"
+            actual_df[frequency_col],
+            actual_df[actual_power_col],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Actual",
+        )
+        ax3.plot(
+            predicted_df[frequency_col],
+            predicted_df[predicted_power_col],
+            "r-s",
+            linewidth=2,
+            markersize=6,
+            label="Predicted",
         )
         ax3.set_xlabel("Frequency (MHz)")
         ax3.set_ylabel("Power (W)")
@@ -424,7 +503,9 @@ class PowerPlotter:
         Returns:
             Matplotlib Figure object
         """
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5))
+        fig, (ax1, ax2) = plt.subplots(
+            2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5)
+        )
 
         colors = plt.cm.Set3(np.linspace(0, 1, len(components)))
 
@@ -512,7 +593,13 @@ class PowerPlotter:
         # Perfect prediction line
         min_val = min(df[actual_col].min(), df[predicted_col].min())
         max_val = max(df[actual_col].max(), df[predicted_col].max())
-        ax1.plot([min_val, max_val], [min_val, max_val], "r--", linewidth=2, label="Perfect Prediction")
+        ax1.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            "r--",
+            linewidth=2,
+            label="Perfect Prediction",
+        )
 
         # Calculate R² and RMSE
         from sklearn.metrics import mean_squared_error, r2_score
@@ -527,8 +614,22 @@ class PowerPlotter:
         ax1.grid(True, alpha=0.3)
 
         # Plot 2: Power vs Frequency (both predicted and actual)
-        ax2.plot(df[frequency_col], df[actual_col], "bo-", linewidth=2, markersize=6, label="Actual Power")
-        ax2.plot(df[frequency_col], df[predicted_col], "ro-", linewidth=2, markersize=6, label="Predicted Power")
+        ax2.plot(
+            df[frequency_col],
+            df[actual_col],
+            "bo-",
+            linewidth=2,
+            markersize=6,
+            label="Actual Power",
+        )
+        ax2.plot(
+            df[frequency_col],
+            df[predicted_col],
+            "ro-",
+            linewidth=2,
+            markersize=6,
+            label="Predicted Power",
+        )
 
         ax2.set_xlabel("Frequency (MHz)")
         ax2.set_ylabel("Power (W)")
@@ -584,14 +685,28 @@ class PowerPlotter:
         ax1.grid(True, alpha=0.3)
 
         # Plot 2: Power vs FP Activity
-        ax2.scatter(df[fp_activity_col], df[power_col], alpha=0.7, s=60, c=df[frequency_col], cmap="viridis")
+        ax2.scatter(
+            df[fp_activity_col],
+            df[power_col],
+            alpha=0.7,
+            s=60,
+            c=df[frequency_col],
+            cmap="viridis",
+        )
         ax2.set_xlabel("FP Activity")
         ax2.set_ylabel("Power (W)")
         ax2.set_title("Power vs FP Activity")
         ax2.grid(True, alpha=0.3)
 
         # Plot 3: Power vs DRAM Activity
-        ax3.scatter(df[dram_activity_col], df[power_col], alpha=0.7, s=60, c=df[frequency_col], cmap="viridis")
+        ax3.scatter(
+            df[dram_activity_col],
+            df[power_col],
+            alpha=0.7,
+            s=60,
+            c=df[frequency_col],
+            cmap="viridis",
+        )
         ax3.set_xlabel("DRAM Activity")
         ax3.set_ylabel("Power (W)")
         ax3.set_title("Power vs DRAM Activity")
@@ -601,7 +716,13 @@ class PowerPlotter:
         if HAS_3D:
             ax4 = fig.add_subplot(224, projection="3d")
             scatter = ax4.scatter(
-                df[fp_activity_col], df[dram_activity_col], df[power_col], c=df[frequency_col], cmap="viridis", s=60, alpha=0.7
+                df[fp_activity_col],
+                df[dram_activity_col],
+                df[power_col],
+                c=df[frequency_col],
+                cmap="viridis",
+                s=60,
+                alpha=0.7,
             )
             ax4.set_xlabel("FP Activity")
             ax4.set_ylabel("DRAM Activity")
@@ -609,7 +730,14 @@ class PowerPlotter:
             ax4.set_title("3D Power Surface")
         else:
             # Fallback to 2D heatmap
-            scatter = ax4.scatter(df[fp_activity_col], df[dram_activity_col], c=df[power_col], cmap="viridis", s=80, alpha=0.7)
+            scatter = ax4.scatter(
+                df[fp_activity_col],
+                df[dram_activity_col],
+                c=df[power_col],
+                cmap="viridis",
+                s=80,
+                alpha=0.7,
+            )
             ax4.set_xlabel("FP Activity")
             ax4.set_ylabel("DRAM Activity")
             ax4.set_title("Power Heatmap")
@@ -656,12 +784,22 @@ class PowerPlotter:
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
 
         # Calculate efficiency metrics
-        energy_per_op = df[energy_col] / df[performance_col] if performance_col in df.columns else None
-        power_efficiency = df[performance_col] / df[power_col] if performance_col in df.columns else None
+        energy_per_op = (
+            df[energy_col] / df[performance_col]
+            if performance_col in df.columns
+            else None
+        )
+        power_efficiency = (
+            df[performance_col] / df[power_col]
+            if performance_col in df.columns
+            else None
+        )
 
         # Plot 1: Power Efficiency vs Frequency
         if power_efficiency is not None:
-            ax1.plot(df[frequency_col], power_efficiency, "g-o", linewidth=2, markersize=6)
+            ax1.plot(
+                df[frequency_col], power_efficiency, "g-o", linewidth=2, markersize=6
+            )
             ax1.set_xlabel("Frequency (MHz)")
             ax1.set_ylabel("Performance/Power (ops/W)")
             ax1.set_title("Power Efficiency vs Frequency")
@@ -677,7 +815,14 @@ class PowerPlotter:
 
         # Plot 3: Energy vs Performance Trade-off
         if performance_col in df.columns:
-            scatter = ax3.scatter(df[energy_col], df[performance_col], c=df[frequency_col], cmap="viridis", s=80, alpha=0.7)
+            scatter = ax3.scatter(
+                df[energy_col],
+                df[performance_col],
+                c=df[frequency_col],
+                cmap="viridis",
+                s=80,
+                alpha=0.7,
+            )
             ax3.set_xlabel("Energy (J)")
             ax3.set_ylabel("Performance (ops/s)")
             ax3.set_title("Energy-Performance Trade-off")
@@ -685,13 +830,22 @@ class PowerPlotter:
 
         # Plot 4: Efficiency Contour Plot
         if power_efficiency is not None and energy_per_op is not None:
-            ax4.scatter(power_efficiency, energy_per_op, c=df[frequency_col], cmap="viridis", s=80, alpha=0.7)
+            ax4.scatter(
+                power_efficiency,
+                energy_per_op,
+                c=df[frequency_col],
+                cmap="viridis",
+                s=80,
+                alpha=0.7,
+            )
             ax4.set_xlabel("Power Efficiency (ops/W)")
             ax4.set_ylabel("Energy per Operation (J/op)")
             ax4.set_title("Efficiency Space")
 
             # Add Pareto frontier approximation
-            combined_efficiency = power_efficiency * (1.0 / energy_per_op)  # Higher is better
+            combined_efficiency = power_efficiency * (
+                1.0 / energy_per_op
+            )  # Higher is better
             pareto_mask = np.zeros(len(combined_efficiency), dtype=bool)
             for i in range(len(combined_efficiency)):
                 is_pareto = True
@@ -699,7 +853,10 @@ class PowerPlotter:
                     if (
                         power_efficiency[j] >= power_efficiency[i]
                         and energy_per_op[j] <= energy_per_op[i]
-                        and (power_efficiency[j] > power_efficiency[i] or energy_per_op[j] < energy_per_op[i])
+                        and (
+                            power_efficiency[j] > power_efficiency[i]
+                            or energy_per_op[j] < energy_per_op[i]
+                        )
                     ):
                         is_pareto = False
                         break
@@ -752,7 +909,9 @@ def plot_power_histogram(
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    n, bins_edges, patches = ax.hist(df[power_col], bins=bins, alpha=0.7, edgecolor="black")
+    n, bins_edges, patches = ax.hist(
+        df[power_col], bins=bins, alpha=0.7, edgecolor="black"
+    )
 
     # Color bars by value
     for i, patch in enumerate(patches):
@@ -766,9 +925,27 @@ def plot_power_histogram(
     # Add statistics
     mean_power = df[power_col].mean()
     std_power = df[power_col].std()
-    ax.axvline(mean_power, color="red", linestyle="--", linewidth=2, label=f"Mean: {mean_power:.2f}W")
-    ax.axvline(mean_power + std_power, color="orange", linestyle=":", linewidth=2, label=f"+1σ: {mean_power + std_power:.2f}W")
-    ax.axvline(mean_power - std_power, color="orange", linestyle=":", linewidth=2, label=f"-1σ: {mean_power - std_power:.2f}W")
+    ax.axvline(
+        mean_power,
+        color="red",
+        linestyle="--",
+        linewidth=2,
+        label=f"Mean: {mean_power:.2f}W",
+    )
+    ax.axvline(
+        mean_power + std_power,
+        color="orange",
+        linestyle=":",
+        linewidth=2,
+        label=f"+1σ: {mean_power + std_power:.2f}W",
+    )
+    ax.axvline(
+        mean_power - std_power,
+        color="orange",
+        linestyle=":",
+        linewidth=2,
+        label=f"-1σ: {mean_power - std_power:.2f}W",
+    )
 
     ax.legend()
 

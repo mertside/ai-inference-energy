@@ -62,8 +62,12 @@ def create_synthetic_data_for_visualization():
                 energy = power * execution_time
 
                 # FGCS-style features
-                fp_activity = 0.2 + (freq - 800) / 6000 * 0.3 + np.random.normal(0, 0.02)
-                dram_activity = 0.1 + (freq - 800) / 6000 * 0.1 + np.random.normal(0, 0.01)
+                fp_activity = (
+                    0.2 + (freq - 800) / 6000 * 0.3 + np.random.normal(0, 0.02)
+                )
+                dram_activity = (
+                    0.1 + (freq - 800) / 6000 * 0.1 + np.random.normal(0, 0.01)
+                )
 
                 # Throughput calculation
                 throughput = 1000 / execution_time  # operations per second
@@ -86,7 +90,9 @@ def create_synthetic_data_for_visualization():
 
         # Add predicted values for validation plots
         df["predicted_power"] = df["power"] + np.random.normal(0, 5, len(df))
-        df["predicted_runtime"] = df["execution_time"] + np.random.normal(0, 0.05, len(df))
+        df["predicted_runtime"] = df["execution_time"] + np.random.normal(
+            0, 0.05, len(df)
+        )
 
         logger.info(f"Created synthetic dataset with {len(df)} data points")
         return df
@@ -145,7 +151,11 @@ def create_optimization_results(df):
         ed2p_values = df["energy"] * (df["execution_time"] ** 2)
 
         # Find optimal points
-        avg_df = df.groupby("frequency").agg({"energy": "mean", "execution_time": "mean", "power": "mean"}).reset_index()
+        avg_df = (
+            df.groupby("frequency")
+            .agg({"energy": "mean", "execution_time": "mean", "power": "mean"})
+            .reset_index()
+        )
 
         avg_edp = avg_df["energy"] * avg_df["execution_time"]
         avg_ed2p = avg_df["energy"] * (avg_df["execution_time"] ** 2)
@@ -184,7 +194,9 @@ def create_optimization_results(df):
         return None
 
 
-def demonstrate_edp_visualizations(df, optimization_results, feature_importance, output_dir):
+def demonstrate_edp_visualizations(
+    df, optimization_results, feature_importance, output_dir
+):
     """Demonstrate EDP visualization capabilities."""
     try:
         from edp_analysis.visualization.edp_plots import EDPPlotter
@@ -229,7 +241,9 @@ def demonstrate_edp_visualizations(df, optimization_results, feature_importance,
             optimization_results=optimization_results,
             feature_importance=feature_importance,
             app_name="Synthetic GPU Application",
-            save_path=output_dir / "comprehensive_dashboard.png" if output_dir else None,
+            save_path=(
+                output_dir / "comprehensive_dashboard.png" if output_dir else None
+            ),
         )
 
         logger.info("✅ EDP visualizations completed successfully")
@@ -307,7 +321,9 @@ def demonstrate_performance_visualizations(df, output_dir):
             df=df.groupby("frequency").mean().reset_index(),
             app_name="Synthetic GPU Application",
             title="Performance Analysis",
-            save_path=output_dir / "performance_vs_frequency.png" if output_dir else None,
+            save_path=(
+                output_dir / "performance_vs_frequency.png" if output_dir else None
+            ),
         )
 
         # 2. FGCS Performance Validation
@@ -349,7 +365,12 @@ def main():
     """Main demonstration function."""
     parser = argparse.ArgumentParser(description="Enhanced EDP Visualization Demo")
     parser.add_argument("--save-plots", action="store_true", help="Save plots to files")
-    parser.add_argument("--output-dir", type=str, default="plots", help="Output directory for saved plots")
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="plots",
+        help="Output directory for saved plots",
+    )
 
     args = parser.parse_args()
 
@@ -380,7 +401,9 @@ def main():
     success_count = 0
 
     # EDP Visualizations
-    if demonstrate_edp_visualizations(df, optimization_results, feature_importance, output_dir):
+    if demonstrate_edp_visualizations(
+        df, optimization_results, feature_importance, output_dir
+    ):
         success_count += 1
 
     # Power Visualizations
@@ -392,7 +415,9 @@ def main():
         success_count += 1
 
     # Summary
-    logger.info(f"🎉 Demo completed! Successfully demonstrated {success_count}/3 visualization categories")
+    logger.info(
+        f"🎉 Demo completed! Successfully demonstrated {success_count}/3 visualization categories"
+    )
 
     if args.save_plots and success_count > 0:
         logger.info(f"📁 All plots saved to: {output_dir}")
@@ -401,7 +426,9 @@ def main():
             logger.info(f"  - {plot_file.name}")
 
     if success_count == 0:
-        logger.warning("⚠️  No visualizations were generated. Install matplotlib and seaborn to see plots.")
+        logger.warning(
+            "⚠️  No visualizations were generated. Install matplotlib and seaborn to see plots."
+        )
         logger.info("Run: pip install matplotlib seaborn")
 
     return 0 if success_count > 0 else 1

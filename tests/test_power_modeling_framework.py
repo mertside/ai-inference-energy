@@ -27,11 +27,19 @@ import pandas as pd
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from edp_analysis.edp_calculator import DVFSOptimizationPipeline, EDPCalculator, FGCSEDPOptimizer
+from edp_analysis.edp_calculator import (
+    DVFSOptimizationPipeline,
+    EDPCalculator,
+    FGCSEDPOptimizer,
+)
 from power_modeling import FGCSPowerModelingFramework, analyze_application
 from power_modeling.models.ensemble_models import EnhancedRandomForestModel
 from power_modeling.models.fgcs_models import FGCSPowerModel
-from power_modeling.models.model_factory import FGCSModelFactory, ModelPipeline, PolynomialPowerModel
+from power_modeling.models.model_factory import (
+    FGCSModelFactory,
+    ModelPipeline,
+    PolynomialPowerModel,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.ERROR)  # Reduce noise during testing
@@ -100,7 +108,11 @@ class TestPowerModelingFramework(unittest.TestCase):
 
         # Verify hyperparameter grid doesn't contain max_samples
         grid = model.get_hyperparameter_grid()
-        self.assertNotIn("max_samples", grid, "max_samples should be removed from hyperparameter grid")
+        self.assertNotIn(
+            "max_samples",
+            grid,
+            "max_samples should be removed from hyperparameter grid",
+        )
 
         # Test training without optimization
         X = np.random.rand(50, 3)
@@ -121,7 +133,9 @@ class TestPowerModelingFramework(unittest.TestCase):
         framework = FGCSPowerModelingFramework()
 
         # Test model training
-        training_results = framework.train_models(self.training_data, target_column="power")
+        training_results = framework.train_models(
+            self.training_data, target_column="power"
+        )
 
         self.assertIn("models", training_results)
         self.assertIn("best_model", training_results)
@@ -137,7 +151,9 @@ class TestPowerModelingFramework(unittest.TestCase):
 
         # Test power sweep prediction
         power_sweep = framework.predict_power_sweep(
-            fp_activity=self.test_fp_activity, dram_activity=self.test_dram_activity, frequencies=self.test_frequencies
+            fp_activity=self.test_fp_activity,
+            dram_activity=self.test_dram_activity,
+            frequencies=self.test_frequencies,
         )
 
         self.assertEqual(len(power_sweep), len(self.test_frequencies))
@@ -167,7 +183,9 @@ class TestPowerModelingFramework(unittest.TestCase):
         np.testing.assert_allclose(ed2p, expected_ed2p)
 
         # Test with DataFrame
-        df = pd.DataFrame({"energy": energy, "execution_time": delay, "frequency": [1000, 1100, 1200]})
+        df = pd.DataFrame(
+            {"energy": energy, "execution_time": delay, "frequency": [1000, 1100, 1200]}
+        )
 
         optimal_config = calculator.find_optimal_configuration(df, metric="edp")
         self.assertIn("optimal_frequency", optimal_config)
@@ -197,7 +215,9 @@ class TestPowerModelingFramework(unittest.TestCase):
         self.assertGreater(edp_energy, 0)
 
         # Test ED²P optimization
-        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = FGCSEDPOptimizer.ed2p_optimal(df)
+        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = FGCSEDPOptimizer.ed2p_optimal(
+            df
+        )
 
         self.assertIn(ed2p_freq, frequencies)
         self.assertGreater(ed2p_time, 0)
@@ -213,7 +233,11 @@ class TestPowerModelingFramework(unittest.TestCase):
     def test_gpu_frequency_configurations(self):
         """Test GPU frequency configurations are correct."""
         expected_counts = {"V100": 131, "A100": 61, "H100": 104}
-        expected_ranges = {"V100": (405, 1380), "A100": (510, 1410), "H100": (210, 1755)}
+        expected_ranges = {
+            "V100": (405, 1380),
+            "A100": (510, 1410),
+            "H100": (210, 1755),
+        }
 
         for gpu_type in ["V100", "A100", "H100"]:
             framework = FGCSPowerModelingFramework(gpu_type=gpu_type)
@@ -223,7 +247,9 @@ class TestPowerModelingFramework(unittest.TestCase):
             actual_count = len(frequencies)
             expected_count = expected_counts[gpu_type]
             self.assertEqual(
-                actual_count, expected_count, f"{gpu_type} frequency count mismatch: {actual_count} != {expected_count}"
+                actual_count,
+                expected_count,
+                f"{gpu_type} frequency count mismatch: {actual_count} != {expected_count}",
             )
 
             # Check frequency range
@@ -269,14 +295,18 @@ class TestPowerModelingFramework(unittest.TestCase):
         framework = FGCSPowerModelingFramework()
 
         # Test model training
-        training_results = framework.train_models(self.training_data, target_column="power")
+        training_results = framework.train_models(
+            self.training_data, target_column="power"
+        )
         self.assertIn("models", training_results)
         self.assertIn("best_model", training_results)
         self.assertIsNotNone(training_results["best_model"])
 
         # Test power prediction
         power_sweep = framework.predict_power_sweep(
-            fp_activity=self.test_fp_activity, dram_activity=self.test_dram_activity, frequencies=self.test_frequencies
+            fp_activity=self.test_fp_activity,
+            dram_activity=self.test_dram_activity,
+            frequencies=self.test_frequencies,
         )
         self.assertEqual(len(power_sweep), len(self.test_frequencies))
         self.assertIn("frequency", power_sweep.columns)
@@ -311,7 +341,9 @@ class TestPowerModelingFramework(unittest.TestCase):
             profiling_data.to_csv(profiling_file, index=False)
 
             # Test quick analysis
-            results = analyze_application(profiling_file=profiling_file, app_name="TestApp", gpu_type="V100")
+            results = analyze_application(
+                profiling_file=profiling_file, app_name="TestApp", gpu_type="V100"
+            )
 
             # Verify results structure
             self.assertIn("summary", results)
@@ -353,7 +385,9 @@ class TestValidationAndMetrics(unittest.TestCase):
                 # Test training
                 if hasattr(model, "fit"):
                     if name == "Enhanced_RF":
-                        model.fit(X_train, y_train, optimize=False)  # Skip optimization for speed
+                        model.fit(
+                            X_train, y_train, optimize=False
+                        )  # Skip optimization for speed
                     else:
                         feature_names = ["fp_activity", "dram_activity", "sm_clock"]
                         X_train_df = pd.DataFrame(X_train, columns=feature_names)
@@ -372,7 +406,9 @@ class TestValidationAndMetrics(unittest.TestCase):
 
 if __name__ == "__main__":
     # Set up test environment
-    os.environ["PYTHONPATH"] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    os.environ["PYTHONPATH"] = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))
+    )
 
     # Run tests
     unittest.main(verbosity=2)

@@ -14,10 +14,10 @@ Core Components:
 
 Quick Usage:
     from edp_analysis import EDPCalculator, EnergyProfiler
-    
+
     calculator = EDPCalculator()
     edp = calculator.calculate_edp(energy, delay)
-    
+
     profiler = EnergyProfiler()
     energy_metrics = profiler.calculate_energy_from_power_time(power, time)
 """
@@ -37,14 +37,22 @@ from .edp_calculator import (
 from .energy_profiler import EnergyProfiler
 
 # Optimization analysis
-from .optimization_analyzer import MultiObjectiveOptimizer, OptimizationRecommendation, OptimizationResult
+from .optimization_analyzer import (
+    MultiObjectiveOptimizer,
+    OptimizationRecommendation,
+    OptimizationResult,
+)
 
 # Performance profiling
 from .performance_profiler import PerformanceProfiler
 
 # Feature selection (conditional import - may not be available in all environments)
 try:
-    from .feature_selection import EDPFeatureSelector, FGCSFeatureEngineering, create_optimized_feature_set
+    from .feature_selection import (
+        EDPFeatureSelector,
+        FGCSFeatureEngineering,
+        create_optimized_feature_set,
+    )
 
     FEATURE_SELECTION_AVAILABLE = True
 except ImportError:
@@ -52,7 +60,12 @@ except ImportError:
 
 # Visualization (conditional import)
 try:
-    from .visualization import create_edp_heatmap, plot_edp_vs_frequency, plot_energy_delay_tradeoff, plot_pareto_frontier
+    from .visualization import (
+        create_edp_heatmap,
+        plot_edp_vs_frequency,
+        plot_energy_delay_tradeoff,
+        plot_pareto_frontier,
+    )
 
     VISUALIZATION_AVAILABLE = True
 except ImportError:
@@ -87,11 +100,20 @@ __all__ = [
 
 # Add feature selection exports if available
 if FEATURE_SELECTION_AVAILABLE:
-    __all__.extend(["FGCSFeatureEngineering", "EDPFeatureSelector", "create_optimized_feature_set"])
+    __all__.extend(
+        ["FGCSFeatureEngineering", "EDPFeatureSelector", "create_optimized_feature_set"]
+    )
 
 # Add visualization exports if available
 if VISUALIZATION_AVAILABLE:
-    __all__.extend(["plot_edp_vs_frequency", "plot_pareto_frontier", "plot_energy_delay_tradeoff", "create_edp_heatmap"])
+    __all__.extend(
+        [
+            "plot_edp_vs_frequency",
+            "plot_pareto_frontier",
+            "plot_energy_delay_tradeoff",
+            "create_edp_heatmap",
+        ]
+    )
 
 
 def get_module_info():
@@ -104,7 +126,12 @@ def get_module_info():
     return {
         "version": __version__,
         "description": __description__,
-        "core_components": ["EDPCalculator", "EnergyProfiler", "PerformanceProfiler", "OptimizationAnalyzer"],
+        "core_components": [
+            "EDPCalculator",
+            "EnergyProfiler",
+            "PerformanceProfiler",
+            "OptimizationAnalyzer",
+        ],
         "feature_selection_available": FEATURE_SELECTION_AVAILABLE,
         "visualization_available": VISUALIZATION_AVAILABLE,
         "fgcs_compatibility": True,
@@ -179,8 +206,12 @@ logger.info(f"EDP Analysis Module v{__version__} loaded")
 if FEATURE_SELECTION_AVAILABLE:
     logger.info("✓ Feature selection capabilities available")
 else:
-    logger.info("⚠ Feature selection capabilities not available (sklearn dependencies missing)")
+    logger.info(
+        "⚠ Feature selection capabilities not available (sklearn dependencies missing)"
+    )
 if VISUALIZATION_AVAILABLE:
     logger.info("✓ Visualization capabilities available")
 else:
-    logger.info("⚠ Visualization capabilities not available (matplotlib dependencies missing)")
+    logger.info(
+        "⚠ Visualization capabilities not available (matplotlib dependencies missing)"
+    )

@@ -12,184 +12,139 @@ on:
 env:
   PYTHON_VERSION_DEFAULT: "3.12"
   PYTORCH_VERSION: "2.0.0"
+  CACHE_KEY_PREFIX: "ci-cache-v2"
 
 jobs:
-  # Static analysis and linting
-  lint:
-    name: Lint and Format Check
+  # Quick validation - runs fast essential checks only
+  quick-check:
+    name: Quick Validation
     runs-on: ubuntu-latest
     container:
       image: rockylinux:9
     steps:
       - uses: actions/checkout@v4
-      - name: Install Python 3.12 and pip
+      
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY_PREFIX }}-quick-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-quick-
+            
+      - name: Install Python and basic tools
         run: |
-          dnf update -y
-          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
+          dnf update -y -q
+          dnf install -y -q python3 python3-pip
+          python3 -m pip install --upgrade pip -q
+          
       - name: Install lint dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install black>=22.0.0 flake8>=4.0.0 isort>=5.10.0 mypy>=1.0.0
+          python3 -m pip install -q black>=22.0.0 flake8>=4.0.0 isort>=5.10.0
+          
       - name: Check code formatting with Black
-        run: python3 -m black --check --diff .
+        run: |
+          python3 -m black --check --diff . || {
+            echo "Code formatting issues found. Run 'black .' to fix them."
+            exit 1
+          }
+        
       - name: Check import sorting with isort
         run: python3 -m isort --check-only --diff .
-      - name: Lint with flake8
+        
+      - name: Quick syntax check with flake8
         run: |
           python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Type check with mypy (allow failures)
-        run: python3 -m mypy . --ignore-missing-imports --no-strict-optional || true
-
-  # Test matrix for different Python versions and environments
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.6", "3.12"]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Python and system dependencies
-        run: |
-          dnf update -y
-          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
-          if [[ "${{ matrix.python-version }}" == "3.6" ]]; then
-            dnf install -y python3.6 python3.6-devel || true
-          fi
-      - name: Set python executable
-        id: set-python
-        run: |
-          if [[ "${{ matrix.python-version }}" == "3.6" ]]; then
-            echo "::set-output name=pyexe::python3.6"
-          else
-            echo "::set-output name=pyexe::python3"
-          fi
-      - name: Install Python dependencies
-        run: |
-          ${{ steps.set-python.outputs.pyexe }} -m pip install --upgrade pip setuptools wheel
-          ${{ steps.set-python.outputs.pyexe }} -m pip install -r requirements.txt
-          ${{ steps.set-python.outputs.pyexe }} -m pip install pytest>=7.0.0 pytest-cov>=4.0.0 pytest-xdist>=3.0.0
-      - name: Verify GPU hardware module
-        run: |
-          ${{ steps.set-python.outputs.pyexe }} -c "from hardware.gpu_info import get_gpu_info, get_supported_gpus; print('Supported GPUs:', get_supported_gpus()); [print(f'{gpu}: {len(get_gpu_info(gpu).get_available_frequencies())} frequencies') for gpu in get_supported_gpus()]"
-      - name: Test configuration module
-        run: |
-          ${{ steps.set-python.outputs.pyexe }} -c "from config import GPUConfig; print('A100 frequencies:', len(GPUConfig.A100_CORE_FREQUENCIES)); print('V100 frequencies:', len(GPUConfig.V100_CORE_FREQUENCIES)); print('H100 frequencies:', len(GPUConfig.H100_CORE_FREQUENCIES))"
-      - name: Run unit tests
-        run: |
-          ${{ steps.set-python.outputs.pyexe }} -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing
-      - name: Test sample scripts syntax
+          
+      - name: Test script syntax
         run: |
           bash -n sample-collection-scripts/launch.sh
           bash -n sample-collection-scripts/control.sh
           bash -n sample-collection-scripts/clean.sh
+
+  # Main test suite - only Python 3.12 for speed
+  test:
+    name: Test Suite (Python 3.12)
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
+    needs: quick-check
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache Python packages  
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY_PREFIX }}-test-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-test-
+            
+      - name: Install Python and system dependencies
+        run: |
+          dnf update -y -q
+          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
+          python3 -m pip install --upgrade pip setuptools wheel -q
+          
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r requirements.txt -q
+          python3 -m pip install pytest>=7.0.0 pytest-cov>=4.0.0 pytest-xdist>=3.0.0 -q
+          
+      - name: Verify GPU hardware module
+        run: |
+          python3 -c "from hardware.gpu_info import get_gpu_info, get_supported_gpus; print('Supported GPUs:', get_supported_gpus()); [print(f'{gpu}: {len(get_gpu_info(gpu).get_available_frequencies())} frequencies') for gpu in get_supported_gpus()]"
+          
+      - name: Test configuration module
+        run: |
+          python3 -c "from config import GPUConfig; print('A100 frequencies:', len(GPUConfig.A100_CORE_FREQUENCIES)); print('V100 frequencies:', len(GPUConfig.V100_CORE_FREQUENCIES)); print('H100 frequencies:', len(GPUConfig.H100_CORE_FREQUENCIES))"
+          
+      - name: Run unit tests
+        run: |
+          python3 -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing -n auto
+          
       - name: Upload coverage to Codecov
-        if: matrix.python-version == env.PYTHON_VERSION_DEFAULT
         uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
-          verbose: true
 
-  # Enterprise Linux compatibility test
-  enterprise-linux-test:
-    name: Enterprise Linux Compatibility
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install system dependencies (Rocky Linux 9)
-        run: |
-          dnf update -y
-          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
-          dnf install -y epel-release
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu
-          python3 -m pip install -r requirements.txt
-      - name: Test core modules
-        run: |
-          python3 -c "
-          import sys
-          print('Python version:', sys.version)
-          from hardware.gpu_info import get_supported_gpus
-          print('GPU support test passed')
-          "
-      - name: Test power modeling framework
-        run: |
-          python3 -c "
-          try:
-              from power_modeling.fgcs_integration import FGCSPowerModelingFramework
-              print('Power modeling framework import successful')
-          except ImportError as e:
-              print('Power modeling framework import failed (expected in CI):', e)
-          "
-
-  # Documentation build test
-  docs:
-    name: Documentation Build
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Python 3.12 and documentation dependencies
-        run: |
-          dnf update -y
-          dnf install -y python3 python3-pip
-          python3 -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
-      - name: Check documentation files
-        run: |
-          # Verify all markdown files are valid
-          find . -name "*.md" -exec echo "Checking {}" \;
-      - name: Validate README files
-        run: |
-          python -c "
-          import os
-          for root, dirs, files in os.walk('.'):
-              for file in files:
-                  if file.endswith('.md'):
-                      filepath = os.path.join(root, file)
-                      try:
-                          with open(filepath, 'r', encoding='utf-8') as f:
-                              content = f.read()
-                          print(f'✓ {filepath}')
-                      except Exception as e:
-                          print(f'✗ {filepath}: {e}')
-                          exit(1)
-          "
-
-  # Integration test for sample scripts
+  # Integration tests - only run on main branch pushes to save time
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-latest
     container:
       image: rockylinux:9
-    needs: [lint, test]
+    needs: [quick-check, test]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY_PREFIX }}-integration-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-integration-
+            
       - name: Install Python and dependencies
         run: |
-          dnf update -y
-          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
-          python3 -m pip install --upgrade pip
-          pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
+          dnf update -y -q
+          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
+          python3 -m pip install --upgrade pip -q
+          python3 -m pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu -q
+          python3 -m pip install -r requirements.txt -q
+          
       - name: Test launch script help
         run: |
           cd sample-collection-scripts
           bash launch.sh --help
+          
       - name: Test frequency validation
         run: |
-          python -c "
-          from hardware.gpu_info import get_gpu_info, validate_gpu_configuration
+          python3 -c "
+          from hardware.gpu_info import get_gpu_info
           # Test frequency validation for all GPUs
           for gpu_type in ['V100', 'A100', 'H100']:
               gpu_info = get_gpu_info(gpu_type)
@@ -200,9 +155,10 @@ jobs:
               assert freqs[-1] >= 510, f'{gpu_type} min freq below 510 MHz: {freqs[-1]}'
               print(f'✓ {gpu_type}: {len(freqs)} frequencies validated ({freqs[-1]}-{freqs[0]} MHz)')
           "
+          
       - name: Test configuration consistency
         run: |
-          python -c "
+          python3 -c "
           from hardware.gpu_info import get_gpu_info
           from config import GPUConfig
           
@@ -222,20 +178,47 @@ jobs:
           print('✓ All GPU configurations are consistent between modules')
           "
 
-  # Security scan
+  # Legacy Python test - only on scheduled runs
+  legacy-test:
+    name: Legacy Python 3.6 Test
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Python 3.6 and dependencies
+        run: |
+          dnf update -y -q
+          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
+          # Attempt to install Python 3.6 if available
+          dnf install -y python3.6 python3.6-devel || echo "Python 3.6 not available, skipping"
+          
+      - name: Test basic import with Python 3.6
+        run: |
+          if command -v python3.6 &> /dev/null; then
+            python3.6 -c "import sys; print('Python version:', sys.version)"
+            python3.6 -c "from hardware.gpu_info import get_supported_gpus; print('Legacy Python test passed')"
+          else
+            echo "Python 3.6 not available, test skipped"
+          fi
+
+  # Security scan - lightweight and fast
   security:
     name: Security Scan
     runs-on: ubuntu-latest
     container:
       image: rockylinux:9
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
     steps:
       - uses: actions/checkout@v4
       - name: Install Python and security tools
         run: |
-          dnf update -y
-          dnf install -y python3 python3-pip
-          python3 -m pip install --upgrade pip
-          pip install safety bandit
+          dnf update -y -q
+          dnf install -y -q python3 python3-pip
+          python3 -m pip install --upgrade pip -q
+          python3 -m pip install safety bandit -q
       - name: Check for known security vulnerabilities
         run: |
           safety check -r requirements.txt --continue-on-error
@@ -249,29 +232,3 @@ jobs:
         with:
           name: security-report
           path: bandit-report.json
-
-  # Build summary
-  build-summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Python 3.12 and build dependencies
-        run: |
-          dnf update -y
-          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
-      - name: Build and install package
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install .
-      - name: Run tests
-        run: |
-          python3 -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
-          verbose: true

@@ -30,7 +30,13 @@ class EnhancedRandomForestModel:
     Enhanced Random Forest model with hyperparameter optimization from FGCS 2023.
     """
 
-    def __init__(self, optimization_method: str = "random", n_iter: int = 100, cv_folds: int = 10, random_state: int = 42):
+    def __init__(
+        self,
+        optimization_method: str = "random",
+        n_iter: int = 100,
+        cv_folds: int = 10,
+        random_state: int = 42,
+    ):
         """
         Initialize Enhanced Random Forest model.
 
@@ -67,7 +73,9 @@ class EnhancedRandomForestModel:
             # Removed max_samples entirely - causes issues with older sklearn versions
         }
 
-    def optimize_hyperparameters(self, X_train: np.ndarray, y_train: np.ndarray) -> Dict[str, Any]:
+    def optimize_hyperparameters(
+        self, X_train: np.ndarray, y_train: np.ndarray
+    ) -> Dict[str, Any]:
         """
         Optimize hyperparameters using the specified method.
 
@@ -78,7 +86,9 @@ class EnhancedRandomForestModel:
         Returns:
             Best hyperparameters found
         """
-        logger.info(f"Optimizing Random Forest hyperparameters using {self.optimization_method} search")
+        logger.info(
+            f"Optimizing Random Forest hyperparameters using {self.optimization_method} search"
+        )
 
         # Create base model with safe defaults
         base_rf = RandomForestRegressor(random_state=self.random_state, n_jobs=-1)
@@ -89,7 +99,9 @@ class EnhancedRandomForestModel:
             test_rf = RandomForestRegressor(criterion="squared_error", n_estimators=10)
             test_rf.fit(X_train[:10], y_train[:10])  # Quick test
         except Exception as e:
-            logger.warning(f"squared_error criterion not supported, falling back to mse: {e}")
+            logger.warning(
+                f"squared_error criterion not supported, falling back to mse: {e}"
+            )
             # Update param grid to use older criterion names
             param_grid["criterion"] = ["mse", "mae"]
 
@@ -136,7 +148,9 @@ class EnhancedRandomForestModel:
 
         return self.best_params
 
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray, optimize: bool = True) -> "EnhancedRandomForestModel":
+    def fit(
+        self, X_train: np.ndarray, y_train: np.ndarray, optimize: bool = True
+    ) -> "EnhancedRandomForestModel":
         """
         Train the Random Forest model.
 
@@ -176,7 +190,9 @@ class EnhancedRandomForestModel:
     def get_feature_importance(self) -> np.ndarray:
         """Get feature importance scores."""
         if not self.is_trained:
-            raise ValueError("Model must be trained before accessing feature importance")
+            raise ValueError(
+                "Model must be trained before accessing feature importance"
+            )
         return self.model.feature_importances_
 
 
@@ -188,7 +204,9 @@ class XGBoostPowerModel:
     def __init__(self, random_state: int = 42):
         """Initialize XGBoost model."""
         if not XGBOOST_AVAILABLE:
-            raise ImportError("XGBoost not available. Install with: pip install xgboost")
+            raise ImportError(
+                "XGBoost not available. Install with: pip install xgboost"
+            )
 
         self.random_state = random_state
         self.model = None
@@ -207,7 +225,9 @@ class XGBoostPowerModel:
             "reg_lambda": [0, 0.1, 0.5, 1.0],
         }
 
-    def fit(self, X_train: np.ndarray, y_train: np.ndarray, optimize: bool = True) -> "XGBoostPowerModel":
+    def fit(
+        self, X_train: np.ndarray, y_train: np.ndarray, optimize: bool = True
+    ) -> "XGBoostPowerModel":
         """Train XGBoost model with optional hyperparameter optimization."""
         if optimize:
             logger.info("Optimizing XGBoost hyperparameters")
@@ -260,7 +280,10 @@ class ModelEvaluator:
 
     @staticmethod
     def evaluate_model(
-        model: BaseEstimator, X_test: np.ndarray, y_test: np.ndarray, model_name: str = "Model"
+        model: BaseEstimator,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+        model_name: str = "Model",
     ) -> Dict[str, float]:
         """
         Evaluate model performance using FGCS metrics.
@@ -286,7 +309,14 @@ class ModelEvaluator:
         mape = np.mean(np.abs((y_test - predictions) / y_test)) * 100
         accuracy = 100 - mape
 
-        metrics = {"mae": mae, "mse": mse, "rmse": rmse, "r2": r2, "mape": mape, "accuracy": accuracy}
+        metrics = {
+            "mae": mae,
+            "mse": mse,
+            "rmse": rmse,
+            "r2": r2,
+            "mape": mape,
+            "accuracy": accuracy,
+        }
 
         logger.info(f"\n{model_name} Performance:")
         logger.info(f"  MAE: {mae:.4f}")
@@ -299,7 +329,9 @@ class ModelEvaluator:
         return metrics
 
     @staticmethod
-    def compare_models(models: Dict[str, BaseEstimator], X_test: np.ndarray, y_test: np.ndarray) -> pd.DataFrame:
+    def compare_models(
+        models: Dict[str, BaseEstimator], X_test: np.ndarray, y_test: np.ndarray
+    ) -> pd.DataFrame:
         """
         Compare multiple models and return performance comparison.
 
@@ -332,7 +364,9 @@ class EnsembleModel:
     Ensemble model combining multiple power prediction models.
     """
 
-    def __init__(self, models: List[BaseEstimator], weights: Optional[List[float]] = None):
+    def __init__(
+        self, models: List[BaseEstimator], weights: Optional[List[float]] = None
+    ):
         """
         Initialize ensemble model.
 
@@ -382,6 +416,10 @@ class EnsembleModel:
         weighted_pred = np.average(all_predictions, axis=0, weights=self.weights)
 
         # Weighted standard deviation
-        weighted_std = np.sqrt(np.average((all_predictions - weighted_pred) ** 2, axis=0, weights=self.weights))
+        weighted_std = np.sqrt(
+            np.average(
+                (all_predictions - weighted_pred) ** 2, axis=0, weights=self.weights
+            )
+        )
 
         return weighted_pred, weighted_std

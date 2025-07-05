@@ -48,7 +48,9 @@ def create_synthetic_profiling_data():
                 # Execution time inversely related to frequency (with some noise)
                 base_time = 2.0 * (1400 / freq)  # Inverse scaling
                 time_noise = np.random.normal(0, 0.1)
-                execution_time = max(0.5, base_time + time_noise)  # Ensure positive time
+                execution_time = max(
+                    0.5, base_time + time_noise
+                )  # Ensure positive time
 
                 # Simulate FP and DRAM activity
                 fp_activity = np.random.uniform(0.2, 0.6)
@@ -73,7 +75,9 @@ def create_synthetic_profiling_data():
                 )
 
         df = pd.DataFrame(data)
-        logger.info(f"Generated synthetic data: {len(df)} samples across {len(frequencies)} frequencies")
+        logger.info(
+            f"Generated synthetic data: {len(df)} samples across {len(frequencies)} frequencies"
+        )
         return df
 
     except ImportError as e:
@@ -97,17 +101,23 @@ def demo_feature_selection_and_engineering():
         logger.info(f"Input columns: {list(df.columns)}")
 
         # Apply feature engineering and selection
-        df_optimized, analysis_results = create_optimized_feature_set(df, gpu_type="V100", target_col="power", max_features=8)
+        df_optimized, analysis_results = create_optimized_feature_set(
+            df, gpu_type="V100", target_col="power", max_features=8
+        )
 
         logger.info(f"Optimized data shape: {df_optimized.shape}")
-        logger.info(f"Selected features: {analysis_results['final_feature_set']['features']}")
+        logger.info(
+            f"Selected features: {analysis_results['final_feature_set']['features']}"
+        )
 
         # Display feature analysis
         if "validation" in analysis_results:
             validation = analysis_results["validation"]
             logger.info(f"FGCS core features found: {validation['fgcs_core_features']}")
             if validation["missing_fgcs_features"]:
-                logger.info(f"Missing FGCS features: {validation['missing_fgcs_features']}")
+                logger.info(
+                    f"Missing FGCS features: {validation['missing_fgcs_features']}"
+                )
 
         if "selection" in analysis_results:
             selection = analysis_results["selection"]
@@ -129,7 +139,10 @@ def demo_enhanced_edp_calculation():
     logger.info("\n=== Enhanced EDP Calculation Demo ===")
 
     try:
-        from edp_analysis.edp_calculator import analyze_feature_importance_for_edp, calculate_edp_with_features
+        from edp_analysis.edp_calculator import (
+            analyze_feature_importance_for_edp,
+            calculate_edp_with_features,
+        )
 
         # Create synthetic data
         df = create_synthetic_profiling_data()
@@ -138,7 +151,11 @@ def demo_enhanced_edp_calculation():
 
         # Enhanced EDP calculation with feature selection
         edp_results = calculate_edp_with_features(
-            df, energy_col="energy", delay_col="execution_time", use_feature_selection=True, gpu_type="V100"
+            df,
+            energy_col="energy",
+            delay_col="execution_time",
+            use_feature_selection=True,
+            gpu_type="V100",
         )
 
         # Display EDP analysis results
@@ -168,7 +185,9 @@ def demo_enhanced_edp_calculation():
 
         if "feature_importance" in importance_results:
             for target, analysis in importance_results["feature_importance"].items():
-                logger.info(f"Top features for {target}: {analysis['selected_features'][:3]}")
+                logger.info(
+                    f"Top features for {target}: {analysis['selected_features'][:3]}"
+                )
 
         return True
 
@@ -209,15 +228,25 @@ def demo_energy_profiling():
         if "efficiency_metrics" in efficiency_results:
             metrics = efficiency_results["efficiency_metrics"]
             logger.info(f"Energy Efficiency Analysis:")
-            logger.info(f"  Min energy frequency: {metrics['min_energy_frequency']} MHz ({metrics['min_energy_value']:.2f} J)")
-            logger.info(f"  Min time frequency: {metrics['min_time_frequency']} MHz ({metrics['min_time_value']:.2f} s)")
-            logger.info(f"  Energy range: {metrics['energy_range'][0]:.2f} - {metrics['energy_range'][1]:.2f} J")
+            logger.info(
+                f"  Min energy frequency: {metrics['min_energy_frequency']} MHz ({metrics['min_energy_value']:.2f} J)"
+            )
+            logger.info(
+                f"  Min time frequency: {metrics['min_time_frequency']} MHz ({metrics['min_time_value']:.2f} s)"
+            )
+            logger.info(
+                f"  Energy range: {metrics['energy_range'][0]:.2f} - {metrics['energy_range'][1]:.2f} J"
+            )
 
         if "optimization_insights" in efficiency_results:
             insights = efficiency_results["optimization_insights"]
             logger.info(f"Optimization Insights:")
-            logger.info(f"  Max energy savings: {insights['max_energy_savings_percent']:.1f}%")
-            logger.info(f"  Max time penalty: {insights['max_time_penalty_percent']:.1f}%")
+            logger.info(
+                f"  Max energy savings: {insights['max_energy_savings_percent']:.1f}%"
+            )
+            logger.info(
+                f"  Max time penalty: {insights['max_time_penalty_percent']:.1f}%"
+            )
 
         # Measurement validation
         validation_results = profiler.validate_energy_measurements(
@@ -254,7 +283,11 @@ def demo_performance_profiling():
 
         # FGCS performance model analysis
         fgcs_results = profiler.analyze_fgcs_performance_model(
-            df, fp_activity=0.3, baseline_time=None, time_col="execution_time", frequency_col="frequency"
+            df,
+            fp_activity=0.3,
+            baseline_time=None,
+            time_col="execution_time",
+            frequency_col="frequency",
         )
 
         if "accuracy_metrics" in fgcs_results and fgcs_results["accuracy_metrics"]:
@@ -262,13 +295,17 @@ def demo_performance_profiling():
             logger.info(f"FGCS Model Accuracy:")
             logger.info(f"  MAE: {accuracy['mae']:.3f} seconds")
             logger.info(f"  MAPE: {accuracy['mape']:.1f}%")
-            logger.info(f"  Valid predictions: {accuracy['valid_predictions']}/{accuracy['total_predictions']}")
+            logger.info(
+                f"  Valid predictions: {accuracy['valid_predictions']}/{accuracy['total_predictions']}"
+            )
 
         if "performance_insights" in fgcs_results:
             insights = fgcs_results["performance_insights"]
             if insights:  # Check if insights dict is not empty
                 logger.info(f"Performance Insights:")
-                logger.info(f"  Fastest frequency: {insights.get('fastest_frequency', 'N/A')} MHz")
+                logger.info(
+                    f"  Fastest frequency: {insights.get('fastest_frequency', 'N/A')} MHz"
+                )
                 logger.info(
                     f"  Performance improvement potential: {insights.get('performance_improvement_potential', 0):.1f}%"
                 )
@@ -283,7 +320,9 @@ def demo_performance_profiling():
             logger.info(f"Throughput Metrics:")
             logger.info(f"  Mean throughput: {metrics['mean_throughput']:.2f} ops/sec")
             logger.info(f"  Throughput range: {metrics['throughput_range']:.2f}")
-            logger.info(f"  Coefficient of variation: {metrics['coefficient_of_variation']:.3f}")
+            logger.info(
+                f"  Coefficient of variation: {metrics['coefficient_of_variation']:.3f}"
+            )
 
         return True
 
@@ -297,7 +336,10 @@ def demo_optimization_analysis():
     logger.info("\n=== Optimization Analysis Demo ===")
 
     try:
-        from edp_analysis.optimization_analyzer import MultiObjectiveOptimizer, OptimizationResult
+        from edp_analysis.optimization_analyzer import (
+            MultiObjectiveOptimizer,
+            OptimizationResult,
+        )
 
         # Create synthetic data
         df = create_synthetic_profiling_data()
@@ -313,7 +355,9 @@ def demo_optimization_analysis():
         frequencies = df["frequency"].values
 
         # Find Pareto optimal solutions
-        pareto_results = optimizer.find_pareto_optimal_solutions(energy_values, time_values, frequencies)
+        pareto_results = optimizer.find_pareto_optimal_solutions(
+            energy_values, time_values, frequencies
+        )
 
         logger.info(f"Pareto Analysis:")
         logger.info(f"  Total configurations: {len(df)}")
@@ -323,7 +367,8 @@ def demo_optimization_analysis():
             # Show first few Pareto optimal points
             for i, result in enumerate(pareto_results[:3]):
                 logger.info(
-                    f"  Pareto point {i+1}: {result.frequency} MHz, " f"E={result.energy:.2f}J, T={result.execution_time:.2f}s"
+                    f"  Pareto point {i+1}: {result.frequency} MHz, "
+                    f"E={result.energy:.2f}J, T={result.execution_time:.2f}s"
                 )
 
         return True
@@ -377,7 +422,9 @@ def main():
         logger.info("🎉 All enhanced EDP analysis features working correctly!")
         return True
     else:
-        logger.warning(f"⚠ {total_demos - successful_demos} demos failed - check dependencies and setup")
+        logger.warning(
+            f"⚠ {total_demos - successful_demos} demos failed - check dependencies and setup"
+        )
         return False
 
 
@@ -385,8 +432,17 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Enhanced EDP Analysis Demo")
-    parser.add_argument("--gpu-type", default="V100", choices=["V100", "A100", "H100"], help="GPU type for analysis")
-    parser.add_argument("--synthetic-data", action="store_true", help="Use synthetic data for demonstration")
+    parser.add_argument(
+        "--gpu-type",
+        default="V100",
+        choices=["V100", "A100", "H100"],
+        help="GPU type for analysis",
+    )
+    parser.add_argument(
+        "--synthetic-data",
+        action="store_true",
+        help="Use synthetic data for demonstration",
+    )
 
     args = parser.parse_args()
 

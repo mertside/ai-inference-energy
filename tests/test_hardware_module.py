@@ -219,7 +219,9 @@ class TestSpecificationObjects(unittest.TestCase):
                 # Sanity checks
                 self.assertGreater(compute_spec.sm_count, 0)
                 self.assertGreater(compute_spec.cuda_cores, 0)
-                self.assertTrue(compute_spec.tensor_cores)  # All tested GPUs have tensor cores
+                self.assertTrue(
+                    compute_spec.tensor_cores
+                )  # All tested GPUs have tensor cores
 
     def test_power_specifications(self):
         """Test power specification objects."""
@@ -235,8 +237,12 @@ class TestSpecificationObjects(unittest.TestCase):
                 # Sanity checks
                 self.assertGreater(power_spec.tdp_watts, 0)
                 self.assertGreater(power_spec.min_power_watts, 0)
-                self.assertGreater(power_spec.max_power_watts, power_spec.min_power_watts)
-                self.assertGreaterEqual(power_spec.max_power_watts, power_spec.tdp_watts)
+                self.assertGreater(
+                    power_spec.max_power_watts, power_spec.min_power_watts
+                )
+                self.assertGreaterEqual(
+                    power_spec.max_power_watts, power_spec.tdp_watts
+                )
                 self.assertGreater(len(power_spec.power_connectors), 0)
 
     def test_thermal_specifications(self):
@@ -251,8 +257,12 @@ class TestSpecificationObjects(unittest.TestCase):
                 self.assertIsInstance(thermal_spec.cooling_solution, str)
 
                 # Sanity checks
-                self.assertGreater(thermal_spec.max_temp_c, thermal_spec.throttle_temp_c)
-                self.assertGreater(thermal_spec.throttle_temp_c, thermal_spec.idle_temp_c)
+                self.assertGreater(
+                    thermal_spec.max_temp_c, thermal_spec.throttle_temp_c
+                )
+                self.assertGreater(
+                    thermal_spec.throttle_temp_c, thermal_spec.idle_temp_c
+                )
                 self.assertGreater(thermal_spec.idle_temp_c, 0)
 
 
@@ -290,7 +300,11 @@ class TestConvenienceFunctions(unittest.TestCase):
     def test_configuration_validation(self):
         """Test configuration validation function."""
         # Test valid configurations
-        valid_configs = [("V100", 1380, 877), ("A100", 1410, 1215), ("H100", 1755, 1593)]
+        valid_configs = [
+            ("V100", 1380, 877),
+            ("A100", 1410, 1215),
+            ("H100", 1755, 1593),
+        ]
 
         for gpu_type, core_freq, memory_freq in valid_configs:
             with self.subTest(gpu_type=gpu_type):
@@ -413,7 +427,9 @@ class TestDataConsistency(unittest.TestCase):
 
                 workload_types = ["inference", "training", "compute", "memory_bound"]
                 for workload in workload_types:
-                    recommended_freq = gpu_info.get_optimal_frequency_for_workload(workload)
+                    recommended_freq = gpu_info.get_optimal_frequency_for_workload(
+                        workload
+                    )
                     # Recommended frequency should be valid
                     self.assertTrue(gpu_info.validate_frequency(recommended_freq))
 

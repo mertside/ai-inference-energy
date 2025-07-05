@@ -25,14 +25,18 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from app_llama_collection.LlamaViaHF import LlamaTextGenerator
-    from app_stable_diffusion_collection.StableDiffusionViaHF import StableDiffusionGenerator
+    from app_stable_diffusion_collection.StableDiffusionViaHF import (
+        StableDiffusionGenerator,
+    )
     from sample_collection_scripts.profile import GPUProfiler
 
     from config import gpu_config, model_config, profiling_config
     from utils import setup_logging, validate_dcgmi_available, validate_gpu_available
 except ImportError as e:
     print(f"Import error: {e}")
-    print("Please ensure all dependencies are installed: pip install -r requirements.txt")
+    print(
+        "Please ensure all dependencies are installed: pip install -r requirements.txt"
+    )
     sys.exit(1)
 
 
@@ -83,7 +87,9 @@ def run_stable_diffusion_demo(logger, profiler=None):
             result = profiler.profile_command(
                 'python -c "from app_stable_diffusion_collection.StableDiffusionViaHF import StableDiffusionGenerator; gen = StableDiffusionGenerator(); gen.run_default_inference()"'
             )
-            logger.info(f"Stable Diffusion inference completed in {result['duration']:.2f}s")
+            logger.info(
+                f"Stable Diffusion inference completed in {result['duration']:.2f}s"
+            )
         else:
             logger.info("Running Stable Diffusion inference without profiling...")
             images = generator.run_default_inference()
@@ -108,7 +114,9 @@ def run_profiling_demo(logger):
 
     try:
         # Initialize profiler
-        profiler = GPUProfiler(output_file="demo_profile.csv", interval_ms=100, logger=logger)  # Faster sampling for demo
+        profiler = GPUProfiler(
+            output_file="demo_profile.csv", interval_ms=100, logger=logger
+        )  # Faster sampling for demo
 
         # Profile a simple command
         logger.info("Profiling a simple GPU operation...")
@@ -163,7 +171,9 @@ def check_prerequisites(logger):
         import torch
 
         if torch.cuda.is_available():
-            logger.info(f"✓ PyTorch CUDA available (devices: {torch.cuda.device_count()})")
+            logger.info(
+                f"✓ PyTorch CUDA available (devices: {torch.cuda.device_count()})"
+            )
         else:
             logger.error("PyTorch CUDA not available")
             return False
@@ -176,11 +186,21 @@ def check_prerequisites(logger):
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Example usage of AI Inference Energy Profiling Framework")
-    parser.add_argument("--demo-mode", action="store_true", help="Run in demonstration mode (shorter experiments)")
+    parser = argparse.ArgumentParser(
+        description="Example usage of AI Inference Energy Profiling Framework"
+    )
+    parser.add_argument(
+        "--demo-mode",
+        action="store_true",
+        help="Run in demonstration mode (shorter experiments)",
+    )
     parser.add_argument("--llama-only", action="store_true", help="Run only LLaMA demo")
-    parser.add_argument("--sd-only", action="store_true", help="Run only Stable Diffusion demo")
-    parser.add_argument("--profile-only", action="store_true", help="Run only profiling demo")
+    parser.add_argument(
+        "--sd-only", action="store_true", help="Run only Stable Diffusion demo"
+    )
+    parser.add_argument(
+        "--profile-only", action="store_true", help="Run only profiling demo"
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
@@ -200,7 +220,9 @@ def main():
     if dcgmi_available and not (args.llama_only or args.sd_only):
         try:
             profiler = GPUProfiler(
-                output_file="framework_demo.csv", interval_ms=profiling_config.DEFAULT_INTERVAL_MS, logger=logger
+                output_file="framework_demo.csv",
+                interval_ms=profiling_config.DEFAULT_INTERVAL_MS,
+                logger=logger,
             )
             logger.info("GPU profiler initialized")
         except Exception as e:
@@ -246,14 +268,18 @@ def main():
 
     # Summary
     logger.info("=" * 60)
-    logger.info(f"Demo Summary: {success_count}/{total_demos} demos completed successfully")
+    logger.info(
+        f"Demo Summary: {success_count}/{total_demos} demos completed successfully"
+    )
 
     if success_count == total_demos:
         logger.info("🎉 All demos completed successfully!")
         logger.info("The AI Inference Energy Profiling Framework is ready to use.")
     else:
         logger.warning(f"⚠ {total_demos - success_count} demo(s) failed")
-        logger.info("Please check the error messages above and ensure all dependencies are properly installed.")
+        logger.info(
+            "Please check the error messages above and ensure all dependencies are properly installed."
+        )
 
     # Cleanup
     temp_files = ["demo_profile.csv", "framework_demo.csv"]
@@ -265,7 +291,9 @@ def main():
             except Exception as e:
                 logger.warning(f"Could not remove temporary file {temp_file}: {e}")
 
-    logger.info("Demo completed. Thank you for using the AI Inference Energy Profiling Framework!")
+    logger.info(
+        "Demo completed. Thank you for using the AI Inference Energy Profiling Framework!"
+    )
 
 
 if __name__ == "__main__":

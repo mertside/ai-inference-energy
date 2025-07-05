@@ -30,7 +30,9 @@ try:
     HAS_MATPLOTLIB = True
 except ImportError:
     HAS_MATPLOTLIB = False
-    logger.warning("Matplotlib not available. Performance plotting functions will be limited.")
+    logger.warning(
+        "Matplotlib not available. Performance plotting functions will be limited."
+    )
 
 try:
     import seaborn as sns
@@ -38,13 +40,17 @@ try:
     HAS_SEABORN = True
 except ImportError:
     HAS_SEABORN = False
-    logger.warning("Seaborn not available. Some advanced plotting features will be limited.")
+    logger.warning(
+        "Seaborn not available. Some advanced plotting features will be limited."
+    )
 
 
 def check_plotting_dependencies():
     """Check if required plotting libraries are available."""
     if not HAS_MATPLOTLIB:
-        raise ImportError("Matplotlib is required for performance plotting. Install with: pip install matplotlib")
+        raise ImportError(
+            "Matplotlib is required for performance plotting. Install with: pip install matplotlib"
+        )
 
 
 class PerformancePlotter:
@@ -103,14 +109,27 @@ class PerformancePlotter:
         fig, ax = plt.subplots(figsize=self.figsize)
 
         # Main execution time curve
-        ax.plot(df[frequency_col], df[time_col], "b-o", linewidth=2, markersize=6, label="Execution Time")
+        ax.plot(
+            df[frequency_col],
+            df[time_col],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Execution Time",
+        )
 
         # Highlight optimal frequency if provided
         if optimal_freq is not None:
             optimal_row = df[df[frequency_col] == optimal_freq]
             if not optimal_row.empty:
                 optimal_time = optimal_row[time_col].iloc[0]
-                ax.plot(optimal_freq, optimal_time, "ro", markersize=10, label=f"Optimal ({optimal_freq} MHz)")
+                ax.plot(
+                    optimal_freq,
+                    optimal_time,
+                    "ro",
+                    markersize=10,
+                    label=f"Optimal ({optimal_freq} MHz)",
+                )
 
         ax.set_xlabel("Frequency (MHz)")
         ax.set_ylabel("Execution Time (s)")
@@ -200,11 +219,26 @@ class PerformancePlotter:
         df_work["speedup"] = baseline_time / df_work[time_col]
         df_work["ideal_speedup"] = df_work[frequency_col] / baseline_freq
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5))
+        fig, (ax1, ax2) = plt.subplots(
+            2, 1, figsize=(self.figsize[0], self.figsize[1] * 1.5)
+        )
 
         # Plot 1: Speedup vs frequency
-        ax1.plot(df_work[frequency_col], df_work["speedup"], "b-o", linewidth=2, markersize=6, label="Actual Speedup")
-        ax1.plot(df_work[frequency_col], df_work["ideal_speedup"], "r--", linewidth=2, label="Ideal Speedup")
+        ax1.plot(
+            df_work[frequency_col],
+            df_work["speedup"],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Actual Speedup",
+        )
+        ax1.plot(
+            df_work[frequency_col],
+            df_work["ideal_speedup"],
+            "r--",
+            linewidth=2,
+            label="Ideal Speedup",
+        )
 
         ax1.set_xlabel("Frequency (MHz)")
         ax1.set_ylabel("Speedup")
@@ -215,8 +249,17 @@ class PerformancePlotter:
         # Plot 2: Scaling efficiency
         df_work["efficiency"] = df_work["speedup"] / df_work["ideal_speedup"] * 100
 
-        ax2.plot(df_work[frequency_col], df_work["efficiency"], "g-o", linewidth=2, markersize=6, label="Scaling Efficiency")
-        ax2.axhline(y=100, color="r", linestyle="--", alpha=0.7, label="Perfect Scaling")
+        ax2.plot(
+            df_work[frequency_col],
+            df_work["efficiency"],
+            "g-o",
+            linewidth=2,
+            markersize=6,
+            label="Scaling Efficiency",
+        )
+        ax2.axhline(
+            y=100, color="r", linestyle="--", alpha=0.7, label="Perfect Scaling"
+        )
 
         ax2.set_xlabel("Frequency (MHz)")
         ax2.set_ylabel("Scaling Efficiency (%)")
@@ -267,7 +310,14 @@ class PerformancePlotter:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
         # Plot 1: Throughput vs frequency
-        ax1.plot(df_work[frequency_col], df_work["throughput"], "b-o", linewidth=2, markersize=6, label="Throughput")
+        ax1.plot(
+            df_work[frequency_col],
+            df_work["throughput"],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Throughput",
+        )
 
         ax1.set_xlabel("Frequency (MHz)")
         ax1.set_ylabel("Throughput (Work Units/s)")
@@ -280,11 +330,23 @@ class PerformancePlotter:
         max_freq = df_work.loc[max_throughput_idx, frequency_col]
         max_throughput = df_work.loc[max_throughput_idx, "throughput"]
 
-        ax1.plot(max_freq, max_throughput, "ro", markersize=10, label=f"Max Throughput ({max_freq} MHz)")
+        ax1.plot(
+            max_freq,
+            max_throughput,
+            "ro",
+            markersize=10,
+            label=f"Max Throughput ({max_freq} MHz)",
+        )
         ax1.legend()
 
         # Plot 2: Throughput vs execution time scatter
-        scatter = ax2.scatter(df_work[time_col], df_work["throughput"], c=df_work[frequency_col], cmap="viridis", s=60)
+        scatter = ax2.scatter(
+            df_work[time_col],
+            df_work["throughput"],
+            c=df_work[frequency_col],
+            cmap="viridis",
+            s=60,
+        )
 
         ax2.set_xlabel("Execution Time (s)")
         ax2.set_ylabel("Throughput (Work Units/s)")
@@ -337,10 +399,26 @@ class PerformancePlotter:
                 # Normalize to max frequency execution time
                 max_freq_time = df.loc[df[frequency_col].idxmax(), time_col]
                 normalized_time = df[time_col] / max_freq_time
-                ax1.plot(df[frequency_col], normalized_time, "o-", color=colors[i], linewidth=2, markersize=6, label=app_name)
+                ax1.plot(
+                    df[frequency_col],
+                    normalized_time,
+                    "o-",
+                    color=colors[i],
+                    linewidth=2,
+                    markersize=6,
+                    label=app_name,
+                )
                 ax1.set_ylabel("Normalized Execution Time")
             else:
-                ax1.plot(df[frequency_col], df[time_col], "o-", color=colors[i], linewidth=2, markersize=6, label=app_name)
+                ax1.plot(
+                    df[frequency_col],
+                    df[time_col],
+                    "o-",
+                    color=colors[i],
+                    linewidth=2,
+                    markersize=6,
+                    label=app_name,
+                )
                 ax1.set_ylabel("Execution Time (s)")
 
         ax1.set_xlabel("Frequency (MHz)")
@@ -352,7 +430,15 @@ class PerformancePlotter:
         for i, (app_name, df) in enumerate(data_dict.items()):
             max_freq_time = df.loc[df[frequency_col].idxmax(), time_col]
             efficiency = max_freq_time / df[time_col]
-            ax2.plot(df[frequency_col], efficiency, "o-", color=colors[i], linewidth=2, markersize=6, label=app_name)
+            ax2.plot(
+                df[frequency_col],
+                efficiency,
+                "o-",
+                color=colors[i],
+                linewidth=2,
+                markersize=6,
+                label=app_name,
+            )
 
         ax2.set_xlabel("Frequency (MHz)")
         ax2.set_ylabel("Performance Efficiency")
@@ -400,12 +486,24 @@ class PerformancePlotter:
         merged_df = pd.merge(actual_df, predicted_df, on=frequency_col, how="inner")
 
         # Plot 1: Actual vs Predicted scatter
-        ax1.scatter(merged_df[actual_time_col], merged_df[predicted_time_col], alpha=0.7)
+        ax1.scatter(
+            merged_df[actual_time_col], merged_df[predicted_time_col], alpha=0.7
+        )
 
         # Add perfect prediction line
-        min_val = min(merged_df[actual_time_col].min(), merged_df[predicted_time_col].min())
-        max_val = max(merged_df[actual_time_col].max(), merged_df[predicted_time_col].max())
-        ax1.plot([min_val, max_val], [min_val, max_val], "r--", linewidth=2, label="Perfect Prediction")
+        min_val = min(
+            merged_df[actual_time_col].min(), merged_df[predicted_time_col].min()
+        )
+        max_val = max(
+            merged_df[actual_time_col].max(), merged_df[predicted_time_col].max()
+        )
+        ax1.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            "r--",
+            linewidth=2,
+            label="Perfect Prediction",
+        )
 
         ax1.set_xlabel("Actual Execution Time (s)")
         ax1.set_ylabel("Predicted Execution Time (s)")
@@ -414,7 +512,9 @@ class PerformancePlotter:
         ax1.grid(True, alpha=0.3)
 
         # Calculate and display R²
-        correlation_matrix = np.corrcoef(merged_df[actual_time_col], merged_df[predicted_time_col])
+        correlation_matrix = np.corrcoef(
+            merged_df[actual_time_col], merged_df[predicted_time_col]
+        )
         r_squared = correlation_matrix[0, 1] ** 2
         ax1.text(
             0.05,
@@ -434,9 +534,21 @@ class PerformancePlotter:
         ax2.grid(True, alpha=0.3)
 
         # Plot 3: Both curves vs frequency
-        ax3.plot(actual_df[frequency_col], actual_df[actual_time_col], "b-o", linewidth=2, markersize=6, label="Actual")
         ax3.plot(
-            predicted_df[frequency_col], predicted_df[predicted_time_col], "r-s", linewidth=2, markersize=6, label="Predicted"
+            actual_df[frequency_col],
+            actual_df[actual_time_col],
+            "b-o",
+            linewidth=2,
+            markersize=6,
+            label="Actual",
+        )
+        ax3.plot(
+            predicted_df[frequency_col],
+            predicted_df[predicted_time_col],
+            "r-s",
+            linewidth=2,
+            markersize=6,
+            label="Predicted",
         )
         ax3.set_xlabel("Frequency (MHz)")
         ax3.set_ylabel("Execution Time (s)")
@@ -525,7 +637,13 @@ class PerformancePlotter:
         # Add statistics
         mean_time = df[time_col].mean()
         std_time = df[time_col].std()
-        ax.axvline(mean_time, color="red", linestyle="--", linewidth=2, label=f"Mean: {mean_time:.3f}s")
+        ax.axvline(
+            mean_time,
+            color="red",
+            linestyle="--",
+            linewidth=2,
+            label=f"Mean: {mean_time:.3f}s",
+        )
 
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches="tight")
@@ -569,7 +687,13 @@ class PerformancePlotter:
         # Perfect prediction line
         min_val = min(df[actual_col].min(), df[predicted_col].min())
         max_val = max(df[actual_col].max(), df[predicted_col].max())
-        ax1.plot([min_val, max_val], [min_val, max_val], "r--", linewidth=2, label="Perfect Prediction")
+        ax1.plot(
+            [min_val, max_val],
+            [min_val, max_val],
+            "r--",
+            linewidth=2,
+            label="Perfect Prediction",
+        )
 
         # Calculate metrics if sklearn is available
         try:
@@ -588,8 +712,22 @@ class PerformancePlotter:
         ax1.grid(True, alpha=0.3)
 
         # Plot 2: Runtime vs Frequency (both predicted and actual)
-        ax2.plot(df[frequency_col], df[actual_col], "bo-", linewidth=2, markersize=6, label="Actual Runtime")
-        ax2.plot(df[frequency_col], df[predicted_col], "ro-", linewidth=2, markersize=6, label="Predicted Runtime")
+        ax2.plot(
+            df[frequency_col],
+            df[actual_col],
+            "bo-",
+            linewidth=2,
+            markersize=6,
+            label="Actual Runtime",
+        )
+        ax2.plot(
+            df[frequency_col],
+            df[predicted_col],
+            "ro-",
+            linewidth=2,
+            markersize=6,
+            label="Predicted Runtime",
+        )
 
         ax2.set_xlabel("Frequency (MHz)")
         ax2.set_ylabel("Runtime (s)")
@@ -637,7 +775,9 @@ class PerformancePlotter:
 
         # Plot 1: Throughput vs Frequency
         if throughput_col in df.columns:
-            ax1.plot(df[frequency_col], df[throughput_col], "g-o", linewidth=2, markersize=6)
+            ax1.plot(
+                df[frequency_col], df[throughput_col], "g-o", linewidth=2, markersize=6
+            )
             ax1.set_xlabel("Frequency (MHz)")
             ax1.set_ylabel("Throughput (ops/s)")
             ax1.set_title("Throughput vs Frequency")
@@ -647,7 +787,13 @@ class PerformancePlotter:
             max_throughput_idx = df[throughput_col].idxmax()
             max_freq = df.loc[max_throughput_idx, frequency_col]
             max_throughput = df.loc[max_throughput_idx, throughput_col]
-            ax1.plot(max_freq, max_throughput, "ro", markersize=10, label=f"Max: {max_throughput:.1f} ops/s")
+            ax1.plot(
+                max_freq,
+                max_throughput,
+                "ro",
+                markersize=10,
+                label=f"Max: {max_throughput:.1f} ops/s",
+            )
             ax1.legend()
 
         # Plot 2: Latency vs Frequency
@@ -661,12 +807,21 @@ class PerformancePlotter:
         min_latency_idx = df[latency_col].idxmin()
         min_freq = df.loc[min_latency_idx, frequency_col]
         min_latency = df.loc[min_latency_idx, latency_col]
-        ax2.plot(min_freq, min_latency, "ro", markersize=10, label=f"Min: {min_latency:.3f}s")
+        ax2.plot(
+            min_freq, min_latency, "ro", markersize=10, label=f"Min: {min_latency:.3f}s"
+        )
         ax2.legend()
 
         # Plot 3: Throughput-Latency Trade-off
         if throughput_col in df.columns:
-            scatter = ax3.scatter(df[latency_col], df[throughput_col], c=df[frequency_col], cmap="viridis", s=80, alpha=0.7)
+            scatter = ax3.scatter(
+                df[latency_col],
+                df[throughput_col],
+                c=df[frequency_col],
+                cmap="viridis",
+                s=80,
+                alpha=0.7,
+            )
             ax3.set_xlabel("Latency (s)")
             ax3.set_ylabel("Throughput (ops/s)")
             ax3.set_title("Throughput-Latency Trade-off")
@@ -676,14 +831,25 @@ class PerformancePlotter:
         if throughput_col in df.columns:
             # Calculate relative performance scaling
             baseline_freq = df[frequency_col].min()
-            baseline_throughput = df[df[frequency_col] == baseline_freq][throughput_col].iloc[0]
+            baseline_throughput = df[df[frequency_col] == baseline_freq][
+                throughput_col
+            ].iloc[0]
 
             performance_scaling = df[throughput_col] / baseline_throughput
             frequency_scaling = df[frequency_col] / baseline_freq
             efficiency = performance_scaling / frequency_scaling
 
-            ax4.plot(df[frequency_col], efficiency, "purple", linewidth=2, marker="o", markersize=6)
-            ax4.axhline(y=1.0, color="r", linestyle="--", alpha=0.7, label="Perfect Scaling")
+            ax4.plot(
+                df[frequency_col],
+                efficiency,
+                "purple",
+                linewidth=2,
+                marker="o",
+                markersize=6,
+            )
+            ax4.axhline(
+                y=1.0, color="r", linestyle="--", alpha=0.7, label="Perfect Scaling"
+            )
             ax4.set_xlabel("Frequency (MHz)")
             ax4.set_ylabel("Scaling Efficiency")
             ax4.set_title("Performance Scaling Efficiency")
@@ -760,8 +926,17 @@ class PerformancePlotter:
             labels = ["Total Execution Time"]
 
         # Create stacked bars
-        for i, (component, label, color) in enumerate(zip(components, labels, colors[: len(components)])):
-            ax1.bar(frequencies, component, bottom=bottom, label=label, alpha=0.8, color=color)
+        for i, (component, label, color) in enumerate(
+            zip(components, labels, colors[: len(components)])
+        ):
+            ax1.bar(
+                frequencies,
+                component,
+                bottom=bottom,
+                label=label,
+                alpha=0.8,
+                color=color,
+            )
             bottom += component
 
         ax1.set_xlabel("Frequency (MHz)")
@@ -777,7 +952,13 @@ class PerformancePlotter:
                 percentages.append((component / total_time) * 100)
 
             # Create stacked area plot
-            ax2.stackplot(frequencies, *percentages, labels=labels, alpha=0.7, colors=colors[: len(components)])
+            ax2.stackplot(
+                frequencies,
+                *percentages,
+                labels=labels,
+                alpha=0.7,
+                colors=colors[: len(components)],
+            )
             ax2.set_xlabel("Frequency (MHz)")
             ax2.set_ylabel("Percentage (%)")
             ax2.set_title("Relative Time Breakdown")
@@ -786,8 +967,12 @@ class PerformancePlotter:
         else:
             # Show performance scaling instead
             baseline_time = total_time.max()  # Use slowest as baseline
-            performance_improvement = ((baseline_time - total_time) / baseline_time) * 100
-            ax2.plot(frequencies, performance_improvement, "b-o", markersize=6, linewidth=2)
+            performance_improvement = (
+                (baseline_time - total_time) / baseline_time
+            ) * 100
+            ax2.plot(
+                frequencies, performance_improvement, "b-o", markersize=6, linewidth=2
+            )
             ax2.axhline(y=0, color="r", linestyle="--", alpha=0.7)
             ax2.set_xlabel("Frequency (MHz)")
             ax2.set_ylabel("Performance Improvement (%)")

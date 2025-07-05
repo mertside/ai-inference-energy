@@ -20,10 +20,18 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.svm import SVR
 
-from .ensemble_models import EnhancedRandomForestModel, ModelEvaluator, XGBoostPowerModel
+from .ensemble_models import (
+    EnhancedRandomForestModel,
+    ModelEvaluator,
+    XGBoostPowerModel,
+)
 
 # Import FGCS models
-from .fgcs_models import FGCSPowerModel, PerformanceMetricsCalculator, PolynomialPowerModel
+from .fgcs_models import (
+    FGCSPowerModel,
+    PerformanceMetricsCalculator,
+    PolynomialPowerModel,
+)
 
 try:
     from xgboost import XGBRegressor
@@ -58,7 +66,9 @@ class PowerModel(ABC):
         self.model.fit(X, y)
         self.is_trained = True
         self.feature_names = feature_names
-        logger.info(f"{self.__class__.__name__} trained on {X.shape[0]} samples with {X.shape[1]} features")
+        logger.info(
+            f"{self.__class__.__name__} trained on {X.shape[0]} samples with {X.shape[1]} features"
+        )
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Make predictions."""
@@ -103,7 +113,9 @@ class XGBoostPowerModel(PowerModel):
     def create_model(self, **kwargs):
         """Create XGBoost model."""
         if not XGBOOST_AVAILABLE:
-            raise ImportError("XGBoost is not available. Install with: pip install xgboost")
+            raise ImportError(
+                "XGBoost is not available. Install with: pip install xgboost"
+            )
 
         default_params = {
             "n_estimators": 800,
@@ -164,11 +176,15 @@ class PolynomialPowerModel(PowerModel):
         include_bias = kwargs.get("include_bias", True)
         interaction_only = kwargs.get("interaction_only", False)
 
-        polynomial_features = PolynomialFeatures(degree=degree, include_bias=include_bias, interaction_only=interaction_only)
+        polynomial_features = PolynomialFeatures(
+            degree=degree, include_bias=include_bias, interaction_only=interaction_only
+        )
 
         linear_regression = LinearRegression()
 
-        self.model = Pipeline([("poly", polynomial_features), ("linear", linear_regression)])
+        self.model = Pipeline(
+            [("poly", polynomial_features), ("linear", linear_regression)]
+        )
 
         logger.info(f"Created polynomial regression model (degree={degree})")
 
@@ -206,7 +222,9 @@ class PowerModelFactory:
 
         if model_type not in cls._model_registry:
             available_models = list(cls._model_registry.keys())
-            raise ValueError(f"Unknown model type: {model_type}. Available: {available_models}")
+            raise ValueError(
+                f"Unknown model type: {model_type}. Available: {available_models}"
+            )
 
         model_class = cls._model_registry[model_type]
 
@@ -222,7 +240,9 @@ class PowerModelFactory:
         return list(cls._model_registry.keys())
 
     @classmethod
-    def get_recommended_params(cls, model_type: str, dataset_size: str = "medium") -> Dict[str, Any]:
+    def get_recommended_params(
+        cls, model_type: str, dataset_size: str = "medium"
+    ) -> Dict[str, Any]:
         """
         Get recommended hyperparameters based on FGCS paper results.
 
@@ -255,7 +275,9 @@ class PowerModelFactory:
         }
 
         if model_type in recommendations:
-            return recommendations[model_type].get(dataset_size, recommendations[model_type]["medium"])
+            return recommendations[model_type].get(
+                dataset_size, recommendations[model_type]["medium"]
+            )
 
         return {}
 
@@ -264,7 +286,9 @@ class ModelEvaluator:
     """Evaluate and compare power prediction models."""
 
     @staticmethod
-    def evaluate_model(model: PowerModel, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    def evaluate_model(
+        model: PowerModel, X_test: np.ndarray, y_test: np.ndarray
+    ) -> Dict[str, float]:
         """
         Evaluate a trained model on test data.
 
@@ -288,14 +312,24 @@ class ModelEvaluator:
         # Accuracy (from FGCS paper definition)
         accuracy = 100 - mape
 
-        metrics = {"mae": mae, "rmse": rmse, "r2": r2, "mape": mape, "accuracy": accuracy}
+        metrics = {
+            "mae": mae,
+            "rmse": rmse,
+            "r2": r2,
+            "mape": mape,
+            "accuracy": accuracy,
+        }
 
-        logger.info(f"Model evaluation - MAE: {mae:.4f}, RMSE: {rmse:.4f}, R²: {r2:.4f}, Accuracy: {accuracy:.2f}%")
+        logger.info(
+            f"Model evaluation - MAE: {mae:.4f}, RMSE: {rmse:.4f}, R²: {r2:.4f}, Accuracy: {accuracy:.2f}%"
+        )
 
         return metrics
 
     @staticmethod
-    def compare_models(models: Dict[str, PowerModel], X_test: np.ndarray, y_test: np.ndarray) -> pd.DataFrame:
+    def compare_models(
+        models: Dict[str, PowerModel], X_test: np.ndarray, y_test: np.ndarray
+    ) -> pd.DataFrame:
         """
         Compare multiple models on the same test set.
 
@@ -396,7 +430,12 @@ def hyperparameter_tuning(
         )
     elif search_type == "grid":
         search = GridSearchCV(
-            base_model.model, param_grid=param_grid, cv=cv_folds, scoring="neg_mean_absolute_error", n_jobs=-1, verbose=1
+            base_model.model,
+            param_grid=param_grid,
+            cv=cv_folds,
+            scoring="neg_mean_absolute_error",
+            n_jobs=-1,
+            verbose=1,
         )
     else:
         raise ValueError(f"Unknown search type: {search_type}")
@@ -440,7 +479,9 @@ class FGCSModelFactory:
         return FGCSPowerModel()
 
     @staticmethod
-    def create_polynomial_model(degree: int = 2, include_bias: bool = True) -> PolynomialPowerModel:
+    def create_polynomial_model(
+        degree: int = 2, include_bias: bool = True
+    ) -> PolynomialPowerModel:
         """
         Create polynomial power model based on FGCS methodology.
 
@@ -455,7 +496,9 @@ class FGCSModelFactory:
         return PolynomialPowerModel(degree=degree, include_bias=include_bias)
 
     @staticmethod
-    def create_enhanced_random_forest(optimization_method: str = "random", n_iter: int = 100) -> EnhancedRandomForestModel:
+    def create_enhanced_random_forest(
+        optimization_method: str = "random", n_iter: int = 100
+    ) -> EnhancedRandomForestModel:
         """
         Create enhanced Random Forest model with FGCS optimizations.
 
@@ -466,8 +509,12 @@ class FGCSModelFactory:
         Returns:
             EnhancedRandomForestModel instance
         """
-        logger.info(f"Creating enhanced Random Forest model with {optimization_method} search")
-        return EnhancedRandomForestModel(optimization_method=optimization_method, n_iter=n_iter)
+        logger.info(
+            f"Creating enhanced Random Forest model with {optimization_method} search"
+        )
+        return EnhancedRandomForestModel(
+            optimization_method=optimization_method, n_iter=n_iter
+        )
 
     @staticmethod
     def create_xgboost_model() -> XGBoostPowerModel:
@@ -509,7 +556,9 @@ class FGCSModelFactory:
         return models
 
     @staticmethod
-    def create_model_pipeline(model_types: Optional[List[str]] = None) -> "ModelPipeline":
+    def create_model_pipeline(
+        model_types: Optional[List[str]] = None,
+    ) -> "ModelPipeline":
         """
         Create a ModelPipeline instance for end-to-end modeling workflows.
 
@@ -524,7 +573,12 @@ class FGCSModelFactory:
 
         # Use FGCS-optimized model selection if not specified
         if model_types is None:
-            model_types = ["fgcs_original", "polynomial_deg2", "random_forest_enhanced", "linear"]
+            model_types = [
+                "fgcs_original",
+                "polynomial_deg2",
+                "random_forest_enhanced",
+                "linear",
+            ]
 
         return ModelPipeline(model_types=model_types)
 
@@ -541,12 +595,23 @@ class ModelPipeline:
         Args:
             model_types: List of model types to include in pipeline
         """
-        self.model_types = model_types or ["fgcs_original", "polynomial_deg2", "random_forest_enhanced", "linear"]
+        self.model_types = model_types or [
+            "fgcs_original",
+            "polynomial_deg2",
+            "random_forest_enhanced",
+            "linear",
+        ]
         self.models = {}
         self.evaluation_results = {}
         self.best_model = None
 
-    def train_models(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Any]:
+    def train_models(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+    ) -> Dict[str, Any]:
         """
         Train all models and evaluate performance.
 
@@ -586,15 +651,21 @@ class ModelPipeline:
                         model.fit(X_train, y_train)
 
                     # Evaluate model
-                    from ..models.ensemble_models import ModelEvaluator as EnsembleEvaluator
+                    from ..models.ensemble_models import (
+                        ModelEvaluator as EnsembleEvaluator,
+                    )
 
-                    metrics = EnsembleEvaluator.evaluate_model(model, X_test, y_test, model_name)
+                    metrics = EnsembleEvaluator.evaluate_model(
+                        model, X_test, y_test, model_name
+                    )
                     evaluation_results[model_name] = metrics
                     trained_models[model_name] = model
 
                 elif isinstance(model, FGCSPowerModel):
                     # FGCS model doesn't need training - it uses fixed coefficients
-                    logger.info(f"{model_name} uses fixed coefficients, no training needed")
+                    logger.info(
+                        f"{model_name} uses fixed coefficients, no training needed"
+                    )
                     trained_models[model_name] = model
                     # Evaluation would need to be done separately for FGCS model
 
@@ -608,9 +679,13 @@ class ModelPipeline:
         # Find best model
         best_model_name = None
         if evaluation_results:
-            best_model_name = max(evaluation_results.keys(), key=lambda x: evaluation_results[x]["r2"])
+            best_model_name = max(
+                evaluation_results.keys(), key=lambda x: evaluation_results[x]["r2"]
+            )
             self.best_model = trained_models[best_model_name]
-            logger.info(f"Best model: {best_model_name} (R² = {evaluation_results[best_model_name]['r2']:.4f})")
+            logger.info(
+                f"Best model: {best_model_name} (R² = {evaluation_results[best_model_name]['r2']:.4f})"
+            )
 
         return {
             "models": trained_models,
@@ -620,7 +695,11 @@ class ModelPipeline:
         }
 
     def predict_power_across_frequencies(
-        self, fp_activity: float, dram_activity: float, frequencies: List[int], model_name: str = None
+        self,
+        fp_activity: float,
+        dram_activity: float,
+        frequencies: List[int],
+        model_name: str = None,
     ) -> pd.DataFrame:
         """
         Predict power consumption across frequency range using specified model.

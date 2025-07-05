@@ -7,7 +7,7 @@ strategies from the FGCS 2023 paper.
 
 Key Features:
 - Multi-objective optimization (energy vs. performance)
-- Pareto frontier analysis  
+- Pareto frontier analysis
 - DVFS optimization pipeline
 - Configuration recommendations
 - Improvement calculations
@@ -78,7 +78,11 @@ class MultiObjectiveOptimizer:
         )
 
     def find_pareto_frontier(
-        self, df: pd.DataFrame, energy_col: str = "energy", time_col: str = "execution_time", minimize_both: bool = True
+        self,
+        df: pd.DataFrame,
+        energy_col: str = "energy",
+        time_col: str = "execution_time",
+        minimize_both: bool = True,
     ) -> pd.DataFrame:
         """
         Find Pareto-optimal solutions for energy-performance trade-offs.
@@ -110,7 +114,10 @@ class MultiObjectiveOptimizer:
                     if (
                         other_row[energy_col] <= row[energy_col]
                         and other_row[time_col] <= row[time_col]
-                        and (other_row[energy_col] < row[energy_col] or other_row[time_col] < row[time_col])
+                        and (
+                            other_row[energy_col] < row[energy_col]
+                            or other_row[time_col] < row[time_col]
+                        )
                     ):
                         is_dominated = True
                         break
@@ -119,7 +126,10 @@ class MultiObjectiveOptimizer:
                     if (
                         other_row[energy_col] <= row[energy_col]
                         and other_row[time_col] <= row[time_col]
-                        and (other_row[energy_col] < row[energy_col] or other_row[time_col] < row[time_col])
+                        and (
+                            other_row[energy_col] < row[energy_col]
+                            or other_row[time_col] < row[time_col]
+                        )
                     ):
                         is_dominated = True
                         break
@@ -128,12 +138,18 @@ class MultiObjectiveOptimizer:
                 pareto_solutions.append(i)
 
         pareto_df = df.loc[pareto_solutions].copy()
-        logger.info(f"Found {len(pareto_df)} Pareto-optimal solutions out of {len(df)} configurations")
+        logger.info(
+            f"Found {len(pareto_df)} Pareto-optimal solutions out of {len(df)} configurations"
+        )
 
         return pareto_df
 
     def weighted_sum_optimization(
-        self, df: pd.DataFrame, energy_col: str = "energy", time_col: str = "execution_time", normalize: bool = True
+        self,
+        df: pd.DataFrame,
+        energy_col: str = "energy",
+        time_col: str = "execution_time",
+        normalize: bool = True,
     ) -> OptimizationResult:
         """
         Perform weighted sum optimization.
@@ -151,24 +167,35 @@ class MultiObjectiveOptimizer:
 
         if normalize:
             # Min-max normalization
-            energy_min, energy_max = df_work[energy_col].min(), df_work[energy_col].max()
+            energy_min, energy_max = (
+                df_work[energy_col].min(),
+                df_work[energy_col].max(),
+            )
             time_min, time_max = df_work[time_col].min(), df_work[time_col].max()
 
             if energy_max > energy_min:
-                df_work["energy_norm"] = (df_work[energy_col] - energy_min) / (energy_max - energy_min)
+                df_work["energy_norm"] = (df_work[energy_col] - energy_min) / (
+                    energy_max - energy_min
+                )
             else:
                 df_work["energy_norm"] = 0.0
 
             if time_max > time_min:
-                df_work["time_norm"] = (df_work[time_col] - time_min) / (time_max - time_min)
+                df_work["time_norm"] = (df_work[time_col] - time_min) / (
+                    time_max - time_min
+                )
             else:
                 df_work["time_norm"] = 0.0
 
             df_work["weighted_score"] = (
-                self.energy_weight * df_work["energy_norm"] + self.performance_weight * df_work["time_norm"]
+                self.energy_weight * df_work["energy_norm"]
+                + self.performance_weight * df_work["time_norm"]
             )
         else:
-            df_work["weighted_score"] = self.energy_weight * df_work[energy_col] + self.performance_weight * df_work[time_col]
+            df_work["weighted_score"] = (
+                self.energy_weight * df_work[energy_col]
+                + self.performance_weight * df_work[time_col]
+            )
 
         # Find optimal solution (minimum weighted score)
         optimal_idx = df_work["weighted_score"].idxmin()
@@ -178,7 +205,9 @@ class MultiObjectiveOptimizer:
             frequency=optimal_row.get("frequency", optimal_row.get("sm_app_clock", 0)),
             energy=optimal_row[energy_col],
             execution_time=optimal_row[time_col],
-            power=optimal_row.get("power", optimal_row.get("predicted_n_to_r_power_usage", 0)),
+            power=optimal_row.get(
+                "power", optimal_row.get("predicted_n_to_r_power_usage", 0)
+            ),
             score=optimal_row["weighted_score"],
             metric_type="weighted_sum",
         )
@@ -233,8 +262,14 @@ class MultiObjectiveOptimizer:
             frequency=optimal_row.get("frequency", optimal_row.get("sm_app_clock", 0)),
             energy=optimal_row[energy_col],
             execution_time=optimal_row[time_col],
-            power=optimal_row.get("power", optimal_row.get("predicted_n_to_r_power_usage", 0)),
-            score=optimal_row[energy_col] if objective == "energy" else optimal_row[time_col],
+            power=optimal_row.get(
+                "power", optimal_row.get("predicted_n_to_r_power_usage", 0)
+            ),
+            score=(
+                optimal_row[energy_col]
+                if objective == "energy"
+                else optimal_row[time_col]
+            ),
             metric_type=f"constraint_{objective}",
         )
 
@@ -273,22 +308,32 @@ class FGCSOptimizer:
         logger.info("Finding EDP optimal configuration using FGCS methodology")
 
         df_work = df.copy()
-        df_work["edp_score"] = (time_weight * df_work[time_col]) * (energy_weight * df_work[energy_col])
+        df_work["edp_score"] = (time_weight * df_work[time_col]) * (
+            energy_weight * df_work[energy_col]
+        )
 
         optimal_idx = df_work["edp_score"].idxmin()
         optimal_row = df_work.loc[optimal_idx]
 
         result = OptimizationResult(
-            frequency=int(optimal_row.get("sm_app_clock", optimal_row.get("frequency", 0))),
+            frequency=int(
+                optimal_row.get("sm_app_clock", optimal_row.get("frequency", 0))
+            ),
             energy=round(optimal_row[energy_col], 2),
             execution_time=round(optimal_row[time_col], 2),
-            power=round(optimal_row.get("predicted_n_to_r_power_usage", optimal_row.get("power", 0)), 2),
+            power=round(
+                optimal_row.get(
+                    "predicted_n_to_r_power_usage", optimal_row.get("power", 0)
+                ),
+                2,
+            ),
             score=optimal_row["edp_score"],
             metric_type="edp",
         )
 
         logger.info(
-            f"EDP Optimal: f={result.frequency}MHz, t={result.execution_time}s, " f"p={result.power}W, e={result.energy}J"
+            f"EDP Optimal: f={result.frequency}MHz, t={result.execution_time}s, "
+            f"p={result.power}W, e={result.energy}J"
         )
 
         return result
@@ -319,22 +364,32 @@ class FGCSOptimizer:
         logger.info("Finding ED²P optimal configuration using FGCS methodology")
 
         df_work = df.copy()
-        df_work["ed2p_score"] = (time_weight * (df_work[time_col] ** 2)) * (energy_weight * df_work[energy_col])
+        df_work["ed2p_score"] = (time_weight * (df_work[time_col] ** 2)) * (
+            energy_weight * df_work[energy_col]
+        )
 
         optimal_idx = df_work["ed2p_score"].idxmin()
         optimal_row = df_work.loc[optimal_idx]
 
         result = OptimizationResult(
-            frequency=int(optimal_row.get("sm_app_clock", optimal_row.get("frequency", 0))),
+            frequency=int(
+                optimal_row.get("sm_app_clock", optimal_row.get("frequency", 0))
+            ),
             energy=round(optimal_row[energy_col], 2),
             execution_time=round(optimal_row[time_col], 2),
-            power=round(optimal_row.get("predicted_n_to_r_power_usage", optimal_row.get("power", 0)), 2),
+            power=round(
+                optimal_row.get(
+                    "predicted_n_to_r_power_usage", optimal_row.get("power", 0)
+                ),
+                2,
+            ),
             score=optimal_row["ed2p_score"],
             metric_type="ed2p",
         )
 
         logger.info(
-            f"ED²P Optimal: f={result.frequency}MHz, t={result.execution_time}s, " f"p={result.power}W, e={result.energy}J"
+            f"ED²P Optimal: f={result.frequency}MHz, t={result.execution_time}s, "
+            f"p={result.power}W, e={result.energy}J"
         )
 
         return result
@@ -354,7 +409,9 @@ class OptimizationAnalyzer:
             energy_weight: Weight for energy objective
             performance_weight: Weight for performance objective
         """
-        self.multi_objective = MultiObjectiveOptimizer(energy_weight, performance_weight)
+        self.multi_objective = MultiObjectiveOptimizer(
+            energy_weight, performance_weight
+        )
         self.fgcs_optimizer = FGCSOptimizer()
         logger.info("Optimization analyzer initialized")
 
@@ -387,10 +444,14 @@ class OptimizationAnalyzer:
         ed2p_result = self.fgcs_optimizer.ed2p_optimal(df, energy_col, time_col)
 
         # Multi-objective optimization
-        weighted_result = self.multi_objective.weighted_sum_optimization(df, energy_col, time_col)
+        weighted_result = self.multi_objective.weighted_sum_optimization(
+            df, energy_col, time_col
+        )
 
         # Pareto frontier analysis
-        pareto_frontier = self.multi_objective.find_pareto_frontier(df, energy_col, time_col)
+        pareto_frontier = self.multi_objective.find_pareto_frontier(
+            df, energy_col, time_col
+        )
 
         # Extreme points analysis
         min_energy_idx = df[energy_col].idxmin()
@@ -403,8 +464,12 @@ class OptimizationAnalyzer:
         baseline_energy = df[energy_col].max()
         baseline_time = df[time_col].max()
 
-        edp_result.energy_improvement = self._calculate_improvement(baseline_energy, edp_result.energy)
-        edp_result.time_improvement = self._calculate_improvement(baseline_time, edp_result.execution_time)
+        edp_result.energy_improvement = self._calculate_improvement(
+            baseline_energy, edp_result.energy
+        )
+        edp_result.time_improvement = self._calculate_improvement(
+            baseline_time, edp_result.execution_time
+        )
 
         results = {
             "application": app_name,
@@ -413,12 +478,18 @@ class OptimizationAnalyzer:
             "weighted_optimal": weighted_result,
             "pareto_frontier": pareto_frontier,
             "min_energy_config": {
-                "frequency": int(min_energy_row.get("sm_app_clock", min_energy_row.get("frequency", 0))),
+                "frequency": int(
+                    min_energy_row.get(
+                        "sm_app_clock", min_energy_row.get("frequency", 0)
+                    )
+                ),
                 "energy": min_energy_row[energy_col],
                 "time": min_energy_row[time_col],
             },
             "min_time_config": {
-                "frequency": int(min_time_row.get("sm_app_clock", min_time_row.get("frequency", 0))),
+                "frequency": int(
+                    min_time_row.get("sm_app_clock", min_time_row.get("frequency", 0))
+                ),
                 "energy": min_time_row[energy_col],
                 "time": min_time_row[time_col],
             },
@@ -427,7 +498,9 @@ class OptimizationAnalyzer:
                 "pareto_points": len(pareto_frontier),
                 "energy_range": df[energy_col].max() - df[energy_col].min(),
                 "time_range": df[time_col].max() - df[time_col].min(),
-                "frequency_range": df.get("sm_app_clock", df.get("frequency", pd.Series([0]))).max()
+                "frequency_range": df.get(
+                    "sm_app_clock", df.get("frequency", pd.Series([0]))
+                ).max()
                 - df.get("sm_app_clock", df.get("frequency", pd.Series([0]))).min(),
             },
         }
@@ -435,7 +508,9 @@ class OptimizationAnalyzer:
         logger.info(f"Comprehensive analysis complete for {app_name}")
         return results
 
-    def generate_recommendations(self, optimization_results: Dict) -> Dict[str, OptimizationRecommendation]:
+    def generate_recommendations(
+        self, optimization_results: Dict
+    ) -> Dict[str, OptimizationRecommendation]:
         """
         Generate practical recommendations based on optimization results.
 
@@ -455,8 +530,16 @@ class OptimizationAnalyzer:
                 frequency=edp_optimal.frequency,
                 reason="EDP optimal - best energy-delay trade-off",
                 use_case="General purpose workloads requiring balanced energy-performance trade-off",
-                expected_energy_savings=f"{edp_optimal.energy_improvement:.1f}%" if edp_optimal.energy_improvement else "N/A",
-                expected_performance_impact=f"{edp_optimal.time_improvement:.1f}%" if edp_optimal.time_improvement else "N/A",
+                expected_energy_savings=(
+                    f"{edp_optimal.energy_improvement:.1f}%"
+                    if edp_optimal.energy_improvement
+                    else "N/A"
+                ),
+                expected_performance_impact=(
+                    f"{edp_optimal.time_improvement:.1f}%"
+                    if edp_optimal.time_improvement
+                    else "N/A"
+                ),
             ),
             "performance_priority": OptimizationRecommendation(
                 frequency=ed2p_optimal.frequency,
@@ -529,10 +612,14 @@ class DVFSOptimizationPipeline:
         logger.info(f"Starting optimization pipeline for {app_name}")
 
         # Step 1: Power prediction across frequencies
-        power_df = self._predict_power_across_frequencies(fp_activity, dram_activity, frequencies)
+        power_df = self._predict_power_across_frequencies(
+            fp_activity, dram_activity, frequencies
+        )
 
         # Step 2: Runtime prediction or scaling
-        result_df = self._predict_runtime(power_df, baseline_runtime, fp_activity, frequencies)
+        result_df = self._predict_runtime(
+            power_df, baseline_runtime, fp_activity, frequencies
+        )
 
         # Step 3: Comprehensive optimization analysis
         optimization_results = self.optimizer.comprehensive_analysis(
@@ -567,7 +654,9 @@ class DVFSOptimizationPipeline:
         """Predict power consumption across frequency range."""
         if hasattr(self.power_model, "predict_power"):
             # FGCS model with built-in frequency prediction
-            return self.power_model.predict_power(fp_activity, dram_activity, frequencies)
+            return self.power_model.predict_power(
+                fp_activity, dram_activity, frequencies
+            )
         else:
             # Generic model - create features and predict
             features = pd.DataFrame(
@@ -578,23 +667,34 @@ class DVFSOptimizationPipeline:
                 }
             )
             power_predictions = self.power_model.predict(features.values)
-            return pd.DataFrame({"sm_app_clock": frequencies, "predicted_power": power_predictions})
+            return pd.DataFrame(
+                {"sm_app_clock": frequencies, "predicted_power": power_predictions}
+            )
 
     def _predict_runtime(
-        self, power_df: pd.DataFrame, baseline_runtime: float, fp_activity: float, frequencies: List[int]
+        self,
+        power_df: pd.DataFrame,
+        baseline_runtime: float,
+        fp_activity: float,
+        frequencies: List[int],
     ) -> pd.DataFrame:
         """Predict runtime across frequencies."""
         if self.runtime_model and hasattr(self.power_model, "predict_runtime"):
-            return self.power_model.predict_runtime(power_df, baseline_runtime, fp_activity)
+            return self.power_model.predict_runtime(
+                power_df, baseline_runtime, fp_activity
+            )
         else:
             # Simple frequency scaling assumption
             result_df = power_df.copy()
             max_freq = max(frequencies)
-            result_df["predicted_n_to_r_run_time"] = baseline_runtime * (max_freq / result_df["sm_app_clock"])
+            result_df["predicted_n_to_r_run_time"] = baseline_runtime * (
+                max_freq / result_df["sm_app_clock"]
+            )
             result_df["predicted_n_to_r_power_usage"] = result_df.get(
                 "predicted_power", result_df.get("predicted_n_to_r_power_usage", 0)
             )
             result_df["predicted_n_to_r_energy"] = (
-                result_df["predicted_n_to_r_run_time"] * result_df["predicted_n_to_r_power_usage"]
+                result_df["predicted_n_to_r_run_time"]
+                * result_df["predicted_n_to_r_power_usage"]
             )
             return result_df

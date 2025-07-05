@@ -72,11 +72,19 @@ def run_tests(suite, verbosity=2):
 def main():
     """Main test runner function."""
     parser = argparse.ArgumentParser(description="Run power modeling framework tests")
-    parser.add_argument("--test", "-t", help="Run specific test module (e.g., power_modeling_framework)")
-    parser.add_argument("--verbose", "-v", action="count", default=2, help="Increase verbosity")
+    parser.add_argument(
+        "--test", "-t", help="Run specific test module (e.g., power_modeling_framework)"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="count", default=2, help="Increase verbosity"
+    )
     parser.add_argument("--quiet", "-q", action="store_true", help="Reduce verbosity")
-    parser.add_argument("--list", "-l", action="store_true", help="List available tests")
-    parser.add_argument("--pattern", "-p", default="test_*.py", help="Test file pattern")
+    parser.add_argument(
+        "--list", "-l", action="store_true", help="List available tests"
+    )
+    parser.add_argument(
+        "--pattern", "-p", default="test_*.py", help="Test file pattern"
+    )
 
     args = parser.parse_args()
 
@@ -92,7 +100,11 @@ def main():
         test_files = []
         tests_dir = os.path.dirname(__file__)
         for file in os.listdir(tests_dir):
-            if file.startswith("test_") and file.endswith(".py") and file != "__init__.py":
+            if (
+                file.startswith("test_")
+                and file.endswith(".py")
+                and file != "__init__.py"
+            ):
                 test_files.append(file[:-3])  # Remove .py extension
 
         for test_file in sorted(test_files):
