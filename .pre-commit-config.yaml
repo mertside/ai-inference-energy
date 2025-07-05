@@ -1,0 +1,91 @@
+# Pre-commit hooks for AI Inference Energy project
+# Install with: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=50000']  # Allow large model files up to 50MB
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-json
+      - id: pretty-format-json
+        args: ['--autofix']
+      - id: check-toml
+      - id: check-xml
+      - id: debug-statements
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3
+        args: ['--line-length=127']
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile=black', '--line-length=127']
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--max-line-length=127', '--max-complexity=10']
+        additional_dependencies:
+          - flake8-docstrings
+          - flake8-import-order
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ['-r', '--skip=B101,B601']  # Skip assert and shell usage warnings
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, types-PyYAML]
+        args: ['--ignore-missing-imports', '--no-strict-optional']
+
+  - repo: local
+    hooks:
+      - id: gpu-frequency-validation
+        name: GPU Frequency Validation
+        entry: python3
+        language: python
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            from hardware.gpu_info import get_gpu_info
+            for gpu in ['V100', 'A100', 'H100']:
+                info = get_gpu_info(gpu)
+                freqs = info.get_available_frequencies()
+                assert all(f >= 510 for f in freqs), f"{gpu} has frequencies below 510 MHz"
+                print(f"✓ {gpu}: {len(freqs)} frequencies validated")
+        files: ^hardware/gpu_info\.py$
+
+      - id: bash-syntax-check
+        name: Bash Syntax Check
+        entry: bash
+        language: system
+        args: ['-n']
+        files: \.(sh|bash)$
+
+      - id: requirements-check
+        name: Requirements Security Check
+        entry: safety
+        language: python
+        args: ['check', '--file']
+        files: requirements\.txt$
+        additional_dependencies: ['safety']

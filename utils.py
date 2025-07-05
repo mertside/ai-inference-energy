@@ -5,48 +5,44 @@ This module provides common utility functions used across the profiling
 infrastructure, including logging setup, file operations, and system utilities.
 """
 
+import logging
 import os
+import subprocess
 import sys
 import time
-import logging
-import subprocess
-from typing import Optional, List, Dict, Any
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
-def setup_logging(
-    log_level: str = "INFO",
-    log_file: Optional[str] = None,
-    log_format: Optional[str] = None
-) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None, log_format: Optional[str] = None) -> logging.Logger:
     """
     Set up logging configuration for the application.
-    
+
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional log file path. If None, logs to console only.
         log_format: Custom log format string
-    
+
     Returns:
         Configured logger instance
     """
     if log_format is None:
         log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    
+
     # Create logger
     logger = logging.getLogger("ai_inference_energy")
     logger.setLevel(getattr(logging, log_level.upper()))
-    
+
     # Clear existing handlers
     logger.handlers.clear()
-    
+
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, log_level.upper()))
     console_formatter = logging.Formatter(log_format)
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-    
+
     # File handler (if specified)
     if log_file:
         file_handler = logging.FileHandler(log_file)
@@ -54,14 +50,14 @@ def setup_logging(
         file_formatter = logging.Formatter(log_format)
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
-    
+
     return logger
 
 
 def ensure_directory(directory_path: str) -> None:
     """
     Ensure that a directory exists, creating it if necessary.
-    
+
     Args:
         directory_path: Path to the directory to create
     """
@@ -69,23 +65,20 @@ def ensure_directory(directory_path: str) -> None:
 
 
 def run_command(
-    command: List[str],
-    timeout: Optional[int] = None,
-    capture_output: bool = True,
-    check: bool = True
+    command: List[str], timeout: Optional[int] = None, capture_output: bool = True, check: bool = True
 ) -> subprocess.CompletedProcess:
     """
     Run a system command with proper error handling.
-    
+
     Args:
         command: Command and arguments as a list
         timeout: Optional timeout in seconds
         capture_output: Whether to capture stdout and stderr
         check: Whether to raise an exception on non-zero exit code
-    
+
     Returns:
         CompletedProcess instance with result information
-    
+
     Raises:
         subprocess.CalledProcessError: If command fails and check=True
         subprocess.TimeoutExpired: If command times out
@@ -100,14 +93,11 @@ def run_command(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
-                check=check
+                check=check,
             )
         else:
             result = subprocess.run(
-                command,
-                timeout=timeout,
-                universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
-                check=check
+                command, timeout=timeout, universal_newlines=True, check=check  # Python 3.6 compatible (text=True in 3.7+)
             )
         return result
     except subprocess.CalledProcessError as e:
@@ -126,7 +116,7 @@ def run_command(
 def validate_gpu_available() -> bool:
     """
     Check if NVIDIA GPU is available and accessible.
-    
+
     Returns:
         True if GPU is available, False otherwise
     """
@@ -140,7 +130,7 @@ def validate_gpu_available() -> bool:
 def validate_dcgmi_available() -> bool:
     """
     Check if DCGMI (Data Center GPU Manager Interface) is available.
-    
+
     Returns:
         True if DCGMI is available, False otherwise
     """
@@ -154,11 +144,11 @@ def validate_dcgmi_available() -> bool:
 def parse_csv_line(line: str, delimiter: str = ",") -> List[str]:
     """
     Parse a CSV line into fields.
-    
+
     Args:
         line: CSV line to parse
         delimiter: Field delimiter
-    
+
     Returns:
         List of parsed fields
     """
@@ -168,7 +158,7 @@ def parse_csv_line(line: str, delimiter: str = ",") -> List[str]:
 def get_timestamp() -> str:
     """
     Get current timestamp as a formatted string.
-    
+
     Returns:
         Timestamp string in YYYY-MM-DD_HH-MM-SS format
     """
@@ -178,10 +168,10 @@ def get_timestamp() -> str:
 def clean_filename(filename: str) -> str:
     """
     Clean a filename by removing invalid characters.
-    
+
     Args:
         filename: Original filename
-    
+
     Returns:
         Cleaned filename safe for filesystem use
     """
@@ -194,10 +184,10 @@ def clean_filename(filename: str) -> str:
 def format_duration(seconds: float) -> str:
     """
     Format duration in seconds to human-readable string.
-    
+
     Args:
         seconds: Duration in seconds
-    
+
     Returns:
         Formatted duration string
     """

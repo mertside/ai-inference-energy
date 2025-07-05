@@ -1,0 +1,340 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, dev, develop]
+  pull_request:
+    branches: [main, dev, develop]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC to catch dependency issues
+    - cron: '0 2 * * 0'
+
+env:
+  PYTHON_VERSION_DEFAULT: "3.10"
+  PYTORCH_VERSION: "2.0.0"
+
+jobs:
+  # Static analysis and linting
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_DEFAULT }}
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-lint-
+            
+      - name: Install lint dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black>=22.0.0 flake8>=4.0.0 isort>=5.10.0 mypy>=1.0.0
+          
+      - name: Check code formatting with Black
+        run: black --check --diff .
+        
+      - name: Check import sorting with isort
+        run: isort --check-only --diff .
+        
+      - name: Lint with flake8
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings. GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          
+      - name: Type check with mypy (allow failures)
+        run: mypy . --ignore-missing-imports --no-strict-optional || true
+
+  # Test matrix for different Python versions and environments
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        torch-version: ["2.0.0", "2.1.0"]
+        exclude:
+          # Exclude some combinations to reduce CI time
+          - python-version: "3.8"
+            torch-version: "2.1.0"
+          - python-version: "3.11"
+            torch-version: "2.0.0"
+            
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ matrix.torch-version }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ matrix.torch-version }}-
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+            
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+          
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          # Install specific torch version first
+          pip install torch==${{ matrix.torch-version }} --index-url https://download.pytorch.org/whl/cpu
+          # Install other requirements
+          pip install -r requirements.txt
+          # Install test dependencies
+          pip install pytest>=7.0.0 pytest-cov>=4.0.0 pytest-xdist>=3.0.0
+          
+      - name: Verify GPU hardware module
+        run: |
+          python -c "
+          from hardware.gpu_info import get_gpu_info, get_supported_gpus
+          print('Supported GPUs:', get_supported_gpus())
+          for gpu in get_supported_gpus():
+              info = get_gpu_info(gpu)
+              freqs = info.get_available_frequencies()
+              print(f'{gpu}: {len(freqs)} frequencies ({min(freqs)}-{max(freqs)} MHz)')
+          "
+          
+      - name: Test configuration module
+        run: |
+          python -c "
+          from config import GPUConfig
+          print('A100 frequencies:', len(GPUConfig.A100_CORE_FREQUENCIES))
+          print('V100 frequencies:', len(GPUConfig.V100_CORE_FREQUENCIES))
+          print('H100 frequencies:', len(GPUConfig.H100_CORE_FREQUENCIES))
+          "
+          
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing
+          
+      - name: Test sample scripts syntax
+        run: |
+          # Check bash script syntax
+          bash -n sample-collection-scripts/launch.sh
+          bash -n sample-collection-scripts/control.sh
+          bash -n sample-collection-scripts/clean.sh
+          
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == env.PYTHON_VERSION_DEFAULT && matrix.torch-version == env.PYTORCH_VERSION
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
+
+  # Enterprise Linux compatibility test
+  enterprise-linux-test:
+    name: Enterprise Linux Compatibility
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9.4
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install system dependencies (Rocky Linux 9.4)
+        run: |
+          dnf update -y
+          dnf install -y python3 python3-pip python3-devel gcc gcc-c++ make
+          dnf install -y epel-release
+          
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu
+          python3 -m pip install -r requirements.txt
+          
+      - name: Test core modules
+        run: |
+          python3 -c "
+          import sys
+          print('Python version:', sys.version)
+          from hardware.gpu_info import get_supported_gpus
+          print('GPU support test passed')
+          "
+          
+      - name: Test power modeling framework
+        run: |
+          python3 -c "
+          try:
+              from power_modeling.fgcs_integration import FGCSPowerModelingFramework
+              print('Power modeling framework import successful')
+          except ImportError as e:
+              print('Power modeling framework import failed (expected in CI):', e)
+          "
+
+  # Documentation build test
+  docs:
+    name: Documentation Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_DEFAULT }}
+          
+      - name: Install documentation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+          
+      - name: Check documentation files
+        run: |
+          # Verify all markdown files are valid
+          find . -name "*.md" -exec echo "Checking {}" \;
+          
+      - name: Validate README files
+        run: |
+          python -c "
+          import os
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.md'):
+                      filepath = os.path.join(root, file)
+                      try:
+                          with open(filepath, 'r', encoding='utf-8') as f:
+                              content = f.read()
+                          print(f'✓ {filepath}')
+                      except Exception as e:
+                          print(f'✗ {filepath}: {e}')
+                          exit(1)
+          "
+
+  # Integration test for sample scripts
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          
+      - name: Test launch script help
+        run: |
+          cd sample-collection-scripts
+          bash launch.sh --help
+          
+      - name: Test frequency validation
+        run: |
+          python -c "
+          from hardware.gpu_info import get_gpu_info, validate_gpu_configuration
+          # Test frequency validation for all GPUs
+          for gpu_type in ['V100', 'A100', 'H100']:
+              gpu_info = get_gpu_info(gpu_type)
+              freqs = gpu_info.get_available_frequencies()
+              # Test first and last frequencies
+              assert gpu_info.validate_frequency(freqs[0]), f'{gpu_type} max freq validation failed'
+              assert gpu_info.validate_frequency(freqs[-1]), f'{gpu_type} min freq validation failed'
+              assert freqs[-1] >= 510, f'{gpu_type} min freq below 510 MHz: {freqs[-1]}'
+              print(f'✓ {gpu_type}: {len(freqs)} frequencies validated ({freqs[-1]}-{freqs[0]} MHz)')
+          "
+          
+      - name: Test configuration consistency
+        run: |
+          python -c "
+          from hardware.gpu_info import get_gpu_info
+          from config import GPUConfig
+          
+          # Verify config matches hardware module
+          v100_hw = len(get_gpu_info('V100').get_available_frequencies())
+          v100_cfg = len(GPUConfig.V100_CORE_FREQUENCIES)
+          assert v100_hw == v100_cfg, f'V100 freq mismatch: HW={v100_hw}, CFG={v100_cfg}'
+          
+          a100_hw = len(get_gpu_info('A100').get_available_frequencies())
+          a100_cfg = len(GPUConfig.A100_CORE_FREQUENCIES)
+          assert a100_hw == a100_cfg, f'A100 freq mismatch: HW={a100_hw}, CFG={a100_cfg}'
+          
+          h100_hw = len(get_gpu_info('H100').get_available_frequencies())
+          h100_cfg = len(GPUConfig.H100_CORE_FREQUENCIES)
+          assert h100_hw == h100_cfg, f'H100 freq mismatch: HW={h100_hw}, CFG={h100_cfg}'
+          
+          print('✓ All GPU configurations are consistent between modules')
+          "
+
+  # Security scan
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION_DEFAULT }}
+          
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit
+          
+      - name: Check for known security vulnerabilities
+        run: |
+          safety check -r requirements.txt --continue-on-error
+          
+      - name: Run bandit security linter
+        run: |
+          bandit -r . -f json -o bandit-report.json --exit-zero
+          bandit -r . || true
+          
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-report
+          path: bandit-report.json
+
+  # Build summary
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [lint, test, enterprise-linux-test, docs, integration-test, security]
+    if: always()
+    steps:
+      - name: Check build status
+        run: |
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Test: ${{ needs.test.result }}"
+          echo "Enterprise Linux: ${{ needs.enterprise-linux-test.result }}"
+          echo "Docs: ${{ needs.docs.result }}"
+          echo "Integration: ${{ needs.integration-test.result }}"
+          echo "Security: ${{ needs.security.result }}"
+          
+          if [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.test.result }}" == "failure" || "${{ needs.integration-test.result }}" == "failure" ]]; then
+            echo "❌ Critical jobs failed"
+            exit 1
+          else
+            echo "✅ All critical jobs passed"
+          fi

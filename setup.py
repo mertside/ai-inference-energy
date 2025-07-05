@@ -9,15 +9,16 @@ Installation:
     pip install .     # Regular install
 """
 
-from setuptools import setup, find_packages
 import pathlib
+
+from setuptools import find_packages, setup
 
 # Read the README file
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 # Read requirements
-REQUIREMENTS = (HERE / "requirements.txt").read_text().strip().split('\n')
+REQUIREMENTS = (HERE / "requirements.txt").read_text().strip().split("\n")
 
 setup(
     name="ai-inference-energy",
@@ -49,8 +50,18 @@ setup(
         "Topic :: System :: Monitoring",
     ],
     keywords=[
-        "ai", "inference", "energy", "profiling", "gpu", "nvidia", "dvfs",
-        "llama", "stable-diffusion", "power", "frequency", "scaling"
+        "ai",
+        "inference",
+        "energy",
+        "profiling",
+        "gpu",
+        "nvidia",
+        "dvfs",
+        "llama",
+        "stable-diffusion",
+        "power",
+        "frequency",
+        "scaling",
     ],
     entry_points={
         "console_scripts": [

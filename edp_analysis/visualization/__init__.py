@@ -20,31 +20,20 @@ The visualization modules handle conditional imports for matplotlib, seaborn, an
 plotting libraries, providing graceful degradation when dependencies are not available.
 """
 
-from .edp_plots import (
-    EDPPlotter, 
-    plot_edp_heatmap, 
-    create_optimization_summary_plot
-)
-from .power_plots import (
-    PowerPlotter, 
-    plot_power_histogram
-)
-from .performance_plots import (
-    PerformancePlotter, 
-    plot_performance_heatmap
-)
+from .edp_plots import EDPPlotter, create_optimization_summary_plot, plot_edp_heatmap
+from .performance_plots import PerformancePlotter, plot_performance_heatmap
+from .power_plots import PowerPlotter, plot_power_histogram
 
 __all__ = [
     # Core plotter classes
-    'EDPPlotter',
-    'PowerPlotter', 
-    'PerformancePlotter',
-    
+    "EDPPlotter",
+    "PowerPlotter",
+    "PerformancePlotter",
     # Convenience functions
-    'plot_edp_heatmap',
-    'plot_power_histogram',
-    'plot_performance_heatmap',
-    'create_optimization_summary_plot'
+    "plot_edp_heatmap",
+    "plot_power_histogram",
+    "plot_performance_heatmap",
+    "create_optimization_summary_plot",
 ]
 
 __version__ = "1.1.0"  # Updated for enhanced FGCS integration

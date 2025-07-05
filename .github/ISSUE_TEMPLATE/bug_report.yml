@@ -1,0 +1,118 @@
+name: Bug Report
+description: Report a bug in the AI Inference Energy framework
+title: "[BUG] "
+labels: ["bug", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+
+  - type: dropdown
+    id: gpu-type
+    attributes:
+      label: GPU Type
+      description: Which GPU are you using?
+      options:
+        - NVIDIA A100
+        - NVIDIA V100
+        - NVIDIA H100
+        - Other (please specify in description)
+        - Not applicable
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you running on?
+      options:
+        - Rocky Linux 9.4
+        - CentOS 8
+        - Ubuntu 20.04
+        - Ubuntu 22.04
+        - Other Linux (please specify)
+        - Other (please specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: What version of Python are you using?
+      placeholder: "e.g., 3.10.6"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Run command '...'
+        2. Set frequency to '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log Output
+      description: Please copy and paste any relevant log output
+      render: shell
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      description: |
+        Please run the following commands and paste the output:
+        ```bash
+        nvidia-smi
+        python -c "import torch; print(f'PyTorch: {torch.__version__}')"
+        python -c "from hardware.gpu_info import get_gpu_info; print('GPU module OK')"
+        ```
+      render: shell
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched for existing issues
+          required: true
+        - label: I have included all requested information
+          required: true
+        - label: This is not a question (use Discussions for questions)
+          required: true

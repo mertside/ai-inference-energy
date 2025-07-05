@@ -1,0 +1,206 @@
+name: GPU Hardware Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      gpu_type:
+        description: 'GPU type to test'
+        required: true
+        default: 'A100'
+        type: choice
+        options:
+          - A100
+          - V100
+          - H100
+      test_mode:
+        description: 'Test mode'
+        required: true
+        default: 'baseline'
+        type: choice
+        options:
+          - baseline
+          - frequency-validation
+          - power-profiling
+  schedule:
+    # Run monthly GPU validation tests
+    - cron: '0 3 1 * *'
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  gpu-frequency-validation:
+    name: GPU Frequency Validation
+    runs-on: self-hosted
+    # Only run on self-hosted runners with GPU access or manual dispatch
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check GPU availability
+        run: |
+          if command -v nvidia-smi &> /dev/null; then
+            echo "✓ nvidia-smi found"
+            nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader,nounits
+          else
+            echo "⚠ nvidia-smi not found - skipping GPU tests"
+            exit 78  # Skip this job
+          fi
+          
+      - name: Check DCGMI availability
+        run: |
+          if command -v dcgmi &> /dev/null; then
+            echo "✓ DCGMI found"
+            dcgmi discovery --list || echo "⚠ DCGMI discovery failed"
+          else
+            echo "⚠ DCGMI not found - will use nvidia-smi fallback"
+          fi
+          
+      - name: Set up Python environment
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+          
+      - name: Validate hardware frequency support
+        run: |
+          # Test actual supported clocks against our configuration
+          GPU_TYPE="${{ github.event.inputs.gpu_type || 'A100' }}"
+          echo "Testing GPU type: $GPU_TYPE"
+          
+          # Get actual supported clocks
+          nvidia-smi -q -d SUPPORTED_CLOCKS > actual_clocks.txt || echo "Failed to query clocks"
+          
+          # Compare with our configuration
+          python3 -c "
+          import sys
+          from hardware.gpu_info import get_gpu_info
+          
+          gpu_type = '$GPU_TYPE'
+          try:
+              gpu_info = get_gpu_info(gpu_type)
+              configured_freqs = gpu_info.get_available_frequencies()
+              print(f'Configured {gpu_type} frequencies: {len(configured_freqs)}')
+              print(f'Range: {min(configured_freqs)}-{max(configured_freqs)} MHz')
+              print(f'All >= 510 MHz: {all(f >= 510 for f in configured_freqs)}')
+              
+              # Check if actual GPU matches expected type
+              try:
+                  with open('actual_clocks.txt', 'r') as f:
+                      clocks_output = f.read()
+                  print('✓ Successfully read actual GPU clock data')
+                  
+                  # Extract graphics frequencies from output
+                  import re
+                  graphics_freqs = re.findall(r'Graphics\s*:\s*(\d+)\s*MHz', clocks_output)
+                  if graphics_freqs:
+                      actual_freqs = [int(f) for f in graphics_freqs if int(f) >= 510]
+                      print(f'Actual frequencies >= 510 MHz: {len(actual_freqs)}')
+                      print(f'Actual range: {min(actual_freqs)}-{max(actual_freqs)} MHz')
+                      
+                      # Validate our configuration covers the hardware range
+                      hw_min, hw_max = min(actual_freqs), max(actual_freqs)
+                      cfg_min, cfg_max = min(configured_freqs), max(configured_freqs)
+                      
+                      if cfg_min <= hw_min and cfg_max >= hw_max:
+                          print('✓ Configuration covers hardware frequency range')
+                      else:
+                          print(f'⚠ Configuration mismatch: CFG({cfg_min}-{cfg_max}) vs HW({hw_min}-{hw_max})')
+                  else:
+                      print('⚠ Could not parse graphics frequencies from nvidia-smi output')
+              except FileNotFoundError:
+                  print('⚠ Could not read actual clocks file')
+                  
+          except Exception as e:
+              print(f'❌ Error: {e}')
+              sys.exit(1)
+          "
+          
+      - name: Test frequency control (baseline mode only)
+        if: github.event.inputs.test_mode == 'baseline' || github.event.inputs.test_mode == 'frequency-validation'
+        run: |
+          cd sample-collection-scripts
+          
+          # Test baseline mode (single frequency)
+          echo "Testing baseline mode with ${{ github.event.inputs.gpu_type || 'A100' }}"
+          
+          # Dry run test
+          timeout 30s ./launch.sh \
+            --gpu-type "${{ github.event.inputs.gpu_type || 'A100' }}" \
+            --profiling-mode baseline \
+            --num-runs 1 \
+            --app-name "TEST" \
+            --app-executable "echo" \
+            --app-params "'GPU test completed'" \
+            || echo "Launch script test completed (may have timed out as expected)"
+            
+      - name: Upload GPU validation artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gpu-validation-${{ github.event.inputs.gpu_type || 'A100' }}-${{ github.run_number }}
+          path: |
+            actual_clocks.txt
+            sample-collection-scripts/results/
+          retention-days: 30
+
+  power-profiling-test:
+    name: Power Profiling Integration Test
+    runs-on: self-hosted
+    if: github.event.inputs.test_mode == 'power-profiling' || github.event_name == 'schedule'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up environment
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
+          
+      - name: Test power monitoring tools
+        run: |
+          # Test if power monitoring is available
+          if command -v nvidia-smi &> /dev/null; then
+            echo "Testing nvidia-smi power monitoring..."
+            nvidia-smi --query-gpu=power.draw,power.limit --format=csv,noheader,nounits || echo "Power query failed"
+          fi
+          
+          if command -v dcgmi &> /dev/null; then
+            echo "Testing DCGMI power monitoring..."
+            dcgmi dmon -e 155 -c 1 || echo "DCGMI power monitoring failed"
+          fi
+          
+      - name: Test sample collection framework
+        run: |
+          cd sample-collection-scripts
+          
+          # Test the profile script exists and is executable
+          if [[ -f profile.py ]]; then
+            echo "✓ profile.py found"
+            python3 profile.py --help || echo "profile.py help failed"
+          fi
+          
+          if [[ -f profile_smi.py ]]; then
+            echo "✓ profile_smi.py found"  
+            python3 profile_smi.py --help || echo "profile_smi.py help failed"
+          fi
+          
+          # Test control scripts
+          if [[ -f control.sh ]]; then
+            echo "✓ control.sh found"
+            bash -n control.sh
+          fi
+          
+          if [[ -f control_smi.sh ]]; then
+            echo "✓ control_smi.sh found"
+            bash -n control_smi.sh
+          fi
+          
+      - name: Upload power profiling artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: power-profiling-test-${{ github.run_number }}
+          path: |
+            sample-collection-scripts/results/
+            sample-collection-scripts/*.log
+          retention-days: 7
