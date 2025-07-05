@@ -75,8 +75,8 @@ gpu-test:
 
 # Enterprise Linux testing (requires Docker)
 enterprise-test:
-	@echo "Testing Rocky Linux 9.4 compatibility..."
-	docker run --rm -v $(PWD):/workspace -w /workspace rockylinux:9.4 /bin/bash -c "\
+	@echo "Testing Rocky Linux 9 compatibility..."
+	docker run --rm -v $(PWD):/workspace -w /workspace rockylinux:9 /bin/bash -c "\
 		dnf update -y && \
 		dnf install -y python3 python3-pip python3-devel gcc && \
 		python3 -m pip install --upgrade pip && \
