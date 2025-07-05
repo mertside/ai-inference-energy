@@ -787,3 +787,18 @@ class PerformancePlotter:
             # Show performance scaling instead
             baseline_time = total_time.max()  # Use slowest as baseline
             performance_improvement = ((baseline_time - total_time) / baseline_time) * 100
+            ax2.plot(frequencies, performance_improvement, "b-o", markersize=6, linewidth=2)
+            ax2.axhline(y=0, color="r", linestyle="--", alpha=0.7)
+            ax2.set_xlabel("Frequency (MHz)")
+            ax2.set_ylabel("Performance Improvement (%)")
+            ax2.set_title("Performance Scaling vs Frequency")
+            ax2.grid(True, alpha=0.3)
+
+        plt.suptitle(title)
+        plt.tight_layout()
+
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches="tight")
+            logger.info(f"Performance breakdown plot saved to {save_path}")
+
+        return fig
