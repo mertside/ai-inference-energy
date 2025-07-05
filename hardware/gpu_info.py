@@ -308,23 +308,23 @@ class GPUSpecifications:
 GPU_SPECIFICATIONS = {
     'V100': {
         'architecture': GPUArchitecture.VOLTA,
-        'full_name': 'Tesla V100-SXM2-32GB',
+        'full_name': 'Tesla V100-PCIE-32GB',  # Updated based on nvidia-smi output
         'release_year': 2017,
         
         'frequency': {
-            'min_freq': 405,
+            'min_freq': 510,  # Updated: excluding frequencies below 510 MHz
             'max_freq': 1380,
-            'count': 103,
+            'count': 117,  # Updated count for frequencies ≥510 MHz
             'step_size': None,  # Irregular stepping
             'frequencies': [
+                # Updated with actual nvidia-smi supported clocks data (≥510 MHz only)
                 1380, 1372, 1365, 1357, 1350, 1342, 1335, 1327, 1320, 1312, 1305, 1297, 1290, 1282, 1275, 1267,
                 1260, 1252, 1245, 1237, 1230, 1222, 1215, 1207, 1200, 1192, 1185, 1177, 1170, 1162, 1155, 1147,
                 1140, 1132, 1125, 1117, 1110, 1102, 1095, 1087, 1080, 1072, 1065, 1057, 1050, 1042, 1035, 1027,
                 1020, 1012, 1005, 997, 990, 982, 975, 967, 960, 952, 945, 937, 930, 922, 915, 907, 900, 892, 885, 877,
                 870, 862, 855, 847, 840, 832, 825, 817, 810, 802, 795, 787, 780, 772, 765, 757, 750, 742, 735, 727,
                 720, 712, 705, 697, 690, 682, 675, 667, 660, 652, 645, 637, 630, 622, 615, 607, 600, 592, 585, 577,
-                570, 562, 555, 547, 540, 532, 525, 517, 510, 502, 495, 487, 480, 472, 465, 457, 450, 442, 435, 427,
-                420, 412, 405
+                570, 562, 555, 547, 540, 532, 525, 517, 510
             ]
         },
         
@@ -363,7 +363,7 @@ GPU_SPECIFICATIONS = {
         },
         
         'fgcs': {
-            'validated_frequencies': [1380, 1200, 1000, 800, 600, 405],
+            'validated_frequencies': [1380, 1200, 1000, 800, 600, 510],  # Updated: replaced 405 with 510
             'baseline_frequency': 1380,
             'memory_frequency': 877
         },
@@ -378,15 +378,16 @@ GPU_SPECIFICATIONS = {
     
     'A100': {
         'architecture': GPUArchitecture.AMPERE,
-        'full_name': 'A100-SXM4-80GB',
+        'full_name': 'NVIDIA A100-PCIE-40GB',  # Updated based on nvidia-smi output
         'release_year': 2020,
         
         'frequency': {
-            'min_freq': 510,
+            'min_freq': 510,  # Updated: excluding frequencies below 510 MHz
             'max_freq': 1410,
-            'count': 61,
+            'count': 61,  # Count of frequencies ≥510 MHz
             'step_size': 15,  # Regular 15 MHz stepping
             'frequencies': [
+                # Updated with actual nvidia-smi supported clocks data (≥510 MHz only)
                 1410, 1395, 1380, 1365, 1350, 1335, 1320, 1305, 1290, 1275, 1260, 1245, 1230, 1215, 1200,
                 1185, 1170, 1155, 1140, 1125, 1110, 1095, 1080, 1065, 1050, 1035, 1020, 1005, 990, 975,
                 960, 945, 930, 915, 900, 885, 870, 855, 840, 825, 810, 795, 780, 765, 750, 735, 720,
@@ -395,10 +396,10 @@ GPU_SPECIFICATIONS = {
         },
         
         'memory': {
-            'size_gb': 80,
+            'size_gb': 40,  # Updated: nvidia-smi shows 40536MiB = ~40GB
             'type': 'HBM2e',
             'bandwidth_gb_s': 1935,
-            'frequency_mhz': 1215,
+            'frequency_mhz': 1215,  # Confirmed from nvidia-smi output
             'bus_width': 5120
         },
         
@@ -444,29 +445,29 @@ GPU_SPECIFICATIONS = {
     
     'H100': {
         'architecture': GPUArchitecture.HOPPER,
-        'full_name': 'H100-SXM5-80GB',
+        'full_name': 'NVIDIA H100 NVL',  # Updated based on nvidia-smi output
         'release_year': 2022,
         
         'frequency': {
-            'min_freq': 210,
-            'max_freq': 1755,
-            'count': 104,
+            'min_freq': 510,  # Updated: excluding frequencies below 510 MHz
+            'max_freq': 1785,  # Updated: actual max frequency from nvidia-smi
+            'count': 86,  # Updated count for frequencies ≥510 MHz (1785 down to 510 in 15 MHz steps)
             'step_size': 15,  # Regular 15 MHz stepping
             'frequencies': [
-                1755, 1740, 1725, 1710, 1695, 1680, 1665, 1650, 1635, 1620, 1605, 1590, 1575, 1560, 1545, 1530,
-                1515, 1500, 1485, 1470, 1455, 1440, 1425, 1410, 1395, 1380, 1365, 1350, 1335, 1320, 1305, 1290,
-                1275, 1260, 1245, 1230, 1215, 1200, 1185, 1170, 1155, 1140, 1125, 1110, 1095, 1080, 1065, 1050,
-                1035, 1020, 1005, 990, 975, 960, 945, 930, 915, 900, 885, 870, 855, 840, 825, 810, 795, 780,
-                765, 750, 735, 720, 705, 690, 675, 660, 645, 630, 615, 600, 585, 570, 555, 540, 525, 510,
-                495, 480, 465, 450, 435, 420, 405, 390, 375, 360, 345, 330, 315, 300, 285, 270, 255, 240, 225, 210
+                # Updated with actual nvidia-smi supported clocks data (≥510 MHz only)
+                1785, 1770, 1755, 1740, 1725, 1710, 1695, 1680, 1665, 1650, 1635, 1620, 1605, 1590, 1575, 1560,
+                1545, 1530, 1515, 1500, 1485, 1470, 1455, 1440, 1425, 1410, 1395, 1380, 1365, 1350, 1335, 1320,
+                1305, 1290, 1275, 1260, 1245, 1230, 1215, 1200, 1185, 1170, 1155, 1140, 1125, 1110, 1095, 1080,
+                1065, 1050, 1035, 1020, 1005, 990, 975, 960, 945, 930, 915, 900, 885, 870, 855, 840, 825, 810,
+                795, 780, 765, 750, 735, 720, 705, 690, 675, 660, 645, 630, 615, 600, 585, 570, 555, 540, 525, 510
             ]
         },
         
         'memory': {
-            'size_gb': 80,
+            'size_gb': 95,  # Updated: nvidia-smi shows 95830MiB = ~95GB
             'type': 'HBM3',
             'bandwidth_gb_s': 3350,
-            'frequency_mhz': 1593,
+            'frequency_mhz': 1593,  # Updated: using 1593 MHz as shown in nvidia-smi
             'bus_width': 5120
         },
         
@@ -497,14 +498,14 @@ GPU_SPECIFICATIONS = {
         },
         
         'fgcs': {
-            'validated_frequencies': [1755, 1500, 1200, 1000, 800, 600, 400, 210],
-            'baseline_frequency': 1755,
+            'validated_frequencies': [1785, 1500, 1200, 1000, 800, 600, 510],  # Updated: replaced 400, 210 with 510, updated max to 1785
+            'baseline_frequency': 1785,  # Updated: using actual max frequency
             'memory_frequency': 1593
         },
         
         'workload_recommendations': {
             'inference': 1500,
-            'training': 1755,
+            'training': 1785,  # Updated: using actual max frequency
             'compute': 1650,
             'memory_bound': 1200
         }

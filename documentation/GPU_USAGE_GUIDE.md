@@ -23,9 +23,9 @@ srun --partition=toreador --gpus-per-node=1 --reservation=ghazanfar --pty bash
 
 ### V100 (HPCC at Texas Tech University)
 ```bash
-# Basic commands (⚠️ Note: 103 frequencies - longer runtime)
+# Basic commands (⚠️ Note: 117 frequencies - longer runtime)
 ./launch.sh --gpu-type V100 --profiling-mode baseline
-./launch.sh --gpu-type V100 --profiling-mode dvfs  # All 103 frequencies (8-10 hours)
+./launch.sh --gpu-type V100 --profiling-mode dvfs  # All 117 frequencies (10-12 hours)
 
 # SLURM job submission
 sbatch submit_job_v100_baseline.sh      # Quick test (1 hour)
@@ -42,7 +42,7 @@ srun --partition=matador --gres=gpu:v100:1 --ntasks=40 --pty bash
 ```bash
 # Basic commands
 ./launch.sh --gpu-type H100 --profiling-mode baseline
-./launch.sh --gpu-type H100 --profiling-mode dvfs  # All 104 frequencies
+./launch.sh --gpu-type H100 --profiling-mode dvfs  # All 86 frequencies
 
 # SLURM job submission
 sbatch submit_job_h100_baseline.sh      # Quick test (1 hour)
@@ -64,9 +64,9 @@ interactive -p h100-build -g 1 -w rpg-93-9
 | **Architecture** | GA100 (Ampere) | GV100 (Volta) | GH100 (Hopper) |
 | **Memory** | 80GB HBM2e | 32GB HBM2 | 80GB HBM3 |
 | **Memory Freq** | 1215 MHz | 877 MHz | 1593 MHz |
-| **Core Freq Range** | 1410-510 MHz | 1380-405 MHz | 1755-210 MHz |
-| **Total Frequencies** | 61 | 103 | 104 |
-| **DVFS Runtime** | 6-8 hours | 8-10 hours | 12-15 hours |
+| **Core Freq Range** | 1410-510 MHz | 1380-510 MHz | 1785-510 MHz |
+| **Total Frequencies** | 61 | 117 | 86 |
+| **DVFS Runtime** | 6-8 hours | 10-12 hours | 10-12 hours |
 | **Memory Size** | 80GB | 32GB | 80GB |
 | **Power Consumption** | 250-400W | 250-300W | 400-700W |
 
@@ -90,7 +90,7 @@ CORE_FREQUENCIES=(1410 1395 1380 1365 1350 1335 1320 1305 1290 1275 1260 1245 12
 # Quick baseline test
 ./launch.sh --gpu-type V100 --profiling-mode baseline --num-runs 3
 
-# Custom frequencies (RECOMMENDED for V100 due to 103 frequencies)
+# Custom frequencies (RECOMMENDED for V100 due to 117 frequencies)
 ./launch.sh --gpu-type V100 --profiling-mode custom \
   --custom-frequencies '405,840,1200,1380' --num-runs 7
 
@@ -196,14 +196,14 @@ print(f'Average execution time: {data.iloc[:, 1].mean():.2f}s')
 - **Cluster**: HPCC toreador partition
 
 ### V100 Considerations  
-- **Runtime**: 8-10 hours for comprehensive DVFS studies (103 frequencies) ⚠️
+- **Runtime**: 10-12 hours for comprehensive DVFS studies (117 frequencies) ⚠️
 - **Memory**: Limited to 32GB vs 80GB on A100/H100
 - **Recommendation**: Use custom frequency mode instead of full DVFS
 - **Cluster**: HPCC matador partition
 - **Legacy**: Good for compatibility testing and custom frequency studies
 
 ### H100 Considerations
-- **Runtime**: 12-15 hours for comprehensive DVFS studies (104 frequencies) ⚠️
+- **Runtime**: 10-12 hours for comprehensive DVFS studies (86 frequencies) ⚠️
 - **Power**: High power consumption (400-700W)
 - **Node**: Single dedicated node (rpg-93-9) on REPACSS
 - **Latest**: Most advanced architecture for cutting-edge research

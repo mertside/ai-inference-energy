@@ -39,9 +39,9 @@ This framework now includes a comprehensive power modeling system extracted and 
 - **Intelligent Recommendations**: Context-aware frequency selection with justification
 
 #### **GPU Support & Frequencies**
-- **V100**: 103 production frequencies (1380-405 MHz) with validated ranges
+- **V100**: 117 production frequencies (1380-510 MHz) with validated ranges
 - **A100**: 61 production frequencies (1410-510 MHz) with DCGMI integration
-- **H100**: 104 production frequencies (1755-210 MHz) with 15MHz step validation
+- **H100**: 86 production frequencies (1785-510 MHz) with 15MHz step validation
 
 #### **Validation & Robustness**
 - **Statistical Validation**: K-fold cross-validation with confidence intervals
@@ -67,7 +67,7 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 ### Research & Experimental Capabilities
 
 - 📊 **Comprehensive Profiling**: GPU power consumption, utilization, temperature, and performance metrics
-- 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 103 V100 frequencies (1380-405 MHz)
+- 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 117 V100 frequencies (1380-510 MHz)
 - ⚡ **Energy Analysis**: Detailed power vs performance trade-off analysis across frequency ranges
 - 📈 **Statistical Rigor**: Multiple runs per frequency with configurable parameters for statistical significance
 - � **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
@@ -346,12 +346,12 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 
 #### **V100 GPU (Matador Partition)**  
 - **Memory Frequency**: 877 MHz (V100 default)
-- **Core Frequencies**: 103 different settings from 1380 MHz down to 405 MHz
+- **Core Frequencies**: 117 different settings from 1380 MHz down to 510 MHz
 - **Frequency Control**: Via nvidia-smi interface
 
 #### **H100 GPU (REPACSS)**
 - **Memory Frequency**: 1593 MHz (H100 default)
-- **Core Frequencies**: 104 different settings from 1755 MHz down to 210 MHz in 15MHz steps
+- **Core Frequencies**: 86 different settings from 1785 MHz down to 510 MHz in 15MHz steps
 - **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
 - **Cluster**: REPACSS at Texas Tech University (node: rpg-93-9)
 

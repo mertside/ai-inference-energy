@@ -6,7 +6,7 @@
 # on H100 GPUs with multiple runs across all frequencies.
 #
 # WARNING: This is a very long-running job (estimated 12+ hours)
-# H100 has 104 frequencies from 1755MHz down to 210MHz in 15MHz steps
+# H100 has 86 frequencies from 1785MHz down to 510MHz in 15MHz steps
 #
 
 #SBATCH --job-name=LSTM_H100_COMPREHENSIVE
@@ -30,7 +30,7 @@ readonly CONDA_ENV="tensorflow"
 readonly LAUNCH_SCRIPT="./launch.sh"
 
 # Comprehensive DVFS configuration for H100
-# This will test all H100 frequencies (104 frequencies) with 3 runs each
+# This will test all H100 frequencies (86 frequencies) with 3 runs each
 LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
 # Logging functions
@@ -51,7 +51,7 @@ main() {
     log_info "Starting H100 comprehensive DVFS profiling job"
     log_info "Configuration: $LAUNCH_ARGS"
     log_warning "This is a very long-running job (estimated 12+ hours)"
-    log_warning "H100 has 104 frequencies vs A100's 61 and V100's 103 frequencies"
+    log_warning "H100 has 86 frequencies vs A100's 61 and V100's 117 frequencies"
     
     # Load modules (REPACSS-specific)
     module load cuda
@@ -62,10 +62,10 @@ main() {
     
     # Display estimated runtime
     log_info "=== Estimated Runtime ==="
-    log_info "GPU: H100 (104 frequencies: 1755-210 MHz in 15MHz steps)"
+    log_info "GPU: H100 (86 frequencies: 1785-510 MHz in 15MHz steps)"
     log_info "Runs per frequency: 3"
-    log_info "Total runs: ~312"
-    log_info "Estimated time: 12-15 hours"
+    log_info "Total runs: ~258"
+    log_info "Estimated time: 10-12 hours"
     log_info "========================="
     
     # Display GPU information
@@ -75,10 +75,10 @@ main() {
     log_info "Node: rpg-93-9"
     log_info "Architecture: GH100"
     log_info "Memory frequency: 1593 MHz"
-    log_info "Max core frequency: 1755 MHz"
-    log_info "Min core frequency: 210 MHz"
+    log_info "Max core frequency: 1785 MHz"
+    log_info "Min core frequency: 510 MHz"
     log_info "Frequency step: 15 MHz"
-    log_info "Total frequencies: 104"
+    log_info "Total frequencies: 86"
     nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader,nounits || log_warning "Could not query GPU info"
     log_info "============================="
     
@@ -90,8 +90,8 @@ main() {
     
     # Final confirmation warning
     log_warning "Starting comprehensive H100 DVFS experiment"
-    log_warning "This will test 104 different frequencies with 3 runs each"
-    log_warning "Total estimated runtime: 12-15 hours"
+    log_warning "This will test 86 different frequencies with 3 runs each"
+    log_warning "Total estimated runtime: 10-12 hours"
     
     # Run experiment
     if eval "$LAUNCH_SCRIPT $LAUNCH_ARGS"; then

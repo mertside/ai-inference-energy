@@ -50,7 +50,7 @@ main() {
     log_info "Starting A100 comprehensive DVFS profiling job"
     log_info "Configuration: $LAUNCH_ARGS"
     log_warning "This is a long-running job (estimated 6-8 hours)"
-    log_warning "A100 has 61 frequencies vs V100's 103 and H100's 104 frequencies"
+    log_warning "A100 has 61 frequencies vs V100's 117 and H100's 86 frequencies"
     
     # Load modules (HPCC-specific)
     module load gcc cuda cudnn

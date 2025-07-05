@@ -7,7 +7,7 @@ Complete framework for GPU power modeling and energy-delay product optimization 
 This framework provides:
 - **Power Prediction Models**: FGCS original, polynomial, Random Forest, XGBoost
 - **EDP/ED²P Optimization**: Energy-delay product optimization algorithms
-- **GPU Support**: V100 (103 frequencies), A100 (61 frequencies), H100 (104 frequencies)
+- **GPU Support**: V100 (117 frequencies), A100 (61 frequencies), H100 (86 frequencies)
 - **Complete Pipeline**: From profiling data to optimization recommendations
 
 ## 🚀 Quick Start
@@ -126,9 +126,9 @@ results = pipeline.optimize_application(
 
 | GPU Type | Frequencies | Count | Range (MHz) | Pattern |
 |----------|-------------|-------|-------------|---------|
-| **V100** | 103 | 1380-405 | Variable steps | Production frequencies |
+| **V100** | 117 | 1380-510 | Variable steps | Production frequencies |
 | **A100** | 61 | 1410-510 | Variable steps | Production frequencies |
-| **H100** | 104 | 1755-210 | 15 MHz steps | Production frequencies |
+| **H100** | 86 | 1785-510 | 15 MHz steps | Production frequencies |
 
 ### GPU-Specific Usage
 ```python
@@ -418,9 +418,9 @@ score = calculator.calculate_weighted_score(energy, delay)
 ## ⚠️ Important Notes
 
 ### GPU Frequency Validation
-- **V100**: 103 production frequencies (1380-405 MHz)
+- **V100**: 117 production frequencies (1380-510 MHz)
 - **A100**: 61 production frequencies (1410-510 MHz)  
-- **H100**: 104 production frequencies (1755-210 MHz)
+- **H100**: 86 production frequencies (1785-510 MHz)
 
 ### FGCS Model Coefficients
 The FGCS model uses exact coefficients from the paper:

@@ -77,7 +77,7 @@ Options:
 ```
 - Architecture: GV100  
 - Memory: 877 MHz
-- Core frequencies: 1380-405 MHz (103 frequencies)
+- Core frequencies: 1380-510 MHz (117 frequencies)
 - SLURM partition: matador
 - Interactive helper: `./interactive_v100.sh`
 
@@ -87,7 +87,7 @@ Options:
 ```
 - Architecture: GH100  
 - Memory: 1593 MHz
-- Core frequencies: 1755-210 MHz (104 frequencies in 15MHz steps)
+- Core frequencies: 1785-510 MHz (86 frequencies in 15MHz steps)
 - SLURM partition: h100-build (node: rpg-93-9)
 - Cluster: REPACSS at Texas Tech University
 - Interactive helper: `./interactive_h100.sh`

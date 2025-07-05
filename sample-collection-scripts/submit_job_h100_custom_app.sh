@@ -75,7 +75,7 @@ main() {
     log_info "Node: rpg-93-9"
     log_info "Architecture: GH100 (Next-generation Hopper)"
     log_info "Memory frequency: 1593 MHz"
-    log_info "Core frequency range: 1755-210 MHz (104 frequencies)"
+    log_info "Core frequency range: 1785-510 MHz (86 frequencies)"
     log_info "DVFS step size: 15 MHz"
     log_info "Profiling tools: DCGMI (preferred) or nvidia-smi"
     log_info "============================================"
