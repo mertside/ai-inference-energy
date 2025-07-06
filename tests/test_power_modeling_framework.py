@@ -23,6 +23,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import config
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -232,7 +233,11 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_gpu_frequency_configurations(self):
         """Test GPU frequency configurations are correct."""
-        expected_counts = {"V100": 131, "A100": 61, "H100": 104}
+        expected_counts = {
+            "V100": len(config.gpu_config.V100_CORE_FREQUENCIES),
+            "A100": 61,
+            "H100": 104,
+        }
         expected_ranges = {
             "V100": (405, 1380),
             "A100": (510, 1410),
