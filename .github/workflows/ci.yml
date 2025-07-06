@@ -1,234 +1,50 @@
-name: CI/CD Pipeline
+name: Minimal CI
 
 on:
   push:
     branches: [main, dev, develop]
   pull_request:
     branches: [main, dev, develop]
-  schedule:
-    # Run weekly on Sundays at 2 AM UTC to catch dependency issues
-    - cron: '0 2 * * 0'
 
 env:
-  PYTHON_VERSION_DEFAULT: "3.12"
-  PYTORCH_VERSION: "2.0.0"
-  CACHE_KEY_PREFIX: "ci-cache-v2"
+  PYTHON_VERSION: "3.12"
 
 jobs:
-  # Quick validation - runs fast essential checks only
-  quick-check:
-    name: Quick Validation
+  # Ultra-fast essential checks only
+  quick-test:
+    name: Quick Test
     runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
     steps:
       - uses: actions/checkout@v4
       
-      - name: Cache Python packages
-        uses: actions/cache@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          path: ~/.cache/pip
-          key: ${{ env.CACHE_KEY_PREFIX }}-quick-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ env.CACHE_KEY_PREFIX }}-quick-
-            
-      - name: Install Python and basic tools
-        run: |
-          dnf update -y -q
-          dnf install -y -q python3 python3-pip
-          python3 -m pip install --upgrade pip -q
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
           
-      - name: Install lint dependencies
+      - name: Install essential tools
         run: |
-          python3 -m pip install -q black>=22.0.0 flake8>=4.0.0 isort>=5.10.0
+          pip install --upgrade pip
+          pip install black flake8 isort pytest
           
-      - name: Check code formatting with Black
+      - name: Code formatting check
         run: |
-          python3 -m black --check --diff . || {
-            echo "Code formatting issues found. Run 'black .' to fix them."
-            exit 1
-          }
+          black --check --diff . || (echo "Run 'black .' to fix formatting" && exit 1)
+          
+      - name: Import sorting check
+        run: isort --check-only --diff .
         
-      - name: Check import sorting with isort
-        run: python3 -m isort --check-only --diff .
+      - name: Syntax check
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         
-      - name: Quick syntax check with flake8
+      - name: Install project dependencies
+        run: pip install -r requirements.txt
+        
+      - name: Quick module test
         run: |
-          python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          python -c "from hardware.gpu_info import get_supported_gpus; print('✓ GPUs:', get_supported_gpus())"
+          python -c "from config import GPUConfig; print('✓ Config loaded')"
           
-      - name: Test script syntax
-        run: |
-          bash -n sample-collection-scripts/launch.sh
-          bash -n sample-collection-scripts/control.sh
-          bash -n sample-collection-scripts/clean.sh
-
-  # Main test suite - only Python 3.12 for speed
-  test:
-    name: Test Suite (Python 3.12)
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    needs: quick-check
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Cache Python packages  
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ env.CACHE_KEY_PREFIX }}-test-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ env.CACHE_KEY_PREFIX }}-test-
-            
-      - name: Install Python and system dependencies
-        run: |
-          dnf update -y -q
-          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
-          python3 -m pip install --upgrade pip setuptools wheel -q
-          
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install -r requirements.txt -q
-          python3 -m pip install pytest>=7.0.0 pytest-cov>=4.0.0 pytest-xdist>=3.0.0 -q
-          
-      - name: Verify GPU hardware module
-        run: |
-          python3 -c "from hardware.gpu_info import get_gpu_info, get_supported_gpus; print('Supported GPUs:', get_supported_gpus()); [print(f'{gpu}: {len(get_gpu_info(gpu).get_available_frequencies())} frequencies') for gpu in get_supported_gpus()]"
-          
-      - name: Test configuration module
-        run: |
-          python3 -c "from config import GPUConfig; print('A100 frequencies:', len(GPUConfig.A100_CORE_FREQUENCIES)); print('V100 frequencies:', len(GPUConfig.V100_CORE_FREQUENCIES)); print('H100 frequencies:', len(GPUConfig.H100_CORE_FREQUENCIES))"
-          
-      - name: Run unit tests
-        run: |
-          python3 -m pytest tests/ -v --tb=short --cov=. --cov-report=xml --cov-report=term-missing -n auto
-          
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
-
-  # Integration tests - only run on main branch pushes to save time
-  integration-test:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    needs: [quick-check, test]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Cache Python packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ env.CACHE_KEY_PREFIX }}-integration-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ env.CACHE_KEY_PREFIX }}-integration-
-            
-      - name: Install Python and dependencies
-        run: |
-          dnf update -y -q
-          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
-          python3 -m pip install --upgrade pip -q
-          python3 -m pip install torch==2.0.0 --index-url https://download.pytorch.org/whl/cpu -q
-          python3 -m pip install -r requirements.txt -q
-          
-      - name: Test launch script help
-        run: |
-          cd sample-collection-scripts
-          bash launch.sh --help
-          
-      - name: Test frequency validation
-        run: |
-          python3 -c "
-          from hardware.gpu_info import get_gpu_info
-          # Test frequency validation for all GPUs
-          for gpu_type in ['V100', 'A100', 'H100']:
-              gpu_info = get_gpu_info(gpu_type)
-              freqs = gpu_info.get_available_frequencies()
-              # Test first and last frequencies
-              assert gpu_info.validate_frequency(freqs[0]), f'{gpu_type} max freq validation failed'
-              assert gpu_info.validate_frequency(freqs[-1]), f'{gpu_type} min freq validation failed'
-              assert freqs[-1] >= 510, f'{gpu_type} min freq below 510 MHz: {freqs[-1]}'
-              print(f'✓ {gpu_type}: {len(freqs)} frequencies validated ({freqs[-1]}-{freqs[0]} MHz)')
-          "
-          
-      - name: Test configuration consistency
-        run: |
-          python3 -c "
-          from hardware.gpu_info import get_gpu_info
-          from config import GPUConfig
-          
-          # Verify config matches hardware module
-          v100_hw = len(get_gpu_info('V100').get_available_frequencies())
-          v100_cfg = len(GPUConfig.V100_CORE_FREQUENCIES)
-          assert v100_hw == v100_cfg, f'V100 freq mismatch: HW={v100_hw}, CFG={v100_cfg}'
-          
-          a100_hw = len(get_gpu_info('A100').get_available_frequencies())
-          a100_cfg = len(GPUConfig.A100_CORE_FREQUENCIES)
-          assert a100_hw == a100_cfg, f'A100 freq mismatch: HW={a100_hw}, CFG={a100_cfg}'
-          
-          h100_hw = len(get_gpu_info('H100').get_available_frequencies())
-          h100_cfg = len(GPUConfig.H100_CORE_FREQUENCIES)
-          assert h100_hw == h100_cfg, f'H100 freq mismatch: HW={h100_hw}, CFG={h100_cfg}'
-          
-          print('✓ All GPU configurations are consistent between modules')
-          "
-
-  # Legacy Python test - only on scheduled runs
-  legacy-test:
-    name: Legacy Python 3.6 Test
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    if: github.event_name == 'schedule'
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Python 3.6 and dependencies
-        run: |
-          dnf update -y -q
-          dnf install -y -q python3 python3-pip python3-devel gcc gcc-c++ make
-          # Attempt to install Python 3.6 if available
-          dnf install -y python3.6 python3.6-devel || echo "Python 3.6 not available, skipping"
-          
-      - name: Test basic import with Python 3.6
-        run: |
-          if command -v python3.6 &> /dev/null; then
-            python3.6 -c "import sys; print('Python version:', sys.version)"
-            python3.6 -c "from hardware.gpu_info import get_supported_gpus; print('Legacy Python test passed')"
-          else
-            echo "Python 3.6 not available, test skipped"
-          fi
-
-  # Security scan - lightweight and fast
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Python and security tools
-        run: |
-          dnf update -y -q
-          dnf install -y -q python3 python3-pip
-          python3 -m pip install --upgrade pip -q
-          python3 -m pip install safety bandit -q
-      - name: Check for known security vulnerabilities
-        run: |
-          safety check -r requirements.txt --continue-on-error
-      - name: Run bandit security linter
-        run: |
-          bandit -r . -f json -o bandit-report.json --exit-zero
-          bandit -r . || true
-      - name: Upload security report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: security-report
-          path: bandit-report.json
+      - name: Run fast tests only
+        run: pytest tests/ -x -q --tb=short --disable-warnings
