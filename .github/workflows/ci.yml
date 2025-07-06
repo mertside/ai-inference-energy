@@ -7,7 +7,7 @@ on:
     branches: [main, dev, develop]
 
 env:
-  PYTHON_VERSION: "3.6" # This is the case for TTU HPCC
+  PYTHON_VERSION: "3.12" 
 
 jobs:
   # Ultra-fast essential checks only
