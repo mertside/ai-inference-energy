@@ -17,9 +17,9 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
 - 🐍 **Python 3.6+ Compatible**: Works on older cluster environments
-- 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization (**NEW!**)
-- ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection (**NEW!**)
-- 🔬 **Model Validation**: Comprehensive validation framework with robust error handling (**NEW!**)
+- 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization
+- ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection
+- 🔬 **Model Validation**: Comprehensive validation framework with robust error handling
 
 ### 🔋 Power Modeling Framework
 
