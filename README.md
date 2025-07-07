@@ -20,6 +20,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization
 - ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection
 - 🔬 **Model Validation**: Comprehensive validation framework with robust error handling
+- 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
 
 ### 🔋 Power Modeling Framework
 
@@ -60,7 +61,7 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 ### Supported AI Models & Applications
 
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
-- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: Latent diffusion model for high-quality image generation  
+- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation  
 - **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
 - **Custom Applications**: Framework supports any Python-based AI inference workload
 
@@ -82,13 +83,17 @@ ai-inference-energy/
 ├── config.py                            # Centralized configuration (Python 3.6+ compatible)
 ├── utils.py                             # Utility functions and helpers
 │
-├── app-llama-collection/                # LLaMA inference applications
+├── app-llama/                           # LLaMA inference applications
 │   ├── README.md                        # LLaMA application documentation
 │   └── LlamaViaHF.py                    # LLaMA text generation via Hugging Face
 │  
-├── app-stable-diffusion-collection/     # Stable Diffusion applications  
-│   ├── README.md                        # Stable Diffusion documentation
-│   └── StableDiffusionViaHF.py          # Image generation via Hugging Face
+├── app-stable-diffusion/                # 🎨 Modernized Stable Diffusion applications  
+│   ├── README.md                        # Comprehensive Stable Diffusion documentation
+│   ├── StableDiffusionViaHF.py          # **Modernized** image generation with latest models
+│   ├── StableDiffusionViaHF_original.py # Legacy version for compatibility
+│   ├── setup_stable_diffusion.sh       # Complete setup and validation script
+│   ├── test_stable_diffusion_*.py       # Comprehensive test suites
+│   └── validate_stable_diffusion.py    # Quick validation script
 │
 ├── app-lstm/                            # LSTM benchmark application
 │   ├── README.md                        # LSTM benchmark documentation
@@ -211,13 +216,13 @@ ai-inference-energy/
 
 **Run LLaMA inference:**
 ```bash
-cd app-llama-collection
+cd app-llama
 python LlamaViaHF.py
 ```
 
 **Run Stable Diffusion inference:**
 ```bash
-cd app-stable-diffusion-collection
+cd app-stable-diffusion
 python StableDiffusionViaHF.py
 ```
 
@@ -226,7 +231,7 @@ python StableDiffusionViaHF.py
 **Profile a single application:**
 ```bash
 cd sample-collection-scripts
-./profile.py "python ../app-llama-collection/LlamaViaHF.py"
+./profile.py "python ../app-llama/LlamaViaHF.py"
 ```
 
 **Set specific GPU frequencies:**
@@ -253,7 +258,7 @@ cd sample-collection-scripts
 # Custom application profiling
 ./launch.sh \
   --app-name "StableDiffusion" \
-  --app-executable "stable_diffusion" \
+  --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
   --app-params "--prompt 'A beautiful landscape' --steps 20"
 
 # Quick test configuration
@@ -468,6 +473,12 @@ To add new AI applications to the framework:
      --app-name "MyApp" \
      --app-executable "my_app" \
      --app-params "--model bert-base --batch-size 32"
+   
+   # For Stable Diffusion (modernized)
+   ./launch.sh \
+     --app-name "StableDiffusion" \
+     --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
+     --app-params "--model-variant sdxl --steps 30"
    ```
 
 ### GPU-Specific Configurations
@@ -609,6 +620,7 @@ The framework includes **streamlined, production-ready documentation** focused o
 - **[edp_analysis/README.md](edp_analysis/README.md)**: EDP analysis module documentation
 - **[examples/README.md](examples/README.md)**: Usage examples and demonstrations
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
+- **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
 
 All documentation follows consistent patterns with **practical examples**, **real commands**, and **comprehensive troubleshooting** sections.
 

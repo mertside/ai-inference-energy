@@ -277,7 +277,7 @@ dcgmi discovery --list
 # Stable Diffusion
 ./launch.sh \
   --app-name "StableDiffusion" \
-  --app-executable "../app-stable-diffusion-collection/StableDiffusionViaHF" \
+  --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
   --app-params "--prompt 'A beautiful landscape' --steps 20"
 
 # LLaMA

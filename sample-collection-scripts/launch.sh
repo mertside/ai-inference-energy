@@ -385,7 +385,7 @@ EXAMPLES:
     ./launch.sh --app-name "MyApp" --app-executable "my_script" --app-params "--input data.txt > results/MyApp_output.log"
     
     # Full custom configuration
-    ./launch.sh --gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --app-name "StableDiffusion" --app-executable "stable_diffusion" --app-params "--prompt 'test image' > results/SD_output.log"
+    ./launch.sh --gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" --app-params "--prompt 'test image' > results/SD_output.log"
 
 GPU TYPE SELECTION:
     A100: Automatically configures for NVIDIA A100 GPUs

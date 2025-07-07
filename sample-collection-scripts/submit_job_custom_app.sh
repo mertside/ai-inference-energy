@@ -27,7 +27,7 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 
 # Custom application configuration
 # Example: Stable Diffusion with baseline profiling for quick testing
-LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 2 --app-name StableDiffusion --app-executable stable_diffusion --app-params '--prompt \"A beautiful landscape\" --steps 20 > results/SD_output.log'"
+LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 2 --app-name StableDiffusion --app-executable '../app-stable-diffusion/StableDiffusionViaHF.py' --app-params '--prompt \"A beautiful landscape\" --steps 20 > results/SD_output.log'"
 
 # Alternative examples (uncomment one):
 # LLaMA inference
