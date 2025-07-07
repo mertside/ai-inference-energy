@@ -56,3 +56,7 @@ dkms.conf
 
 # pycache files
 __pycache__/
+
+# SLURM job files
+*.out
+*.err
