@@ -52,12 +52,12 @@ main() {
     log_info "Node: rpg-93-9"
     log_info "Architecture: GH100"
     log_info "Memory frequency: 1593 MHz"
-    log_info "Default core frequency: 1755 MHz"
+    log_info "Default core frequency: 1785 MHz"
     log_info "Baseline mode: Single frequency test"
     log_info "============================"
     
     # Load modules (REPACSS-specific)
-    module load cuda
+    # module load cuda
     
     # Activate conda
     source "$HOME/conda/etc/profile.d/conda.sh"

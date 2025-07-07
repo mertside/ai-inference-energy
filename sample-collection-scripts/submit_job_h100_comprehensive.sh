@@ -54,7 +54,7 @@ main() {
     log_warning "H100 has 86 frequencies vs A100's 61 and V100's 117 frequencies"
     
     # Load modules (REPACSS-specific)
-    module load cuda
+    # module load cuda
     
     # Activate conda
     source "$HOME/conda/etc/profile.d/conda.sh"

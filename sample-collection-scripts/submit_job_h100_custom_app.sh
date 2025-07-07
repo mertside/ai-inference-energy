@@ -62,7 +62,7 @@ main() {
     log_info "Configuration: $LAUNCH_ARGS"
     
     # Load modules (REPACSS-specific)
-    module load cuda
+    # module load cuda
     
     # Activate conda
     source "$HOME/conda/etc/profile.d/conda.sh"
