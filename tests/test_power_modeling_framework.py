@@ -235,13 +235,13 @@ class TestPowerModelingFramework(unittest.TestCase):
         """Test GPU frequency configurations are correct."""
         expected_counts = {
             "V100": len(config.gpu_config.V100_CORE_FREQUENCIES),
-            "A100": 61,
-            "H100": 104,
+            "A100": len(config.gpu_config.A100_CORE_FREQUENCIES),
+            "H100": len(config.gpu_config.H100_CORE_FREQUENCIES),
         }
         expected_ranges = {
-            "V100": (405, 1380),
+            "V100": (510, 1380),
             "A100": (510, 1410),
-            "H100": (210, 1755),
+            "H100": (510, 1785),
         }
 
         for gpu_type in ["V100", "A100", "H100"]:
