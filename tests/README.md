@@ -9,10 +9,10 @@ The test suite ensures the framework works correctly across different Python ver
 ## Test Files
 
 ### **Configuration Tests**
-- **`test_config.py`** - Tests configuration module loading and Python 3.6+ compatibility
+- **`test_configuration.py`** - Tests configuration module loading and Python 3.6+ compatibility
 
 ### **Compatibility Tests**  
-- **`test_subprocess_fix.py`** - Tests subprocess functionality and Python 3.6 compatibility
+- **`run_tests.py`** - Entry point for running the full test suite
 - **`test_python36_compatibility.sh`** - Comprehensive Python 3.6+ compatibility test suite
 
 ## Running Tests
@@ -22,13 +22,13 @@ The test suite ensures the framework works correctly across different Python ver
 #### Test Configuration Module
 ```bash
 cd tests
-python test_config.py
+python test_configuration.py
 ```
 
-#### Test Subprocess Compatibility
+#### Run Test Suite
 ```bash
 cd tests  
-python test_subprocess_fix.py
+python run_tests.py
 ```
 
 #### Comprehensive Compatibility Test
@@ -41,7 +41,7 @@ cd tests
 ```bash
 # From project root
 cd tests
-python test_config.py && python test_subprocess_fix.py && ./test_python36_compatibility.sh
+python run_tests.py && ./test_python36_compatibility.sh
 ```
 
 ## Test Coverage
@@ -103,7 +103,7 @@ python test_config.py && python test_subprocess_fix.py && ./test_python36_compat
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/.."
 
 # Or run from project root
-cd .. && python tests/test_config.py
+cd .. && python tests/test_configuration.py
 ```
 
 ### Permission Issues
@@ -118,7 +118,7 @@ chmod +x tests/*.sh
 python --version
 
 # Test with specific Python version
-python3.6 tests/test_config.py  # If available
+python3.6 tests/test_configuration.py  # If available
 ```
 
 ## Adding New Tests

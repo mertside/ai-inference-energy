@@ -70,7 +70,7 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 - 🔄 **Frequency Scaling**: Support for 61 A100 frequencies (1410-510 MHz) and 117 V100 frequencies (1380-510 MHz)
 - ⚡ **Energy Analysis**: Detailed power vs performance trade-off analysis across frequency ranges
 - 📈 **Statistical Rigor**: Multiple runs per frequency with configurable parameters for statistical significance
-- � **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
+- 📝 **Reproducible Research**: Standardized output formats and comprehensive experiment documentation
 
 ## 🏗️ Repository Structure
 

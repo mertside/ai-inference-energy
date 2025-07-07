@@ -56,6 +56,7 @@ __all__ = [
     "get_supported_gpus",
     "compare_gpus",
     "validate_gpu_configuration",
+    "get_module_info",
 ]
 
 
