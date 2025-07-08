@@ -121,9 +121,9 @@ ai-inference-energy/
 │
 ├── examples/                            # 📋 Usage examples and demonstrations
 │   ├── README.md                        # Comprehensive examples documentation
+│   ├── example_usage.py                 # Framework usage demonstration
 │   ├── simple_power_modeling_demo.py    # Basic power modeling demonstration
-│   ├── power_modeling_example.py        # Advanced power modeling usage
-│   └── edp_optimization_example.py      # EDP optimization examples
+│   └── submit_helper.sh                 # SLURM submission helper
 │
 ├── tests/                               # 🧪 Comprehensive test suite
 │   ├── README.md                        # Test documentation and coverage

@@ -5,18 +5,11 @@ This directory contains example scripts and usage demonstrations for the AI Infe
 ## Example Files
 
 ### **Framework Usage Examples**
-- **`example_usage.py`** - Comprehensive demonstration of framework capabilities with robust error handling
-- **`power_modeling_example.py`** - Power modeling framework usage, model training, and validation
-- **`edp_optimization_example.py`** - EDP optimization, frequency selection, and robustness testing
+- **`example_usage.py`** - Demonstration of core framework features
+- **`simple_power_modeling_demo.py`** - Basic power modeling example
 
 ### **A100 SLURM Job Examples**
-- **`submit_lstm_a100_baseline.sh`** - LSTM baseline profiling on A100
-- **`submit_lstm_a100_comprehensive.sh`** - LSTM comprehensive profiling with frequency sweeps
-- **`submit_lstm_a100_custom.sh`** - LSTM custom frequency profiling
-- **`submit_stablediffusion_a100_baseline.sh`** - Stable Diffusion profiling example
-- **`submit_custom_app_a100_template.sh`** - Template for custom applications
 - **`submit_helper.sh`** - Interactive helper for submitting jobs
-- **`A100_EXAMPLES_README.md`** - Detailed guide for A100 examples
 
 ## ✨ Latest Improvements (v1.0.0)
 
@@ -37,14 +30,6 @@ cd examples/
 ./submit_helper.sh status             # Check job status
 ```
 
-### Manual Submission
-```bash
-# Edit email address in script first
-nano submit_lstm_a100_baseline.sh
-# Submit job
-sbatch submit_lstm_a100_baseline.sh
-```
-
 ## Overview
 
 The examples in this directory demonstrate real-world usage patterns and provide templates for building custom profiling experiments on various GPU types.
@@ -57,13 +42,10 @@ cd examples
 python example_usage.py
 ```
 
-### Power Modeling Examples
+### Power Modeling Example
 ```bash
 # Quick power analysis demonstration
-python power_modeling_example.py
-
-# EDP optimization example
-python edp_optimization_example.py
+python simple_power_modeling_demo.py
 ```
 
 ### Demo Mode (Shorter Experiments)
@@ -72,17 +54,6 @@ cd examples
 python example_usage.py --demo-mode
 ```
 
-### Robustness Testing
-```bash
-# Test error handling and edge cases
-python example_usage.py --test-robustness
-
-# Validate with intentionally problematic data
-python power_modeling_example.py --validate-edge-cases
-
-# Test EDP calculation robustness
-python edp_optimization_example.py --test-error-handling
-```
 
 ## Example Scripts Description
 
