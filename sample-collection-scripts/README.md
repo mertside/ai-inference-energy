@@ -283,7 +283,7 @@ dcgmi discovery --list
 # LLaMA
 ./launch.sh \
   --app-name "LLaMA" \
-  --app-executable "../app-llama-collection/LlamaViaHF" \
+  --app-executable "../app-llama/LlamaViaHF" \
   --app-params "--max-length 100"
 ```
 

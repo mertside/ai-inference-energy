@@ -94,8 +94,8 @@ All documentation follows consistent patterns:
 
 ### Application-Specific Documentation  
 - **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework and scripts
-- **[`../app-llama-collection/README.md`](../app-llama-collection/README.md)** - LLaMA inference application
-- **[`../app-stable-diffusion-collection/README.md`](../app-stable-diffusion-collection/README.md)** - Stable Diffusion application
+- **[`../app-llama/README.md`](../app-llama/README.md)** - LLaMA inference application
+- **[`../app-stable-diffusion/README.md`](../app-stable-diffusion/README.md)** - Stable Diffusion application
 
 ## 📞 Support and Contribution
 

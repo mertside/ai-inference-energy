@@ -23,7 +23,7 @@ The LLaMA application provides text generation capabilities using transformer-ba
 
 ### Standalone Usage
 ```bash
-cd app-llama-collection
+cd app-llama
 python LlamaViaHF.py
 ```
 
@@ -35,7 +35,7 @@ python LlamaViaHF.py
 
 ### Custom Configuration
 ```python
-from app-llama-collection.LlamaViaHF import LlamaTextGenerator
+from app-llama.LlamaViaHF import LlamaTextGenerator
 
 generator = LlamaTextGenerator(
     model_name="huggyllama/llama-7b",
