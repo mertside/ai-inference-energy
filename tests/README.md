@@ -25,6 +25,12 @@ cd tests
 python test_configuration.py
 ```
 
+#### Test Utils Module
+```bash
+cd tests
+python -m pytest test_utils.py -v
+```
+
 #### Run Test Suite
 ```bash
 cd tests  
@@ -42,6 +48,9 @@ cd tests
 # From project root
 cd tests
 python run_tests.py && ./test_python_compatibility.sh
+# Or using pytest
+cd ..
+pytest -v
 ```
 
 ## Test Coverage
