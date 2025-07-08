@@ -98,7 +98,7 @@ embedding_output_dims = 30
 - **GPU utilization**: Good balance of compute and memory operations
 - **Scalable**: Easily adjustable for different experiment needs
 
-## Requirements
+-## Requirements
 
 - Python 3.6+
 - TensorFlow 2.x

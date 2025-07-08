@@ -91,15 +91,13 @@ def run_command(
         subprocess.TimeoutExpired: If command times out
     """
     try:
-        # Python 3.6 compatibility: use stdout/stderr instead of capture_output
-        # and universal_newlines instead of text
         if capture_output:
             result = subprocess.run(
                 command,
                 timeout=timeout,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
+                universal_newlines=True,
                 check=check,
             )
         else:
@@ -107,7 +105,7 @@ def run_command(
                 command,
                 timeout=timeout,
                 universal_newlines=True,
-                check=check,  # Python 3.6 compatible (text=True in 3.7+)
+                check=check,
             )
         return result
     except subprocess.CalledProcessError as e:

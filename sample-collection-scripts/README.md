@@ -225,13 +225,13 @@ results/
 ### For DCGMI
 - NVIDIA GPU (A100/V100)
 - DCGMI tools installed
-- Python 3.8+
+- Python 3.6+
 - Permissions for GPU control
 
 ### For nvidia-smi  
 - NVIDIA GPU (A100/V100)
 - NVIDIA drivers (nvidia-smi)
-- Python 3.8+
+- Python 3.6+
 - May require sudo for frequency control
 
 ## Troubleshooting
