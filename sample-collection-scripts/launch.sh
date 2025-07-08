@@ -99,7 +99,7 @@ DEFAULT_SLEEP_INTERVAL=1  # seconds between runs
 # Default Application configuration (used when no app parameters provided)
 DEFAULT_APP_NAME="LSTM"
 DEFAULT_APP_EXECUTABLE="lstm"
-DEFAULT_APP_PARAMS=" > results/LSTM_RUN_OUT"
+DEFAULT_APP_PARAMS=""  # Output redirection will be added dynamically
 
 # Initialize configuration variables (will be set by parse_arguments and configure_gpu_settings)
 GPU_TYPE=""
@@ -119,6 +119,21 @@ CORE_FREQUENCIES=()
 EFFECTIVE_FREQUENCIES=()
 PROFILE_SCRIPT=""
 CONTROL_SCRIPT=""
+
+# Function to configure dynamic output redirection after GPU settings are available
+configure_output_redirection() {
+    # Ensure output redirection for application parameters using dynamic naming
+    if [[ ! "$APP_PARAMS" =~ \> ]]; then
+        log_info "No output redirection detected in app parameters. Adding dynamic output redirection."
+        local output_file="results/${GPU_ARCH}-${PROFILING_MODE}-${APP_NAME}-RUN-OUT"
+        APP_PARAMS="${APP_PARAMS} > ${output_file}"
+        log_info "Dynamic output file: $output_file"
+    else
+        log_info "Output redirection already specified in app parameters"
+    fi
+    
+    return 0
+}
 
 # Function to parse command line arguments
 parse_arguments() {
@@ -199,11 +214,8 @@ parse_arguments() {
                 shift 2
                 ;;
             --app-params)
-                if [[ -z "${2:-}" ]]; then
-                    log_error "Option --app-params requires a value (use quotes for complex parameters)"
-                    return 1
-                fi
-                APP_PARAMS="$2"
+                # Allow empty app-params since dynamic output redirection will be added
+                APP_PARAMS="${2:-}"
                 shift 2
                 ;;
             -h|--help)
@@ -239,13 +251,6 @@ parse_arguments() {
     if [[ "$PROFILING_MODE" != "dvfs" && "$PROFILING_MODE" != "baseline" ]]; then
         log_error "Invalid profiling mode: $PROFILING_MODE. Supported modes: dvfs, baseline"
         return 1
-    fi
-    
-    # Ensure output redirection for application parameters
-    if [[ ! "$APP_PARAMS" =~ \> ]]; then
-        log_info "No output redirection detected in app parameters. Adding default output redirection."
-        local output_file="results/${GPU_TYPE}_${PROFILING_MODE}_${APP_NAME}_RUN_OUT"
-        APP_PARAMS="${APP_PARAMS} > ${output_file}"
     fi
     
     return 0
@@ -429,19 +434,25 @@ PROFILING MODE SELECTION:
         - Faster execution, useful for reference measurements
 
 APPLICATION PARAMETERS:
-    The --app-params option should include output redirection to capture results.
-    If no output redirection is specified, it will be automatically added.
+    The --app-params option can include output redirection to capture results.
+    If no output redirection is specified, it will be automatically added using
+    dynamic naming: results/\$ARCH-\$MODE-\$APP-RUN-OUT
     
     Examples:
-        --app-params "> results/output.log"
+        --app-params "> results/custom_output.log"
         --app-params "--epochs 10 --batch-size 32 > results/training.log"
         --app-params "--model bert-base --input data.txt > results/inference.out"
+        --app-params ""  # Will auto-generate: results/GA100-dvfs-LSTM-RUN-OUT
 
 OUTPUT:
     Results are saved to the 'results' directory with naming convention:
-    \$ARCH-\$MODE-\$APP-\$FREQ-\$ITERATION
     
-    Example: GA100-dvfs-LSTM-1410-0
+    Performance data: \$ARCH-\$MODE-\$APP-\$FREQ-\$ITERATION
+    Application output: \$ARCH-\$MODE-\$APP-RUN-OUT (when auto-generated)
+    
+    Examples:
+        Performance: GA100-dvfs-LSTM-1410-0
+        App output: GA100-dvfs-LSTM-RUN-OUT
 
 REQUIREMENTS:
     - NVIDIA GPU (A100 or V100)
@@ -661,8 +672,8 @@ extract_lstm_performance() {
     local wall_time="$2"
     local performance_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-lstm-perf.csv"
     
-    # Try to extract execution time from LSTM output
-    local lstm_output_file="${RESULTS_DIR}/${GPU_ARCH}_${PROFILING_MODE}_LSTM_RUN_OUT"
+    # Try to extract execution time from LSTM output using dynamic naming
+    local lstm_output_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${APP_NAME}-RUN-OUT"
     if [[ -f "$lstm_output_file" ]]; then
         # Extract execution time from last line (LSTM script prints timing at the end)
         local last_line
@@ -821,6 +832,11 @@ main() {
     
     # Configure GPU settings based on parsed arguments
     if ! configure_gpu_settings; then
+        exit 1
+    fi
+    
+    # Configure output redirection for application parameters
+    if ! configure_output_redirection; then
         exit 1
     fi
     
