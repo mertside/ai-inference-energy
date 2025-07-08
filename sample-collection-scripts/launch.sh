@@ -244,7 +244,7 @@ parse_arguments() {
     # Ensure output redirection for application parameters
     if [[ ! "$APP_PARAMS" =~ \> ]]; then
         log_info "No output redirection detected in app parameters. Adding default output redirection."
-        local output_file="results/${APP_NAME}_RUN_OUT"
+        local output_file="results/${GPU_TYPE}_${PROFILING_MODE}_${APP_NAME}_RUN_OUT"
         APP_PARAMS="${APP_PARAMS} > ${output_file}"
     fi
     
@@ -662,7 +662,7 @@ extract_lstm_performance() {
     local performance_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-lstm-perf.csv"
     
     # Try to extract execution time from LSTM output
-    local lstm_output_file="${RESULTS_DIR}/LSTM_RUN_OUT"
+    local lstm_output_file="${RESULTS_DIR}/${GPU_ARCH}_${PROFILING_MODE}_LSTM_RUN_OUT"
     if [[ -f "$lstm_output_file" ]]; then
         # Extract execution time from last line (LSTM script prints timing at the end)
         local last_line
