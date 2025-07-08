@@ -20,14 +20,15 @@ import sys
 import time
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root and app directories to path for imports
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(REPO_ROOT))
+sys.path.append(str(REPO_ROOT / "app-llama"))
+sys.path.append(str(REPO_ROOT / "app-stable-diffusion"))
 
 try:
-    from app_llama_collection.LlamaViaHF import LlamaTextGenerator
-    from app_stable_diffusion_collection.StableDiffusionViaHF import (
-        StableDiffusionGenerator,
-    )
+    from LlamaViaHF import LlamaTextGenerator
+    from StableDiffusionViaHF import StableDiffusionGenerator
     from sample_collection_scripts.profile import GPUProfiler
 
     from config import gpu_config, model_config, profiling_config
@@ -52,7 +53,9 @@ def run_llama_demo(logger, profiler=None):
         if profiler:
             logger.info("Running LLaMA inference with GPU profiling...")
             result = profiler.profile_command(
-                'python -c "from app_llama_collection.LlamaViaHF import LlamaTextGenerator; gen = LlamaTextGenerator(); gen.run_default_inference()"'
+                'python -c "import sys; sys.path.append(\"app-llama\"); '
+                'from LlamaViaHF import LlamaTextGenerator; '
+                'gen = LlamaTextGenerator(); gen.run_default_inference()"'
             )
             logger.info(f"LLaMA inference completed in {result['duration']:.2f}s")
         else:
@@ -85,7 +88,9 @@ def run_stable_diffusion_demo(logger, profiler=None):
         if profiler:
             logger.info("Running Stable Diffusion inference with GPU profiling...")
             result = profiler.profile_command(
-                'python -c "from app_stable_diffusion_collection.StableDiffusionViaHF import StableDiffusionGenerator; gen = StableDiffusionGenerator(); gen.run_default_inference()"'
+                'python -c "import sys; sys.path.append(\"app-stable-diffusion\"); '
+                'from StableDiffusionViaHF import StableDiffusionGenerator; '
+                'gen = StableDiffusionGenerator(); gen.run_default_inference()"'
             )
             logger.info(
                 f"Stable Diffusion inference completed in {result['duration']:.2f}s"
