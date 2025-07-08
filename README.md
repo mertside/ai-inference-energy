@@ -131,9 +131,7 @@ ai-inference-energy/
 │   ├── test_integration.py              # Integration and system tests
 │   ├── test_configuration.py            # Configuration and compatibility tests
 │   ├── README.md                        # Test documentation
-│   ├── test_config.py                   # Configuration testing
-│   ├── test_subprocess_fix.py           # Subprocess compatibility testing
-│   └── test_python36_compatibility.sh   # Python 3.6+ compatibility test
+│   └── test_python_compatibility.sh   # Python compatibility test
 │
 ├── documentation/                       # 📚 Essential documentation (streamlined)
 │   ├── README.md                        # Documentation index and quick reference

@@ -13,7 +13,7 @@ The test suite ensures the framework works correctly across different Python ver
 
 ### **Compatibility Tests**  
 - **`run_tests.py`** - Entry point for running the full test suite
-- **`test_python36_compatibility.sh`** - Comprehensive Python 3.6+ compatibility test suite
+- **`test_python_compatibility.sh`** - Comprehensive Python compatibility test suite
 
 ## Running Tests
 
@@ -34,14 +34,14 @@ python run_tests.py
 #### Comprehensive Compatibility Test
 ```bash
 cd tests
-./test_python36_compatibility.sh
+./test_python_compatibility.sh
 ```
 
 ### Run All Tests
 ```bash
 # From project root
 cd tests
-python run_tests.py && ./test_python36_compatibility.sh
+python run_tests.py && ./test_python_compatibility.sh
 ```
 
 ## Test Coverage
@@ -80,7 +80,7 @@ python run_tests.py && ./test_python36_compatibility.sh
 ✓ Command executed without capture
 ✓ All subprocess tests passed!
 
-=== All Python 3.6 compatibility tests passed! ===
+=== All Python compatibility tests passed! ===
 ```
 
 ### Failed Test Indicators
