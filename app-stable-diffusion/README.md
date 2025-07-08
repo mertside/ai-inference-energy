@@ -12,14 +12,12 @@ app-stable-diffusion/
 ├── StableDiffusionViaHF.py          # Main application
 ├── StableDiffusionViaHF_original.py # Original implementation
 ├── README.md                        # This file
+├── __init__.py                      # Package initialization
 ├── tests/                          # Test scripts
 │   ├── test_stable_diffusion.sh    # Environment testing
-│   ├── validate_stable_diffusion.py # Validation scripts
-│   └── test_*.py                   # Various test implementations
-├── scripts/                        # Setup and utility scripts
-│   └── setup_stable_diffusion.sh  # Setup script
-└── docs/                          # Documentation
-    └── README_MODERNIZED.md       # Detailed documentation
+│   └── validate_stable_diffusion.py # Validation scripts
+└── scripts/                        # Setup and utility scripts
+    └── setup_stable_diffusion.sh  # Setup script
 ```
 
 ## Quick Start
@@ -37,7 +35,11 @@ python StableDiffusionViaHF.py --model-variant sd-v1.4 --device cuda --prompt "y
 ### Testing
 ```bash
 cd tests/
+# Run environment validation
 ./test_stable_diffusion.sh
+
+# Run comprehensive validation
+python validate_stable_diffusion.py
 ```
 
 ## GPU Requirements

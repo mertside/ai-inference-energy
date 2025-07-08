@@ -5,6 +5,17 @@ echo "================================================="
 echo "Testing the Stable Diffusion application on GPU-enabled environment"
 echo ""
 
+# Check if we're on a GPU node or login node
+if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    echo "✅ Running on GPU node - nvidia-smi available"
+    GPU_NODE=true
+else
+    echo "⚠️  Running on login node - GPU not available"
+    echo "💡 To test on GPU node, run: srun -p matador --gres=gpu:1 --pty bash"
+    echo "   Then navigate to this directory and run the test again"
+    GPU_NODE=false
+fi
+
 # Activate the conda environment
 source ~/conda/etc/profile.d/conda.sh
 conda activate stable-diffusion-gpu
@@ -33,7 +44,17 @@ python -c "
 try:
     import torch
     print(f'✅ PyTorch: {torch.__version__}')
-    print(f'✅ CUDA available: {torch.cuda.is_available()}')
+    cuda_available = torch.cuda.is_available()
+    print(f'✅ CUDA available: {cuda_available}')
+    
+    if cuda_available:
+        print(f'✅ GPU: {torch.cuda.get_device_name(0)}')
+        print(f'✅ GPU Memory: {torch.cuda.get_device_properties(0).total_memory//1024**3}GB')
+    else:
+        if not $GPU_NODE:
+            print('ℹ️  CUDA not available on login node (expected)')
+        else:
+            print('❌ CUDA not available on GPU node (unexpected)')
     
     import transformers
     print(f'✅ Transformers: {transformers.__version__}')
@@ -58,24 +79,24 @@ echo ""
 echo "🎨 STEP 3: Testing Stable Diffusion application..."
 echo "------------------------------------------------"
 
-# Check if the main application exists
-if [ -f "app-stable-diffusion/StableDiffusionViaHF.py" ]; then
+# Check if the main application exists (now in parent directory)
+if [ -f "../StableDiffusionViaHF.py" ]; then
     echo "📁 Found Stable Diffusion application"
     
     # Try to run with minimal parameters to test functionality
     echo "🚀 Testing with minimal prompt..."
     
-    cd app-stable-diffusion
+    cd ..  # Move to app-stable-diffusion directory
     python StableDiffusionViaHF.py --help 2>/dev/null || echo "Help command failed"
     
     # Test basic functionality
     echo ""
     echo "🧪 Testing basic image generation (if possible)..."
-    python StableDiffusionViaHF.py --model-variant sd-v1.4 --device cuda --prompt "a simple test image" --num-images 1 --output-dir ../test_output 2>/dev/null || echo "Image generation test failed - this might be due to diffusers compatibility"
+    python StableDiffusionViaHF.py --model-variant sd-v1.4 --device cuda --prompt "a simple test image" --num-images 1 --output-dir ./test_output 2>/dev/null || echo "Image generation test failed - this might be due to diffusers compatibility"
     
-    cd ..
+    cd tests  # Return to tests directory
 else
-    echo "❌ Stable Diffusion application not found"
+    echo "❌ Stable Diffusion application not found at ../StableDiffusionViaHF.py"
 fi
 
 echo ""
