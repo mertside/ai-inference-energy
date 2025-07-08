@@ -29,7 +29,7 @@
 set -euo pipefail
 
 # Configuration
-readonly CONDA_ENV="tensorflow"
+readonly CONDA_ENV="base"  # Use base environment (adjust if needed)
 readonly LAUNCH_SCRIPT="./launch.sh"
 
 # ============================================================================
@@ -150,13 +150,35 @@ main() {
     log_header "🚀 Starting H100 GPU Profiling Job"
     log_info "Configuration: $LAUNCH_ARGS"
     
-    # Load REPACSS modules
-    log_info "Loading REPACSS modules..."
-    module load gcc cuda cudnn
+    # Check REPACSS H100 environment
+    log_info "Checking REPACSS H100 environment..."
+    # Note: CUDA tools are available system-wide on H100 nodes
+    if command -v nvidia-smi &> /dev/null; then
+        log_info "✅ nvidia-smi available: $(nvidia-smi --version | head -1)"
+    else
+        log_warning "⚠️  nvidia-smi not found - may affect profiling capabilities"
+    fi
     
     # Activate conda environment
     log_info "Activating conda environment: $CONDA_ENV"
-    source "$HOME/conda/etc/profile.d/conda.sh"
+    if [[ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    elif [[ -f "$HOME/conda/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/conda/etc/profile.d/conda.sh"
+    else
+        log_error "❌ Conda initialization script not found"
+        exit 1
+    fi
+    
+    # Check if environment exists
+    if ! conda info --envs | grep -q "^$CONDA_ENV "; then
+        log_error "❌ Conda environment '$CONDA_ENV' not found"
+        log_error "📋 Available environments:"
+        conda info --envs
+        log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/tensorflow.yml"
+        exit 1
+    fi
+    
     conda activate "$CONDA_ENV"
     
     # Display H100 system information
