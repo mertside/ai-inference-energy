@@ -39,8 +39,8 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 # 📋 QUICK START CONFIGURATIONS
 # ============================================================================
 
-# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~2-4 minutes)
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1"
+# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~2-4 minutes) - PyTorch LSTM
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable lstm_pytorch"
 
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~6-10 minutes)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
@@ -51,8 +51,8 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # 📊 AI APPLICATION CONFIGURATIONS
 # ============================================================================
 
-# 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LSTM --app-executable lstm --num-runs 5"
+# 4. 🤖 LSTM PROFILING - PyTorch sentiment analysis benchmark
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LSTM --app-executable lstm_pytorch --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
