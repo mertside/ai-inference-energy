@@ -152,14 +152,20 @@ ai-inference-energy/
     │
     ├── interactive_gpu.sh               # 🎯 Unified interactive GPU session helper (V100/A100/H100)
     │
-    ├── submit_job.sh                    # 🎯 Main SLURM submission (A100/toreador)
     ├── submit_job_v100.sh               # 🎯 Unified V100 submission (16 configurations)
+    ├── submit_job_a100.sh               # 🎯 Unified A100 submission (16 configurations) 
+    ├── submit_job_h100.sh               # 🎯 Unified H100 submission (16 configurations)
+    │
     ├── submit_job_v100_baseline.sh      # Legacy V100 baseline (redirects to unified)
     ├── submit_job_v100_comprehensive.sh # Legacy V100 comprehensive (redirects to unified)
     ├── submit_job_v100_custom_app.sh    # Legacy V100 custom app (redirects to unified)
-    ├── submit_job_custom_app.sh         # Custom application examples
-    ├── submit_job_comprehensive.sh      # Full DVFS study
-    └── submit_job_*_*.sh               # Additional GPU-specific scripts
+    ├── submit_job_a100_baseline.sh      # Legacy A100 baseline (redirects to unified)
+    ├── submit_job_a100_comprehensive.sh # Legacy A100 comprehensive (redirects to unified)
+    ├── submit_job_a100_custom_app.sh    # Legacy A100 custom app (redirects to unified)
+    ├── submit_job_h100_baseline.sh      # Legacy H100 baseline (redirects to unified)
+    ├── submit_job_h100_comprehensive.sh # Legacy H100 comprehensive (redirects to unified)
+    ├── submit_job_h100_custom_app.sh    # Legacy H100 custom app (redirects to unified)
+    └── submit_job*.sh                   # Additional legacy scripts
 ```
 
 ## 🚀 Quick Start
@@ -276,28 +282,39 @@ cd sample-collection-scripts
 
 **Multiple SLURM submission options:**
 ```bash
-# Main A100 submission (toreador partition)
-sbatch submit_job.sh
+# A100 unified submission (toreador partition) - Edit script first to uncomment desired config
+sbatch submit_job_a100.sh
 
-# V100 unified submission (16 configurations) - Edit script first to uncomment desired config
+# V100 unified submission (matador partition) - Edit script first to uncomment desired config
 sbatch submit_job_v100.sh
+
+# H100 unified submission (h100-build partition) - Edit script first to uncomment desired config
+sbatch submit_job_h100.sh
 ```
 
-**V100 Quick Reference:**
-- 📋 **16 pre-configured options** in `submit_job_v100.sh`
+**Unified Script Features:**
+- 📋 **16+ pre-configured options** in each GPU-specific script
 - 🎯 **Easy selection**: Just uncomment one configuration
 - ⏱️ **Timing guidance**: Built-in recommendations for SLURM `--time` parameter
+- 🔧 **GPU-optimized**: Configurations tailored for each GPU architecture
 - 📖 **Full guide**: See `sample-collection-scripts/V100_SCRIPT_GUIDE.md`
 
-# A100-specific scripts
-sbatch submit_job_a100_baseline.sh
-sbatch submit_job_a100_comprehensive.sh
-sbatch submit_job_a100_custom_app.sh
+**Legacy Scripts (Deprecated):**
+```bash
+# A100 legacy scripts (redirect to unified)
+sbatch submit_job_a100_baseline.sh      # → use submit_job_a100.sh config #1
+sbatch submit_job_a100_comprehensive.sh # → use submit_job_a100.sh config #8
+sbatch submit_job_a100_custom_app.sh    # → use submit_job_a100.sh config #5
 
-# V100 baseline profiling (matador partition)
-sbatch submit_job_v100_baseline.sh
+# V100 legacy scripts (redirect to unified)
+sbatch submit_job_v100_baseline.sh      # → use submit_job_v100.sh config #1
+sbatch submit_job_v100_comprehensive.sh # → use submit_job_v100.sh config #8
+sbatch submit_job_v100_custom_app.sh    # → use submit_job_v100.sh config #7
 
-# H100 baseline profiling (REPACSS h100-build partition)
+# H100 legacy scripts (redirect to unified)
+sbatch submit_job_h100_baseline.sh      # → use submit_job_h100.sh config #1
+sbatch submit_job_h100_comprehensive.sh # → use submit_job_h100.sh config #4
+sbatch submit_job_h100_custom_app.sh    # → use submit_job_h100.sh config #5
 sbatch submit_job_h100_baseline.sh
 
 # Custom application profiling

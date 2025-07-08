@@ -1,28 +1,28 @@
 #!/bin/bash
 #
-# Unified SLURM Job Submission Script - V100 GPU Profiling
+# Unified SLURM Job Submission Script - A100 GPU Profiling
 #
-# This script provides a comprehensive set of V100 profiling configurations.
-# Simply uncomment the desired configuration and submit with: sbatch submit_job_v100.sh
+# This script provides a comprehensive set of A100 profiling configurations.
+# Simply uncomment the desired configuration and submit with: sbatch submit_job_a100.sh
 #
-# V100 Specifications:
-#   - GPU: Tesla V100 (32GB HBM2)
-#   - Partition: matador (HPCC Texas Tech)
-#   - Frequencies: 117 available (405-1380 MHz)
-#   - Memory: 877 MHz (fixed)
-#   - Architecture: Volta (GV100)
+# A100 Specifications:
+#   - GPU: Tesla A100 (40GB HBM2e)
+#   - Partition: toreador (HPCC Texas Tech)
+#   - Frequencies: 61 available (510-1410 MHz)
+#   - Memory: 1215 MHz (fixed)
+#   - Architecture: Ampere (GA100)
 #
 
-#SBATCH --job-name=PROFILING_V100
+#SBATCH --job-name=PROFILING_A100
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
-#SBATCH --partition=matador
+#SBATCH --partition=toreador
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:v100:1
-#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=16
+#SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
-#SBATCH --time=03:00:00  # Adjust based on configuration (see timing notes below)
+#SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
 
 # Enable strict error handling
 set -euo pipefail
@@ -38,76 +38,86 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 # 📋 QUICK START CONFIGURATIONS
 # ============================================================================
 
-# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~5-10 minutes)
-LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-interval 1"
+# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~3-5 minutes)
+LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 3 --sleep-interval 1"
 
-# 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~15-20 minutes)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
+# 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~8-12 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
 
-# 3. 🎯 FREQUENCY SAMPLING - Selected frequencies for efficient analysis (~30-45 minutes)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '405,600,800,1000,1200,1380' --num-runs 5 --sleep-interval 2"
+# 3. 🎯 FREQUENCY SAMPLING - Selected frequencies for efficient analysis (~15-25 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,700,900,1100,1300,1410' --num-runs 5 --sleep-interval 2"
 
 # 📊 AI APPLICATION CONFIGURATIONS
 # ============================================================================
 
 # 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable lstm --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
 
 # 6. 📝 LLAMA - Text generation profiling  
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
 
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 8. ⚡ COMPREHENSIVE DVFS - All 117 frequencies (⚠️ LONG: 6-12 hours, change --time to 12:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
+# 8. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 9. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~4-6 hours, change --time to 08:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
+# 9. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 10. 📈 STATISTICAL DVFS - High statistical power (⚠️ VERY LONG: 12-20 hours, change --time to 24:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
+# 10. 📈 STATISTICAL DVFS - High statistical power (~4-8 hours, change --time to 10:00:00)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
 # 🛠️ TOOL AND COMPATIBILITY CONFIGURATIONS  
 # ============================================================================
 
 # 11. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
-# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
 
 # 12. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 13. 💾 MEMORY STRESS TEST - Large model testing
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 13b' --num-runs 3"
+# 13. 💾 MEMORY STRESS TEST - Large model testing (A100 has 40GB)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 30b' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
 # 14. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '405,500,650,800,950,1100,1250,1380' --num-runs 7 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,650,800,950,1100,1250,1410' --num-runs 7 --sleep-interval 2"
 
 # 15. 🔬 PRECISION COMPARISON - Different model precisions
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
 
 # 16. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '600,900,1200' --app-name LSTM --app-executable lstm --app-params '--batch-size 64' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '700,1000,1300' --app-name LSTM --app-executable lstm --app-params '--batch-size 128' --num-runs 5"
+
+# 🚀 ADVANCED A100 CONFIGURATIONS
+# ============================================================================
+
+# 17. 🔥 HIGH THROUGHPUT - Multi-instance profiling
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable lstm --app-params '--multi-instance 4' --num-runs 3"
+
+# 18. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '900,1200,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
 # Configuration 1-3:     --time=01:00:00  (1 hour)
 # Configuration 4-7:     --time=02:00:00  (2 hours) 
-# Configuration 8-9:     --time=08:00:00  (8 hours)
-# Configuration 10:      --time=24:00:00  (24 hours)
+# Configuration 8-9:     --time=05:00:00  (5 hours)
+# Configuration 10:      --time=10:00:00  (10 hours)
 # Configuration 11-16:   --time=03:00:00  (3 hours, adjust as needed)
+# Configuration 17-18:   --time=04:00:00  (4 hours, advanced features)
 #
-# 💡 TIP: For DVFS studies (8-10), consider running during off-peak hours
+# 💡 TIP: A100 has fewer frequencies (61) than V100 (117), so DVFS is faster
 # ============================================================================
 
 # Logging functions with colored output
@@ -129,7 +139,7 @@ log_header() {
 
 # Main execution function
 main() {
-    log_header "🚀 Starting V100 GPU Profiling Job"
+    log_header "🚀 Starting A100 GPU Profiling Job"
     log_info "Configuration: $LAUNCH_ARGS"
     
     # Load HPCC modules
@@ -141,8 +151,8 @@ main() {
     source "$HOME/conda/etc/profile.d/conda.sh"
     conda activate "$CONDA_ENV"
     
-    # Display V100 system information
-    display_v100_info
+    # Display A100 system information
+    display_a100_info
     
     # Validate configuration and provide warnings
     validate_configuration
@@ -157,19 +167,20 @@ main() {
     run_experiment
 }
 
-# Display V100 capabilities and system info
-display_v100_info() {
-    log_header "📊 V100 System Information"
+# Display A100 capabilities and system info
+display_a100_info() {
+    log_header "📊 A100 System Information"
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                    HPCC V100 Specifications                │"
+    echo "│                    HPCC A100 Specifications                │"
     echo "├─────────────────────────────────────────────────────────────┤"
     echo "│ Cluster:      HPCC at Texas Tech University                │"
-    echo "│ Partition:    matador                                       │"
-    echo "│ Architecture: Volta (GV100)                                 │"
-    echo "│ Memory:       32GB HBM2                                     │"
-    echo "│ Mem Freq:     877 MHz (fixed)                               │"
-    echo "│ Core Freq:    405-1380 MHz (117 frequencies)                │"
-    echo "│ DVFS Step:    Variable (7-8 MHz typical)                    │"
+    echo "│ Partition:    toreador                                      │"
+    echo "│ Architecture: Ampere (GA100)                                │"
+    echo "│ Memory:       40GB HBM2e                                    │"
+    echo "│ Mem Freq:     1215 MHz (fixed)                              │"
+    echo "│ Core Freq:    510-1410 MHz (61 frequencies)                 │"
+    echo "│ DVFS Step:    ~15 MHz typical                                │"
+    echo "│ Features:     3rd Gen Tensor Cores, RT Cores               │"
     echo "│ Tools:        DCGMI (preferred) or nvidia-smi               │"
     echo "└─────────────────────────────────────────────────────────────┘"
 }
@@ -180,21 +191,21 @@ validate_configuration() {
     
     # Check for DVFS mode and provide warnings
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        log_warning "⚠️  DVFS mode detected - this will test ALL 117 V100 frequencies!"
-        log_warning "⚠️  Estimated runtime: 6-20 hours depending on runs per frequency"
-        log_warning "⚠️  Consider using 'custom' mode with selected frequencies for faster results"
+        log_warning "⚠️  DVFS mode detected - this will test ALL 61 A100 frequencies"
+        log_warning "⚠️  Estimated runtime: 2-8 hours depending on runs per frequency"
+        log_warning "⚠️  A100 DVFS is faster than V100 (61 vs 117 frequencies)"
         
         # Calculate estimated runtime
         if echo "$LAUNCH_ARGS" | grep -q "num-runs"; then
             runs=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--num-runs \([0-9]\+\).*/\1/p')
             if [[ -n "$runs" && "$runs" -gt 0 ]]; then
-                total_runs=$((117 * runs))
+                total_runs=$((61 * runs))
                 estimated_hours=$((total_runs / 60))  # Rough estimate: 1 minute per run
                 log_warning "⚠️  Estimated total runs: $total_runs"
                 log_warning "⚠️  Estimated runtime: ~${estimated_hours} hours"
                 
                 # Recommend time adjustment
-                if (( estimated_hours > 8 )); then
+                if (( estimated_hours > 4 )); then
                     log_warning "⚠️  Consider adjusting SLURM --time to ${estimated_hours}:00:00 or higher"
                 fi
             fi
@@ -202,7 +213,7 @@ validate_configuration() {
         
         echo ""
         log_info "💡 For faster results, consider configuration #3 (frequency sampling)"
-        log_info "💡 Example: custom --custom-frequencies '405,600,800,1000,1200,1380'"
+        log_info "💡 Example: custom --custom-frequencies '510,700,900,1100,1300,1410'"
     fi
     
     # Check for custom frequency selection
@@ -221,15 +232,25 @@ validate_configuration() {
         # Application-specific notes
         case "$app_name" in
             "StableDiffusion")
-                log_info "🎨 Stable Diffusion: Expect high memory usage (~20-25GB on V100)"
+                log_info "🎨 Stable Diffusion: A100 excels with Tensor Cores for mixed precision"
                 ;;
             "LLaMA")
-                log_info "📝 LLaMA: Monitor memory usage, 13B+ models may exceed V100 32GB"
+                log_info "📝 LLaMA: A100 40GB can handle 7B-30B models effectively"
                 ;;
             "LSTM")
-                log_info "🤖 LSTM: Lightweight benchmark, good for initial testing"
+                log_info "🤖 LSTM: Lightweight benchmark, good for A100 validation"
                 ;;
         esac
+    fi
+    
+    # Check for advanced A100 features
+    if echo "$LAUNCH_ARGS" | grep -q "tensor-cores"; then
+        log_info "🔥 Tensor Cores detected: Optimized for A100 3rd Gen Tensor Cores"
+    fi
+    
+    if echo "$LAUNCH_ARGS" | grep -q "multi-instance"; then
+        log_info "🚀 Multi-Instance GPU (MIG) configuration detected"
+        log_warning "⚠️  Ensure MIG partitioning is configured on the A100"
     fi
 }
 
@@ -245,7 +266,7 @@ check_system_resources() {
     if (( available_space < 1000000 )); then  # Less than 1GB
         log_warning "⚠️  Available disk space: ${available_gb}GB (may be insufficient)"
         log_warning "⚠️  Recommended: >2GB for comprehensive studies"
-        log_warning "⚠️  V100 DVFS experiments can generate substantial data"
+        log_warning "⚠️  A100 DVFS experiments generate substantial data"
     else
         log_info "✅ Available disk space: ${available_gb}GB"
     fi
@@ -254,6 +275,13 @@ check_system_resources() {
     if [[ ! -d "results" ]]; then
         log_info "📁 Creating results directory..."
         mkdir -p results
+    fi
+    
+    # Check for A100-specific requirements
+    log_info "🔧 Checking A100-specific requirements..."
+    if echo "$LAUNCH_ARGS" | grep -q "multi-instance"; then
+        log_info "📊 Multi-Instance GPU mode requires special configuration"
+        log_info "💡 Verify MIG partitioning: nvidia-smi -mig"
     fi
 }
 
@@ -265,11 +293,18 @@ check_gpu_status() {
     if gpu_info=$(nvidia-smi --query-gpu=name,memory.total,driver_version,power.max_limit --format=csv,noheader,nounits 2>/dev/null); then
         log_info "📊 GPU Information: $gpu_info"
         
-        # Verify it's actually a V100
-        if echo "$gpu_info" | grep -qi "v100"; then
-            log_info "✅ V100 GPU confirmed"
+        # Verify it's actually an A100
+        if echo "$gpu_info" | grep -qi "a100"; then
+            log_info "✅ A100 GPU confirmed"
+            
+            # Check memory size to determine variant
+            if echo "$gpu_info" | grep -q "40960"; then
+                log_info "💾 A100 40GB variant detected"
+            elif echo "$gpu_info" | grep -q "81920"; then
+                log_info "💾 A100 80GB variant detected"
+            fi
         else
-            log_warning "⚠️  Expected V100 but detected: $gpu_info"
+            log_warning "⚠️  Expected A100 but detected: $gpu_info"
             log_warning "⚠️  Configuration may not be optimal"
         fi
     else
@@ -290,11 +325,16 @@ check_gpu_status() {
         log_warning "⚠️  Frequency control query failed"
         log_info "🔄 Framework will attempt DCGMI first, then fallback to nvidia-smi monitoring"
     fi
+    
+    # Check for Tensor Core availability
+    if nvidia-smi --query-gpu=name --format=csv,noheader,nounits 2>/dev/null | grep -qi "a100"; then
+        log_info "🔥 3rd Gen Tensor Cores available for mixed precision workloads"
+    fi
 }
 
 # Run the main profiling experiment
 run_experiment() {
-    log_header "🚀 Starting V100 Profiling Experiment"
+    log_header "🚀 Starting A100 Profiling Experiment"
     log_info "Launch command: $LAUNCH_SCRIPT $LAUNCH_ARGS"
     
     local start_time
@@ -309,7 +349,7 @@ run_experiment() {
         local hours=$((total_time / 3600))
         local minutes=$(((total_time % 3600) / 60))
         
-        log_header "🎉 V100 Profiling Completed Successfully!"
+        log_header "🎉 A100 Profiling Completed Successfully!"
         log_info "⏱️  Total runtime: ${hours}h ${minutes}m"
         
         # Display results summary
@@ -320,16 +360,16 @@ run_experiment() {
         
     else
         # Failure path
-        log_error "❌ V100 profiling experiment failed"
+        log_error "❌ A100 profiling experiment failed"
         log_error "🔍 Check the error logs above for details"
         
         # Common troubleshooting suggestions
         log_error ""
-        log_error "🛠️  Common V100 Issues and Solutions:"
+        log_error "🛠️  Common A100 Issues and Solutions:"
         log_error "   • Frequency control permissions → Try nvidia-smi fallback (config #11)"
         log_error "   • DCGMI tool unavailable → Automatic fallback should occur"
-        log_error "   • Memory limitations → V100 has 32GB vs A100's 80GB"
-        log_error "   • Long DVFS runtimes → Use custom frequency selection (config #3)"
+        log_error "   • Reservation access → Check HPCC reservation status"
+        log_error "   • MIG configuration → Verify Multi-Instance GPU setup"
         log_error "   • Module loading issues → Check HPCC environment setup"
         
         exit 1
@@ -342,7 +382,7 @@ display_results_summary() {
     
     if [[ -d "results" ]]; then
         local result_count
-        result_count=$(find results -type f -type f | wc -l)
+        result_count=$(find results -type f | wc -l)
         log_info "📁 Generated $result_count result files"
         
         # Show recent files
@@ -359,7 +399,7 @@ display_results_summary() {
         
         # Check for specific output files
         local csv_files
-        csv_files=$(find results -name "GV100*.csv" 2>/dev/null)
+        csv_files=$(find results -name "GA100*.csv" 2>/dev/null)
         if [[ -n "$csv_files" ]]; then
             local csv_file
             csv_file=$(echo "$csv_files" | head -1)
@@ -380,17 +420,17 @@ display_results_summary() {
 
 # Display completion notes and next steps
 display_completion_notes() {
-    log_header "📝 V100 Profiling Completion Notes"
+    log_header "📝 A100 Profiling Completion Notes"
     
     echo "┌─────────────────────────────────────────────────────────────┐"
     echo "│                   Profiling Summary                        │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ GPU:          V100 (Volta GV100) - 32GB HBM2               │"
-    echo "│ Cluster:      HPCC matador partition                       │"
+    echo "│ GPU:          A100 (Ampere GA100) - 40GB HBM2e             │"
+    echo "│ Cluster:      HPCC toreador partition                      │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        echo "│ Mode:         DVFS (tested across 117 frequency range)     │"
+        echo "│ Mode:         DVFS (tested across 61 frequency range)      │"
     elif echo "$LAUNCH_ARGS" | grep -q "custom"; then
         echo "│ Mode:         Custom frequency selection                   │"
     else
@@ -404,16 +444,22 @@ display_completion_notes() {
         echo "│ Tool:         DCGMI (with nvidia-smi fallback)             │"
     fi
     
+    # Feature-specific notes
+    if echo "$LAUNCH_ARGS" | grep -q "tensor-cores"; then
+        echo "│ Features:     3rd Gen Tensor Cores enabled                 │"
+    fi
+    
     echo "└─────────────────────────────────────────────────────────────┘"
     
     # Next steps
     log_info ""
     log_info "🎯 Next Steps:"
     log_info "   📊 Analyze results with power modeling framework:"
-    log_info "      python -c \"from power_modeling import analyze_application; analyze_application('results/GV100*.csv')\""
+    log_info "      python -c \"from power_modeling import analyze_application; analyze_application('results/GA100*.csv')\""
     log_info "   📈 Run EDP optimization:"
-    log_info "      python -c \"from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('results/GV100*.csv')\""
+    log_info "      python -c \"from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('results/GA100*.csv')\""
     log_info "   🔄 Submit additional configurations by editing this script and resubmitting"
+    log_info "   🔥 Try advanced A100 features: configs #17-18 (Tensor Cores, MIG)"
 }
 
 # Execute main function
