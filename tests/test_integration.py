@@ -241,9 +241,11 @@ class TestSystemIntegration(unittest.TestCase):
 
         # Test logging doesn't break
         try:
-            logger.info("Test log message")
-            logger.warning("Test warning message")
-            logger.error("Test error message")
+            with self.assertLogs("test_power_modeling", level="INFO") as cm:
+                logger.info("Test log message")
+                logger.warning("Test warning message")
+                logger.error("Test error message")
+            self.assertEqual(len(cm.output), 3)
         except Exception as e:
             self.fail(f"Logging failed: {e}")
 
