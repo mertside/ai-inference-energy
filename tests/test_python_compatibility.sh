@@ -39,7 +39,7 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import run_command
 output = run_command(['echo', 'Hello'], capture_output=True)
-if output.strip() == 'Hello':
+if output.stdout.strip() == 'Hello':
     print('✓ Subprocess test passed')
     sys.exit(0)
 print('✗ Subprocess test failed')
