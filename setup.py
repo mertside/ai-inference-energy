@@ -30,7 +30,7 @@ setup(
     author_email="mert.side@ttu.edu",
     url="https://github.com/mertside/ai-inference-energy",
     license="MIT",
-    packages=find_packages(),
+    packages=find_packages(include=["examples", "examples.*", "*"]),
     include_package_data=True,
     install_requires=REQUIREMENTS,
     python_requires=">=3.8",
@@ -66,7 +66,7 @@ setup(
     entry_points={
         "console_scripts": [
             "ai-energy-profile=sample-collection-scripts.profile:main",
-            "ai-energy-launch=example_usage:main",
+            "ai-energy-launch=examples.example_usage:main",
         ],
     },
     project_urls={
