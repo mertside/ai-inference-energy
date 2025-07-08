@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [main, dev, develop]
 
-env:
-  PYTHON_VERSION: "3.12"
 
 jobs:
   lint:
@@ -35,19 +33,22 @@ jobs:
   quick-test:
     name: Quick Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
           
       - name: Install essential tools
         run: |
           pip install --upgrade pip
-          pip install black flake8 isort pytest
+          pip install black flake8 isort pytest coverage
           
       - name: Auto-fix formatting
         run: |
@@ -65,7 +66,17 @@ jobs:
           python -c "from hardware.gpu_info import get_supported_gpus; print('✓ GPUs:', get_supported_gpus())"
           python -c "from config import GPUConfig; print('✓ Config loaded')"
           
-      - name: Run only basic tests
+      - name: Run tests
         run: |
-          # Run only configuration and integration tests, skip the problematic hardware test
-          pytest tests/test_configuration.py tests/test_integration.py -x -q --tb=short --disable-warnings
+          coverage run tests/run_tests.py
+          coverage xml -o coverage.xml
+          coverage html -d coverage_html
+          bash tests/test_python_compatibility.sh
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            coverage_html/
