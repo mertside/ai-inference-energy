@@ -152,19 +152,25 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 
 ### SLURM Scripts
 - **`submit_job.sh`** - Main A100 SLURM submission (toreador)
-- **`submit_job_v100_baseline.sh`** - V100 baseline profiling (matador)
-- **`submit_job.sh`** - Main A100 DVFS experiment (original)
+- **`submit_job_v100.sh`** - 🎯 **Unified V100 submission script** (16 pre-configured options)
 - **`submit_job_a100_baseline.sh`** - A100 baseline profiling (quick test)
 - **`submit_job_a100_comprehensive.sh`** - A100 comprehensive DVFS study
 - **`submit_job_a100_custom_app.sh`** - A100 custom application examples
-- **`submit_job_v100_baseline.sh`** - V100 baseline profiling
-- **`submit_job_v100_comprehensive.sh`** - V100 comprehensive profiling
-- **`submit_job_v100_custom_app.sh`** - V100 custom application examples
+- **`submit_job_v100_baseline.sh`** - Legacy V100 baseline (redirects to unified)
+- **`submit_job_v100_comprehensive.sh`** - Legacy V100 comprehensive (redirects to unified)
+- **`submit_job_v100_custom_app.sh`** - Legacy V100 custom app (redirects to unified)
 - **`submit_job_h100_baseline.sh`** - H100 baseline profiling
 - **`submit_job_h100_comprehensive.sh`** - H100 comprehensive profiling  
 - **`submit_job_h100_custom_app.sh`** - H100 custom application examples
 - **`submit_job_custom_app.sh`** - Custom application examples
 - **`submit_job_comprehensive.sh`** - Full DVFS study
+
+**🎯 V100 Users:** Use the unified `submit_job_v100.sh` script which provides 16 pre-configured options:
+- Quick tests (baseline, frequency sampling)
+- AI applications (LSTM, Stable Diffusion, LLaMA) 
+- DVFS studies (comprehensive, efficient, statistical)
+- Tool compatibility (DCGMI, nvidia-smi fallback)
+- Research configurations (energy efficiency, precision comparison)
 
 ## Configuration Matrix
 

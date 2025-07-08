@@ -153,10 +153,13 @@ ai-inference-energy/
     ├── interactive_gpu.sh               # 🎯 Unified interactive GPU session helper (V100/A100/H100)
     │
     ├── submit_job.sh                    # 🎯 Main SLURM submission (A100/toreador)
-    ├── submit_job_v100_baseline.sh      # V100 baseline profiling (matador)
+    ├── submit_job_v100.sh               # 🎯 Unified V100 submission (16 configurations)
+    ├── submit_job_v100_baseline.sh      # Legacy V100 baseline (redirects to unified)
+    ├── submit_job_v100_comprehensive.sh # Legacy V100 comprehensive (redirects to unified)
+    ├── submit_job_v100_custom_app.sh    # Legacy V100 custom app (redirects to unified)
     ├── submit_job_custom_app.sh         # Custom application examples
     ├── submit_job_comprehensive.sh      # Full DVFS study
-    └── submit_job_v100_comprehensive.sh # V100 comprehensive profiling
+    └── submit_job_*_*.sh               # Additional GPU-specific scripts
 ```
 
 ## 🚀 Quick Start
@@ -275,6 +278,16 @@ cd sample-collection-scripts
 ```bash
 # Main A100 submission (toreador partition)
 sbatch submit_job.sh
+
+# V100 unified submission (16 configurations) - Edit script first to uncomment desired config
+sbatch submit_job_v100.sh
+```
+
+**V100 Quick Reference:**
+- 📋 **16 pre-configured options** in `submit_job_v100.sh`
+- 🎯 **Easy selection**: Just uncomment one configuration
+- ⏱️ **Timing guidance**: Built-in recommendations for SLURM `--time` parameter
+- 📖 **Full guide**: See `sample-collection-scripts/V100_SCRIPT_GUIDE.md`
 
 # A100-specific scripts
 sbatch submit_job_a100_baseline.sh

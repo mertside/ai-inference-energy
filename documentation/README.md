@@ -16,6 +16,7 @@ This directory contains concise, production-ready documentation for the AI Infer
 1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Start here for GPU-specific setup and usage
 2. **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - Learn the CLI interface with examples
 3. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Submit jobs to HPC clusters
+4. **[`../sample-collection-scripts/V100_SCRIPT_GUIDE.md`](../sample-collection-scripts/V100_SCRIPT_GUIDE.md)** - V100 unified submission script guide
 
 ### For Researchers and Advanced Users  
 1. **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - Advanced power modeling and EDP optimization
