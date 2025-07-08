@@ -29,6 +29,10 @@ This directory contains concise, production-ready documentation for the AI Infer
 
 ### GPU-Specific Commands
 ```bash
+# Unified interactive helper (auto-detects GPU type)
+cd sample-collection-scripts
+./interactive_gpu.sh              # Auto-detection and setup guidance
+
 # A100 (HPCC toreador partition)
 ./launch.sh --gpu-type A100 --profiling-mode baseline
 sbatch submit_job_a100_baseline.sh
@@ -69,10 +73,11 @@ dcgmi discovery --list
 ./launch.sh --help
 ./launch.sh --gpu-type A100 --profiling-mode baseline --num-runs 1
 
-# Interactive sessions for testing
-./interactive_a100.sh test   # A100 testing
-./interactive_v100.sh test   # V100 testing  
-./interactive_h100.sh test   # H100 testing
+# Interactive sessions for testing (use unified script)
+./interactive_gpu.sh a100 test   # A100 testing
+./interactive_gpu.sh v100 test   # V100 testing  
+./interactive_gpu.sh h100 test   # H100 testing
+
 ```
 
 ## 📋 Documentation Standards

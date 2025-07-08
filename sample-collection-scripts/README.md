@@ -69,7 +69,7 @@ Options:
 - Core frequencies: 1410-510 MHz (61 frequencies)
 - SLURM partition: toreador
 - Cluster: HPCC at Texas Tech University
-- Interactive helper: `./interactive_a100.sh`
+- Interactive helper: `./interactive_gpu.sh --gpu-type A100`
 
 #### V100 GPU (Matador Partition)
 ```bash
@@ -79,7 +79,7 @@ Options:
 - Memory: 877 MHz
 - Core frequencies: 1380-510 MHz (117 frequencies)
 - SLURM partition: matador
-- Interactive helper: `./interactive_v100.sh`
+- Interactive helper: `./interactive_gpu.sh --gpu-type V100`
 
 #### H100 GPU (REPACSS h100-build Partition)
 ```bash
@@ -90,7 +90,7 @@ Options:
 - Core frequencies: 1785-510 MHz (86 frequencies in 15MHz steps)
 - SLURM partition: h100-build (node: rpg-93-9)
 - Cluster: REPACSS at Texas Tech University
-- Interactive helper: `./interactive_h100.sh`
+- Interactive helper: `./interactive_gpu.sh --gpu-type H100`
 
 ### Profiling Tool Selection
 
@@ -140,15 +140,15 @@ Options:
 - **`lstm.py`** - LSTM benchmark application
 
 ### Interactive Helpers
-- **`interactive_a100.sh`** - A100 interactive session helper (HPCC toreador)
-- **`interactive_v100.sh`** - V100 interactive session helper (HPCC matador)  
-- **`interactive_h100.sh`** - H100 interactive session helper (REPACSS h100-build)
+- **`interactive_gpu.sh`** - 🎯 **Unified interactive session helper** (supports V100, A100, H100)
 
-Each interactive helper provides:
-- Quick interactive session startup
-- GPU detection and framework testing
-- Node status checking
-- Usage examples and troubleshooting
+The unified interactive helper (`interactive_gpu.sh`) provides:
+- **Auto-detection** of GPU type and optimal settings
+- **Color-coded output** for better readability
+- **Quick framework testing** and validation
+- **Node status checking** and troubleshooting
+- **Usage examples** and best practice guidance
+- **Legacy compatibility** with automatic migration support
 
 ### SLURM Scripts
 - **`submit_job.sh`** - Main A100 SLURM submission (toreador)
@@ -347,3 +347,23 @@ For detailed information, see:
 - **[`../documentation/GPU_USAGE_GUIDE.md`](../documentation/GPU_USAGE_GUIDE.md)** - Complete GPU support and troubleshooting guide
 
 For more details, see the main project README.md
+
+## Interactive GPU Sessions
+
+### 🎯 **NEW: Unified Interactive Script**
+The `interactive_gpu.sh` script provides a unified interface for all GPU types:
+
+```bash
+# Start interactive sessions
+./interactive_gpu.sh v100          # V100 on HPCC
+./interactive_gpu.sh a100          # A100 on HPCC (requires reservation)
+./interactive_gpu.sh h100          # H100 on REPACSS
+
+# Get information and test
+./interactive_gpu.sh v100 info     # V100 specifications
+./interactive_gpu.sh a100 status   # A100 availability
+./interactive_gpu.sh h100 test     # H100 framework test (in session)
+./interactive_gpu.sh help          # Full help
+```
+
+See `README_INTERACTIVE_GPU.md` for detailed documentation.

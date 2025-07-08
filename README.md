@@ -150,6 +150,8 @@ ai-inference-energy/
     ├── clean.sh                         # Enhanced workspace cleanup
     ├── lstm.py                          # LSTM benchmark application
     │
+    ├── interactive_gpu.sh               # 🎯 Unified interactive GPU session helper (V100/A100/H100)
+    │
     ├── submit_job.sh                    # 🎯 Main SLURM submission (A100/toreador)
     ├── submit_job_v100_baseline.sh      # V100 baseline profiling (matador)
     ├── submit_job_custom_app.sh         # Custom application examples
@@ -200,6 +202,10 @@ ai-inference-energy/
    ```bash
    nvidia-smi                    # Check GPU status
    dcgmi discovery --list        # Verify DCGMI access (optional - will fallback to nvidia-smi)
+   
+   # Use unified interactive helper for quick setup validation
+   cd sample-collection-scripts
+   ./interactive_gpu.sh          # Auto-detects GPU type and provides setup guidance
    ```
 
 5. **Make scripts executable**

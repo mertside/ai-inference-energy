@@ -33,12 +33,17 @@ conda activate stable-diffusion-gpu
 
 #### Interactive GPU Session
 ```bash
-# Start interactive GPU session
-interactive -p matador                      # For V100
-interactive -p toreador -g 1                # For A100
-interactive -p h100-build -g 1 -w rpg-93-9  # For H100
+# Start interactive GPU session (using unified helper)
+./interactive_gpu.sh v100                   # For V100 on HPCC
+./interactive_gpu.sh a100                   # For A100 on HPCC (requires reservation)
+./interactive_gpu.sh h100                   # For H100 on REPACSS
 
-# Activate environment
+# Legacy manual commands (deprecated)
+# interactive -p matador                      # For V100
+# interactive -p toreador -g 1                # For A100
+# interactive -p h100-build -g 1 -w rpg-93-9  # For H100
+
+# Once in session, activate environment
 conda activate stable-diffusion-gpu
 
 # Run Stable Diffusion
@@ -53,12 +58,17 @@ sbatch scripts/run_stable_diffusion_job.sh
 
 ### Testing
 ```bash
-# Must be run on GPU nodes
-interactive -p matador                      # For V100
-interactive -p toreador -g 1                # For A100
-interactive -p h100-build -g 1 -w rpg-93-9  # For H100
+# Must be run on GPU nodes - use unified helper
+./interactive_gpu.sh v100                   # For V100 on HPCC
+./interactive_gpu.sh a100                   # For A100 on HPCC (requires reservation)
+./interactive_gpu.sh h100                   # For H100 on REPACSS
 
-# Then run tests
+# Legacy manual commands (deprecated)
+# interactive -p matador                      # For V100
+# interactive -p toreador -g 1                # For A100
+# interactive -p h100-build -g 1 -w rpg-93-9  # For H100
+
+# Once in session, run tests
 cd tests/
 conda activate stable-diffusion-gpu
 
