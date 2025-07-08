@@ -10,6 +10,27 @@ env:
   PYTHON_VERSION: "3.12"
 
 jobs:
+  lint:
+    name: Pre-commit Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
+
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always
+
   # Ultra-fast essential checks only
   quick-test:
     name: Quick Test
