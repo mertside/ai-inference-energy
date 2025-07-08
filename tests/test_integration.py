@@ -174,8 +174,10 @@ class TestModelIntegration(unittest.TestCase):
         try:
             from power_modeling import FGCSPowerModelingFramework
 
-            # Create framework
-            framework = FGCSPowerModelingFramework()
+            # Create lightweight framework to avoid heavy model training
+            framework = FGCSPowerModelingFramework(
+                model_types=["polynomial_deg2"]
+            )
 
             # Create test data in expected format
             training_data = pd.DataFrame(
