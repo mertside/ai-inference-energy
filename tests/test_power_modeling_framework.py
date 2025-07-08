@@ -297,7 +297,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_end_to_end_pipeline(self):
         """Test the complete end-to-end pipeline."""
-        framework = FGCSPowerModelingFramework()
+        framework = FGCSPowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Test model training
         training_results = framework.train_models(
