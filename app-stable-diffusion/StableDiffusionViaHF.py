@@ -28,10 +28,28 @@ Author: Mert Side
 Date: July 2025 - Complete Modernization
 """
 
+# === COMPATIBILITY FIXES ===
+# Handle xformers compatibility issues (not needed for CPU mode)
+import os
+try:
+    import xformers
+    import torch
+    # Check if we have xformers but are using CPU-only PyTorch
+    if hasattr(torch, '__version__') and '+cpu' in torch.__version__:
+        # Disable xformers for CPU-only mode
+        os.environ['XFORMERS_DISABLED'] = '1'
+        print("Warning: xformers disabled for CPU-only PyTorch")
+except ImportError:
+    # xformers not installed - that's fine for CPU mode
+    pass
+except Exception as e:
+    # Any other xformers issue - disable it
+    os.environ['XFORMERS_DISABLED'] = '1'
+    print(f"Warning: xformers disabled due to compatibility issue: {e}")
+
 import argparse
 import gc
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -436,6 +454,11 @@ class StableDiffusionGenerator:
         else:
             self.device = device
 
+        # Disable xformers for CPU mode as it's not supported
+        if self.device == "cpu":
+            self.enable_xformers = False
+            self.logger.info("Disabled xformers for CPU mode")
+
         # Auto-detect optimal dtype
         if torch_dtype is None:
             if self.device == "cuda":
@@ -522,12 +545,15 @@ class StableDiffusionGenerator:
                     self.pipeline.enable_attention_slicing()
                     self.logger.info("Enabled attention slicing")
 
-                # Try to enable xformers if available
-                try:
-                    self.pipeline.enable_xformers_memory_efficient_attention()
-                    self.logger.info("Enabled xformers memory efficient attention")
-                except Exception:
-                    self.logger.info("xformers not available, using default attention")
+                # Try to enable xformers if available and not disabled
+                if self.enable_xformers and not os.environ.get('XFORMERS_DISABLED'):
+                    try:
+                        self.pipeline.enable_xformers_memory_efficient_attention()
+                        self.logger.info("Enabled xformers memory efficient attention")
+                    except Exception:
+                        self.logger.info("xformers not available, using default attention")
+                else:
+                    self.logger.info("xformers disabled (CPU mode or compatibility issues)")
 
             # Enable CPU offloading for large models if requested
             if self.enable_cpu_offload:
@@ -1396,7 +1422,15 @@ def main():
     args = parse_arguments()
 
     # Set up logging
-    logger = setup_logging(level=args.log_level)
+    logger = setup_logging(args.log_level)
+    
+    # Handle listing commands early (no need to initialize models)
+    if hasattr(args, 'list_schedulers') and args.list_schedulers:
+        print("🗂️ Available Schedulers:")
+        print("=" * 50)
+        for name, config in StableDiffusionGenerator.SCHEDULER_CONFIGS.items():
+            print(f"• {name:15} - {config['description']}")
+        return
 
     try:
         # Initialize the image generator

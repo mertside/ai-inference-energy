@@ -32,22 +32,56 @@ if [[ ! -f "app-stable-diffusion/StableDiffusionViaHF.py" ]]; then
     exit 1
 fi
 
+# Remove xformers if installed (not needed for CPU execution and causes compatibility issues)
+log_info "Checking for xformers package..."
+if pip show xformers &>/dev/null; then
+    log_warn "Uninstalling xformers (not needed for CPU mode and causes compatibility issues)"
+    pip uninstall -y xformers
+else
+    log_info "xformers not installed (good for CPU mode)"
+fi
+
+# Also check for fsspec version conflict with datasets
+log_info "Checking for fsspec version conflicts..."
+if pip show datasets &>/dev/null && pip show fsspec | grep "Version: 2025.5.1" &>/dev/null; then
+    log_warn "Found fsspec version conflict, downgrading to compatible version"
+    pip install "fsspec<=2025.3.0"
+fi
+
+# Check for scipy/glibc compatibility issues
+log_info "Checking scipy compatibility with system glibc..."
+if python3 -c "import scipy" 2>&1 | grep -q "GLIBCXX_3.4.29"; then
+    log_warn "scipy incompatible with system glibc, downgrading..."
+    pip uninstall -y scipy
+    pip install scipy==1.9.3
+    pip install "numpy<1.25"
+fi
+
 # Check Python version
 python_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 log_info "Python version: $python_version"
 
-if [[ $(echo "$python_version >= 3.7" | bc -l) -eq 0 ]]; then
+# Check if Python version is 3.7 or higher using Python itself
+python3 -c "
+import sys
+if sys.version_info < (3, 7):
+    print('ERROR: Python 3.7+ required')
+    sys.exit(1)
+else:
+    print('Python version check passed')
+" || {
     log_error "Python 3.7+ required, found $python_version"
     exit 1
-fi
+}
 
 # Check dependencies
 log_info "Checking dependencies..."
 
 check_package() {
     local package=$1
-    if python3 -c "import $package" 2>/dev/null; then
-        local version=$(python3 -c "import $package; print(getattr($package, '__version__', 'unknown'))" 2>/dev/null)
+    # Set CUDA_VISIBLE_DEVICES='' to avoid CUDA issues during import checks
+    if CUDA_VISIBLE_DEVICES='' python3 -c "import $package" 2>/dev/null; then
+        local version=$(CUDA_VISIBLE_DEVICES='' python3 -c "import $package; print(getattr($package, '__version__', 'unknown'))" 2>/dev/null)
         log_info "✅ $package: $version"
         return 0
     else
@@ -66,8 +100,37 @@ check_package "numpy" || missing_packages+=("numpy")
 
 if [[ ${#missing_packages[@]} -gt 0 ]]; then
     log_warn "Missing packages: ${missing_packages[*]}"
-    log_info "Installing missing packages..."
-    pip install "${missing_packages[@]}" accelerate xformers --upgrade
+    log_info "Installing missing packages with compatible versions..."
+    
+    # Install torch first if needed - check for CUDA support
+    if [[ " ${missing_packages[*]} " =~ " torch " ]]; then
+        log_info "Installing PyTorch..."
+        # Check if system has CUDA available
+        if command -v nvidia-smi &> /dev/null; then
+            log_info "NVIDIA GPU detected, installing CUDA-enabled PyTorch..."
+            # Use CUDA 11.8 build which is compatible with CUDA 11.0+
+            pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cu118
+        else
+            log_info "No NVIDIA GPU detected, installing CPU-only PyTorch..."
+            pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
+        fi
+    fi
+    
+    # Install compatible ML packages that work together
+    if [[ " ${missing_packages[*]} " =~ " transformers " ]] || [[ " ${missing_packages[*]} " =~ " diffusers " ]]; then
+        log_info "Installing compatible transformers and diffusers versions..."
+        # Install specific versions that work together
+        pip install transformers==4.30.0
+        pip install diffusers==0.29.2
+        pip install accelerate safetensors requests tqdm pyyaml regex tokenizers==0.13.3 
+        pip install huggingface-hub==0.33.2
+        # Ensure numpy and scipy compatibility with older glibc
+        pip install "numpy<1.25"
+        pip install scipy==1.9.3
+    fi
+    
+    # Install remaining packages
+    pip install pillow numpy requests
 else
     log_info "All required packages are installed"
 fi
@@ -75,23 +138,32 @@ fi
 # Check GPU availability
 log_info "Checking GPU availability..."
 python3 -c "
+import os
+# Force CPU mode if CUDA compatibility issues
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 import torch
+print('PyTorch version:', torch.__version__)
+print('CUDA available:', torch.cuda.is_available())
 if torch.cuda.is_available():
-    gpu_name = torch.cuda.get_device_name(0)
-    memory_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
-    print(f'✅ GPU: {gpu_name} ({memory_gb:.1f}GB)')
-    
-    # Check memory for different models
-    if memory_gb >= 20:
-        print('✅ Sufficient memory for SDXL (20GB+)')
-    elif memory_gb >= 12:
-        print('✅ Sufficient memory for SD v2.x (12GB+)')
-    elif memory_gb >= 6:
-        print('✅ Sufficient memory for SD v1.x (6GB+)')
-    else:
-        print('⚠️ Limited GPU memory - may need CPU offloading')
+    try:
+        gpu_name = torch.cuda.get_device_name(0)
+        memory_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
+        print(f'✅ GPU: {gpu_name} ({memory_gb:.1f}GB)')
+        
+        # Check memory for different models
+        if memory_gb >= 20:
+            print('✅ Sufficient memory for SDXL (20GB+)')
+        elif memory_gb >= 12:
+            print('✅ Sufficient memory for SD v2.x (12GB+)')
+        elif memory_gb >= 6:
+            print('✅ Sufficient memory for SD v1.x (6GB+)')
+        else:
+            print('⚠️ Limited GPU memory - may need CPU offloading')
+    except Exception as e:
+        print(f'⚠️ GPU detected but CUDA compatibility issue: {e}')
+        print('⚠️ Will run in CPU mode (slow but functional)')
 else:
-    print('⚠️ No GPU available - will use CPU (very slow)')
+    print('⚠️ Running in CPU mode - will be slow but functional')
 "
 
 # Check Hugging Face authentication
