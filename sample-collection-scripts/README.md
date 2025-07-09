@@ -155,6 +155,7 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 ### SLURM Scripts
 - **`submit_job.sh`** - Main A100 SLURM submission (toreador)
 - **`submit_job_v100.sh`** - 🎯 **Unified V100 submission script** (16 pre-configured options)
+- **`submit_job_h100.sh`** - 🎯 **Unified H100 submission script** with multiple configurations
 - **`submit_job_a100_baseline.sh`** - A100 baseline profiling (quick test)
 - **`submit_job_a100_comprehensive.sh`** - A100 comprehensive DVFS study
 - **`submit_job_a100_custom_app.sh`** - A100 custom application examples
