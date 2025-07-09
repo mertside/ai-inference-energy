@@ -122,8 +122,8 @@ embedding_output_dims = 30
 
 - **Source**: IMDB Movie Reviews Dataset (via TensorFlow/Keras)
 - **Task**: Binary sentiment classification (positive/negative)
-- **Training samples**: ~20,000 reviews
-- **Test samples**: ~5,000 reviews
+- **Training samples**: ~25,000 reviews
+- **Test samples**: ~25,000 reviews
 - **Vocabulary**: Top 5,000 most frequent words
 
 ## Performance Characteristics
