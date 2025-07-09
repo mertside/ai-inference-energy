@@ -23,7 +23,7 @@ class GPUConfig:
     V100_DEFAULT_CORE_FREQ = 1380  # MHz
 
     # H100 GPU configuration
-    H100_MEMORY_FREQ = 1593  # MHz (typical H100 memory frequency)
+    H100_MEMORY_FREQ = 2619  # MHz (maximum H100 memory frequency)
     H100_DEFAULT_CORE_FREQ = 1785  # MHz (maximum frequency)
 
     # Available core frequencies for A100 (MHz)

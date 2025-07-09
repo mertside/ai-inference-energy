@@ -712,7 +712,7 @@ GPU_SPECIFICATIONS = {
             "size_gb": 95,  # Updated: nvidia-smi shows 95830MiB = ~95GB
             "type": "HBM3",
             "bandwidth_gb_s": 3350,
-            "frequency_mhz": 1593,  # Updated: using 1593 MHz as shown in nvidia-smi
+            "frequency_mhz": 2619,  # Updated: using 2619 MHz (maximum frequency from nvidia-smi)
             "bus_width": 5120,
         },
         "compute": {
@@ -749,7 +749,7 @@ GPU_SPECIFICATIONS = {
                 510,
             ],  # Updated: replaced 400, 210 with 510, updated max to 1785
             "baseline_frequency": 1785,  # Updated: using actual max frequency
-            "memory_frequency": 1593,
+            "memory_frequency": 2619,
         },
         "workload_recommendations": {
             "inference": 1500,

@@ -8,7 +8,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 - **GPU**: H100 (80GB HBM3)
 - **Partition**: h100-build (REPACSS Texas Tech)
 - **Frequencies**: 86 available (510-1785 MHz)
-- **Memory**: 1593 MHz (fixed)
+- **Memory**: 2619 MHz (maximum)
 - **Architecture**: Hopper (GH100)
 - **Advanced Features**: FP8 precision, Transformer Engine, HBM3, PCIe Gen5
 

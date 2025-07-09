@@ -9,7 +9,7 @@
 #   - GPU: H100 (80GB HBM3)
 #   - Partition: h100-build (REPACSS Texas Tech)
 #   - Frequencies: 86 available (510-1785 MHz)
-#   - Memory: 1593 MHz (fixed)
+#   - Memory: 2619 MHz (maximum)
 #   - Architecture: Hopper (GH100)
 #
 
@@ -207,7 +207,7 @@ display_h100_info() {
     echo "│ Partition:    h100-build                                    │"
     echo "│ Architecture: Hopper (GH100)                                │"
     echo "│ Memory:       80GB HBM3                                     │"
-    echo "│ Mem Freq:     1593 MHz (fixed)                              │"
+    echo "│ Mem Freq:     2619 MHz (maximum)                            │"
     echo "│ Core Freq:    510-1785 MHz (86 frequencies)                 │"
     echo "│ DVFS Step:    ~15 MHz typical                                │"
     echo "│ Features:     4th Gen Tensor Cores, Transformer Engine     │"

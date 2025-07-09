@@ -13,7 +13,7 @@
 #   GPU_TYPE="V100"           # Automatically sets GV100, 877MHz mem, 1380MHz core
 #
 # For NVIDIA H100:
-#   GPU_TYPE="H100"           # Automatically sets GH100, 1593MHz mem, 1785MHz core
+#   GPU_TYPE="H100"           # Automatically sets GH100, 2619MHz mem, 1785MHz core
 #
 # To switch between profiling tools:
 #
@@ -289,7 +289,7 @@ configure_gpu_settings() {
         )
     elif [[ "$GPU_TYPE" == "H100" ]]; then
         GPU_ARCH="GH100"
-        MEMORY_FREQ=1593  # H100 memory frequency (MHz)
+        MEMORY_FREQ=2619  # H100 memory frequency (MHz)
         DEFAULT_CORE_FREQ=1785  # H100 default core frequency (MHz)
         
         # H100 core frequencies for testing (MHz) - updated with actual nvidia-smi data ≥510 MHzw
@@ -407,7 +407,7 @@ GPU TYPE SELECTION:
     
     H100: Automatically configures for NVIDIA H100 GPUs
         - Architecture: GH100
-        - Memory frequency: 1593MHz
+        - Memory frequency: 2619MHz
         - Default core frequency: 1785MHz
         - Core frequency range: 1785-510MHz (86 frequencies)
 
