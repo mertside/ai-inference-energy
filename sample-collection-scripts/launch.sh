@@ -763,13 +763,8 @@ run_application() {
     end_time=$(date +%s)
     local duration=$((end_time - start_time))
     
-    # Move profiling output to results file
-    if [[ -f "$TEMP_OUTPUT_FILE" ]]; then
-        mv "$TEMP_OUTPUT_FILE" "$output_file"
-        log_info "Profiling data saved to: $output_file"
-    else
-        log_warning "Profiling output file not found: $TEMP_OUTPUT_FILE"
-    fi
+    # Note: Profiling data is already saved to the correct output file by profile.py
+    log_info "Profiling data saved to: $output_file"
     
     # Extract and save performance metrics (for known applications)
     extract_performance_metrics "$app_name" "$frequency" "$duration"
@@ -937,10 +932,7 @@ cleanup() {
     
     log_info "Cleaning up..."
     
-    # Remove temporary files
-    if [[ -f "$TEMP_OUTPUT_FILE" ]]; then
-        rm -f "$TEMP_OUTPUT_FILE"
-    fi
+    # Note: No temporary files to clean up since profiling writes directly to final output files
     
     # Restore default frequency
     restore_default_frequency
