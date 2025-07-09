@@ -38,17 +38,76 @@ conda activate stable-diffusion-gpu
 ./interactive_gpu.sh a100                   # For A100 on HPCC (requires reservation)
 ./interactive_gpu.sh h100                   # For H100 on REPACSS
 
-# Legacy manual commands (deprecated)
-# interactive -p matador                      # For V100
-# interactive -p toreador -g 1                # For A100
-# interactive -p h100-build -g 1 -w rpg-93-9  # For H100
-
 # Once in session, activate environment
 conda activate stable-diffusion-gpu
-
-# Run Stable Diffusion
-python StableDiffusionViaHF.py --model-variant sd-v1.4 --device cuda --prompt "your prompt here"
 ```
+
+#### Quick Start Examples
+
+**1. Simple Image Generation**
+```bash
+python StableDiffusionViaHF.py --prompt "a photograph of an astronaut riding a horse" --steps 10 --log-level INFO
+```
+
+**2. High Quality Generation**
+```bash
+python StableDiffusionViaHF.py --prompt "a majestic mountain landscape at sunset" --steps 30 --guidance-scale 7.5 --width 768 --height 768
+```
+
+**3. Fast Generation with Turbo Model**
+```bash
+python StableDiffusionViaHF.py --model-variant sd-turbo --prompt "a futuristic city skyline" --steps 4 --guidance-scale 1.0
+```
+
+**4. Multiple Images with Different Styles**
+```bash
+python StableDiffusionViaHF.py --prompt "a cute cat wearing a wizard hat" --negative-prompt "blurry, low quality" --num-images 4 --steps 20
+```
+
+**5. Energy Research Benchmark**
+```bash
+python StableDiffusionViaHF.py --benchmark --benchmark-type energy_research --export-metrics energy_metrics.json
+```
+
+#### Advanced Examples
+
+**Memory-Optimized Generation (for limited VRAM)**
+```bash
+python StableDiffusionViaHF.py --prompt "detailed fantasy artwork" --enable-cpu-offload --dtype float16 --steps 15
+```
+
+**High-Resolution Generation (requires sufficient VRAM)**
+```bash
+python StableDiffusionViaHF.py --model-variant sdxl --prompt "photorealistic portrait of a person" --width 1024 --height 1024 --steps 25
+```
+
+**Scheduler Comparison for Research**
+```bash
+python StableDiffusionViaHF.py --prompt "test prompt for scheduler analysis" --scheduler-comparison --export-metrics scheduler_comparison.json
+```
+
+**Multi-Resolution Analysis**
+```bash
+python StableDiffusionViaHF.py --prompt "benchmark image" --multi-resolution --export-metrics resolution_analysis.json
+```
+
+#### Model Options
+- `sd-v1.4`: Stable Diffusion v1.4 (default)
+- `sd-v1.5`: Stable Diffusion v1.5
+- `sd-v2.0`: Stable Diffusion v2.0 
+- `sd-v2.1`: Stable Diffusion v2.1
+- `sdxl`: Stable Diffusion XL (high quality, requires more VRAM)
+- `sdxl-turbo`: SDXL Turbo (fast generation)
+- `sd-turbo`: SD Turbo (ultra-fast generation)
+
+#### Scheduler Options
+- `dpm++`: DPM++ (default, good quality-speed balance)
+- `euler`: Euler scheduler
+- `ddim`: DDIM scheduler
+- `unipc`: UniPC scheduler (fast)
+- `heun`: Heun scheduler (high quality)
+
+Use `--list-schedulers` to see all available options with descriptions.
 
 #### Batch Job Submission
 ```bash
@@ -63,16 +122,14 @@ sbatch scripts/run_stable_diffusion_job.sh
 ./interactive_gpu.sh a100                   # For A100 on HPCC (requires reservation)
 ./interactive_gpu.sh h100                   # For H100 on REPACSS
 
-# Legacy manual commands (deprecated)
-# interactive -p matador                      # For V100
-# interactive -p toreador -g 1                # For A100
-# interactive -p h100-build -g 1 -w rpg-93-9  # For H100
-
-# Once in session, run tests
-cd tests/
+# Once in session, activate environment and test
 conda activate stable-diffusion-gpu
 
+# Quick functionality test
+python StableDiffusionViaHF.py --prompt "test image generation" --steps 5 --log-level INFO
+
 # Run environment validation
+cd tests/
 ./test_stable_diffusion.sh
 
 # Run comprehensive validation
@@ -228,3 +285,77 @@ All components working:
 
 ---
 **Part of the AI Inference Energy Research project at Texas Tech HPCC**
+
+#### Research and Energy Profiling Examples
+
+**Energy Efficiency Analysis**
+```bash
+# Quick energy baseline (10 steps)
+python StableDiffusionViaHF.py --prompt "energy efficiency test image" --steps 10 --export-metrics baseline_10steps.json
+
+# Quality comparison (30 steps)
+python StableDiffusionViaHF.py --prompt "energy efficiency test image" --steps 30 --export-metrics quality_30steps.json
+
+# Turbo model comparison
+python StableDiffusionViaHF.py --model-variant sd-turbo --prompt "energy efficiency test image" --steps 4 --export-metrics turbo_4steps.json
+```
+
+**GPU Memory Scaling Studies**
+```bash
+# Small resolution (512x512)
+python StableDiffusionViaHF.py --prompt "memory scaling test" --width 512 --height 512 --export-metrics mem_512.json
+
+# Medium resolution (768x768)  
+python StableDiffusionViaHF.py --prompt "memory scaling test" --width 768 --height 768 --export-metrics mem_768.json
+
+# Large resolution (1024x1024) - requires SDXL
+python StableDiffusionViaHF.py --model-variant sdxl --prompt "memory scaling test" --width 1024 --height 1024 --export-metrics mem_1024.json
+```
+
+**Cross-Architecture Performance Analysis**
+```bash
+# V100 optimal settings
+python StableDiffusionViaHF.py --prompt "architecture comparison" --dtype float16 --steps 20 --export-metrics v100_perf.json
+
+# A100 optimal settings
+python StableDiffusionViaHF.py --prompt "architecture comparison" --dtype float16 --steps 30 --batch-size 2 --export-metrics a100_perf.json
+
+# H100 optimal settings  
+python StableDiffusionViaHF.py --model-variant sdxl --prompt "architecture comparison" --dtype bfloat16 --steps 25 --export-metrics h100_perf.json
+```
+
+**Integration with Energy Profiling Framework**
+```bash
+# Use with the sample-collection-scripts framework
+cd ../sample-collection-scripts
+
+# V100 profiling
+./launch.sh --gpu-type V100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 15 --log-level WARNING"
+
+# A100 profiling
+./launch.sh --gpu-type A100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 20 --dtype float16"
+
+# H100 profiling with SDXL
+./launch.sh --gpu-type H100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--model-variant sdxl --prompt 'profiling test image' --steps 15"
+```
+
+## Quick Reference
+
+### Essential Parameters
+| Parameter | Description | Common Values |
+|-----------|-------------|---------------|
+| `--prompt` | Text description of desired image | Any descriptive text |
+| `--steps` | Number of inference steps | 4 (turbo), 10 (fast), 20 (balanced), 30+ (quality) |
+| `--model-variant` | Model to use | `sd-v1.4`, `sd-v1.5`, `sdxl`, `sd-turbo` |
+| `--scheduler` | Sampling algorithm | `dpm++`, `euler`, `ddim`, `unipc` |
+| `--width`, `--height` | Image dimensions | 512, 768, 1024 (SDXL) |
+| `--guidance-scale` | Prompt adherence strength | 1.0 (turbo), 7.5 (default), 15.0 (strong) |
+| `--dtype` | Model precision | `float16` (memory efficient), `float32` (quality) |
+| `--log-level` | Verbosity | `WARNING` (quiet), `INFO` (normal), `DEBUG` (verbose) |
+
+### Performance Tips
+- **Fast Generation**: Use `sd-turbo` with `--steps 4 --guidance-scale 1.0`
+- **Memory Constrained**: Add `--enable-cpu-offload --dtype float16`
+- **High Quality**: Use `sdxl` with `--steps 25-30`
+- **Research Reproducibility**: Always specify `--seed <number>`
+- **Energy Profiling**: Use `--log-level WARNING` to reduce output noise
