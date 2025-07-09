@@ -39,7 +39,7 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 # ============================================================================
 
 # 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~? minutes) - PyTorch LSTM
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
 
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~15-20 minutes)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"

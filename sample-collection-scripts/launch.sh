@@ -739,20 +739,46 @@ run_application() {
     start_time=$(date +%s)
     
     # Change to application directory and run with profiling
-    # Pass the command as a single string to profile.py
+    # Separate app parameters from output redirection for proper handling
     
     if ! cd "$RESOLVED_APP_DIR"; then
         log_error "Failed to change to application directory: $RESOLVED_APP_DIR"
         return 1
     fi
     
-    local python_command="python $RESOLVED_APP_SCRIPT.py$app_params"
+    # Parse app_params to separate the actual parameters from output redirection
+    local clean_app_params=""
+    local app_output_file=""
+    
+    if [[ "$app_params" =~ (.*)\ \>\ (.+) ]]; then
+        # Extract parameters before the redirection
+        clean_app_params="${BASH_REMATCH[1]}"
+        app_output_file="${BASH_REMATCH[2]}"
+        log_info "Detected output redirection to: $app_output_file"
+    else
+        clean_app_params="$app_params"
+    fi
+    
+    local python_command="python $RESOLVED_APP_SCRIPT.py $clean_app_params"
     log_info "Python command: $python_command"
     
-    if ! "$PROFILE_SCRIPT" --output "$output_file" $python_command; then
-        log_error "Failed to run application: $app_name"
-        cd "$current_dir"
-        return 1
+    # Run with profiling, handling output redirection properly
+    if [[ -n "$app_output_file" ]]; then
+        # If there's output redirection, apply it to the profile command
+        # Use eval to properly handle argument expansion and redirection
+        if ! eval "$PROFILE_SCRIPT --output '$output_file' -- python '$RESOLVED_APP_SCRIPT.py' $clean_app_params > '$app_output_file'"; then
+            log_error "Failed to run application: $app_name"
+            cd "$current_dir"
+            return 1
+        fi
+    else
+        # No output redirection needed
+        # Use eval to properly handle argument expansion
+        if ! eval "$PROFILE_SCRIPT --output '$output_file' -- python '$RESOLVED_APP_SCRIPT.py' $clean_app_params"; then
+            log_error "Failed to run application: $app_name"
+            cd "$current_dir"
+            return 1
+        fi
     fi
     
     # Return to original directory
