@@ -29,7 +29,7 @@
 set -euo pipefail
 
 # Configuration
-readonly CONDA_ENV="base"  # Use base environment (adjust if needed)
+readonly CONDA_ENV="tensorflow"  # Use base environment (adjust if needed)
 readonly LAUNCH_SCRIPT="./launch.sh"
 
 # ============================================================================
@@ -40,7 +40,7 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 # ============================================================================
 
 # 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~2-4 minutes) - PyTorch LSTM
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable lstm_pytorch"
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
 
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~6-10 minutes)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
@@ -52,7 +52,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # ============================================================================
 
 # 4. 🤖 LSTM PROFILING - PyTorch sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LSTM --app-executable lstm_pytorch --num-runs 5"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
@@ -97,7 +97,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp8' --num-runs 5"
 
 # 16. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '800,1200,1600' --app-name LSTM --app-executable lstm --app-params '--batch-size 256' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '800,1200,1600' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
 
 # 🚀 ADVANCED H100 CONFIGURATIONS
 # ============================================================================

@@ -51,7 +51,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # ============================================================================
 
 # 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable lstm --num-runs 5"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
@@ -96,7 +96,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
 
 # 16. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '600,900,1200' --app-name LSTM --app-executable lstm --app-params '--batch-size 64' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '600,900,1200' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 64' --num-runs 5"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER

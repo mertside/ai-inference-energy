@@ -98,7 +98,7 @@ DEFAULT_SLEEP_INTERVAL=1  # seconds between runs
 
 # Default Application configuration (used when no app parameters provided)
 DEFAULT_APP_NAME="LSTM"
-DEFAULT_APP_EXECUTABLE="lstm"
+DEFAULT_APP_EXECUTABLE="../app-lstm/lstm"
 DEFAULT_APP_PARAMS=""  # Output redirection will be added dynamically
 
 # Initialize configuration variables (will be set by parse_arguments and configure_gpu_settings)
@@ -417,11 +417,17 @@ EXAMPLES:
     # Run baseline profiling on H100
     ./launch.sh --gpu-type H100 --profiling-mode baseline
     
+    # Run LSTM applications from app-lstm directory
+    ./launch.sh --app-name "LSTM" --app-executable "../app-lstm/lstm"
+    
+    # Run Stable Diffusion from app-stable-diffusion directory
+    ./launch.sh --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'test image' > results/SD_output.log"
+    
     # Custom application with specific parameters
-    ./launch.sh --app-name "MyApp" --app-executable "my_script" --app-params "--input data.txt > results/MyApp_output.log"
+    ./launch.sh --app-name "MyApp" --app-executable "../my-app/my_script" --app-params "--input data.txt > results/MyApp_output.log"
     
     # Full custom configuration
-    ./launch.sh --gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" --app-params "--prompt 'test image' > results/SD_output.log"
+    ./launch.sh --gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'test image' > results/SD_output.log"
 
 GPU TYPE SELECTION:
     A100: Automatically configures for NVIDIA A100 GPUs
@@ -465,11 +471,24 @@ PROFILING MODE SELECTION:
         - Faster execution, useful for reference measurements
 
 APPLICATION PARAMETERS:
+    The --app-executable parameter should specify the path to the Python script
+    relative to the sample-collection-scripts directory, without the .py extension.
+    
+    Application Resolution:
+    - If the path contains '/', it's treated as a relative/absolute path
+    - Otherwise, the script attempts to map known app names to their directories:
+      - "lstm" → "../app-lstm/lstm.py"
+      - "lstm_modern" → "../app-lstm/lstm_modern.py" 
+      - "StableDiffusionViaHF" → "../app-stable-diffusion/StableDiffusionViaHF.py"
+      - "LlamaViaHF" → "../app-llama/LlamaViaHF.py"
+    
     The --app-params option can include output redirection to capture results.
     If no output redirection is specified, it will be automatically added using
     dynamic naming: results/\$ARCH-\$MODE-\$APP-RUN-OUT
     
     Examples:
+        --app-executable "../app-lstm/lstm"
+        --app-executable "../app-stable-diffusion/StableDiffusionViaHF"
         --app-params "> results/custom_output.log"
         --app-params "--epochs 10 --batch-size 32 > results/training.log"
         --app-params "--model bert-base --input data.txt > results/inference.out"
@@ -535,6 +554,14 @@ check_prerequisites() {
     done
     
     log_info "✓ All required scripts found and executable"
+    
+    # Check if the application executable exists
+    log_info "Checking application: $APP_NAME ($APP_EXECUTABLE)"
+    if ! resolve_app_path "$APP_EXECUTABLE"; then
+        log_error "Application validation failed"
+        return 1
+    fi
+    log_info "✓ Application found: $RESOLVED_APP_DIR/$RESOLVED_APP_SCRIPT.py"
     
     # Check profiling tool availability with automatic fallback
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
@@ -606,6 +633,57 @@ check_prerequisites() {
     return 0
 }
 
+# Function to resolve application paths and directories
+resolve_app_path() {
+    local app_executable="$1"
+    local resolved_dir=""
+    local resolved_script=""
+    
+    # Check if the path is already absolute or relative with directory
+    if [[ "$app_executable" = /* ]] || [[ "$app_executable" = */* ]]; then
+        # Extract directory and script name
+        resolved_dir=$(dirname "$app_executable")
+        resolved_script=$(basename "$app_executable")
+        
+        # Remove .py extension if present
+        resolved_script=${resolved_script%.py}
+    else
+        # Try to map application names to their directories
+        case "$app_executable" in
+            "lstm")
+                resolved_dir="../app-lstm"
+                resolved_script="lstm"
+                ;;
+            "StableDiffusionViaHF")
+                resolved_dir="../app-stable-diffusion"
+                resolved_script="StableDiffusionViaHF"
+                ;;
+            "LlamaViaHF")
+                resolved_dir="../app-llama"
+                resolved_script="LlamaViaHF"
+                ;;
+            *)
+                # Default: assume it's in the current directory
+                resolved_dir="."
+                resolved_script="$app_executable"
+                ;;
+        esac
+    fi
+    
+    # Validate that the script exists
+    if [[ ! -f "$resolved_dir/$resolved_script.py" ]]; then
+        log_error "Application script not found: $resolved_dir/$resolved_script.py"
+        return 1
+    fi
+    
+    # Export the resolved paths for use in other functions
+    export RESOLVED_APP_DIR="$resolved_dir"
+    export RESOLVED_APP_SCRIPT="$resolved_script"
+    
+    log_info "Resolved application: $resolved_dir/$resolved_script.py"
+    return 0
+}
+
 # Function to set GPU frequency using the control script
 set_gpu_frequency() {
     local core_freq="$1"
@@ -634,10 +712,18 @@ run_application() {
     local frequency="$4"
     local iteration="$5"
     
-    local app_command="python ${app_executable}.py${app_params}"
+    # Resolve application path and directory
+    if ! resolve_app_path "$app_executable"; then
+        log_error "Failed to resolve application path: $app_executable"
+        return 1
+    fi
+    
+    local app_command="cd '$RESOLVED_APP_DIR' && python '$RESOLVED_APP_SCRIPT.py'${app_params}"
     local output_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${app_name}-${frequency}-${iteration}"
     
     log_info "Running $app_name at ${frequency}MHz (iteration $iteration)"
+    log_info "Application directory: $RESOLVED_APP_DIR"
+    log_info "Application script: $RESOLVED_APP_SCRIPT.py"
     log_info "Command: $app_command"
     log_info "Output file: $output_file"
     
@@ -645,8 +731,8 @@ run_application() {
     local start_time
     start_time=$(date +%s)
     
-    # Run application with profiling
-    if ! "$PROFILE_SCRIPT" $app_command; then
+    # Run application with profiling (use bash -c to handle the cd command)
+    if ! "$PROFILE_SCRIPT" bash -c "$app_command"; then
         log_error "Failed to run application: $app_name"
         return 1
     fi

@@ -51,7 +51,7 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # ============================================================================
 
 # 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable lstm --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
@@ -96,13 +96,13 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
 
 # 16. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '700,1000,1300' --app-name LSTM --app-executable lstm --app-params '--batch-size 128' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '700,1000,1300' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
 
 # 🚀 ADVANCED A100 CONFIGURATIONS
 # ============================================================================
 
 # 17. 🔥 HIGH THROUGHPUT - Multi-instance profiling
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable lstm --app-params '--multi-instance 4' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--multi-instance 4' --num-runs 3"
 
 # 18. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '900,1200,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"

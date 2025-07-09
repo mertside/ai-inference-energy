@@ -21,8 +21,7 @@ optimizer = Adam()
 validation_split = 0.20
 verbosity_mode = 1
 
-# Disable eager execution
-tf.compat.v1.disable_eager_execution()
+# NOTE: Removed tf.compat.v1.disable_eager_execution() for TensorFlow 2.19.0 compatibility
 
 gpus = tf.config.list_physical_devices("GPU")
 if not gpus:
