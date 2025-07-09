@@ -22,6 +22,35 @@ app-stable-diffusion/
 
 ## Quick Start
 
+### Environment Setup
+
+#### 1. Create Conda Environment
+```bash
+# Create environment from YAML file
+conda env create -f stable-diffusion-gpu-20250709.yml
+
+# Activate environment
+conda activate stable-diffusion-gpu
+```
+
+#### 2. Hugging Face Authentication
+```bash
+# Login to Hugging Face (required for model access)
+huggingface-cli login
+
+# Enter your Hugging Face token when prompted
+# Get token from: https://huggingface.co/settings/tokens
+```
+
+#### 3. Verify Installation
+```bash
+# Run validation script
+python validate_stable_diffusion.py
+
+# Or test basic functionality
+python StableDiffusionViaHF.py --prompt "test image" --steps 1 --log-level DEBUG
+```
+
 ### Prerequisites
 ```bash
 conda activate stable-diffusion-gpu
@@ -341,6 +370,21 @@ cd ../sample-collection-scripts
 
 ## Quick Reference
 
+### Environment Setup Commands
+```bash
+# 1. Create environment
+conda env create -f stable-diffusion-gpu-20250709.yml
+
+# 2. Activate environment
+conda activate stable-diffusion-gpu
+
+# 3. Authenticate with Hugging Face
+huggingface-cli login
+
+# 4. Verify setup
+python validate_stable_diffusion.py
+```
+
 ### Essential Parameters
 | Parameter | Description | Common Values |
 |-----------|-------------|---------------|
@@ -359,3 +403,12 @@ cd ../sample-collection-scripts
 - **High Quality**: Use `sdxl` with `--steps 25-30`
 - **Research Reproducibility**: Always specify `--seed <number>`
 - **Energy Profiling**: Use `--log-level WARNING` to reduce output noise
+
+### Troubleshooting
+- **ModuleNotFoundError**: Ensure `conda activate stable-diffusion-gpu` is run
+- **Authentication Error**: Run `huggingface-cli login` with valid token
+- **CUDA Out of Memory**: Add `--enable-cpu-offload --dtype float16`
+- **Model Download Issues**: Check internet connection and Hugging Face authentication
+- **Slow Performance**: Ensure running on GPU node, not login node
+
+## Notes
