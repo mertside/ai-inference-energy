@@ -38,8 +38,8 @@ readonly LAUNCH_SCRIPT="./launch.sh"
 # 📋 QUICK START CONFIGURATIONS
 # ============================================================================
 
-# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~5-10 minutes)
-LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-interval 1"
+# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~? minutes) - PyTorch LSTM
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
 
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~15-20 minutes)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
@@ -53,8 +53,8 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-inte
 # 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
-# 5. 🎨 STABLE DIFFUSION - Image generation profiling
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --num-runs 3 --sleep-interval 3"
+# 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
+LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 1000 --log-level INFO --width 768 --height 768' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
