@@ -180,8 +180,8 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 | A100 | nvidia-smi | profile_smi.py | control_smi.sh | 1215 MHz | 1410 MHz |
 | V100 | dcgmi | profile.py | control.sh | 877 MHz | 1380 MHz |
 | V100 | nvidia-smi | profile_smi.py | control_smi.sh | 877 MHz | 1380 MHz |
-| H100 | dcgmi | profile.py | control.sh | 1593 MHz | 1755 MHz |
-| H100 | nvidia-smi | profile_smi.py | control_smi.sh | 1593 MHz | 1755 MHz |
+| H100 | dcgmi | profile.py | control.sh | 1593 MHz | 1785 MHz |
+| H100 | nvidia-smi | profile_smi.py | control_smi.sh | 1593 MHz | 1785 MHz |
 
 ## Individual Script Usage
 

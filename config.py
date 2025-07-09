@@ -24,7 +24,7 @@ class GPUConfig:
 
     # H100 GPU configuration
     H100_MEMORY_FREQ = 1593  # MHz (typical H100 memory frequency)
-    H100_DEFAULT_CORE_FREQ = 1755  # MHz (maximum frequency)
+    H100_DEFAULT_CORE_FREQ = 1785  # MHz (maximum frequency)
 
     # Available core frequencies for A100 (MHz)
     A100_CORE_FREQUENCIES = [
@@ -215,6 +215,8 @@ class GPUConfig:
     # Available core frequencies for H100 (MHz)
     # Based on nvidia-smi output: 510-1785 MHz in 15-MHz steps (86 frequencies)
     H100_CORE_FREQUENCIES = [
+        1785,
+        1770,
         1755,
         1740,
         1725,

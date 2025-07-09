@@ -60,12 +60,12 @@ GPU Frequency Control Script using nvidia-smi
 
 Arguments:
     memory_freq    Memory frequency in MHz (e.g., 1215 for A100, 877 for V100, 1593 for H100)
-    core_freq      Core frequency in MHz (e.g., 1410 for A100, 1380 for V100, 1755 for H100)
+    core_freq      Core frequency in MHz (e.g., 1410 for A100, 1380 for V100, 1785 for H100)
 
 Examples:
     $SCRIPT_NAME 1215 1410    # Set A100 to default frequencies
     $SCRIPT_NAME 877 1380     # Set V100 to default frequencies
-    $SCRIPT_NAME 1593 1755    # Set H100 to default frequencies
+    $SCRIPT_NAME 1593 1785    # Set H100 to default frequencies
     $SCRIPT_NAME 1215 1200    # Set A100 with reduced core frequency
 
 Requirements:
