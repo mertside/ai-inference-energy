@@ -9,6 +9,12 @@ The LSTM application provides a standardized binary sentiment classification ben
 ## Files
 
 - **`lstm.py`**: Main LSTM sentiment analysis benchmark application
+- **`lstm_modern.py`**: Modern TensorFlow 2.x LSTM implementation with enhanced features
+- **`requirements_h100.txt`**: Complete pip requirements for H100 environment
+- **`requirements_h100_minimal.txt`**: Minimal requirements for easy setup
+- **`lstm-h100-20250708.yml`**: Conda environment file for H100 TensorFlow setup
+- **`tensorflow.yml`**: Alternative TensorFlow environment configuration
+- **`setEnv.sh`**: Environment setup script
 
 ## Features
 
@@ -48,10 +54,45 @@ lstm_units = 10                 # LSTM hidden units
 
 ## Usage
 
+### Quick Start (H100 Environment)
+
+**Using the pre-configured conda environment:**
+```bash
+# Load conda and activate the H100 environment
+conda activate tensorflow-lstm
+cd app-lstm
+python lstm_modern.py       # Run modern LSTM benchmark
+```
+
+**Creating the environment from scratch:**
+```bash
+# Option 1: From conda environment file (H100 optimized)
+conda env create -f lstm-h100-20250708.yml
+
+# Option 2: From alternative conda environment file
+conda env create -f tensorflow.yml
+
+# Option 3: From pip requirements (minimal)
+conda create -n tensorflow-lstm python=3.10
+conda activate tensorflow-lstm
+pip install -r requirements_h100_minimal.txt
+
+# Option 4: From pip requirements (complete)
+pip install -r requirements_h100.txt
+
+# Option 5: Using setup script
+source setEnv.sh
+```
+
 ### Standalone Usage
 ```bash
 cd app-lstm
+
+# Run original LSTM
 python lstm.py
+
+# Run modern LSTM (recommended)
+python lstm_modern.py
 ```
 
 ### Profiling Usage
@@ -87,8 +128,14 @@ embedding_output_dims = 30
 
 ## Performance Characteristics
 
+### H100 Performance (Tested July 8, 2025)
+- **GPU**: NVIDIA H100 NVL (93GB memory)
+- **1 epoch**: ~6-8 seconds
+- **Memory usage**: ~2GB GPU memory
+- **Accuracy**: ~64% (20 epochs, IMDB dataset)
+
 ### Typical Execution Times
-- **1 epoch**: ~30-60 seconds (depending on GPU)
+- **1 epoch**: ~6-60 seconds (depending on GPU)
 - **Memory usage**: ~2-4GB GPU memory
 - **CPU usage**: Moderate (data preprocessing)
 
@@ -98,31 +145,52 @@ embedding_output_dims = 30
 - **GPU utilization**: Good balance of compute and memory operations
 - **Scalable**: Easily adjustable for different experiment needs
 
--## Requirements
+## Requirements
 
-- Python 3.6+
-- TensorFlow 2.x
-- Keras (included with TensorFlow)
-- NumPy
-- CUDA-capable GPU (recommended)
+### H100 Environment (Tested & Working)
+- **Python**: 3.10.18
+- **TensorFlow**: 2.19.0 (with CUDA 12.x support)
+- **CUDA**: 12.2+ (bundled with TensorFlow)
+- **cuDNN**: 9.3.0+ (bundled with TensorFlow)
+- **NumPy**: 1.26.4
+- **Pandas**: 2.3.1
+- **Matplotlib**: 3.10.3
+- **Scikit-learn**: 1.7.0
+
+### General Requirements
+- Python 3.10+
+- TensorFlow 2.15+ (2.19.0 recommended for H100)
+- CUDA-capable GPU (H100 tested and verified)
+- 8GB+ GPU memory (for full dataset)
 
 ## Output
 
 The application provides:
 ```
+TensorFlow version and CUDA support status
+GPU device information
 Train/validation accuracy and loss
 Test accuracy and loss
 Total execution time
 Model summary
 ```
 
-Example output:
+Example output (lstm_modern.py on H100):
 ```
-Train on 16000 samples, validate on 4000 samples
-Epoch 1/1
-16000/16000 [==============================] - 45s 3ms/sample
-Test results - Loss: 0.4234 - Accuracy: 78.45%
-42.56 seconds
+=== TensorFlow H100 Test ===
+TensorFlow version: 2.19.0
+Built with CUDA: True
+GPU devices found: 1
+  GPU 0: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+
+Training data shape: (25000,)
+Test data shape: (25000,)
+Building model...
+Starting training...
+20/20 ━━━━━━━━━━━━━━━━━━━━ 3s 25ms/step - accuracy: 0.5528 - loss: 0.6912 - val_accuracy: 0.6278 - val_loss: 0.6834
+Evaluating model...
+Test results - Loss: 0.6834374070167542 - Accuracy: 63.98%
+Total execution time: 6.29 seconds
 ```
 
 ## Troubleshooting
@@ -135,14 +203,33 @@ Test results - Loss: 0.4234 - Accuracy: 78.45%
    python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
    ```
 
-2. **Memory Issues**
+2. **H100 CUDA Issues**
+   - Use TensorFlow 2.19.0 with bundled CUDA: `pip install tensorflow[and-cuda]==2.19.0`
+   - Avoid mixing conda CUDA with pip TensorFlow
+   - Use the provided environment files for tested configurations
+
+3. **Memory Issues**
    - Reduce batch_size (e.g., from 1024 to 512)
    - Reduce max_sequence_length
    - Close other GPU applications
 
-3. **Dataset Download Issues**
+4. **Environment Setup Issues**
+   ```bash
+   # Reset environment
+   conda deactivate
+   conda env remove -n tensorflow-lstm
+   conda env create -f lstm-h100-20250708.yml
+   ```
+
+5. **Dataset Download Issues**
    - Ensure internet connectivity
    - TensorFlow will automatically download IMDB dataset on first run
+
+### H100 Specific Notes
+- **Tested on**: Texas Tech REPACSS cluster (July 8, 2025)
+- **Working config**: TensorFlow 2.19.0 with CUDA 12.2
+- **Memory**: 93GB available on H100 NVL
+- **Compute capability**: 9.0
 
 ## Integration
 

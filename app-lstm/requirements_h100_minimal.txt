@@ -1,0 +1,16 @@
+# TensorFlow H100 GPU Environment - Minimal Requirements
+# Created: July 8, 2025
+# Tested on: Texas Tech REPACSS H100 cluster
+
+# Core TensorFlow with CUDA support
+tensorflow[and-cuda]==2.19.0
+
+# Data science essentials
+numpy==1.26.4
+pandas==2.3.1
+matplotlib==3.10.3
+scikit-learn==1.7.0
+
+# Additional useful packages
+h5py==3.14.0
+scipy==1.15.3
