@@ -79,7 +79,7 @@
 # Author: Mert Side
 #
 
-set -euo pipefail  # Exit on error, undefined variables, and pipe failures
+set -eo pipefail  # Exit on error and pipe failures (removed -u for conda compatibility)
 
 # ============================================================================
 # Configuration Section - Default Values (can be overridden by parameters)
@@ -125,7 +125,9 @@ configure_output_redirection() {
     # Ensure output redirection for application parameters using dynamic naming
     if [[ ! "$APP_PARAMS" =~ \> ]]; then
         log_info "No output redirection detected in app parameters. Adding dynamic output redirection."
-        local output_file="results/${GPU_ARCH}-${PROFILING_MODE}-${APP_NAME}-RUN-OUT"
+        local script_dir
+        script_dir=$(pwd)  # Current directory is sample-collection-scripts
+        local output_file="$script_dir/results/${GPU_ARCH}-${PROFILING_MODE}-${APP_NAME}-RUN-OUT"
         APP_PARAMS="${APP_PARAMS} > ${output_file}"
         log_info "Dynamic output file: $output_file"
     else
@@ -350,15 +352,18 @@ configure_gpu_settings() {
     fi
     
     # Profiling tool configuration
+    local script_dir
+    script_dir=$(pwd)  # Store current directory (sample-collection-scripts)
+    
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
-        PROFILE_SCRIPT="./profile.py"  # Python-based DCGMI profiler
+        PROFILE_SCRIPT="$script_dir/profile.py"  # Python-based DCGMI profiler
         if [[ "$PROFILING_MODE" == "dvfs" ]]; then
-            CONTROL_SCRIPT="./control.sh"  # DCGMI-based frequency control
+            CONTROL_SCRIPT="$script_dir/control.sh"  # DCGMI-based frequency control
         fi
     elif [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
-        PROFILE_SCRIPT="./profile_smi.py"  # nvidia-smi based profiler (if exists)
+        PROFILE_SCRIPT="$script_dir/profile_smi.py"  # nvidia-smi based profiler (if exists)
         if [[ "$PROFILING_MODE" == "dvfs" ]]; then
-            CONTROL_SCRIPT="./control_smi.sh"  # nvidia-smi based frequency control (if exists)
+            CONTROL_SCRIPT="$script_dir/control_smi.sh"  # nvidia-smi based frequency control (if exists)
         fi
     fi
     
@@ -576,10 +581,12 @@ check_prerequisites() {
                 # Switch profiling tool
                 PROFILING_TOOL="nvidia-smi"
                 
-                # Reconfigure scripts for nvidia-smi
-                PROFILE_SCRIPT="./profile_smi.py"
+                # Reconfigure scripts for nvidia-smi (use absolute paths)
+                local script_dir
+                script_dir=$(pwd)
+                PROFILE_SCRIPT="$script_dir/profile_smi.py"
                 if [[ "$PROFILING_MODE" == "dvfs" ]]; then
-                    CONTROL_SCRIPT="./control_smi.sh"
+                    CONTROL_SCRIPT="$script_dir/control_smi.sh"
                 fi
                 
                 log_info "Updated configuration:"
@@ -718,24 +725,38 @@ run_application() {
         return 1
     fi
     
-    local app_command="cd '$RESOLVED_APP_DIR' && python '$RESOLVED_APP_SCRIPT.py'${app_params}"
-    local output_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${app_name}-${frequency}-${iteration}"
+    local current_dir
+    current_dir=$(pwd)  # Store the sample-collection-scripts directory
+    local output_file="$current_dir/${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${app_name}-${frequency}-${iteration}"
     
     log_info "Running $app_name at ${frequency}MHz (iteration $iteration)"
     log_info "Application directory: $RESOLVED_APP_DIR"
     log_info "Application script: $RESOLVED_APP_SCRIPT.py"
-    log_info "Command: $app_command"
     log_info "Output file: $output_file"
     
     # Record start time
     local start_time
     start_time=$(date +%s)
     
-    # Run application with profiling (use bash -c to handle the cd command)
-    if ! "$PROFILE_SCRIPT" bash -c "$app_command"; then
-        log_error "Failed to run application: $app_name"
+    # Change to application directory and run with profiling
+    # Pass the command as a single string to profile.py
+    
+    if ! cd "$RESOLVED_APP_DIR"; then
+        log_error "Failed to change to application directory: $RESOLVED_APP_DIR"
         return 1
     fi
+    
+    local python_command="python $RESOLVED_APP_SCRIPT.py$app_params"
+    log_info "Python command: $python_command"
+    
+    if ! "$PROFILE_SCRIPT" --output "$output_file" $python_command; then
+        log_error "Failed to run application: $app_name"
+        cd "$current_dir"
+        return 1
+    fi
+    
+    # Return to original directory
+    cd "$current_dir"
     
     # Calculate execution time
     local end_time

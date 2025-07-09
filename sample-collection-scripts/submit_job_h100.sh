@@ -25,8 +25,8 @@
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
 
-# Enable strict error handling
-set -euo pipefail
+# Enable strict error handling (conda-friendly)
+set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
 readonly CONDA_ENV="tensorflow"  # Use base environment (adjust if needed)
@@ -175,7 +175,7 @@ main() {
         log_error "❌ Conda environment '$CONDA_ENV' not found"
         log_error "📋 Available environments:"
         conda info --envs
-        log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/tensorflow.yml"
+        log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/lstm-h100-20250708.yml"
         exit 1
     fi
     

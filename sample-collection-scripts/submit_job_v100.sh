@@ -24,8 +24,8 @@
 #SBATCH --mail-user=mert.side@ttu.edu
 #SBATCH --time=03:00:00  # Adjust based on configuration (see timing notes below)
 
-# Enable strict error handling
-set -euo pipefail
+# Enable strict error handling (conda-friendly)
+set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
 readonly CONDA_ENV="tensorflow"
