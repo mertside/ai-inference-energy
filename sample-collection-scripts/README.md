@@ -9,6 +9,7 @@ This directory contains the core scripts for running AI inference energy profili
 - 🛠️ **Intelligent Tool Fallback**: Automatic fallback from DCGMI to nvidia-smi
 - 📊 **Flexible Modes**: DVFS (full frequency sweep) or baseline (single frequency)
 - 🚀 **Enhanced SLURM Integration**: Multiple job submission scripts
+- 🔍 **Automatic GPU Detection**: `launch.sh` adjusts `--gpu-type` to match the detected hardware
 
 ## Quick Start
 
@@ -48,6 +49,7 @@ The `launch.sh` script now accepts comprehensive command-line arguments:
 
 Options:
   --gpu-type TYPE          GPU type: A100 or V100 (default: A100)
+                           (auto-detected and overridden when possible)
   --profiling-tool TOOL    Profiling tool: dcgmi or nvidia-smi (default: dcgmi)
   --profiling-mode MODE    Mode: dvfs or baseline (default: dvfs)
   --num-runs NUM           Number of runs per frequency (default: 2)
