@@ -1,3 +1,4 @@
+import sys
 import time  # meside
 
 import tensorflow as tf
@@ -23,26 +24,28 @@ verbosity_mode = 1
 # Disable eager execution
 tf.compat.v1.disable_eager_execution()
 
+gpus = tf.config.list_physical_devices("GPU")
+if not gpus:
+    print("WARNING: No GPU detected. Exiting to avoid long CPU runtimes.")
+    sys.exit(1)
+for gpu in gpus:
+    try:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    except Exception as e:  # pragma: no cover - safety
+        print(f"Failed to set memory growth for {gpu}: {e}")
+
 # Load dataset
 (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=num_distinct_words)
 print(x_train.shape)
 print(x_test.shape)
 
 # Pad all sequences
-padded_inputs = pad_sequences(
-    x_train, maxlen=max_sequence_length, value=0.0
-)  # 0.0 because it corresponds with <PAD>
-padded_inputs_test = pad_sequences(
-    x_test, maxlen=max_sequence_length, value=0.0
-)  # 0.0 because it corresponds with <PAD>
+padded_inputs = pad_sequences(x_train, maxlen=max_sequence_length, value=0.0)  # 0.0 because it corresponds with <PAD>
+padded_inputs_test = pad_sequences(x_test, maxlen=max_sequence_length, value=0.0)  # 0.0 because it corresponds with <PAD>
 
 # Define the Keras model
 model = Sequential()
-model.add(
-    Embedding(
-        num_distinct_words, embedding_output_dims, input_length=max_sequence_length
-    )
-)
+model.add(Embedding(num_distinct_words, embedding_output_dims, input_length=max_sequence_length))
 model.add(LSTM(10))
 model.add(Dense(1, activation="sigmoid"))
 
@@ -54,14 +57,15 @@ model.summary()
 
 start_time = time.time()  # meside
 # Train the model
-history = model.fit(
-    padded_inputs,
-    y_train,
-    batch_size=batch_size,
-    epochs=number_of_epochs,
-    verbose=verbosity_mode,
-    validation_split=validation_split,
-)
+with tf.device("/GPU:0"):
+    history = model.fit(
+        padded_inputs,
+        y_train,
+        batch_size=batch_size,
+        epochs=number_of_epochs,
+        verbose=verbosity_mode,
+        validation_split=validation_split,
+    )
 
 # Test the model after training
 test_results = model.evaluate(padded_inputs_test, y_test, verbose=False)
