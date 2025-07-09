@@ -297,7 +297,7 @@ sbatch submit_job_h100.sh
 - 🎯 **Easy selection**: Just uncomment one configuration
 - ⏱️ **Timing guidance**: Built-in recommendations for SLURM `--time` parameter
 - 🔧 **GPU-optimized**: Configurations tailored for each GPU architecture
-- 📖 **Full guide**: See `sample-collection-scripts/V100_SCRIPT_GUIDE.md`
+ - 📖 **Full guide**: See `sample-collection-scripts/JOB_SCRIPT_GUIDE_V100.md`
 
 **Legacy Scripts (Deprecated):**
 ```bash
@@ -315,7 +315,6 @@ sbatch submit_job_v100_custom_app.sh    # → use submit_job_v100.sh config #7
 sbatch submit_job_h100_baseline.sh      # → use submit_job_h100.sh config #1
 sbatch submit_job_h100_comprehensive.sh # → use submit_job_h100.sh config #4
 sbatch submit_job_h100_custom_app.sh    # → use submit_job_h100.sh config #5
-sbatch submit_job_h100_baseline.sh
 
 # Custom application profiling
 sbatch submit_job_custom_app.sh
