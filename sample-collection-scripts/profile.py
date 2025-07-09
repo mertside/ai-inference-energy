@@ -208,22 +208,34 @@ class GPUProfiler:
             self.monitoring_process = None
             self.start_time = None
 
-    def profile_command(self, command: str) -> Dict[str, Any]:
+    def profile_command(self, command) -> Dict[str, Any]:
         """
         Profile a command execution with GPU monitoring.
 
         Args:
-            command: Command string to execute and profile
+            command: Command string or list of arguments to execute and profile
 
         Returns:
             Dictionary containing profiling results
         """
-        if not command.strip():
-            self.logger.warning("Empty command provided, only monitoring GPU")
-            time.sleep(2)  # Monitor for 2 seconds
-            return {"duration": 2.0, "command": "", "exit_code": 0}
+        # Handle both string and list inputs
+        if isinstance(command, str):
+            if not command.strip():
+                self.logger.warning("Empty command provided, only monitoring GPU")
+                time.sleep(2)  # Monitor for 2 seconds
+                return {"duration": 2.0, "command": "", "exit_code": 0}
+            command_display = command
+            use_shell = True
+        else:
+            # List of arguments
+            if not command or not command[0]:
+                self.logger.warning("Empty command provided, only monitoring GPU")
+                time.sleep(2)  # Monitor for 2 seconds
+                return {"duration": 2.0, "command": "", "exit_code": 0}
+            command_display = " ".join(command)
+            use_shell = False
 
-        self.logger.info(f"Profiling command: {command}")
+        self.logger.info(f"Profiling command: {command_display}")
 
         # Start GPU monitoring
         self.start_monitoring()
@@ -234,7 +246,7 @@ class GPUProfiler:
 
             result = subprocess.run(
                 command,
-                shell=True,
+                shell=use_shell,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,  # Python 3.6 compatible (text=True in 3.7+)
@@ -250,7 +262,7 @@ class GPUProfiler:
             self.logger.info(f"Exit code: {result.returncode}")
 
             if result.stdout:
-                self.logger.debug(f"Command stdout: {result.stdout}")
+                self.logger.info(f"Command stdout: {result.stdout}")
             if result.stderr:
                 self.logger.warning(f"Command stderr: {result.stderr}")
 
@@ -275,13 +287,13 @@ class GPUProfiler:
 
 
 def profile_application(
-    command: str, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
+    command, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
 ) -> Dict[str, Any]:
     """
     Convenience function to profile an application with GPU monitoring.
 
     Args:
-        command: Command to execute and profile
+        command: Command to execute and profile (string or list of arguments)
         output_file: Output file for profiling data
         interval_ms: Sampling interval in milliseconds
         gpu_id: GPU device ID to monitor

@@ -568,6 +568,18 @@ check_prerequisites() {
     fi
     log_info "✓ Application found: $RESOLVED_APP_DIR/$RESOLVED_APP_SCRIPT.py"
     
+    # Validate required conda environment exists
+    local required_env=$(determine_conda_env "$APP_NAME")
+    log_info "Application '$APP_NAME' requires conda environment: $required_env"
+    
+    if ! check_conda_env "$required_env"; then
+        log_error "Required conda environment '$required_env' not found"
+        log_error "Available environments:"
+        conda info --envs | grep -v "^#" | sed 's/^/  /'
+        return 1
+    fi
+    log_info "✓ Required conda environment found: $required_env"
+    
     # Check profiling tool availability with automatic fallback
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
         if ! command -v dcgmi &> /dev/null; then
@@ -762,24 +774,94 @@ run_application() {
     local python_command="python $RESOLVED_APP_SCRIPT.py $clean_app_params"
     log_info "Python command: $python_command"
     
+    # Create a temporary script to handle complex argument passing
+    local temp_script=$(mktemp)
+    
+    # Write a Python script that properly handles command line arguments
+    cat > "$temp_script" << 'EOF'
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+
+# Add the parent directory to the path so we can import profile
+sys.path.insert(0, os.path.dirname(sys.argv[1]))
+
+from profile import profile_application
+
+# Get arguments from command line
+profile_script_path = sys.argv[1]
+output_file = sys.argv[2]
+resolved_app_dir = sys.argv[3]
+resolved_app_script = sys.argv[4]
+conda_env = sys.argv[5]
+app_params = sys.argv[6:]
+
+# Change to the application directory
+os.chdir(resolved_app_dir)
+
+# Find the conda environment's Python executable
+conda_base = os.path.expanduser("~/miniforge3")  # Common miniforge location
+if not os.path.exists(conda_base):
+    conda_base = os.path.expanduser("~/miniconda3")  # Try miniconda
+if not os.path.exists(conda_base):
+    conda_base = os.path.expanduser("~/anaconda3")  # Try anaconda
+
+conda_python = os.path.join(conda_base, "envs", conda_env, "bin", "python")
+
+# Fall back to system python if conda environment not found
+if not os.path.exists(conda_python):
+    conda_python = "python"
+
+# Construct the command with the conda environment's Python
+command = [conda_python, f'{resolved_app_script}.py'] + app_params
+
+# Run with profiling
+result = profile_application(
+    command=command,
+    output_file=output_file,
+    interval_ms=50,
+    gpu_id=0
+)
+
+sys.exit(result.get('exit_code', 0))
+EOF
+    
+    # Make the script executable
+    chmod +x "$temp_script"
+    
+    # Determine the required conda environment
+    local required_env=$(determine_conda_env "$app_name")
+    
+    # Parse clean_app_params into individual arguments using shell word splitting
+    # This is necessary to preserve quoted arguments
+    local app_args_array=()
+    if [[ -n "$clean_app_params" ]]; then
+        # Use eval to properly parse the arguments with quotes
+        eval "app_args_array=($clean_app_params)"
+    fi
+    
     # Run with profiling, handling output redirection properly
     if [[ -n "$app_output_file" ]]; then
         # If there's output redirection, apply it to the profile command
-        # Use eval to properly handle argument expansion and redirection
-        if ! eval "$PROFILE_SCRIPT --output '$output_file' -- python '$RESOLVED_APP_SCRIPT.py' $clean_app_params > '$app_output_file'"; then
+        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "${app_args_array[@]}" > "$app_output_file"; then
             log_error "Failed to run application: $app_name"
+            rm -f "$temp_script"
             cd "$current_dir"
             return 1
         fi
     else
         # No output redirection needed
-        # Use eval to properly handle argument expansion
-        if ! eval "$PROFILE_SCRIPT --output '$output_file' -- python '$RESOLVED_APP_SCRIPT.py' $clean_app_params"; then
+        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "${app_args_array[@]}"; then
             log_error "Failed to run application: $app_name"
+            rm -f "$temp_script"
             cd "$current_dir"
             return 1
         fi
     fi
+    
+    # Clean up temporary script
+    rm -f "$temp_script"
     
     # Return to original directory
     cd "$current_dir"
@@ -972,6 +1054,70 @@ cleanup() {
     exit "$exit_code"
 }
 
+# Function to determine the appropriate conda environment based on the application
+determine_conda_env() {
+    local app_name="$1"
+    
+    # Map application names to conda environments
+    case "$app_name" in
+        "StableDiffusion")
+            echo "stable-diffusion-gpu"
+            ;;
+        "LSTM")
+            echo "tensorflow"
+            ;;
+        "LLaMA")
+            echo "tensorflow"  # Default for now, can be adjusted
+            ;;
+        *)
+            echo "tensorflow"  # Default environment
+            ;;
+    esac
+}
+
+# Function to check if a conda environment exists
+check_conda_env() {
+    local env_name="$1"
+    
+    if conda info --envs | grep -q "^${env_name}[[:space:]]"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to activate the correct conda environment for the application
+activate_conda_env() {
+    local app_name="$1"
+    local required_env=$(determine_conda_env "$app_name")
+    
+    log_info "Application '$app_name' requires conda environment: $required_env"
+    
+    # Check if the required environment exists
+    if ! check_conda_env "$required_env"; then
+        log_error "Required conda environment '$required_env' not found"
+        log_error "Available environments:"
+        conda info --envs | grep -v "^#" | sed 's/^/  /'
+        return 1
+    fi
+    
+    # Check if we're already in the correct environment
+    if [[ "${CONDA_DEFAULT_ENV:-}" == "$required_env" ]]; then
+        log_info "Already in correct conda environment: $required_env"
+        return 0
+    fi
+    
+    # Activate the required environment
+    log_info "Activating conda environment: $required_env"
+    if ! conda activate "$required_env"; then
+        log_error "Failed to activate conda environment: $required_env"
+        return 1
+    fi
+    
+    log_info "Successfully activated conda environment: $required_env"
+    return 0
+}
+
 # ============================================================================
 # Main Function
 # ============================================================================
@@ -1027,6 +1173,11 @@ main() {
     
     # Check prerequisites
     if ! check_prerequisites; then
+        exit 1
+    fi
+    
+    # Activate the conda environment for the application
+    if ! activate_conda_env "$APP_NAME"; then
         exit 1
     fi
     
