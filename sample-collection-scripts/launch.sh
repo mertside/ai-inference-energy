@@ -255,6 +255,37 @@ parse_arguments() {
     
     return 0
 }
+
+# Function to auto-detect GPU type using nvidia-smi
+detect_gpu_type() {
+    if ! command -v nvidia-smi &> /dev/null; then
+        log_warning "nvidia-smi not found - skipping GPU auto-detection"
+        return 0
+    fi
+
+    local gpu_name detected_type=""
+    gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -n1 || true)
+    if [[ -z "$gpu_name" ]]; then
+        log_warning "Unable to detect GPU name"
+        return 0
+    fi
+
+    if [[ "$gpu_name" =~ A100 ]]; then
+        detected_type="A100"
+    elif [[ "$gpu_name" =~ V100 ]]; then
+        detected_type="V100"
+    elif [[ "$gpu_name" =~ H100 ]]; then
+        detected_type="H100"
+    fi
+
+    if [[ -n "$detected_type" && "$detected_type" != "$GPU_TYPE" ]]; then
+        log_info "Auto-detected GPU type '$detected_type' (was '$GPU_TYPE'). Updating configuration."
+        GPU_TYPE="$detected_type"
+    fi
+
+    return 0
+}
+
 # Function to configure GPU-specific settings after argument parsing
 configure_gpu_settings() {
     # GPU-specific configuration based on architecture
@@ -829,7 +860,10 @@ main() {
     if ! parse_arguments "$@"; then
         exit 1
     fi
-    
+
+    # Auto-detect GPU type and adjust configuration if needed
+    detect_gpu_type
+
     # Configure GPU settings based on parsed arguments
     if ! configure_gpu_settings; then
         exit 1
