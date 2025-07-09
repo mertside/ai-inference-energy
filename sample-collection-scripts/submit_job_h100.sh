@@ -29,8 +29,33 @@
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
-readonly CONDA_ENV="tensorflow"  # Use base environment (adjust if needed)
 readonly LAUNCH_SCRIPT="./launch.sh"
+
+# Function to determine conda environment based on application
+determine_conda_env() {
+    local app_name=""
+    
+    # Extract app name from LAUNCH_ARGS
+    if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
+        app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
+    fi
+    
+    # Map application names to conda environments
+    case "$app_name" in
+        "StableDiffusion")
+            echo "stable-diffusion-gpu"
+            ;;
+        "LSTM")
+            echo "tensorflow"
+            ;;
+        "LLaMA")
+            echo "tensorflow"  # Default for now, can be adjusted
+            ;;
+        *)
+            echo "tensorflow"  # Default environment
+            ;;
+    esac
+}
 
 # ============================================================================
 # CONFIGURATION SECTION - Uncomment ONE configuration below
@@ -159,8 +184,9 @@ main() {
         log_warning "⚠️  nvidia-smi not found - may affect profiling capabilities"
     fi
     
-    # Activate conda environment
-    log_info "Activating conda environment: $CONDA_ENV"
+    # Determine and activate conda environment based on application
+    local CONDA_ENV=$(determine_conda_env)
+    log_info "Activating conda environment: $CONDA_ENV (auto-selected for application)"
     if [[ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]]; then
         source "$HOME/miniforge3/etc/profile.d/conda.sh"
     elif [[ -f "$HOME/conda/etc/profile.d/conda.sh" ]]; then
@@ -175,7 +201,15 @@ main() {
         log_error "❌ Conda environment '$CONDA_ENV' not found"
         log_error "📋 Available environments:"
         conda info --envs
-        log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/lstm-h100-20250708.yml"
+        case "$CONDA_ENV" in
+            "stable-diffusion-gpu")
+                log_error "💡 To create stable-diffusion-gpu environment: conda create -n stable-diffusion-gpu python=3.10"
+                log_error "💡 Then install requirements: pip install -r ../app-stable-diffusion/requirements.txt"
+                ;;
+            "tensorflow")
+                log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/lstm-h100-20250708.yml"
+                ;;
+        esac
         exit 1
     fi
     
