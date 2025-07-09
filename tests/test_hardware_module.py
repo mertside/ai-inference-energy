@@ -318,7 +318,7 @@ class TestConvenienceFunctions(unittest.TestCase):
         valid_configs = [
             ("V100", 1380, 877),
             ("A100", 1410, 1215),
-            ("H100", 1755, 1593),
+            ("H100", 1785, 2619),
         ]
 
         for gpu_type, core_freq, memory_freq in valid_configs:

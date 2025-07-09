@@ -389,7 +389,7 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 - **Frequency Control**: Via nvidia-smi interface
 
 #### **H100 GPU (REPACSS)**
-- **Memory Frequency**: 1593 MHz (H100 default)
+- **Memory Frequency**: 2619 MHz (H100 maximum)
 - **Core Frequencies**: 86 different settings from 1785 MHz down to 510 MHz in 15MHz steps
 - **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
 - **Cluster**: REPACSS at Texas Tech University (node: rpg-93-9)

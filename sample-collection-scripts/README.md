@@ -88,7 +88,7 @@ Options:
 ./launch.sh --gpu-type H100
 ```
 - Architecture: GH100  
-- Memory: 1593 MHz
+- Memory: 2619 MHz
 - Core frequencies: 1785-510 MHz (86 frequencies in 15MHz steps)
 - SLURM partition: h100-build (node: rpg-93-9)
 - Cluster: REPACSS at Texas Tech University
@@ -182,8 +182,8 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 | A100 | nvidia-smi | profile_smi.py | control_smi.sh | 1215 MHz | 1410 MHz |
 | V100 | dcgmi | profile.py | control.sh | 877 MHz | 1380 MHz |
 | V100 | nvidia-smi | profile_smi.py | control_smi.sh | 877 MHz | 1380 MHz |
-| H100 | dcgmi | profile.py | control.sh | 1593 MHz | 1755 MHz |
-| H100 | nvidia-smi | profile_smi.py | control_smi.sh | 1593 MHz | 1755 MHz |
+| H100 | dcgmi | profile.py | control.sh | 2619 MHz | 1785 MHz |
+| H100 | nvidia-smi | profile_smi.py | control_smi.sh | 2619 MHz | 1785 MHz |
 
 ## Individual Script Usage
 
