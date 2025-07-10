@@ -28,7 +28,11 @@
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
-readonly LAUNCH_SCRIPT="./launch.sh"
+readonly LAUNCH_SCRIPT_LEGACY="./launch.sh"
+readonly LAUNCH_SCRIPT_V2="./launch_v2.sh"
+
+# Use new framework by default, fallback to legacy if needed
+readonly LAUNCH_SCRIPT="${LAUNCH_SCRIPT_V2}"
 
 # Function to determine conda environment based on application
 determine_conda_env() {
@@ -199,7 +203,14 @@ main() {
     # Determine and activate conda environment based on application
     local CONDA_ENV=$(determine_conda_env)
     log_info "Activating conda environment: $CONDA_ENV (auto-selected for application)"
-    source "$HOME/conda/etc/profile.d/conda.sh"
+    if [[ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    elif [[ -f "$HOME/conda/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/conda/etc/profile.d/conda.sh"
+    else
+        log_error "❌ Conda initialization script not found"
+        exit 1
+    fi
     
     # Check if environment exists
     if ! conda info --envs | grep -q "^$CONDA_ENV "; then
@@ -214,6 +225,9 @@ main() {
             "tensorflow")
                 log_error "💡 To create tensorflow environment: conda env create -f ../app-lstm/lstm-v100-20250708.yml"
                 ;;
+        esac
+        exit 1
+    fi
         esac
         exit 1
     fi
