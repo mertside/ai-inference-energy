@@ -60,4 +60,8 @@ __pycache__/
 # SLURM job files
 *.out
 *.err
-test_output.log
+
+# Result files
+*.log
+*.csv
+*.png
