@@ -228,9 +228,6 @@ main() {
         esac
         exit 1
     fi
-        esac
-        exit 1
-    fi
     
     conda activate "$CONDA_ENV"
     
