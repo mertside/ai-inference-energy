@@ -41,25 +41,55 @@ try:
 except ImportError:
     # Fallback configuration if imports fail
     class ProfilingConfig:
+        # DCGMI_FIELDS = [
+        #     1001,
+        #     1002,
+        #     1003,
+        #     1004,
+        #     1005,
+        #     1006,
+        #     1007,
+        #     1008,
+        #     1009,
+        #     1010,
+        #     203,
+        #     204,
+        #     210,
+        #     211,
+        #     155,
+        #     156,
+        #     110,
+        # ]
         DCGMI_FIELDS = [
-            1001,
-            1002,
-            1003,
-            1004,
-            1005,
-            1006,
-            1007,
-            1008,
-            1009,
-            1010,
-            203,
-            204,
-            210,
-            211,
-            155,
-            156,
-            110,
+            # "timestamp", # 0 ─ dcgmi dmon prints host timestamp automatically
+            52,          # 1 ─ DCGM_FI_DEV_NVML_INDEX
+            50,          # 2 ─ DCGM_FI_DEV_NAME
+            155,         # 3 ─ DCGM_FI_DEV_POWER_USAGE
+            160,         # 4 ─ DCGM_FI_DEV_POWER_MGMT_LIMIT
+            150,         # 5 ─ DCGM_FI_DEV_GPU_TEMP
+            203,         # 6 ─ DCGM_FI_DEV_GPU_UTIL          (coarse)
+            204,         # 7 ─ DCGM_FI_DEV_MEM_COPY_UTIL     (≈ util.mem)
+            250,         # 8 ─ DCGM_FI_DEV_FB_TOTAL
+            251,         # 9 ─ DCGM_FI_DEV_FB_FREE
+            252,         # 10 ─ DCGM_FI_DEV_FB_USED
+            100,         # 11 ─ DCGM_FI_DEV_SM_CLOCK
+            101,         # 12 ─ DCGM_FI_DEV_MEM_CLOCK
+            100,         # 13 ─ (proxy for graphics clock)
+            110,         # 14 ─ DCGM_FI_DEV_APP_SM_CLOCK
+            111,         # 15 ─ DCGM_FI_DEV_APP_MEM_CLOCK
+            190,         # 16 ─ DCGM_FI_DEV_PSTATE
+            140,         # memory (HBM) temperature
+            156,         # total energy consumption (mJ)
+            1001,        # graphics active 
+            1002,        # SM active
+            1003,        # SM occupancy
+            1004,        # tensor pipe active
+            1005,        # DRAM active
+            1006,        # FP64 active
+            1007,        # FP32 active
+            1008         # FP16 active
         ]
+        # One-liner: dcgmi dmon -d 100 -e 52,50,155,160,150,203,204,250,251,252,100,101,100,110,111,190,140,156,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
         DEFAULT_INTERVAL_MS = 50
         TEMP_OUTPUT_FILE = "changeme"
 

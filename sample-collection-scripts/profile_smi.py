@@ -112,22 +112,45 @@ class NvidiaSmiProfiler:
             List of command arguments for nvidia-smi
         """
         # nvidia-smi query fields for comprehensive monitoring
+        # query_fields = [
+        #     "timestamp",
+        #     "index",
+        #     "name",
+        #     "power.draw",
+        #     "power.limit",
+        #     "temperature.gpu",
+        #     "utilization.gpu",
+        #     "utilization.memory",
+        #     "memory.total",
+        #     "memory.free",
+        #     "memory.used",
+        #     "clocks.sm",
+        #     "clocks.mem",
+        #     "clocks.gr",
+        #     "clocks.applications.graphics",
+        #     "clocks.applications.memory",
+        #     "pstate",
+        # ]
+
+        # ── nvidia-smi properties ───────────────────────────────────────────────
         query_fields = [
-            "timestamp",
-            "index",
-            "name",
-            "power.draw",
-            "power.limit",
-            "temperature.gpu",
-            "utilization.gpu",
-            "utilization.memory",
-            "memory.total",
-            "memory.free",
-            "memory.used",
-            "clocks.sm",
-            "clocks.mem",
-            "clocks.gr",
-            "pstate",
+            "timestamp",                     # 0  ─ host timestamp
+            "index",                         # 1  ─ NVML GPU index
+            "name",                          # 2  ─ product name
+            "power.draw",                    # 3  ─ instantaneous / 1-s-avg power (W)
+            "power.limit",                   # 4  ─ current software power cap (W)
+            "temperature.gpu",               # 5  ─ core temperature (°C)
+            "utilization.gpu",               # 6  ─ coarse busy %
+            "utilization.memory",            # 7  ─ memory-interface busy %
+            "memory.total",                  # 8  ─ FB memory installed (MiB)
+            "memory.free",                   # 9  ─ FB memory free (MiB)
+            "memory.used",                   # 10 ─ FB memory used (MiB)
+            "clocks.sm",                     # 11 ─ SM frequency (MHz)
+            "clocks.mem",                    # 12 ─ HBM/GDDR frequency (MHz)
+            "clocks.gr",                     # 13 ─ graphics clock (≈ SM on DC GPUs)
+            "clocks.applications.graphics",  # 14 ─ user-set app graphics clock (MHz)
+            "clocks.applications.memory",    # 15 ─ user-set app memory clock (MHz)
+            "pstate"                         # 16 ─ performance state P0…P15
         ]
 
         # Convert interval from ms to seconds for nvidia-smi
@@ -154,23 +177,45 @@ class NvidiaSmiProfiler:
 
             with open(self.output_file, "w") as output:
                 # Write CSV header
+                # header_fields = [
+                #     "timestamp",
+                #     "index",
+                #     "name",
+                #     "power.draw",
+                #     "power.limit",
+                #     "temperature.gpu",
+                #     "utilization.gpu",
+                #     "utilization.memory",
+                #     "memory.total",
+                #     "memory.free",
+                #     "memory.used",
+                #     "clocks.sm",
+                #     "clocks.mem",
+                #     "clocks.gr",
+                #     "clocks.applications.graphics",
+                #     "clocks.applications.memory",
+                #     "pstate",
+                # ]
                 header_fields = [
-                    "timestamp",
-                    "index",
-                    "name",
-                    "power.draw",
-                    "power.limit",
-                    "temperature.gpu",
-                    "utilization.gpu",
-                    "utilization.memory",
-                    "memory.total",
-                    "memory.free",
-                    "memory.used",
-                    "clocks.sm",
-                    "clocks.mem",
-                    "clocks.gr",
-                    "pstate",
+                    "timestamp",                     # 0  ─ host timestamp
+                    "index",                         # 1  ─ NVML GPU index
+                    "name",                          # 2  ─ product name
+                    "power.draw",                    # 3  ─ instantaneous / 1-s-avg power (W)
+                    "power.limit",                   # 4  ─ current software power cap (W)
+                    "temperature.gpu",               # 5  ─ core temperature (°C)
+                    "utilization.gpu",               # 6  ─ coarse busy %
+                    "utilization.memory",            # 7  ─ memory-interface busy %
+                    "memory.total",                  # 8  ─ FB memory installed (MiB)
+                    "memory.free",                   # 9  ─ FB memory free (MiB)
+                    "memory.used",                   # 10 ─ FB memory used (MiB)
+                    "clocks.sm",                     # 11 ─ SM frequency (MHz)
+                    "clocks.mem",                    # 12 ─ HBM/GDDR frequency (MHz)
+                    "clocks.gr",                     # 13 ─ graphics clock (≈ SM on DC GPUs)
+                    "clocks.applications.graphics",  # 14 ─ user-set app graphics clock (MHz)
+                    "clocks.applications.memory",    # 15 ─ user-set app memory clock (MHz)
+                    "pstate"                         # 16 ─ performance state P0…P15
                 ]
+                
                 output.write(",".join(header_fields) + "\n")
                 output.flush()
 

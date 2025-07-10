@@ -1,0 +1,53 @@
+2025-07-09 18:50:01,067 - ai_inference_energy - INFO - Profiling command: /mnt/DISCL/home/meside/miniforge3/envs/tensorflow/bin/python lstm.py
+2025-07-09 18:50:01,067 - ai_inference_energy - INFO - Starting GPU monitoring with command: dcgmi dmon -i 0 -e 1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,203,204,210,211,155,156,110 -d 50
+2025-07-09 18:50:01,067 - ai_inference_energy - INFO - Output file: /mnt/DISCL/home/meside/ai-inference-energy/sample-collection-scripts/results/GH100-baseline-LSTM-1785-2
+2025-07-09 18:50:01,067 - ai_inference_energy - INFO - Sampling interval: 50ms
+2025-07-09 18:50:01,070 - ai_inference_energy - INFO - GPU monitoring started (PID: 166789)
+2025-07-09 18:50:16,322 - ai_inference_energy - INFO - GPU monitoring stopped. Duration: 15.25s
+2025-07-09 18:50:16,322 - ai_inference_energy - INFO - Command completed in 15.25s
+2025-07-09 18:50:16,322 - ai_inference_energy - INFO - Exit code: 0
+2025-07-09 18:50:16,322 - ai_inference_energy - INFO - Command stdout: Failed to set memory growth for PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU'): Physical devices cannot be modified after being initialized
+(25000,)
+(25000,)
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ embedding (Embedding)           │ ?                      │   0 (unbuilt) │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ lstm (LSTM)                     │ ?                      │   0 (unbuilt) │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ ?                      │   0 (unbuilt) │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 0 (0.00 B)
+ Trainable params: 0 (0.00 B)
+ Non-trainable params: 0 (0.00 B)
+
+[1m 1/20[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m48s[0m 3s/step - accuracy: 0.5020 - loss: 0.6932
+[1m 5/20[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 16ms/step - accuracy: 0.5120 - loss: 0.6930
+[1m 9/20[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 16ms/step - accuracy: 0.5211 - loss: 0.6927
+[1m13/20[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 16ms/step - accuracy: 0.5322 - loss: 0.6924
+[1m17/20[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 16ms/step - accuracy: 0.5434 - loss: 0.6921
+[1m20/20[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 27ms/step - accuracy: 0.5530 - loss: 0.6917 - val_accuracy: 0.6560 - val_loss: 0.6850
+Test results - Loss: 0.6848396062850952 - Accuracy: 66.14400148391724%
+8.266560077667236 seconds
+
+2025-07-09 18:50:16,323 - ai_inference_energy - WARNING - Command stderr: 2025-07-09 18:50:01.386870: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-07-09 18:50:01.398610: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1752105001.411465  166790 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1752105001.415278  166790 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1752105001.425165  166790 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1752105001.425180  166790 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1752105001.425183  166790 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1752105001.425184  166790 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+2025-07-09 18:50:01.428295: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+I0000 00:00:1752105004.579682  166790 gpu_device.cc:2019] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 45359 MB memory:  -> device: 0, name: NVIDIA H100 NVL MIG 4g.47gb, pci bus id: 0000:ca:00.0, compute capability: 9.0
+/mnt/DISCL/home/meside/miniforge3/envs/tensorflow/lib/python3.10/site-packages/keras/src/layers/core/embedding.py:97: UserWarning: Argument `input_length` is deprecated. Just remove it.
+  warnings.warn(
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1752105008.369352  166831 ptx_compiler_helpers.cc:88] *** WARNING *** Invoking ptxas with version 12.2.140, which corresponds to a CUDA version <=12.6.2. CUDA versions 12.x.y up to and including 12.6.2 miscompile certain edge cases around clamping.
+Please upgrade to CUDA 12.6.3 or newer.
+I0000 00:00:1752105009.286077  166810 cuda_dnn.cc:529] Loaded cuDNN version 90300
+
