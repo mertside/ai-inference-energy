@@ -61,6 +61,37 @@ determine_conda_env() {
     esac
 }
 
+# Function to determine expected results directory from launch arguments
+determine_results_dir() {
+    local gpu_type=""
+    local app_name=""
+    local custom_output=""
+    
+    # Extract relevant parameters from LAUNCH_ARGS
+    if echo "$LAUNCH_ARGS" | grep -q "gpu-type"; then
+        gpu_type=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--gpu-type \([^ ]*\).*/\1/p')
+    fi
+    
+    if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
+        app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
+    fi
+    
+    if echo "$LAUNCH_ARGS" | grep -q "output-dir"; then
+        custom_output=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--output-dir \([^ ]*\).*/\1/p')
+        echo "$custom_output"
+        return
+    fi
+    
+    # Generate auto-generated directory name (same logic as args_parser.sh)
+    if [[ -n "$gpu_type" && -n "$app_name" ]]; then
+        local gpu_name=$(echo "$gpu_type" | tr '[:upper:]' '[:lower:]')
+        local app_name_clean=$(echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+        echo "results_${gpu_name}_${app_name_clean}"
+    else
+        echo "results"
+    fi
+}
+
 # ============================================================================
 # CONFIGURATION SECTION - Uncomment ONE configuration below
 # ============================================================================
@@ -84,7 +115,7 @@ determine_conda_env() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 1000 --log-level INFO --width 768 --height 768' --num-runs 3 --sleep-interval 1"
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
@@ -178,6 +209,10 @@ log_header() {
 main() {
     log_header "🚀 Starting H100 GPU Profiling Job"
     log_info "Configuration: $LAUNCH_ARGS"
+    
+    # Determine expected results directory
+    readonly RESULTS_DIR=$(determine_results_dir)
+    log_info "Expected results directory: $RESULTS_DIR"
     
     # Check REPACSS H100 environment
     log_info "Checking REPACSS H100 environment..."
@@ -352,9 +387,11 @@ check_system_resources() {
     fi
     
     # Check if results directory exists
-    if [[ ! -d "results" ]]; then
-        log_info "📁 Creating results directory..."
-        mkdir -p results
+    if [[ ! -d "$RESULTS_DIR" ]]; then
+        log_info "📁 Creating results directory: $RESULTS_DIR"
+        mkdir -p "$RESULTS_DIR"
+    else
+        log_info "📁 Results directory exists: $RESULTS_DIR"
     fi
     
     # Check for H100-specific requirements
@@ -474,15 +511,15 @@ run_experiment() {
 display_results_summary() {
     log_header "📊 Results Summary"
     
-    if [[ -d "results" ]]; then
+    if [[ -d "$RESULTS_DIR" ]]; then
         local result_count
-        result_count=$(find results -type f | wc -l)
-        log_info "📁 Generated $result_count result files"
+        result_count=$(find "$RESULTS_DIR" -type f | wc -l)
+        log_info "📁 Generated $result_count result files in $RESULTS_DIR"
         
         # Show recent files
         if [[ "$result_count" -gt 0 ]]; then
             log_info "📋 Recent result files:"
-            find results -type f -newer "$LAUNCH_SCRIPT" 2>/dev/null | head -5 | while read -r file; do
+            find "$RESULTS_DIR" -type f -newer "$LAUNCH_SCRIPT" 2>/dev/null | head -5 | while read -r file; do
                 if [[ -n "$file" ]]; then
                     local size
                     size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "unknown")
@@ -493,7 +530,7 @@ display_results_summary() {
         
         # Check for specific output files
         local csv_files
-        csv_files=$(find results -name "GH100*.csv" 2>/dev/null)
+        csv_files=$(find "$RESULTS_DIR" -name "GH100*.csv" 2>/dev/null)
         if [[ -n "$csv_files" ]]; then
             local csv_file
             csv_file=$(echo "$csv_files" | head -1)
@@ -504,11 +541,11 @@ display_results_summary() {
         
         # Calculate total data size
         local total_size
-        total_size=$(du -sh results 2>/dev/null | cut -f1 || echo "unknown")
+        total_size=$(du -sh "$RESULTS_DIR" 2>/dev/null | cut -f1 || echo "unknown")
         log_info "💾 Total results directory size: $total_size"
         
     else
-        log_warning "⚠️  No results directory found"
+        log_warning "⚠️  No results directory found: $RESULTS_DIR"
     fi
 }
 
@@ -557,9 +594,9 @@ display_completion_notes() {
     log_info ""
     log_info "🎯 Next Steps:"
     log_info "   📊 Analyze results with power modeling framework:"
-    log_info "      python -c \"from power_modeling import analyze_application; analyze_application('results/GH100*.csv')\""
+    log_info "      python -c \"from power_modeling import analyze_application; analyze_application('$RESULTS_DIR/GH100*.csv')\""
     log_info "   📈 Run EDP optimization:"
-    log_info "      python -c \"from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('results/GH100*.csv')\""
+    log_info "      python -c \"from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('$RESULTS_DIR/GH100*.csv')\""
     log_info "   🔄 Submit additional configurations by editing this script and resubmitting"
     log_info "   🚀 Explore cutting-edge H100 features: configs #17-20 (Transformer Engine, FP8)"
     log_info "   🏆 Compare performance across GPU generations (V100 → A100 → H100)"

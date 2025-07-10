@@ -250,8 +250,65 @@ EOF
     
     # List generated output files
     if [[ -d "$PARSED_OUTPUT_DIR" ]]; then
-        find "$PARSED_OUTPUT_DIR" -name "*.csv" -o -name "*.out" -o -name "*.err" | \
+        find "$PARSED_OUTPUT_DIR" -name "*.csv" -o -name "*.out" -o -name "*.err" -o -name "*.log" | \
             sort | sed 's/^/  /' >> "$summary_file"
+    fi
+    
+    # Add timing summary if available
+    local timing_file="${PARSED_OUTPUT_DIR}/timing_summary.log"
+    if [[ -f "$timing_file" ]]; then
+        echo >> "$summary_file"
+        echo "Run Timing Summary:" >> "$summary_file"
+        echo "===================" >> "$summary_file"
+        
+        # Calculate timing statistics
+        local total_runs=0
+        local total_duration=0
+        local successful_runs=0
+        local failed_runs=0
+        local min_duration=999999
+        local max_duration=0
+        
+        while IFS=',' read -r run_id freq duration exit_code status; do
+            # Skip header and comment lines
+            if [[ "$run_id" =~ ^#.*$ ]] || [[ -z "$run_id" ]]; then
+                continue
+            fi
+            
+            ((total_runs++))
+            total_duration=$((total_duration + duration))
+            
+            if [[ "$status" == "success" ]]; then
+                ((successful_runs++))
+            else
+                ((failed_runs++))
+            fi
+            
+            if [[ $duration -lt $min_duration ]]; then
+                min_duration=$duration
+            fi
+            if [[ $duration -gt $max_duration ]]; then
+                max_duration=$duration
+            fi
+            
+            # Add individual run details
+            printf "  Run %-15s: %3ds (freq: %4dMHz, status: %s)\n" \
+                "$run_id" "$duration" "$freq" "$status" >> "$summary_file"
+        done < "$timing_file"
+        
+        # Add summary statistics
+        if [[ $total_runs -gt 0 ]]; then
+            local avg_duration=$((total_duration / total_runs))
+            echo >> "$summary_file"
+            echo "Timing Statistics:" >> "$summary_file"
+            printf "  Total runs:       %d\n" "$total_runs" >> "$summary_file"
+            printf "  Successful runs:  %d\n" "$successful_runs" >> "$summary_file"
+            printf "  Failed runs:      %d\n" "$failed_runs" >> "$summary_file"
+            printf "  Total duration:   %ds\n" "$total_duration" >> "$summary_file"
+            printf "  Average duration: %ds\n" "$avg_duration" >> "$summary_file"
+            printf "  Min duration:     %ds\n" "$min_duration" >> "$summary_file"
+            printf "  Max duration:     %ds\n" "$max_duration" >> "$summary_file"
+        fi
     fi
     
     echo >> "$summary_file"

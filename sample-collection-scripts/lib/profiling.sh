@@ -392,19 +392,29 @@ run_application_with_profiling() {
     local temp_script
     temp_script=$(create_temp_python_script "$conda_env" "$app_path" "$app_dir" "${app_params[@]}")
     
-    # Build profiling command
+    # Build profiling command - profile.py expects: profile.py [options] [command ...]
+    # Use -- to separate profile.py options from command arguments
     local profile_cmd=(
         "$profiling_script"
         --output "$profile_output"
-        --command "python3 '$temp_script' '$conda_env' '$app_path' '$app_dir'"
+        --
+        # Command and all arguments after -- are treated as positional
+        "python3" "$temp_script" "$conda_env" "$app_path" "$app_dir"
     )
     
-    # Add application parameters to profiling command
+    # Add application parameters after the -- separator
     for param in "${app_params[@]}"; do
-        profile_cmd+=(--command-arg "$param")
+        profile_cmd+=("$param")
     done
     
     log_debug "Profiling command: ${profile_cmd[*]}"
+    
+    # Create timing log file if it doesn't exist
+    local timing_file="${output_dir}/timing_summary.log"
+    if [[ ! -f "$timing_file" ]]; then
+        echo "# Run Timing Summary" > "$timing_file"
+        echo "# Format: run_id,frequency_mhz,duration_seconds,exit_code,status" >> "$timing_file"
+    fi
     
     # Execute profiling with timeout
     local start_time end_time duration exit_code=0
@@ -414,6 +424,9 @@ run_application_with_profiling() {
         end_time=$(date +%s)
         duration=$((end_time - start_time))
         log_success "Application completed successfully (took ${duration}s)"
+        
+        # Record timing information
+        echo "${run_id},${frequency},${duration},0,success" >> "$timing_file"
     else
         exit_code=$?
         end_time=$(date +%s)
@@ -421,8 +434,10 @@ run_application_with_profiling() {
         
         if [[ $exit_code -eq 124 ]]; then
             log_error "Application timed out after ${DEFAULT_PROFILE_TIMEOUT}s"
+            echo "${run_id},${frequency},${duration},${exit_code},timeout" >> "$timing_file"
         else
             log_error "Application failed (exit code: $exit_code, duration: ${duration}s)"
+            echo "${run_id},${frequency},${duration},${exit_code},failed" >> "$timing_file"
         fi
         
         # Log error details

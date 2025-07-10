@@ -101,6 +101,7 @@ show_usage() {
     printf "    \n"
     printf "    %sOutput Configuration:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --output-dir DIR         Output directory for results\n"
+    printf "                             (default: auto-generated as results_GPU_APP)\n"
     printf "                             (default: %s)\n" "$DEFAULT_OUTPUT_DIR"
     printf "    \n"
     printf "    %sGeneral Options:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
@@ -154,9 +155,10 @@ show_usage() {
     printf "                Standard GPU monitoring, fallback option\n\n"
     
     printf "%sOUTPUT:%s\n" "$COLOR_BLUE" "$COLOR_NC"
-    printf "    Results are saved to the specified output directory with the following structure:\n"
+    printf "    Results are saved to an auto-generated directory named results_GPU_APP.\n"
+    printf "    Example: results_h100_stablediffusion/ with the following structure:\n"
     printf "    \n"
-    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results}"
+    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results_gpu_app}"
     printf "    ├── run_XX_freq_YYYY_app.out      # Application output\n"
     printf "    ├── run_XX_freq_YYYY_app.err      # Application errors\n"
     printf "    ├── run_XX_freq_YYYY_profile.csv  # GPU profiling data\n"
@@ -405,6 +407,16 @@ apply_intelligent_defaults() {
     
     # Set up GPU environment
     set_gpu_environment "$PARSED_GPU_TYPE"
+    
+    # Auto-generate results directory name if using default
+    if [[ "$PARSED_OUTPUT_DIR" == "$DEFAULT_OUTPUT_DIR" ]]; then
+        local gpu_name=$(echo "$PARSED_GPU_TYPE" | tr '[:upper:]' '[:lower:]')
+        local app_name=$(echo "$PARSED_APP_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+        local new_output_dir="results_${gpu_name}_${app_name}"
+        
+        log_info "Auto-generating results directory: $new_output_dir (was: $DEFAULT_OUTPUT_DIR)"
+        PARSED_OUTPUT_DIR="$new_output_dir"
+    fi
     
     log_debug "Intelligent defaults applied successfully"
 }

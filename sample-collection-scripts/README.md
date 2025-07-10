@@ -130,9 +130,15 @@ sample-collection-scripts/
     --conda-env "pytorch_2.1" \
     --app-executable "custom_model.py"
 
-# Profiling tool comparison
-./launch_v2.sh --profiling-tool dcgmi --output-dir results_dcgmi
-./launch_v2.sh --profiling-tool nvidia-smi --output-dir results_nvidia_smi
+# Profiling tool comparison (auto-named directories)
+./launch_v2.sh --gpu-type H100 --app-name StableDiffusion --profiling-tool dcgmi
+# → Creates: results_h100_stablediffusion/
+
+./launch_v2.sh --gpu-type A100 --app-name LSTM --profiling-tool nvidia-smi  
+# → Creates: results_a100_lstm/
+
+# Custom output directory (overrides auto-naming)
+./launch_v2.sh --output-dir custom_results_dir
 ```
 
 ---
@@ -350,10 +356,21 @@ This provides:
 
 ## 📊 Results & Output
 
+### Automatic Directory Naming (v2.0)
+
+Results are automatically organized using the naming convention `results_[gpu]_[app]`:
+
+```
+results_h100_stablediffusion/     # H100 + Stable Diffusion
+results_a100_lstm/               # A100 + LSTM  
+results_v100_llama/              # V100 + LLaMA
+results_h100_customapp/          # H100 + Custom Application
+```
+
 ### Output Structure
 
 ```
-results/
+results_[gpu]_[app]/
 ├── YYYY-MM-DD_HH-MM-SS_<experiment>/
 │   ├── config_summary.txt           # Experiment configuration
 │   ├── gpu_info.txt                 # Hardware information  
