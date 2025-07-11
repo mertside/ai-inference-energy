@@ -261,16 +261,16 @@ main() {
 display_a100_info() {
     log_header "📊 A100 System Information"
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                    HPCC A100 Specifications                │"
+    echo "│                    HPCC A100 Specifications                 │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ Cluster:      HPCC at Texas Tech University                │"
+    echo "│ Cluster:      HPCC at Texas Tech University                 │"
     echo "│ Partition:    toreador                                      │"
     echo "│ Architecture: Ampere (GA100)                                │"
     echo "│ Memory:       40GB HBM2e                                    │"
     echo "│ Mem Freq:     1215 MHz (fixed)                              │"
     echo "│ Core Freq:    510-1410 MHz (61 frequencies)                 │"
-    echo "│ DVFS Step:    ~15 MHz typical                                │"
-    echo "│ Features:     3rd Gen Tensor Cores, RT Cores               │"
+    echo "│ DVFS Step:    ~15 MHz typical                               │"
+    echo "│ Features:     3rd Gen Tensor Cores, RT Cores                │"
     echo "│ Tools:        DCGMI (preferred) or nvidia-smi               │"
     echo "└─────────────────────────────────────────────────────────────┘"
 }
@@ -515,30 +515,30 @@ display_completion_notes() {
     log_header "📝 A100 Profiling Completion Notes"
     
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                   Profiling Summary                        │"
+    echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ GPU:          A100 (Ampere GA100) - 40GB HBM2e             │"
-    echo "│ Cluster:      HPCC toreador partition                      │"
+    echo "│ GPU:          A100 (Ampere GA100) - 40GB HBM2e              │"
+    echo "│ Cluster:      HPCC toreador partition                       │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        echo "│ Mode:         DVFS (tested across 61 frequency range)      │"
+        echo "│ Mode:         DVFS (tested across 61 frequency range)       │"
     elif echo "$LAUNCH_ARGS" | grep -q "custom"; then
-        echo "│ Mode:         Custom frequency selection                   │"
+        echo "│ Mode:         Custom frequency selection                    │"
     else
-        echo "│ Mode:         Baseline (single frequency profiling)        │"
+        echo "│ Mode:         Baseline (single frequency profiling)         │"
     fi
     
     # Tool-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "nvidia-smi"; then
-        echo "│ Tool:         nvidia-smi profiling                         │"
+        echo "│ Tool:         nvidia-smi profiling                          │"
     else
-        echo "│ Tool:         DCGMI (with nvidia-smi fallback)             │"
+        echo "│ Tool:         DCGMI (with nvidia-smi fallback)              │"
     fi
     
     # Feature-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "tensor-cores"; then
-        echo "│ Features:     3rd Gen Tensor Cores enabled                 │"
+        echo "│ Features:     3rd Gen Tensor Cores enabled                  │"
     fi
     
     echo "└─────────────────────────────────────────────────────────────┘"

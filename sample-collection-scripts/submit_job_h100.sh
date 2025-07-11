@@ -275,16 +275,16 @@ main() {
 display_h100_info() {
     log_header "📊 H100 System Information"
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                   REPACSS H100 Specifications              │"
+    echo "│                   REPACSS H100 Specifications               │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ Cluster:      REPACSS at Texas Tech University             │"
+    echo "│ Cluster:      REPACSS at Texas Tech University              │"
     echo "│ Partition:    h100-build                                    │"
     echo "│ Architecture: Hopper (GH100)                                │"
     echo "│ Memory:       80GB HBM3                                     │"
     echo "│ Mem Freq:     2619 MHz (maximum)                            │"
     echo "│ Core Freq:    510-1785 MHz (86 frequencies)                 │"
-    echo "│ DVFS Step:    ~15 MHz typical                                │"
-    echo "│ Features:     4th Gen Tensor Cores, Transformer Engine     │"
+    echo "│ DVFS Step:    ~15 MHz typical                               │"
+    echo "│ Features:     4th Gen Tensor Cores, Transformer Engine      │"
     echo "│ Precision:    FP8, FP16, BF16, INT8, INT4                   │"
     echo "│ Tools:        DCGMI (preferred) or nvidia-smi               │"
     echo "└─────────────────────────────────────────────────────────────┘"
@@ -555,38 +555,38 @@ display_completion_notes() {
     log_header "📝 H100 Profiling Completion Notes"
     
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                   Profiling Summary                        │"
+    echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ GPU:          H100 (Hopper GH100) - 80GB HBM3              │"
-    echo "│ Cluster:      REPACSS h100-build partition                 │"
+    echo "│ GPU:          H100 (Hopper GH100) - 80GB HBM3               │"
+    echo "│ Cluster:      REPACSS h100-build partition                  │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        echo "│ Mode:         DVFS (tested across 86 frequency range)      │"
+        echo "│ Mode:         DVFS (tested across 86 frequency range)       │"
     elif echo "$LAUNCH_ARGS" | grep -q "custom"; then
-        echo "│ Mode:         Custom frequency selection                   │"
+        echo "│ Mode:         Custom frequency selection                    │"
     else
-        echo "│ Mode:         Baseline (single frequency profiling)        │"
+        echo "│ Mode:         Baseline (single frequency profiling)         │"
     fi
     
     # Tool-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "nvidia-smi"; then
-        echo "│ Tool:         nvidia-smi profiling                         │"
+        echo "│ Tool:         nvidia-smi profiling                          │"
     else
-        echo "│ Tool:         DCGMI (with nvidia-smi fallback)             │"
+        echo "│ Tool:         DCGMI (with nvidia-smi fallback)              │"
     fi
     
     # Feature-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "transformer-engine"; then
-        echo "│ Features:     Transformer Engine enabled                   │"
+        echo "│ Features:     Transformer Engine enabled                    │"
     fi
     
     if echo "$LAUNCH_ARGS" | grep -q "4th-gen-tensor-cores"; then
-        echo "│ Features:     4th Gen Tensor Cores enabled                 │"
+        echo "│ Features:     4th Gen Tensor Cores enabled                  │"
     fi
     
     if echo "$LAUNCH_ARGS" | grep -q "fp8"; then
-        echo "│ Precision:    FP8 cutting-edge precision                   │"
+        echo "│ Precision:    FP8 cutting-edge precision                    │"
     fi
     
     echo "└─────────────────────────────────────────────────────────────┘"

@@ -251,9 +251,9 @@ main() {
 display_v100_info() {
     log_header "📊 V100 System Information"
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                    HPCC V100 Specifications                │"
+    echo "│                    HPCC V100 Specifications                 │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ Cluster:      HPCC at Texas Tech University                │"
+    echo "│ Cluster:      HPCC at Texas Tech University                 │"
     echo "│ Partition:    matador                                       │"
     echo "│ Architecture: Volta (GV100)                                 │"
     echo "│ Memory:       32GB HBM2                                     │"
@@ -473,25 +473,25 @@ display_completion_notes() {
     log_header "📝 V100 Profiling Completion Notes"
     
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                   Profiling Summary                        │"
+    echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ GPU:          V100 (Volta GV100) - 32GB HBM2               │"
-    echo "│ Cluster:      HPCC matador partition                       │"
+    echo "│ GPU:          V100 (Volta GV100) - 32GB HBM2                │"
+    echo "│ Cluster:      HPCC matador partition                        │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        echo "│ Mode:         DVFS (tested across 117 frequency range)     │"
+        echo "│ Mode:         DVFS (tested across 117 frequency range)      │"
     elif echo "$LAUNCH_ARGS" | grep -q "custom"; then
-        echo "│ Mode:         Custom frequency selection                   │"
+        echo "│ Mode:         Custom frequency selection                    │"
     else
-        echo "│ Mode:         Baseline (single frequency profiling)        │"
+        echo "│ Mode:         Baseline (single frequency profiling)         │"
     fi
     
     # Tool-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "nvidia-smi"; then
-        echo "│ Tool:         nvidia-smi profiling                         │"
+        echo "│ Tool:         nvidia-smi profiling                          │"
     else
-        echo "│ Tool:         DCGMI (with nvidia-smi fallback)             │"
+        echo "│ Tool:         DCGMI (with nvidia-smi fallback)              │"
     fi
     
     echo "└─────────────────────────────────────────────────────────────┘"
