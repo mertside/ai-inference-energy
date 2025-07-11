@@ -1,9 +1,16 @@
 # AI Inference Energy Profiling Framework
 
-> **Latest Version**: v2.0 (Refactored) | **Status**: Production Ready ✅  
-> **Quick Start**: `./launch_v2.sh --help` | **Legacy**: `./legacy/launch.sh`
+> **Latest Version**: v2.0.1 (Enhanced) | **Status**: Production Ready ✅  
+> **Quick Start**: `./launch_v2.sh --help` | **Cleanup**: `./clean.sh --help` | **Legacy**: `./legacy/launch.sh`
 
 This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA).
+
+**🎉 Recent Enhancements (v2.0.1):**
+- ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
+- ✅ **Intelligent Results Naming**: Automatic `results_[gpu]_[app]` directory organization  
+- ✅ **Enhanced Cleanup Tool**: Advanced filtering, backup, and selective cleanup options
+- ✅ **Comprehensive Summaries**: Rich experiment metadata and performance statistics
+- ✅ **Production Stability**: Improved reliability and user experience
 
 ---
 
@@ -13,17 +20,23 @@ This directory contains a **production-ready, modular AI inference energy profil
 # 1. Get help and see all options
 ./launch_v2.sh --help
 
-# 2. Run default A100 DVFS experiment
+# 2. Preview workspace cleanup (recommended before first run)
+./clean.sh --dry-run
+
+# 3. Run default A100 DVFS experiment
 ./launch_v2.sh
 
-# 3. Quick V100 baseline test
+# 4. Quick V100 baseline test
 ./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 
-# 4. Custom Stable Diffusion profiling
+# 5. Custom Stable Diffusion profiling
 ./launch_v2.sh \
     --app-name "StableDiffusion" \
     --app-executable "StableDiffusionViaHF.py" \
     --app-params "--prompt 'A beautiful landscape' --steps 20"
+
+# 6. Clean up results when done
+./clean.sh --gpu-type H100  # Clean only H100 results
 ```
 
 ---
@@ -46,6 +59,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 ```
 sample-collection-scripts/
 ├── launch_v2.sh              # 🎯 Main entry point (recommended)
+├── clean.sh                  # 🧹 Enhanced workspace cleanup tool
 ├── lib/                      # 📚 Modular libraries
 │   ├── common.sh             #   ├─ Common utilities & logging
 │   ├── gpu_config.sh         #   ├─ GPU detection & configuration  
@@ -136,6 +150,9 @@ sample-collection-scripts/
 
 ./launch_v2.sh --gpu-type A100 --app-name LSTM --profiling-tool nvidia-smi  
 # → Creates: results_a100_lstm/
+
+./launch_v2.sh --gpu-type V100 --app-name StableDiffusion --profiling-mode baseline
+# → Creates: results_v100_stablediffusion/
 
 # Custom output directory (overrides auto-naming)
 ./launch_v2.sh --output-dir custom_results_dir
@@ -338,6 +355,42 @@ nvidia-smi
 ./launch_v2.sh --debug
 ```
 
+**"H100/A100/V100 profiling experiment failed" - RESOLVED ✅**
+
+This issue has been resolved in v2.0 with improved error handling. If you see this message, it typically indicates a summary generation issue, not an actual experiment failure.
+
+**Symptoms:**
+- SLURM job reports "profiling experiment failed"
+- All experiment runs completed successfully (visible in logs)
+- Results directory contains all expected files
+- Issue occurs during summary generation phase
+
+**Solution (v2.0):**
+The framework now handles summary generation failures gracefully:
+```bash
+# The experiment will complete successfully even if summary generation has issues
+# All profiling data is preserved and usable
+# Check results directory for complete data:
+ls -la results_h100_*/
+```
+
+**If issue persists:**
+```bash
+# Check if results were actually generated successfully
+ls -la results_*/
+# Verify profiling data files exist
+find results_*/ -name "*.csv" -o -name "*.out" | wc -l
+# Check timing summary
+cat results_*/timing_summary.log
+```
+
+**Recovery:**
+```bash
+# Your data is safe - all profiling results are generated correctly
+# The "failure" is cosmetic in the summary generation phase
+# You can proceed with data analysis using the results directory
+```
+
 ### Debug Mode
 
 Enable comprehensive debugging:
@@ -362,27 +415,43 @@ Results are automatically organized using the naming convention `results_[gpu]_[
 
 ```
 results_h100_stablediffusion/     # H100 + Stable Diffusion
-results_a100_lstm/               # A100 + LSTM  
-results_v100_llama/              # V100 + LLaMA
+results_h100_lstm/               # H100 + LSTM
+results_a100_stablediffusion/    # A100 + Stable Diffusion  
+results_a100_lstm/               # A100 + LSTM
+results_v100_stablediffusion/    # V100 + Stable Diffusion
+results_v100_lstm/               # V100 + LSTM
 results_h100_customapp/          # H100 + Custom Application
 ```
+
+The naming is automatically generated based on:
+- **GPU Type**: H100, A100, V100
+- **Application Name**: Derived from `--app-name` or `--app-executable`
+- **Intelligent Defaults**: Framework automatically determines appropriate names
+
+You can override the automatic naming with `--output-dir custom_name`.
 
 ### Output Structure
 
 ```
 results_[gpu]_[app]/
-├── YYYY-MM-DD_HH-MM-SS_<experiment>/
-│   ├── config_summary.txt           # Experiment configuration
-│   ├── gpu_info.txt                 # Hardware information  
-│   ├── profiling_logs/              # Raw profiling data
-│   │   ├── dcgmi_output.csv
-│   │   └── nvidia_smi_output.csv
-│   ├── application_logs/            # Application output
-│   │   ├── stdout.log
-│   │   └── stderr.log
-│   └── frequency_analysis/          # DVFS results
-│       ├── frequency_sweep_summary.csv
-│       └── performance_metrics.csv
+├── experiment_summary.log           # 📊 Comprehensive experiment summary
+├── timing_summary.log               # ⏱️ Run timing and performance data
+├── run_[id]_freq_[freq]_profile.csv # 📈 Individual profiling data per run
+├── run_[id]_freq_[freq]_app.out     # 📝 Application stdout per run
+├── run_[id]_freq_[freq]_app.err     # ⚠️ Application stderr per run
+└── [Additional files based on experiment type]
+
+# Example for H100 Stable Diffusion baseline experiment:
+results_h100_stablediffusion/
+├── experiment_summary.log           # Complete experiment metadata
+├── timing_summary.log               # baseline_01,1785,38,0,success
+├── run_baseline_01_freq_1785_profile.csv
+├── run_baseline_01_freq_1785_app.out
+├── run_baseline_01_freq_1785_app.err
+├── run_baseline_02_freq_1785_profile.csv
+├── run_baseline_02_freq_1785_app.out
+├── run_baseline_02_freq_1785_app.err
+└── [continues for all runs...]
 ```
 
 ### Data Analysis
@@ -525,11 +594,16 @@ The refactored framework (v2.0) is **fully operational and production-ready**:
 - ✅ **Future-Proof Architecture**: Modular design enables easy enhancement
 
 ### Success Metrics
-- 🎯 **100% Feature Parity**: All legacy functionality preserved
+- 🎯 **100% Feature Parity**: All legacy functionality preserved and enhanced
 - 🔧 **6x Maintainability**: Modular architecture vs monolithic
 - ⚡ **10x Setup Speed**: CLI args vs script editing  
 - 🐛 **Zero Color Issues**: Clean output across all environments
 - 📚 **Complete Documentation**: Comprehensive usage and migration guides
+- ✅ **Robust Error Handling**: Graceful handling of edge cases and failures
+- 🗂️ **Intelligent Naming**: Automatic results directory organization
+- 🧹 **Advanced Cleanup**: Enhanced workspace management with filtering and backup
+- 🔍 **Comprehensive Debugging**: Detailed error reporting and troubleshooting
+- 📊 **Rich Output Format**: Structured experiment summaries and timing data
 
 ---
 
@@ -742,6 +816,72 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 ./clean.sh -v
 ```
 
+---
+
+## 🧹 Workspace Management
+
+### Enhanced Cleanup Script (v2.0)
+
+The `clean.sh` script has been significantly enhanced to handle the new results directory structure and provide advanced cleanup options:
+
+```bash
+# Basic cleanup (interactive)
+./clean.sh
+
+# Preview what would be cleaned (dry run)
+./clean.sh --dry-run
+
+# Force cleanup without prompts
+./clean.sh --force
+
+# Create backup before cleaning
+./clean.sh --backup --force
+
+# Clean only specific GPU results
+./clean.sh --gpu-type H100
+
+# Clean only specific application results  
+./clean.sh --app-name stablediffusion
+
+# Clean results older than 7 days
+./clean.sh --older-than 7
+
+# Interactive selective cleanup
+./clean.sh --selective
+
+# Comprehensive cleanup with backup
+./clean.sh --backup --verbose --force
+```
+
+#### Enhanced Features
+
+- **🎯 Smart Pattern Matching**: Automatically detects `results_h100_*`, `results_a100_*`, etc.
+- **🗂️ SLURM Output Cleanup**: Removes `PROFILING_*.out` and `PROFILING_*.err` files
+- **🔍 Advanced Filtering**: Filter by GPU type, application, or file age
+- **💾 Backup Creation**: Create timestamped archives before cleanup
+- **📊 Size Reporting**: Shows disk space that will be freed
+- **⚙️ Selective Mode**: Interactive selection of what to clean
+- **🔍 Preview Mode**: Dry run to see what would be cleaned
+- **📈 Comprehensive Logging**: Detailed progress and summary reporting
+
+#### Cleanup Targets
+
+The enhanced script cleans:
+- **Results Directories**: `results_h100_*`, `results_a100_*`, `results_v100_*`, `results/` (legacy)
+- **SLURM Files**: `PROFILING_*.out`, `PROFILING_*.err` 
+- **Log Files**: `log.*` patterns
+- **Temporary Files**: `*.tmp`, `*.temp`, `*.pyc`, `core.*`, `changeme`
+
+#### Safety Features
+
+- **Dry Run Mode**: Test cleanup operations safely with `--dry-run`
+- **Backup Option**: Create archives before deletion with `--backup`
+- **Size Preview**: See exactly how much space will be freed
+- **Confirmation Prompts**: Interactive confirmation unless `--force` is used
+- **Granular Control**: Clean specific subsets with filters
+
+---
+
 ## Output Structure
 
 Results are saved in the `results/` directory:
@@ -900,3 +1040,74 @@ The `interactive_gpu.sh` script provides a unified interface for all GPU types:
 ```
 
 See `README_INTERACTIVE_GPU.md` for detailed documentation.
+
+---
+
+## Experiment Summary Generation (v2.0)
+
+Each experiment automatically generates comprehensive summaries:
+
+#### `experiment_summary.log`
+```
+AI Inference Energy Profiling Experiment Summary
+================================================
+
+Experiment Details:
+  Framework Version: 2.0.0
+  Timestamp: 2025-07-10 16:43:43
+  Mode: baseline
+  
+GPU Configuration:
+  Type: H100
+  Architecture: GH100
+  Memory Frequency: 2619 MHz
+  Core Frequency Range: 510-1785 MHz
+
+Profiling Configuration:
+  Tool: dcgmi
+  Runs per frequency: 3
+  Sleep interval: 1s
+
+Application Configuration:
+  Name: StableDiffusion
+  Executable: ../app-stable-diffusion/StableDiffusionViaHF.py
+  Parameters: --prompt "A beautiful landscape" --steps 20
+
+Output Files:
+  results_h100_stablediffusion/experiment_summary.log
+  results_h100_stablediffusion/timing_summary.log
+  [... all generated files listed ...]
+
+Run Timing Summary:
+===================
+  Run baseline_01    :  38s (freq: 1785MHz, status: success)
+  Run baseline_02    :  35s (freq: 1785MHz, status: success)
+  Run baseline_03    :  34s (freq: 1785MHz, status: success)
+
+Timing Statistics:
+  Total runs:       3
+  Successful runs:  3
+  Failed runs:      0
+  Total duration:   107s
+  Average duration: 35s
+  Min duration:     34s
+  Max duration:     38s
+
+Experiment completed at: 2025-07-10 16:43:43
+```
+
+#### `timing_summary.log`
+```
+# Run Timing Summary
+# Format: run_id,frequency_mhz,duration_seconds,exit_code,status
+baseline_01,1785,38,0,success
+baseline_02,1785,35,0,success
+baseline_03,1785,34,0,success
+```
+
+#### Robust Summary Generation
+- **Error Tolerance**: Graceful handling of summary generation issues
+- **Complete Metadata**: All experiment parameters and hardware info
+- **Performance Metrics**: Detailed timing and success statistics
+- **File Inventory**: Complete list of all generated output files
+- **Analysis Ready**: CSV format for direct import into analysis tools
