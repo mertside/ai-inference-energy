@@ -220,7 +220,9 @@ generate_experiment_summary() {
     
     log_info "Generating experiment summary: $summary_file"
     
-    cat > "$summary_file" << EOF
+    # Create basic summary with error handling
+    {
+        cat << EOF
 AI Inference Energy Profiling Experiment Summary
 ================================================
 
@@ -247,74 +249,94 @@ Application Configuration:
 
 Output Files:
 EOF
+    } > "$summary_file" || {
+        log_error "Failed to create basic summary file"
+        return 1
+    }
     
-    # List generated output files
+    # List generated output files with error handling
     if [[ -d "$PARSED_OUTPUT_DIR" ]]; then
-        find "$PARSED_OUTPUT_DIR" -name "*.csv" -o -name "*.out" -o -name "*.err" -o -name "*.log" | \
-            sort | sed 's/^/  /' >> "$summary_file"
+        find "$PARSED_OUTPUT_DIR" -name "*.csv" -o -name "*.out" -o -name "*.err" -o -name "*.log" 2>/dev/null | \
+            sort | sed 's/^/  /' >> "$summary_file" || true
     fi
     
-    # Add timing summary if available
+    # Add timing summary if available - with robust error handling
     local timing_file="${PARSED_OUTPUT_DIR}/timing_summary.log"
     if [[ -f "$timing_file" ]]; then
-        echo >> "$summary_file"
-        echo "Run Timing Summary:" >> "$summary_file"
-        echo "===================" >> "$summary_file"
+        {
+            echo ""
+            echo "Run Timing Summary:"
+            echo "==================="
+        } >> "$summary_file" || {
+            log_warning "Failed to write timing summary header"
+        }
         
-        # Calculate timing statistics
-        local total_runs=0
-        local total_duration=0
-        local successful_runs=0
-        local failed_runs=0
-        local min_duration=999999
-        local max_duration=0
-        
-        while IFS=',' read -r run_id freq duration exit_code status; do
-            # Skip header and comment lines
-            if [[ "$run_id" =~ ^#.*$ ]] || [[ -z "$run_id" ]]; then
-                continue
-            fi
-            
-            ((total_runs++))
-            total_duration=$((total_duration + duration))
-            
-            if [[ "$status" == "success" ]]; then
-                ((successful_runs++))
-            else
-                ((failed_runs++))
-            fi
-            
-            if [[ $duration -lt $min_duration ]]; then
-                min_duration=$duration
-            fi
-            if [[ $duration -gt $max_duration ]]; then
-                max_duration=$duration
-            fi
-            
-            # Add individual run details
-            printf "  Run %-15s: %3ds (freq: %4dMHz, status: %s)\n" \
-                "$run_id" "$duration" "$freq" "$status" >> "$summary_file"
-        done < "$timing_file"
-        
-        # Add summary statistics
-        if [[ $total_runs -gt 0 ]]; then
-            local avg_duration=$((total_duration / total_runs))
-            echo >> "$summary_file"
-            echo "Timing Statistics:" >> "$summary_file"
-            printf "  Total runs:       %d\n" "$total_runs" >> "$summary_file"
-            printf "  Successful runs:  %d\n" "$successful_runs" >> "$summary_file"
-            printf "  Failed runs:      %d\n" "$failed_runs" >> "$summary_file"
-            printf "  Total duration:   %ds\n" "$total_duration" >> "$summary_file"
-            printf "  Average duration: %ds\n" "$avg_duration" >> "$summary_file"
-            printf "  Min duration:     %ds\n" "$min_duration" >> "$summary_file"
-            printf "  Max duration:     %ds\n" "$max_duration" >> "$summary_file"
-        fi
+        # Process timing file with maximum error tolerance
+        generate_timing_statistics "$timing_file" "$summary_file" || {
+            log_warning "Failed to generate detailed timing statistics, adding basic completion note"
+            echo "  Timing details available in: $timing_file" >> "$summary_file" || true
+        }
     fi
     
-    echo >> "$summary_file"
-    echo "Experiment completed at: ${end_time}" >> "$summary_file"
+    # Add completion timestamp with error handling
+    {
+        echo ""
+        echo "Experiment completed at: ${end_time}"
+    } >> "$summary_file" || true
     
     log_success "Experiment summary saved to: $summary_file"
+}
+
+# Helper function to generate timing statistics with error handling
+generate_timing_statistics() {
+    local timing_file="$1"
+    local summary_file="$2"
+    
+    local total_runs=0
+    local total_duration=0
+    local successful_runs=0
+    local failed_runs=0
+    local min_duration=999999
+    local max_duration=0
+    
+    # Process each line with individual error handling
+    while IFS=',' read -r run_id freq duration exit_code status || [[ -n "$run_id" ]]; do
+        # Skip header and comment lines
+        [[ "$run_id" =~ ^#.*$ ]] && continue
+        [[ -z "$run_id" ]] && continue
+        
+        # Validate and process numeric fields
+        if [[ "$duration" =~ ^[0-9]+$ ]] && [[ "$freq" =~ ^[0-9]+$ ]]; then
+            ((total_runs++)) || true
+            total_duration=$((total_duration + duration)) || true
+            
+            [[ "$status" == "success" ]] && ((successful_runs++)) || ((failed_runs++))
+            
+            # Update min/max with safe comparisons
+            [[ $duration -lt $min_duration ]] && min_duration=$duration
+            [[ $duration -gt $max_duration ]] && max_duration=$duration
+            
+            # Write individual run details
+            printf "  Run %-15s: %3ds (freq: %4dMHz, status: %s)\n" \
+                "$run_id" "$duration" "$freq" "$status" >> "$summary_file" || true
+        fi
+    done < "$timing_file"
+    
+    # Add summary statistics if we have valid data
+    if [[ $total_runs -gt 0 ]] && [[ $total_duration -gt 0 ]]; then
+        local avg_duration=$((total_duration / total_runs))
+        {
+            echo ""
+            echo "Timing Statistics:"
+            printf "  Total runs:       %d\n" "$total_runs"
+            printf "  Successful runs:  %d\n" "$successful_runs"
+            printf "  Failed runs:      %d\n" "$failed_runs"
+            printf "  Total duration:   %ds\n" "$total_duration"
+            printf "  Average duration: %ds\n" "$avg_duration"
+            printf "  Min duration:     %ds\n" "$min_duration"
+            printf "  Max duration:     %ds\n" "$max_duration"
+        } >> "$summary_file" || true
+    fi
 }
 
 # Cleanup function
@@ -371,8 +393,11 @@ main() {
     # Run the main experiment
     run_profiling_experiment
     
-    # Generate summary
-    generate_experiment_summary
+    # Generate summary with error tolerance
+    generate_experiment_summary || {
+        log_warning "Summary generation encountered issues, but experiment data was collected successfully"
+        log_info "All profiling data is available in: $PARSED_OUTPUT_DIR"
+    }
     
     # Calculate and display duration
     end_time=$(date +%s)
