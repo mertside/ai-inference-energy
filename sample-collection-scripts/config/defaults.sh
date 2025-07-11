@@ -99,7 +99,7 @@ declare -A APP_MEMORY_REQUIREMENTS=(
 # Recommended run counts by GPU type
 declare -A GPU_RECOMMENDED_RUNS=(
     ["A100"]=3
-    ["V100"]=5
+    ["V100"]=3
     ["H100"]=3
 )
 
