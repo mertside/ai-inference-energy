@@ -4,7 +4,7 @@ Configuration module for AI inference energy profiling.
 This module contains configuration constants and settings used across
 the energy profiling infrastructure for AI inference workloads.
 
-Compatible with Python 3.6+
+Compatible with Python 3.8+
 """
 
 import os

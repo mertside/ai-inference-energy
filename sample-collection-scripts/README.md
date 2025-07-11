@@ -914,13 +914,13 @@ results/
 ### For DCGMI
 - NVIDIA GPU (A100/V100)
 - DCGMI tools installed
-- Python 3.6+
+- Python 3.8+
 - Permissions for GPU control
 
 ### For nvidia-smi  
 - NVIDIA GPU (A100/V100)
 - NVIDIA drivers (nvidia-smi)
-- Python 3.6+
+- Python 3.8+
 - May require sudo for frequency control
 
 ## Troubleshooting
@@ -1069,7 +1069,7 @@ AI Inference Energy Profiling Experiment Summary
 ================================================
 
 Experiment Details:
-  Framework Version: 2.0.0
+  Framework Version: 2.0.1
   Timestamp: 2025-07-10 16:43:43
   Mode: baseline
   

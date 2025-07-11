@@ -15,7 +15,7 @@
 # - Modular architecture for easy maintenance
 #
 # Author: Mert Side
-# Version: 2.0.0 (Refactored)
+# Version: 2.0.1 (Enhanced)
 #
 
 set -eo pipefail  # Exit on error and pipe failures

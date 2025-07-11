@@ -13,7 +13,7 @@
 # =============================================================================
 
 # Framework version
-readonly FRAMEWORK_VERSION="2.0.0"
+readonly FRAMEWORK_VERSION="2.0.1"
 
 # Default GPU and profiling settings
 readonly DEFAULT_GPU_TYPE="A100"

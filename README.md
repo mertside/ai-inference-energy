@@ -16,7 +16,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - ⚡ **Intelligent Fallback**: Automatic tool selection when DCGMI is unavailable
 - 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
- - 🐍 **Python 3.6+ Compatible**: Works on older cluster environments
+ - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
 - 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization
 - ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection
 - 🔬 **Model Validation**: Comprehensive validation framework with robust error handling
@@ -80,7 +80,7 @@ ai-inference-energy/
 ├── README.md                            # Project documentation
 ├── requirements.txt                     # Python dependencies  
 ├── setup.py                             # Package installation
-├── config.py                            # Centralized configuration (Python 3.6+ compatible)
+├── config.py                            # Centralized configuration (Python 3.8+ compatible)
 ├── utils.py                             # Utility functions and helpers
 │
 ├── app-llama/                           # LLaMA inference applications
@@ -178,7 +178,7 @@ ai-inference-energy/
 - CUDA-compatible driver
 
 #### Software Requirements
-- Python 3.6+ (tested on Python 3.6-3.11)
+- Python 3.8+ (tested on Python 3.8-3.11)
 - CUDA Toolkit 11.0+
 - NVIDIA DCGMI tools (automatically falls back to nvidia-smi if unavailable)
 - Hugging Face account with model access
@@ -414,7 +414,7 @@ Options:
 
 ### Experiment Parameters
 
-Key configuration options in `config.py` (Python 3.6+ compatible):
+Key configuration options in `config.py` (Python 3.8+ compatible):
 
 ```python
 # Profiling settings
@@ -595,7 +595,7 @@ sudo nvidia-smi --gpu-reset
 
 #### Python & Environment Issues
 ```bash
-# Check Python version (3.6+ required)
+# Check Python version (3.8+ required)
 python --version
 
 # Test config module compatibility
