@@ -217,9 +217,19 @@ resolve_application_path() {
     local search_paths=(
         "$app_executable"                           # Absolute or relative path
         "${base_dir}/${app_executable}"            # Relative to project root
-        "${base_dir}/app-*/${app_executable}"      # In app directories
-        "${base_dir}/app-*/${app_executable}.py"   # Python files in app directories
     )
+    
+    # Only add app directory patterns if app_executable doesn't contain path separators
+    if [[ "$app_executable" != */* ]]; then
+        search_paths+=(
+            "${base_dir}/app-*/${app_executable}"      # In app directories
+            "${base_dir}/app-*/${app_executable}.py"   # Python files in app directories
+        )
+    else
+        # If it contains path separators, try adding .py extension
+        search_paths+=("${app_executable}.py")
+        search_paths+=("${base_dir}/${app_executable}.py")
+    fi
     
     for path_pattern in "${search_paths[@]}"; do
         # Handle glob patterns

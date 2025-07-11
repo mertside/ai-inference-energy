@@ -74,11 +74,11 @@ readonly SLURM_JOB_PREFIX="ai_profiling"
 
 # LSTM application
 readonly LSTM_DEFAULT_PARAMS=""
-readonly LSTM_CONDA_ENV="pytorch-gpu"
+readonly LSTM_CONDA_ENV="tensorflow"
 
 # Stable Diffusion application  
 readonly STABLE_DIFFUSION_DEFAULT_PARAMS="--prompt 'A beautiful landscape' --steps 20"
-readonly STABLE_DIFFUSION_CONDA_ENV="pytorch-gpu"
+readonly STABLE_DIFFUSION_CONDA_ENV="stable-diffusion-gpu"
 
 # LLaMA application
 readonly LLAMA_DEFAULT_PARAMS=""
