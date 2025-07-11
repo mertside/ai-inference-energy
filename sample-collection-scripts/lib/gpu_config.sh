@@ -383,26 +383,26 @@ determine_conda_env() {
     # Application-specific environment mapping
     case "$(to_lower "$(basename "$app_executable")")" in
         *stable*|*diffusion*|*sd*)
-            conda_env="pytorch-gpu"
+            conda_env="stable-diffusion-gpu"
             ;;
         *llama*|*llm*)
             conda_env="pytorch-gpu"
             ;;
         *lstm*|lstm.py)
-            conda_env="pytorch-gpu"
+            conda_env="tensorflow"
             ;;
         *)
             # Try to detect from application directory
             if [[ -n "$app_dir" ]]; then
                 case "$(to_lower "$(basename "$app_dir")")" in
                     *stable*|*diffusion*)
-                        conda_env="pytorch-gpu"
+                        conda_env="stable-diffusion-gpu"
                         ;;
                     *llama*|*llm*)
                         conda_env="pytorch-gpu"
                         ;;
                     *lstm*)
-                        conda_env="pytorch-gpu"
+                        conda_env="tensorflow"
                         ;;
                 esac
             fi
