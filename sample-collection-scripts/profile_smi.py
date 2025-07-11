@@ -40,7 +40,7 @@ try:
 except ImportError:
     # Fallback configuration if imports fail
     class ProfilingConfig:
-        DEFAULT_INTERVAL_MS = 50
+        DEFAULT_INTERVAL_MS = 50  # nvidia-smi supports millisecond sampling with --loop-ms
         TEMP_OUTPUT_FILE = "changeme"
 
     profiling_config = ProfilingConfig()
@@ -153,16 +153,12 @@ class NvidiaSmiProfiler:
             "pstate"                         # 16 ─ performance state P0…P15
         ]
 
-        # Convert interval from ms to seconds for nvidia-smi
-        interval_sec = max(
-            1, self.interval_ms // 1000
-        )  # nvidia-smi uses seconds, minimum 1s
-
+        # Use millisecond-level sampling with nvidia-smi
         command = [
             "nvidia-smi",
             "--query-gpu=" + ",".join(query_fields),
             "--format=csv,noheader,nounits",
-            f"--loop={interval_sec}",
+            f"--loop-ms={self.interval_ms}",
             "-i",
             str(self.gpu_id),
         ]
@@ -250,7 +246,7 @@ class NvidiaSmiProfiler:
             self.logger.info(f"Starting nvidia-smi GPU monitoring")
             self.logger.info(f"Output file: {self.output_file}")
             self.logger.info(
-                f"Sampling interval: {self.interval_ms}ms (nvidia-smi uses 1s minimum)"
+                f"Sampling interval: {self.interval_ms}ms"
             )
             self.logger.info(f"GPU ID: {self.gpu_id}")
 

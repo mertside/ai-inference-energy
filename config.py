@@ -349,7 +349,7 @@ class ProfilingConfig:
     ]
 
     # Profiling intervals
-    DEFAULT_INTERVAL_MS = 50  # milliseconds
+    DEFAULT_INTERVAL_MS = 50  # milliseconds (supported by both DCGMI and nvidia-smi --loop-ms)
     SLEEP_INTERVAL_SEC = 1  # seconds between runs
 
     # Default number of runs for each frequency

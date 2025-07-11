@@ -9,6 +9,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 - ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
 - ✅ **Intelligent Results Naming**: Automatic `results_[gpu]_[app]` directory organization  
 - ✅ **Enhanced Cleanup Tool**: Advanced filtering, backup, and selective cleanup options
+- ✅ **High-Resolution Profiling**: Consistent 50ms sampling for both DCGMI and nvidia-smi
 - ✅ **Comprehensive Summaries**: Rich experiment metadata and performance statistics
 - ✅ **Production Stability**: Improved reliability and user experience
 
@@ -49,6 +50,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 - 🔧 **Robust CLI**: Comprehensive command-line interface with intelligent defaults
 - 🎯 **Multi-GPU Support**: Native H100, A100, and V100 configurations  
 - 🛠️ **Tool Flexibility**: DCGMI, nvidia-smi with automatic fallback
+- ⚡ **High Resolution**: 50ms sampling interval for both DCGMI and nvidia-smi
 - 📊 **Experiment Modes**: DVFS (frequency sweep) and baseline profiling
 - 🚀 **SLURM Ready**: Production HPC cluster integration
 - 🔍 **Auto-Detection**: GPU types, profiling tools, conda environments
@@ -710,6 +712,20 @@ Options:
 - Uses: `profile_smi.py` and `control_smi.sh`
 - Requires: NVIDIA drivers (nvidia-smi)
 - Features: Standard GPU monitoring
+
+### 📊 Technical Specifications
+
+#### Sampling Configuration
+- **Sampling Interval**: 50ms (20 samples per second)
+- **DCGMI Command**: `dcgmi dmon -i 0 -e [...] -d 50`
+- **nvidia-smi Command**: `nvidia-smi [...] --loop-ms=50`
+- **Data Resolution**: ~1,200 samples per minute
+- **Temporal Precision**: Captures brief GPU activity transitions
+
+#### Data Collection
+- **Metrics per Sample**: 17 DCGMI fields, 17 nvidia-smi fields
+- **File Format**: CSV with timestamps and comprehensive GPU telemetry
+- **Storage**: ~150KB per 20-second run (typical application)
 ### Experiment Modes
 
 #### DVFS Mode (Default)

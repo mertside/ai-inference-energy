@@ -36,8 +36,8 @@ declare -A CONTROL_SCRIPTS=(
 )
 
 # Default profiling parameters
-readonly DEFAULT_PROFILING_INTERVAL=0.1  # seconds
-readonly DEFAULT_PROFILE_TIMEOUT=300     # seconds
+readonly DEFAULT_PROFILING_INTERVAL=0.05  # seconds (50ms)
+readonly DEFAULT_PROFILE_TIMEOUT=300      # seconds
 readonly DEFAULT_CONTROL_TIMEOUT=30      # seconds
 
 # =============================================================================
