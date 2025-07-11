@@ -16,14 +16,15 @@
 #SBATCH --job-name=PROFILING_H100
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
-#SBATCH --partition=h100-build
-#SBATCH --nodelist=rpg-93-9
+#SBATCH --partition=h100
+# # SBATCH --partition=h100-build
+# # SBATCH --nodelist=rpg-93-9
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
-#SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
+# # SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
 
 # Enable strict error handling (conda-friendly)
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
