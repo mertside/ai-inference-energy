@@ -41,10 +41,10 @@ readonly DEFAULT_TEMP_DIR="tmp"
 # Profiling Configuration
 # =============================================================================
 
-# Profiling timeouts (seconds)
-readonly PROFILE_TIMEOUT=300
-readonly CONTROL_TIMEOUT=30
-readonly APPLICATION_TIMEOUT=600
+# Profiling timeouts (seconds) - Optimized for low-frequency research
+readonly PROFILE_TIMEOUT=1800           # 30 minutes: Handles 510MHz + model downloads  
+readonly CONTROL_TIMEOUT=30             # 30 seconds: GPU frequency control
+readonly APPLICATION_TIMEOUT=1800       # 30 minutes: Same as profile timeout for consistency
 
 # Profiling intervals
 readonly PROFILE_INTERVAL=0.1

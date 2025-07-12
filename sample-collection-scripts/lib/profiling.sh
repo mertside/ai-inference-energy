@@ -36,8 +36,8 @@ declare -A CONTROL_SCRIPTS=(
 )
 
 # Default profiling parameters
-readonly DEFAULT_PROFILING_INTERVAL=0.05  # seconds (50ms)
-readonly DEFAULT_PROFILE_TIMEOUT=300      # seconds
+readonly DEFAULT_PROFILING_INTERVAL=0.1  # seconds
+readonly DEFAULT_PROFILE_TIMEOUT=1800    # seconds (30 minutes for low-frequency research)  
 readonly DEFAULT_CONTROL_TIMEOUT=30      # seconds
 
 # =============================================================================
@@ -334,10 +334,10 @@ def main():
     # Execute the application
     cmd = [conda_python, app_path] + app_args
     try:
-        result = subprocess.run(cmd, timeout=300)  # 5 minute timeout
+        result = subprocess.run(cmd, timeout=1800)  # 30 minute timeout for low-frequency research
         sys.exit(result.returncode)
     except subprocess.TimeoutExpired:
-        print("Application timed out after 5 minutes", file=sys.stderr)
+        print("Application timed out after 30 minutes", file=sys.stderr)
         sys.exit(124)
     except Exception as e:
         print(f"Error running application: {e}", file=sys.stderr)
