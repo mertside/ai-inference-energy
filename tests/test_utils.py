@@ -83,5 +83,19 @@ class TestUtilsValidation(unittest.TestCase):
         self.assertFalse(utils.validate_dcgmi_available())
 
 
+class TestRunCommandErrors(unittest.TestCase):
+    """Tests for run_command error handling."""
+
+    def test_run_command_calledprocesserror(self):
+        """run_command raises CalledProcessError on failure."""
+        with self.assertRaises(subprocess.CalledProcessError):
+            utils.run_command(["false"], check=True)
+
+    def test_run_command_timeout(self):
+        """run_command raises TimeoutExpired on timeout."""
+        with self.assertRaises(subprocess.TimeoutExpired):
+            utils.run_command(["sleep", "2"], timeout=1)
+
+
 if __name__ == "__main__":
     unittest.main()
