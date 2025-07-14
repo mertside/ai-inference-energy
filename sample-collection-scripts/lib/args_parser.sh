@@ -158,7 +158,7 @@ show_usage() {
     printf "    Results are saved to an auto-generated directory named results_GPU_APP.\n"
     printf "    Example: results_h100_stablediffusion/ with the following structure:\n"
     printf "    \n"
-    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results_gpu_app}"
+    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results_GPU_APP}"
     printf "    ├── run_XX_freq_YYYY_app.out      # Application output\n"
     printf "    ├── run_XX_freq_YYYY_app.err      # Application errors\n"
     printf "    ├── run_XX_freq_YYYY_profile.csv  # GPU profiling data\n"
