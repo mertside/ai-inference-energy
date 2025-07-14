@@ -11,7 +11,7 @@ pip install pandas numpy scikit-learn xgboost
 pip install matplotlib seaborn  # For visualization
 ```
 
-**Compatibility**: Python 3.6+ (tested with Python 3.6, 3.8, 3.9, 3.10+)
+**Compatibility**: Python 3.8+ (tested with Python 3.8, 3.9, 3.10+)
 
 ### Simple Analysis
 ```python

@@ -28,7 +28,11 @@
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
-readonly LAUNCH_SCRIPT="./launch.sh"
+readonly LAUNCH_SCRIPT_LEGACY="./launch.sh"
+readonly LAUNCH_SCRIPT_V2="./launch_v2.sh"
+
+# Use new framework by default, fallback to legacy if needed
+readonly LAUNCH_SCRIPT="${LAUNCH_SCRIPT_V2}"
 
 # Function to determine conda environment based on application
 determine_conda_env() {
@@ -56,6 +60,37 @@ determine_conda_env() {
     esac
 }
 
+# Function to determine expected results directory from launch arguments
+determine_results_dir() {
+    local gpu_type=""
+    local app_name=""
+    local custom_output=""
+    
+    # Extract relevant parameters from LAUNCH_ARGS
+    if echo "$LAUNCH_ARGS" | grep -q "gpu-type"; then
+        gpu_type=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--gpu-type \([^ ]*\).*/\1/p')
+    fi
+    
+    if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
+        app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
+    fi
+    
+    if echo "$LAUNCH_ARGS" | grep -q "output-dir"; then
+        custom_output=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--output-dir \([^ ]*\).*/\1/p')
+        echo "$custom_output"
+        return
+    fi
+    
+    # Generate auto-generated directory name (same logic as args_parser.sh)
+    if [[ -n "$gpu_type" && -n "$app_name" ]]; then
+        local gpu_name=$(echo "$gpu_type" | tr '[:upper:]' '[:lower:]')
+        local app_name_clean=$(echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+        echo "results_${gpu_name}_${app_name_clean}"
+    else
+        echo "results"
+    fi
+}
+
 # ============================================================================
 # CONFIGURATION SECTION - Uncomment ONE configuration below
 # ============================================================================
@@ -79,7 +114,7 @@ determine_conda_env() {
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
-LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 1000 --log-level INFO --width 768 --height 768' --num-runs 3 --sleep-interval 1"
+LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
@@ -167,6 +202,10 @@ main() {
     log_header "🚀 Starting A100 GPU Profiling Job"
     log_info "Configuration: $LAUNCH_ARGS"
     
+    # Determine expected results directory
+    readonly RESULTS_DIR=$(determine_results_dir)
+    log_info "Expected results directory: $RESULTS_DIR"
+    
     # Load HPCC modules
     log_info "Loading HPCC modules..."
     module load gcc cuda cudnn
@@ -174,7 +213,14 @@ main() {
     # Determine and activate conda environment based on application
     local CONDA_ENV=$(determine_conda_env)
     log_info "Activating conda environment: $CONDA_ENV (auto-selected for application)"
-    source "$HOME/conda/etc/profile.d/conda.sh"
+    if [[ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/miniforge3/etc/profile.d/conda.sh"
+    elif [[ -f "$HOME/conda/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/conda/etc/profile.d/conda.sh"
+    else
+        log_error "❌ Conda initialization script not found"
+        exit 1
+    fi
     
     # Check if environment exists
     if ! conda info --envs | grep -q "^$CONDA_ENV "; then
@@ -215,16 +261,16 @@ main() {
 display_a100_info() {
     log_header "📊 A100 System Information"
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                    HPCC A100 Specifications                │"
+    echo "│                    HPCC A100 Specifications                 │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ Cluster:      HPCC at Texas Tech University                │"
+    echo "│ Cluster:      HPCC at Texas Tech University                 │"
     echo "│ Partition:    toreador                                      │"
     echo "│ Architecture: Ampere (GA100)                                │"
     echo "│ Memory:       40GB HBM2e                                    │"
     echo "│ Mem Freq:     1215 MHz (fixed)                              │"
     echo "│ Core Freq:    510-1410 MHz (61 frequencies)                 │"
-    echo "│ DVFS Step:    ~15 MHz typical                                │"
-    echo "│ Features:     3rd Gen Tensor Cores, RT Cores               │"
+    echo "│ DVFS Step:    ~15 MHz typical                               │"
+    echo "│ Features:     3rd Gen Tensor Cores, RT Cores                │"
     echo "│ Tools:        DCGMI (preferred) or nvidia-smi               │"
     echo "└─────────────────────────────────────────────────────────────┘"
 }
@@ -316,9 +362,11 @@ check_system_resources() {
     fi
     
     # Check if results directory exists
-    if [[ ! -d "results" ]]; then
-        log_info "📁 Creating results directory..."
-        mkdir -p results
+    if [[ ! -d "$RESULTS_DIR" ]]; then
+        log_info "📁 Creating results directory: $RESULTS_DIR"
+        mkdir -p "$RESULTS_DIR"
+    else
+        log_info "📁 Results directory exists: $RESULTS_DIR"
     fi
     
     # Check for A100-specific requirements
@@ -424,15 +472,15 @@ run_experiment() {
 display_results_summary() {
     log_header "📊 Results Summary"
     
-    if [[ -d "results" ]]; then
+    if [[ -d "$RESULTS_DIR" ]]; then
         local result_count
-        result_count=$(find results -type f | wc -l)
-        log_info "📁 Generated $result_count result files"
+        result_count=$(find "$RESULTS_DIR" -type f | wc -l)
+        log_info "📁 Generated $result_count result files in $RESULTS_DIR"
         
         # Show recent files
         if [[ "$result_count" -gt 0 ]]; then
             log_info "📋 Recent result files:"
-            find results -type f -newer "$LAUNCH_SCRIPT" 2>/dev/null | head -5 | while read -r file; do
+            find "$RESULTS_DIR" -type f -newer "$LAUNCH_SCRIPT" 2>/dev/null | head -5 | while read -r file; do
                 if [[ -n "$file" ]]; then
                     local size
                     size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "unknown")
@@ -443,7 +491,7 @@ display_results_summary() {
         
         # Check for specific output files
         local csv_files
-        csv_files=$(find results -name "GA100*.csv" 2>/dev/null)
+        csv_files=$(find "$RESULTS_DIR" -name "GA100*.csv" 2>/dev/null)
         if [[ -n "$csv_files" ]]; then
             local csv_file
             csv_file=$(echo "$csv_files" | head -1)
@@ -454,11 +502,11 @@ display_results_summary() {
         
         # Calculate total data size
         local total_size
-        total_size=$(du -sh results 2>/dev/null | cut -f1 || echo "unknown")
+        total_size=$(du -sh "$RESULTS_DIR" 2>/dev/null | cut -f1 || echo "unknown")
         log_info "💾 Total results directory size: $total_size"
         
     else
-        log_warning "⚠️  No results directory found"
+        log_warning "⚠️  No results directory found: $RESULTS_DIR"
     fi
 }
 
@@ -467,30 +515,30 @@ display_completion_notes() {
     log_header "📝 A100 Profiling Completion Notes"
     
     echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│                   Profiling Summary                        │"
+    echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│ GPU:          A100 (Ampere GA100) - 40GB HBM2e             │"
-    echo "│ Cluster:      HPCC toreador partition                      │"
+    echo "│ GPU:          A100 (Ampere GA100) - 40GB HBM2e              │"
+    echo "│ Cluster:      HPCC toreador partition                       │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
-        echo "│ Mode:         DVFS (tested across 61 frequency range)      │"
+        echo "│ Mode:         DVFS (tested across 61 frequency range)       │"
     elif echo "$LAUNCH_ARGS" | grep -q "custom"; then
-        echo "│ Mode:         Custom frequency selection                   │"
+        echo "│ Mode:         Custom frequency selection                    │"
     else
-        echo "│ Mode:         Baseline (single frequency profiling)        │"
+        echo "│ Mode:         Baseline (single frequency profiling)         │"
     fi
     
     # Tool-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "nvidia-smi"; then
-        echo "│ Tool:         nvidia-smi profiling                         │"
+        echo "│ Tool:         nvidia-smi profiling                          │"
     else
-        echo "│ Tool:         DCGMI (with nvidia-smi fallback)             │"
+        echo "│ Tool:         DCGMI (with nvidia-smi fallback)              │"
     fi
     
     # Feature-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "tensor-cores"; then
-        echo "│ Features:     3rd Gen Tensor Cores enabled                 │"
+        echo "│ Features:     3rd Gen Tensor Cores enabled                  │"
     fi
     
     echo "└─────────────────────────────────────────────────────────────┘"

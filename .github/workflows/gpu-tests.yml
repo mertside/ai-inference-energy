@@ -120,11 +120,11 @@ jobs:
         run: |
           cd sample-collection-scripts
           
-          # Test baseline mode (single frequency)
+          # Test baseline mode (single frequency) using new v2.0 framework
           echo "Testing baseline mode with ${{ github.event.inputs.gpu_type || 'A100' }}"
           
-          # Dry run test
-          timeout 30s ./launch.sh \
+          # Dry run test with new launch_v2.sh
+          timeout 30s ./launch_v2.sh \
             --gpu-type "${{ github.event.inputs.gpu_type || 'A100' }}" \
             --profiling-mode baseline \
             --num-runs 1 \
@@ -132,6 +132,9 @@ jobs:
             --app-executable "echo" \
             --app-params "'GPU test completed'" \
             || echo "Launch script test completed (may have timed out as expected)"
+            
+          # Test library loading
+          bash -c "source lib/common.sh && source lib/gpu_config.sh && echo '✓ Framework libraries functional'"
             
       - name: Upload GPU validation artifacts
         uses: actions/upload-artifact@v4

@@ -69,6 +69,17 @@ jobs:
           python -c "from hardware.gpu_info import get_supported_gpus; print('✓ GPUs:', get_supported_gpus())"
           python -c "from config import GPUConfig; print('✓ Config loaded')"
           
+      - name: Test sample-collection-scripts framework
+        run: |
+          cd sample-collection-scripts
+          # Test library loading
+          bash -c "source lib/common.sh && echo '✓ Common library loaded'"
+          bash -c "source lib/common.sh && source lib/gpu_config.sh && echo '✓ GPU config loaded'"
+          # Test main script help
+          ./launch_v2.sh --help > /dev/null && echo "✓ Main script functional"
+          # Test configuration loading
+          bash -c "source config/defaults.sh && echo '✓ Configuration loaded'"
+          
       - name: Run tests
         run: |
           coverage run tests/run_tests.py

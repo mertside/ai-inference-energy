@@ -22,7 +22,7 @@ REQUIREMENTS = (HERE / "requirements.txt").read_text().strip().split("\n")
 
 setup(
     name="ai-inference-energy",
-    version="1.0.0",
+    version="2.0.1",
     description="Energy profiling framework for AI inference workloads on NVIDIA GPUs",
     long_description=README,
     long_description_content_type="text/markdown",
