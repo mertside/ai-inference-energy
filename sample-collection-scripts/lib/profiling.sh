@@ -588,11 +588,76 @@ run_baseline_experiment() {
     log_success "Baseline experiment completed ($num_runs runs)"
 }
 
+# Run custom frequency experiment (selected frequencies)
+run_custom_experiment() {
+    local profiling_tool="$1"
+    local gpu_type="$2"
+    local app_executable="$3"
+    local output_dir="$4"
+    local num_runs="$5"
+    local sleep_interval="$6"
+    local custom_frequencies="$7"
+    shift 7
+    local app_params=("$@")
+    
+    log_info "Starting custom frequency experiment"
+    log_info "Custom frequencies: $custom_frequencies"
+    
+    # Parse frequencies into array
+    local freq_array
+    IFS=',' read -ra freq_array <<< "$custom_frequencies"
+    
+    local total_frequencies=${#freq_array[@]}
+    local total_runs=$((total_frequencies * num_runs))
+    local current_run=0
+    
+    log_info "Testing $total_frequencies frequencies with $num_runs runs each ($total_runs total runs)"
+    
+    # Iterate through custom frequencies
+    for frequency in "${freq_array[@]}"; do
+        # Remove whitespace
+        frequency=$(echo "$frequency" | tr -d ' ')
+        log_info "Testing frequency: ${frequency} MHz"
+        
+        # Set GPU frequency
+        local memory_freq
+        memory_freq=$(get_gpu_memory_freq "$gpu_type")
+        if ! set_gpu_frequency "$profiling_tool" "$memory_freq" "$frequency" "$gpu_type"; then
+            log_warning "Failed to set GPU frequency to $frequency MHz, skipping"
+            continue
+        fi
+        
+        # Run multiple tests at this frequency
+        for ((run=1; run<=num_runs; run++)); do
+            current_run=$((current_run + 1))
+            show_progress "$current_run" "$total_runs" "Custom Frequency Progress"
+            
+            local run_id="freq_${frequency}_$(printf "%02d" "$run")"
+            
+            if ! run_application_with_profiling \
+                "$profiling_tool" "$app_executable" \
+                "$output_dir" "$run_id" "$frequency" "${app_params[@]}"; then
+                log_warning "Custom frequency run $current_run failed (freq: $frequency MHz, run: $run)"
+            fi
+            
+            # Sleep between runs if configured
+            if [[ "$sleep_interval" -gt 0 ]]; then
+                sleep "$sleep_interval"
+            fi
+        done
+    done
+    
+    # Reset GPU frequency
+    reset_gpu_frequency "$profiling_tool" "$gpu_type"
+    
+    log_success "Custom frequency experiment completed ($total_runs runs across $total_frequencies frequencies)"
+}
+
 # Export functions for use in other scripts
 export -f is_profiling_tool_available validate_profiling_tool
 export -f get_profiling_script get_control_script
 export -f set_gpu_frequency reset_gpu_frequency
 export -f resolve_application_path run_application_with_profiling
-export -f run_dvfs_experiment run_baseline_experiment
+export -f run_dvfs_experiment run_baseline_experiment run_custom_experiment
 
 log_debug "Profiling library v${PROFILING_LIB_VERSION} loaded successfully"

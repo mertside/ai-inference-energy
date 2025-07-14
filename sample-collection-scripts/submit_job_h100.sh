@@ -24,7 +24,6 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
-# # SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
 
 # Enable strict error handling (conda-friendly)
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
@@ -106,8 +105,8 @@ determine_results_dir() {
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~6-10 minutes)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
 
-# 3. 🎯 FREQUENCY SAMPLING - Selected frequencies for efficient analysis (~12-20 minutes)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,750,1000,1250,1500,1785' --num-runs 5 --sleep-interval 2"
+# 3. 🎯 FREQUENCY SAMPLING - Extended baseline for comparative analysis (~12-20 minutes)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
 # 📊 AI APPLICATION CONFIGURATIONS
 # ============================================================================
@@ -126,12 +125,14 @@ determine_results_dir() {
 
 # 🎯 TARGETED DVFS APPLICATION STUDIES
 # ============================================================================
+# NOTE: Framework v2.0.1 now supports 'custom' mode for targeted frequency analysis.
+# Use --custom-frequencies to specify exact frequencies to test.
 
-# 8. 🤖 LSTM DVFS - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+# 8. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 9. 🎨 STABLE DIFFUSION DVFS - Three-point frequency analysis (low/mid/high, ~25-40 minutes)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
+# 9. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
@@ -167,7 +168,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp8' --num-runs 5"
 
 # 18. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '800,1200,1600' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
 
 # 🚀 ADVANCED H100 CONFIGURATIONS
 # ============================================================================
@@ -176,7 +177,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--use-transformer-engine --precision fp8' --num-runs 3"
 
 # 20. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '1200,1500,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"
 
 # 21. 💡 HBM3 BANDWIDTH TEST - Memory-intensive workloads
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '1000,1400,1785' --app-name CustomApp --app-params '--memory-intensive --hbm3-optimized' --num-runs 5"
@@ -189,7 +190,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # ============================================================================
 # Configuration 1-3:     --time=01:00:00  (1 hour)
 # Configuration 4-7:     --time=02:00:00  (2 hours) 
-# Configuration 8-9:     --time=01:00:00  (1 hour) - Targeted DVFS with 3 frequencies
+# Configuration 8-9:     --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies
 # Configuration 10-11:   --time=06:00:00  (6 hours)
 # Configuration 12:      --time=12:00:00  (12 hours)
 # Configuration 13-18:   --time=03:00:00  (3 hours, adjust as needed)

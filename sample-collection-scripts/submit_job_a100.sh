@@ -4,7 +4,7 @@
 #
 # This script provides a comprehensive set of A100 profiling configurations.
 # Simply uncomment the desired configuration and submit with: sbatch submit_job_a100.sh
-#
+# 
 # A100 Specifications:
 #   - GPU: Tesla A100 (40GB HBM2e)
 #   - Partition: toreador (HPCC Texas Tech)
@@ -22,7 +22,6 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
-#SBATCH --time=02:00:00  # Adjust based on configuration (see timing notes below)
 
 # Enable strict error handling (conda-friendly)
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
@@ -104,8 +103,8 @@ determine_results_dir() {
 # 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~8-12 minutes)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
 
-# 3. 🎯 FREQUENCY SAMPLING - Selected frequencies for efficient analysis (~15-25 minutes)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,700,900,1100,1300,1410' --num-runs 5 --sleep-interval 2"
+# 3. 🎯 FREQUENCY SAMPLING - Extended baseline for comparative analysis (~15-25 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
 # 📊 AI APPLICATION CONFIGURATIONS
 # ============================================================================
@@ -124,12 +123,14 @@ determine_results_dir() {
 
 # 🎯 TARGETED DVFS APPLICATION STUDIES
 # ============================================================================
+# NOTE: Framework v2.0.1 now supports 'custom' mode for targeted frequency analysis.
+# Use --custom-frequencies to specify exact frequencies to test.
 
-# 8. 🤖 LSTM DVFS - Three-point frequency analysis (low/mid/high, ~20-30 minutes)
-LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+# 8. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 9. 🎨 STABLE DIFFUSION DVFS - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
+# 9. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~25-40 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
@@ -158,14 +159,14 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,9
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 16. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,650,800,950,1100,1250,1410' --num-runs 7 --sleep-interval 2"
+# 16. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance (Use DVFS mode)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
 # 17. 🔬 PRECISION COMPARISON - Different model precisions
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
 
 # 18. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '700,1000,1300' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
 
 # 🚀 ADVANCED A100 CONFIGURATIONS
 # ============================================================================
@@ -174,14 +175,14 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--multi-instance 4' --num-runs 3"
 
 # 18. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '900,1200,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
 # Configuration 1-3:     --time=01:00:00  (1 hour)
 # Configuration 4-7:     --time=02:00:00  (2 hours) 
-# Configuration 8-9:     --time=01:00:00  (1 hour) - Targeted DVFS with 3 frequencies
+# Configuration 8-9:     --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies
 # Configuration 10-11:   --time=05:00:00  (5 hours)
 # Configuration 12:      --time=10:00:00  (10 hours)
 # Configuration 13-18:   --time=03:00:00  (3 hours, adjust as needed)

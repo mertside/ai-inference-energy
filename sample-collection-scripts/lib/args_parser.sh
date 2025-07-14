@@ -29,6 +29,7 @@ readonly ARGS_LIB_VERSION="1.0.0"
 declare -g PARSED_GPU_TYPE=""
 declare -g PARSED_PROFILING_TOOL=""
 declare -g PARSED_PROFILING_MODE=""
+declare -g PARSED_CUSTOM_FREQUENCIES=""
 declare -g PARSED_NUM_RUNS=""
 declare -g PARSED_SLEEP_INTERVAL=""
 declare -g PARSED_APP_NAME=""
@@ -80,10 +81,14 @@ show_usage() {
     printf "    %sProfiling Configuration:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --profiling-tool TOOL    Profiling tool: dcgmi or nvidia-smi\n"
     printf "                             (default: %s, auto-fallback enabled)\n" "$DEFAULT_PROFILING_TOOL"
-    printf "    --profiling-mode MODE    Profiling mode: dvfs or baseline\n"
+    printf "    --profiling-mode MODE    Profiling mode: dvfs, custom, or baseline\n"
     printf "                             (default: %s)\n" "$DEFAULT_PROFILING_MODE"
     printf "                             dvfs: Full frequency sweep (comprehensive)\n"
+    printf "                             custom: Selected frequencies (efficient)\n"
     printf "                             baseline: Single frequency (quick validation)\n"
+    printf "    --custom-frequencies FREQS Comma-separated list of frequencies (MHz)\n"
+    printf "                             Required when profiling-mode is 'custom'\n"
+    printf "                             Example: '405,892,1380' for low/mid/high\n"
     printf "    \n"
     printf "    %sExperiment Configuration:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --num-runs NUM           Number of runs per frequency\n"
@@ -116,6 +121,10 @@ show_usage() {
     printf "    %s# Quick V100 baseline test%s\n" "$COLOR_CYAN" "$COLOR_NC"
     printf "    $(basename "$0") --gpu-type V100 --profiling-mode baseline --num-runs 1\n"
     printf "    \n"
+    printf "    %s# Custom frequency analysis (V100 low/mid/high)%s\n" "$COLOR_CYAN" "$COLOR_NC"
+    printf "    $(basename "$0") --gpu-type V100 --profiling-mode custom \\\\\n"
+    printf "        --custom-frequencies \"405,892,1380\" --num-runs 5\n"
+    printf "    \n"
     printf "    %s# Custom Stable Diffusion profiling%s\n" "$COLOR_CYAN" "$COLOR_NC"
     printf "    $(basename "$0") \\\\\n"
     printf "        --app-name \"StableDiffusion\" \\\\\n"
@@ -145,6 +154,8 @@ show_usage() {
     printf "\n%sPROFILING MODES:%s\n" "$COLOR_BLUE" "$COLOR_NC"
     printf "    %sdvfs:%s     Full frequency sweep across all supported frequencies\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "                Comprehensive energy analysis, longer execution time\n"
+    printf "    %scustom:%s   Selected frequencies for targeted analysis\n" "$COLOR_YELLOW" "$COLOR_NC"
+    printf "                Efficient frequency sampling, moderate execution time\n"
     printf "    %sbaseline:%s Single frequency at default GPU settings\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "                Quick profiling for testing and validation\n\n"
     
@@ -185,7 +196,7 @@ GPU Config Library: v${GPU_CONFIG_VERSION}
 
 Supported GPU Types: ${!GPU_ARCHITECTURES[*]}
 Supported Profiling Tools: dcgmi, nvidia-smi
-Supported Profiling Modes: dvfs, baseline
+Supported Profiling Modes: dvfs, custom, baseline
 
 Build Information:
   Built on: $(date)
@@ -234,6 +245,13 @@ parse_arguments() {
                     die "Option --profiling-mode requires an argument"
                 fi
                 PARSED_PROFILING_MODE="$1"
+                ;;
+            --custom-frequencies)
+                shift
+                if [[ $# -eq 0 ]]; then
+                    die "Option --custom-frequencies requires an argument"
+                fi
+                PARSED_CUSTOM_FREQUENCIES="$1"
                 ;;
             --num-runs)
                 shift
@@ -332,7 +350,21 @@ validate_arguments() {
     
     # Validate profiling mode
     if ! is_valid_profiling_mode "$PARSED_PROFILING_MODE"; then
-        errors+=("Invalid profiling mode: $PARSED_PROFILING_MODE (supported: dvfs, baseline)")
+        errors+=("Invalid profiling mode: $PARSED_PROFILING_MODE (supported: dvfs, custom, baseline)")
+    fi
+    
+    # Validate custom frequencies when in custom mode
+    if [[ "$PARSED_PROFILING_MODE" == "custom" ]]; then
+        if [[ -z "$PARSED_CUSTOM_FREQUENCIES" ]]; then
+            errors+=("Custom frequencies required when profiling-mode is 'custom'")
+        else
+            # Validate frequency format and values
+            if ! validate_custom_frequencies "$PARSED_CUSTOM_FREQUENCIES" "$PARSED_GPU_TYPE"; then
+                errors+=("Invalid custom frequencies: $PARSED_CUSTOM_FREQUENCIES")
+            fi
+        fi
+    elif [[ -n "$PARSED_CUSTOM_FREQUENCIES" ]]; then
+        errors+=("Custom frequencies can only be used with profiling-mode 'custom'")
     fi
     
     # Validate numeric arguments

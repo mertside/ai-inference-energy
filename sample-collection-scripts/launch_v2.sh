@@ -196,6 +196,17 @@ run_profiling_experiment() {
                 "$PARSED_SLEEP_INTERVAL" \
                 "${app_params_array[@]}"
             ;;
+        custom)
+            run_custom_experiment \
+                "$PARSED_PROFILING_TOOL" \
+                "$PARSED_GPU_TYPE" \
+                "$PARSED_APP_EXECUTABLE" \
+                "$PARSED_OUTPUT_DIR" \
+                "$PARSED_NUM_RUNS" \
+                "$PARSED_SLEEP_INTERVAL" \
+                "$PARSED_CUSTOM_FREQUENCIES" \
+                "${app_params_array[@]}"
+            ;;
         baseline)
             run_baseline_experiment \
                 "$PARSED_PROFILING_TOOL" \
@@ -240,7 +251,12 @@ GPU Configuration:
 Profiling Configuration:
   Tool: ${PARSED_PROFILING_TOOL}
   Runs per frequency: ${PARSED_NUM_RUNS}
-  Sleep interval: ${PARSED_SLEEP_INTERVAL}s
+  Sleep interval: ${PARSED_SLEEP_INTERVAL}s$(
+    if [[ "$PARSED_PROFILING_MODE" == "custom" ]]; then
+        echo ""
+        echo "  Custom frequencies: ${PARSED_CUSTOM_FREQUENCIES} MHz"
+    fi
+)
 
 Application Configuration:
   Name: ${PARSED_APP_NAME}

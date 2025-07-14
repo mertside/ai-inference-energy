@@ -291,9 +291,49 @@ is_valid_profiling_tool() {
 is_valid_profiling_mode() {
     local mode="$1"
     case "$(to_lower "$mode")" in
-        dvfs|baseline) return 0 ;;
+        dvfs|custom|baseline) return 0 ;;
         *) return 1 ;;
     esac
+}
+
+# Validate custom frequency list
+validate_custom_frequencies() {
+    local frequencies="$1"
+    local gpu_type="$2"
+    
+    # Check if frequencies string is not empty
+    [[ -n "$frequencies" ]] || return 1
+    
+    # Get GPU frequency range
+    local min_freq max_freq
+    min_freq=$(get_gpu_core_freq_min "$gpu_type")
+    max_freq=$(get_gpu_core_freq_max "$gpu_type")
+    
+    # Check if we can get valid frequency bounds
+    [[ -n "$min_freq" && -n "$max_freq" ]] || return 1
+    
+    # Split frequencies by comma and validate each
+    local freq_array
+    IFS=',' read -ra freq_array <<< "$frequencies"
+    
+    # Must have at least one frequency
+    [[ ${#freq_array[@]} -gt 0 ]] || return 1
+    
+    for freq in "${freq_array[@]}"; do
+        # Remove whitespace
+        freq=$(echo "$freq" | tr -d ' ')
+        
+        # Check if it's a valid integer
+        [[ "$freq" =~ ^[0-9]+$ ]] || return 1
+        
+        # Check if frequency is within valid range
+        if [[ "$freq" -lt "$min_freq" || "$freq" -gt "$max_freq" ]]; then
+            log_error "Frequency $freq MHz is outside valid range for $gpu_type: $min_freq-$max_freq MHz"
+            return 1
+        fi
+    done
+    
+    return 0
 }
 
 # =============================================================================
@@ -424,6 +464,6 @@ export -f log_info log_error log_warning log_debug log_success
 export -f die command_exists file_readable dir_accessible
 export -f get_absolute_path ensure_directory trim to_lower to_upper
 export -f is_positive_integer is_valid_frequency is_valid_gpu_type
-export -f is_valid_profiling_tool is_valid_profiling_mode
+export -f is_valid_profiling_tool is_valid_profiling_mode validate_custom_frequencies
 
 log_debug "Common library v${COMMON_LIB_VERSION} loaded successfully"
