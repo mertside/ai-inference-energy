@@ -114,7 +114,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
 
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
-LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
@@ -122,46 +122,55 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusio
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
+# 🎯 TARGETED DVFS APPLICATION STUDIES
+# ============================================================================
+
+# 8. 🤖 LSTM DVFS - Three-point frequency analysis (low/mid/high, ~20-30 minutes)
+LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+
+# 9. 🎨 STABLE DIFFUSION DVFS - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
+
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 8. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
+# 10. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 9. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
+# 11. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 10. 📈 STATISTICAL DVFS - High statistical power (~4-8 hours, change --time to 10:00:00)
+# 12. 📈 STATISTICAL DVFS - High statistical power (~4-8 hours, change --time to 10:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
 # 🛠️ TOOL AND COMPATIBILITY CONFIGURATIONS  
 # ============================================================================
 
-# 11. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# 13. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
 # LAUNCH_ARGS="--gpu-type A100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
 
-# 12. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
+# 14. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 13. 💾 MEMORY STRESS TEST - Large model testing (A100 has 40GB)
+# 15. 💾 MEMORY STRESS TEST - Large model testing (A100 has 40GB)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 30b' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 14. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance
+# 16. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,650,800,950,1100,1250,1410' --num-runs 7 --sleep-interval 2"
 
-# 15. 🔬 PRECISION COMPARISON - Different model precisions
+# 17. 🔬 PRECISION COMPARISON - Different model precisions
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
 
-# 16. 📈 SCALING ANALYSIS - Batch size impact study
+# 18. 📈 SCALING ANALYSIS - Batch size impact study
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '700,1000,1300' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
 
 # 🚀 ADVANCED A100 CONFIGURATIONS
 # ============================================================================
 
-# 17. 🔥 HIGH THROUGHPUT - Multi-instance profiling
+# 19. 🔥 HIGH THROUGHPUT - Multi-instance profiling
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--multi-instance 4' --num-runs 3"
 
 # 18. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
@@ -172,12 +181,14 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusio
 # ============================================================================
 # Configuration 1-3:     --time=01:00:00  (1 hour)
 # Configuration 4-7:     --time=02:00:00  (2 hours) 
-# Configuration 8-9:     --time=05:00:00  (5 hours)
-# Configuration 10:      --time=10:00:00  (10 hours)
-# Configuration 11-16:   --time=03:00:00  (3 hours, adjust as needed)
-# Configuration 17-18:   --time=04:00:00  (4 hours, advanced features)
+# Configuration 8-9:     --time=01:00:00  (1 hour) - Targeted DVFS with 3 frequencies
+# Configuration 10-11:   --time=05:00:00  (5 hours)
+# Configuration 12:      --time=10:00:00  (10 hours)
+# Configuration 13-18:   --time=03:00:00  (3 hours, adjust as needed)
+# Configuration 19:      --time=04:00:00  (4 hours, advanced features)
 #
 # 💡 TIP: A100 has fewer frequencies (61) than V100 (117), so DVFS is faster
+# 💡 TIP: For DVFS studies (8-12), consider running during off-peak hours
 # ============================================================================
 
 # Logging functions with colored output
