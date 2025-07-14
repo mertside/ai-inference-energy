@@ -306,93 +306,6 @@ class EnergyProfiler:
 
         return result_df
 
-    def validate_energy_measurements(
-        self,
-        energy_data: pd.DataFrame,
-        energy_col: str = "energy_joules_mean",
-        cv_threshold: float = 0.2,
-        outlier_threshold: float = 3.0,
-    ) -> Dict[str, Any]:
-        """
-        Validate energy measurements for quality and consistency.
-
-        Args:
-            energy_data: DataFrame with energy measurements
-            energy_col: Column name for energy values
-            cv_threshold: Maximum acceptable coefficient of variation
-            outlier_threshold: Z-score threshold for outlier detection
-
-        Returns:
-            Dictionary with validation results and recommendations
-        """
-        if energy_col not in energy_data.columns:
-            raise ValueError(f"Energy column '{energy_col}' not found in data")
-
-        energy_values = energy_data[energy_col].dropna()
-
-        if len(energy_values) == 0:
-            raise ValueError("No valid energy measurements found")
-
-        # Calculate statistics
-        mean_energy = energy_values.mean()
-        std_energy = energy_values.std()
-        cv = std_energy / mean_energy
-
-        # Detect outliers using Z-score
-        z_scores = np.abs((energy_values - mean_energy) / std_energy)
-        outliers = energy_values[z_scores > outlier_threshold]
-
-        # Check for missing standard deviations if available
-        std_col = f'{energy_col.replace("_mean", "_std")}'
-        high_variance_measurements = []
-        if std_col in energy_data.columns:
-            high_cv_mask = (
-                energy_data[std_col] / energy_data[energy_col]
-            ) > cv_threshold
-            high_variance_measurements = energy_data[high_cv_mask]
-
-        # Generate validation results
-        validation_results = {
-            "total_measurements": len(energy_values),
-            "mean_energy": mean_energy,
-            "std_energy": std_energy,
-            "coefficient_of_variation": cv,
-            "cv_acceptable": cv <= cv_threshold,
-            "outliers_detected": len(outliers),
-            "outlier_values": outliers.tolist(),
-            "high_variance_measurements": len(high_variance_measurements),
-            "data_quality_score": self._calculate_quality_score(
-                cv, len(outliers), len(energy_values)
-            ),
-            "recommendations": [],
-        }
-
-        # Generate recommendations
-        if cv > cv_threshold:
-            validation_results["recommendations"].append(
-                f"High measurement variability (CV={cv:.3f}). Consider more runs or investigate measurement conditions."
-            )
-
-        if len(outliers) > 0:
-            validation_results["recommendations"].append(
-                f"Detected {len(outliers)} outlier measurements. Review measurement conditions and consider removal."
-            )
-
-        if len(high_variance_measurements) > 0:
-            validation_results["recommendations"].append(
-                f"{len(high_variance_measurements)} measurements have high individual variance. Increase runs per configuration."
-            )
-
-        if not validation_results["recommendations"]:
-            validation_results["recommendations"].append(
-                "Energy measurements appear to be of good quality."
-            )
-
-        logger.info(
-            f"Energy validation complete: Quality score = {validation_results['data_quality_score']:.2f}"
-        )
-
-        return validation_results
 
     def _calculate_quality_score(
         self, cv: float, num_outliers: int, total_measurements: int
@@ -601,30 +514,64 @@ class EnergyProfiler:
     def validate_energy_measurements(
         self,
         df: pd.DataFrame,
+        energy_col: Optional[str] = None,
         power_col: str = "power",
         time_col: str = "execution_time",
+        cv_threshold: float = 0.2,
+        outlier_threshold: float = 3.0,
         tolerance: float = 0.1,
     ) -> Dict[str, Any]:
-        """
-        Validate energy measurement quality and consistency.
+        """Validate energy measurement quality and consistency."""
 
-        Args:
-            df: DataFrame with energy measurements
-            power_col: Power column name
-            time_col: Time column name
-            tolerance: Acceptable variation tolerance (0.1 = 10%)
-
-        Returns:
-            Validation results
-        """
         logger.info("Validating energy measurement quality")
 
-        validation_results = {
+        validation_results: Dict[str, Any] = {
             "data_quality": {},
             "measurement_consistency": {},
             "outlier_analysis": {},
             "recommendations": [],
         }
+
+        # Determine energy values
+        if energy_col and energy_col in df.columns:
+            energy_values = df[energy_col].dropna()
+        elif power_col in df.columns and time_col in df.columns:
+            energy_values = (df[power_col] * df[time_col]).dropna()
+        else:
+            raise ValueError(
+                "Provide an energy column or both power and time columns for validation"
+            )
+
+        # Basic statistics
+        mean_energy = energy_values.mean()
+        std_energy = energy_values.std()
+        cv = std_energy / mean_energy if mean_energy != 0 else float("inf")
+
+        # Energy outlier detection
+        z_scores = np.abs((energy_values - mean_energy) / std_energy)
+        energy_outliers = energy_values[z_scores > outlier_threshold]
+
+        std_col = f"{energy_col.replace('_mean', '_std')}" if energy_col else None
+        high_variance_measurements = []
+        if std_col and std_col in df.columns and energy_col in df.columns:
+            high_cv_mask = (df[std_col] / df[energy_col]) > cv_threshold
+            high_variance_measurements = df[high_cv_mask]
+
+        validation_results.update(
+            {
+                "total_measurements": len(energy_values),
+                "mean_energy": mean_energy,
+                "std_energy": std_energy,
+                "coefficient_of_variation": cv,
+                "cv_acceptable": cv <= cv_threshold,
+                "outliers_detected": len(energy_outliers),
+                "outlier_values": energy_outliers.tolist(),
+                "high_variance_measurements": len(high_variance_measurements),
+                "data_quality_score": self._calculate_quality_score(
+                    cv, len(energy_outliers), len(energy_values)
+                ),
+            }
+        )
 
         # Data quality checks
         total_samples = len(df)
@@ -653,44 +600,40 @@ class EnergyProfiler:
         }
 
         # Measurement consistency analysis
-        if power_col in df.columns and time_col in df.columns:
-            # Calculate energy and analyze consistency
-            energy_values = df[power_col] * df[time_col]
+        if power_col in df.columns and time_col in df.columns and (
+            "frequency" in df.columns or "sm_clock" in df.columns
+        ):
+            freq_col = "frequency" if "frequency" in df.columns else "sm_clock"
+            consistency_metrics: Dict[Any, Any] = {}
+            for freq, group in df.groupby(freq_col):
+                if len(group) > 1:
+                    group_energy = (
+                        group[energy_col]
+                        if energy_col and energy_col in group.columns
+                        else group[power_col] * group[time_col]
+                    )
+                    g_cv = (
+                        group_energy.std() / group_energy.mean()
+                        if group_energy.mean() > 0
+                        else float("inf")
+                    )
+                    consistency_metrics[freq] = {
+                        "sample_count": len(group),
+                        "energy_cv": g_cv,
+                        "is_consistent": g_cv < tolerance,
+                    }
 
-            # Check for repeated measurements at same frequency
-            if "frequency" in df.columns or "sm_clock" in df.columns:
-                freq_col = "frequency" if "frequency" in df.columns else "sm_clock"
-                freq_groups = df.groupby(freq_col)
+            validation_results["measurement_consistency"] = consistency_metrics
 
-                consistency_metrics = {}
-                for freq, group in freq_groups:
-                    if len(group) > 1:
-                        group_energy = group[power_col] * group[time_col]
-                        cv = (
-                            group_energy.std() / group_energy.mean()
-                            if group_energy.mean() > 0
-                            else float("inf")
-                        )
-                        consistency_metrics[freq] = {
-                            "sample_count": len(group),
-                            "energy_cv": cv,
-                            "is_consistent": cv < tolerance,
-                        }
+            consistent_freqs = sum(
+                1 for metrics in consistency_metrics.values() if metrics["is_consistent"]
+            )
+            total_freqs = len(consistency_metrics)
+            validation_results["overall_consistency_score"] = (
+                consistent_freqs / total_freqs if total_freqs > 0 else 0
+            )
 
-                validation_results["measurement_consistency"] = consistency_metrics
-
-                # Overall consistency score
-                consistent_freqs = sum(
-                    1
-                    for metrics in consistency_metrics.values()
-                    if metrics["is_consistent"]
-                )
-                total_freqs = len(consistency_metrics)
-                validation_results["overall_consistency_score"] = (
-                    consistent_freqs / total_freqs if total_freqs > 0 else 0
-                )
-
-        # Outlier detection
+        # Outlier detection for power and time
         if power_col in df.columns:
             power_q1, power_q3 = df[power_col].quantile([0.25, 0.75])
             power_iqr = power_q3 - power_q1
@@ -698,7 +641,6 @@ class EnergyProfiler:
                 (df[power_col] < power_q1 - 1.5 * power_iqr)
                 | (df[power_col] > power_q3 + 1.5 * power_iqr)
             ]
-
             validation_results["outlier_analysis"]["power_outliers"] = {
                 "count": len(power_outliers),
                 "percentage": len(power_outliers) / total_samples * 100,
@@ -712,7 +654,6 @@ class EnergyProfiler:
                 (df[time_col] < time_q1 - 1.5 * time_iqr)
                 | (df[time_col] > time_q3 + 1.5 * time_iqr)
             ]
-
             validation_results["outlier_analysis"]["time_outliers"] = {
                 "count": len(time_outliers),
                 "percentage": len(time_outliers) / total_samples * 100,
@@ -720,6 +661,21 @@ class EnergyProfiler:
             }
 
         # Generate recommendations
+        if cv > cv_threshold:
+            validation_results["recommendations"].append(
+                f"High measurement variability (CV={cv:.3f}). Consider more runs or investigate measurement conditions."
+            )
+
+        if len(energy_outliers) > 0:
+            validation_results["recommendations"].append(
+                f"Detected {len(energy_outliers)} outlier measurements. Review measurement conditions and consider removal."
+            )
+
+        if len(high_variance_measurements) > 0:
+            validation_results["recommendations"].append(
+                f"{len(high_variance_measurements)} measurements have high individual variance. Increase runs per configuration."
+            )
+
         if validation_results["data_quality"]["data_completeness"] < 0.9:
             validation_results["recommendations"].append(
                 f"Data completeness is {validation_results['data_quality']['data_completeness']:.1%} - consider collecting more complete measurements"
@@ -741,7 +697,14 @@ class EnergyProfiler:
                 "High percentage of outliers detected - review measurement conditions"
             )
 
-        logger.info("Energy measurement validation completed")
+        if not validation_results["recommendations"]:
+            validation_results["recommendations"].append(
+                "Energy measurements appear to be of good quality."
+            )
+
+        logger.info(
+            f"Energy validation complete: Quality score = {validation_results['data_quality_score']:.2f}"
+        )
         return validation_results
 
 
@@ -787,7 +750,7 @@ def validate_energy_data_quality(
     """
     profiler = EnergyProfiler()
     validation_results = profiler.validate_energy_measurements(
-        energy_data, energy_col, cv_threshold
+        energy_data, energy_col=energy_col, cv_threshold=cv_threshold
     )
 
     return (
