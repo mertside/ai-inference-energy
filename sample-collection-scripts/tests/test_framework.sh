@@ -403,7 +403,7 @@ test_library_load_performance() {
 
 main() {
     log_info "Starting AI Inference Energy Profiling Framework Test Suite"
-    readonly FRAMEWORK_VERSION=$(grep -oP '(?<=version=\")[^\"]+' "${SCRIPTS_DIR}/setup.py")
+    readonly FRAMEWORK_VERSION=$(grep -oP '(?<=version=\")[^\"]+' "$(dirname "$SCRIPTS_DIR")/setup.py")
     log_info "Framework Version: ${FRAMEWORK_VERSION}"
     log_info "Test Suite Started: $(date)"
     
