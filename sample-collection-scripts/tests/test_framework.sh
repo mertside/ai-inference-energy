@@ -466,8 +466,8 @@ main() {
 }
 
 # Create test directory and run tests
-mkdir -p "$(dirname "$TEST_DIR")/tests"
-cd "$(dirname "$TEST_DIR")/tests"
+mkdir -p "$TEST_DIR"
+cd "$TEST_DIR"
 
 # Only run main if script is executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
