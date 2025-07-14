@@ -385,10 +385,10 @@ test_library_load_performance() {
     source "${LIB_DIR}/args_parser.sh" >/dev/null 2>&1
     
     end_time=$(date +%s.%N)
-    duration=$(echo "$end_time - $start_time" | bc -l 2>/dev/null || echo "0.1")
+    duration=$(awk "BEGIN {print $end_time - $start_time}")
     
     # Should load in reasonable time (< 1 second)
-    if (( $(echo "$duration > 1.0" | bc -l 2>/dev/null || echo "0") )); then
+    if [[ $(awk "BEGIN {print ($duration > 1.0)}") -eq 1 ]]; then
         echo "Library loading too slow: ${duration}s"
         return 1
     fi
