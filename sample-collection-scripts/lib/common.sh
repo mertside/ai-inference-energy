@@ -25,46 +25,24 @@ readonly SCRIPTS_ROOT_DIR="$(dirname "${COMMON_LIB_DIR}")"
 
 # Color detection function - checks at runtime
 should_use_colors() {
-    # BE EXTREMELY CONSERVATIVE - default to NO colors unless explicitly safe
+    # Simplified color detection logic
     
     # Explicit disable flags take priority
     if [[ "${NO_COLOR:-}" == "1" ]] || [[ "${DISABLE_COLORS:-}" == "1" ]] || [[ "${FORCE_COLOR:-}" == "0" ]]; then
         return 1
     fi
     
-    # Force enable ONLY if explicitly requested (overrides all other checks)
+    # Force enable if explicitly requested
     if [[ "${FORCE_COLOR:-}" == "1" ]]; then
         return 0
     fi
     
-    # ALWAYS disable in any compute/cluster environment
-    if [[ "${SLURM_JOB_ID:-}" != "" ]] || [[ "${PBS_JOBID:-}" != "" ]] || [[ "${LSB_JOBID:-}" != "" ]]; then
-        return 1
+    # Enable colors if output is a TTY and TERM is valid
+    if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]] && [[ "${TERM:-}" != "" ]]; then
+        return 0
     fi
     
-    # Disable if hostname suggests cluster environment
-    local hostname=$(hostname 2>/dev/null || echo "")
-    if [[ "$hostname" =~ (hpcc|repacss|cluster|compute|node) ]]; then
-        return 1
-    fi
-    
-    # Disable if any indication of non-interactive environment
-    if [[ -z "${PS1:-}" ]] || [[ "${-}" != *i* ]]; then
-        return 1
-    fi
-    
-    # Even with TTY, be very conservative about when to enable colors
-    if [[ -t 1 ]] && [[ -t 2 ]] && [[ "${TERM:-}" != "dumb" ]] && [[ "${TERM:-}" != "unknown" ]] && [[ "${TERM:-}" != "" ]]; then
-        # Additional safety: check if we're likely in a script or non-interactive context
-        if [[ ! -p /dev/stdout ]] && [[ ! -p /dev/stdin ]] && [[ "${TERM}" =~ ^(xterm|screen|tmux) ]]; then
-            # Final check: only enable if we're in a truly interactive session
-            if [[ -n "${SSH_TTY:-}" ]] || [[ "${TERM_PROGRAM:-}" =~ (Terminal|iTerm) ]] || [[ -n "${DISPLAY:-}" ]]; then
-                return 0
-            fi
-        fi
-    fi
-    
-    # Default to NO colors for maximum safety
+    # Default to NO colors
     return 1
 }
 
