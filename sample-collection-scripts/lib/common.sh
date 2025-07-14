@@ -23,22 +23,35 @@ readonly COMMON_LIB_VERSION="1.0.0"
 readonly COMMON_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly SCRIPTS_ROOT_DIR="$(dirname "${COMMON_LIB_DIR}")"
 
+# Helper function: Check if colors are explicitly disabled
+is_color_disabled() {
+    [[ "${NO_COLOR:-}" == "1" ]] || [[ "${DISABLE_COLORS:-}" == "1" ]] || [[ "${FORCE_COLOR:-}" == "0" ]]
+}
+
+# Helper function: Check if colors are explicitly enabled
+is_color_forced() {
+    [[ "${FORCE_COLOR:-}" == "1" ]]
+}
+
+# Helper function: Check if terminal supports colors
+is_terminal_valid() {
+    [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]] && [[ "${TERM:-}" != "" ]]
+}
+
 # Color detection function - checks at runtime
 should_use_colors() {
-    # Simplified color detection logic
-    
     # Explicit disable flags take priority
-    if [[ "${NO_COLOR:-}" == "1" ]] || [[ "${DISABLE_COLORS:-}" == "1" ]] || [[ "${FORCE_COLOR:-}" == "0" ]]; then
+    if is_color_disabled; then
         return 1
     fi
     
     # Force enable if explicitly requested
-    if [[ "${FORCE_COLOR:-}" == "1" ]]; then
+    if is_color_forced; then
         return 0
     fi
     
     # Enable colors if output is a TTY and TERM is valid
-    if [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]] && [[ "${TERM:-}" != "" ]]; then
+    if is_terminal_valid; then
         return 0
     fi
     
