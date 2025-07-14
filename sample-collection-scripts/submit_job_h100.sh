@@ -129,7 +129,7 @@ determine_results_dir() {
 # Use --custom-frequencies to specify exact frequencies to test.
 
 # 8. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
 # 9. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 2"
