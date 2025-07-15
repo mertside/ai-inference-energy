@@ -1,0 +1,55 @@
+name: llama-generic
+channels:
+  - pytorch
+  - conda-forge
+  - huggingface
+dependencies:
+  # Python
+  - python=3.10
+  
+  # PyTorch (CPU or CUDA auto-detect)
+  - pytorch>=2.0.0
+  - torchvision
+  - torchaudio
+  - cpuonly  # Remove this line if you need CUDA support
+  
+  # Core ML/AI packages
+  - numpy>=1.21.0
+  - scipy
+  - scikit-learn
+  - pandas
+  
+  # Hugging Face ecosystem
+  - transformers>=4.30.0
+  - tokenizers>=0.13.0
+  - datasets
+  - accelerate>=0.20.0
+  - huggingface_hub
+  
+  # Development and monitoring
+  - ipython
+  - jupyter
+  - matplotlib
+  - seaborn
+  - tqdm
+  - psutil
+  
+  # Additional utilities
+  - requests
+  - urllib3
+  - certifi
+  
+  - pip
+  
+  - pip:
+    # Core packages
+    - torch>=2.0.0
+    - transformers>=4.30.0
+    - accelerate>=0.20.0
+    - optimum>=1.12.0
+    - safetensors
+    
+    # Development tools
+    - pytest
+    - black
+    - flake8

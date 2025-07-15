@@ -365,9 +365,45 @@ class ModelConfig:
     """Configuration for AI models used in profiling."""
 
     # LLaMA model configuration
-    LLAMA_MODEL_NAME = "huggyllama/llama-7b"
+    LLAMA_MODEL_NAME = "huggyllama/llama-7b"  # Default model
     LLAMA_TORCH_DTYPE = "float16"
     LLAMA_DEFAULT_PROMPT = "Plants create energy through a process known as"
+    
+    # LLaMA model variants with their Hugging Face identifiers
+    LLAMA_MODELS = {
+        "llama-7b": "huggyllama/llama-7b",
+        "llama-13b": "huggyllama/llama-13b",
+        "llama-30b": "huggyllama/llama-30b", 
+        "llama-65b": "huggyllama/llama-65b",
+        "llama2-7b": "meta-llama/Llama-2-7b-hf",
+        "llama2-13b": "meta-llama/Llama-2-13b-hf",
+        "llama2-70b": "meta-llama/Llama-2-70b-hf",
+        "code-llama-7b": "codellama/CodeLlama-7b-hf",
+        "code-llama-13b": "codellama/CodeLlama-13b-hf",
+        "code-llama-34b": "codellama/CodeLlama-34b-hf"
+    }
+    
+    # LLaMA generation parameters for consistent benchmarking
+    LLAMA_DEFAULT_PARAMS = {
+        "max_new_tokens": 50,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 50,
+        "do_sample": True,
+        "repetition_penalty": 1.1
+    }
+    
+    # Benchmark prompts for LLaMA evaluation
+    LLAMA_BENCHMARK_PROMPTS = [
+        "The future of artificial intelligence is",
+        "Climate change is one of the most pressing issues",
+        "In the field of renewable energy",
+        "Machine learning algorithms have revolutionized",
+        "The impact of social media on society",
+        "Quantum computing represents a paradigm shift",
+        "The exploration of space has always fascinated",
+        "Sustainable development goals are essential"
+    ]
 
     # Stable Diffusion model configuration
     STABLE_DIFFUSION_MODEL_NAME = "CompVis/stable-diffusion-v1-4"

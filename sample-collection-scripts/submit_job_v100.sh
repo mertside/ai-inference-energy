@@ -116,7 +116,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --num-runs 5"
 
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
@@ -154,7 +154,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
 # 15. 💾 MEMORY STRESS TEST - Large model testing
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 13b' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama-13b --max-tokens 75' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================

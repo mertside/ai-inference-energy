@@ -118,7 +118,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 6. 📝 LLAMA - Text generation profiling  
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --num-runs 5"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --num-runs 5"
 
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
@@ -156,7 +156,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
 # 15. 💾 MEMORY STRESS TEST - Large model testing (H100 has 80GB)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 70b' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-70b --max-tokens 100' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
@@ -174,7 +174,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # ============================================================================
 
 # 19. 🔥 TRANSFORMER ENGINE - Optimized for large language models
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--use-transformer-engine --precision fp8' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --precision float16 --max-tokens 150' --num-runs 3"
 
 # 20. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"
@@ -183,7 +183,7 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '1000,1400,1785' --app-name CustomApp --app-params '--memory-intensive --hbm3-optimized' --num-runs 5"
 
 # 22. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable llama_inference --app-params '--model-size 175b --use-all-features' --num-runs 2"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
