@@ -117,8 +117,8 @@ determine_results_dir() {
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
-# 6. 📝 LLAMA - Text generation profiling  
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --num-runs 5"
+# 6. 📝 LLAMA - Text generation profiling with benchmark suite  
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
@@ -128,22 +128,25 @@ determine_results_dir() {
 # NOTE: Framework v2.0.1 now supports 'custom' mode for targeted frequency analysis.
 # Use --custom-frequencies to specify exact frequencies to test.
 
-# 8. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+# 8. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high, ~20-30 minutes)
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
-# 9. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
+# 9. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~15-25 minutes)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+
+# 10. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~30-45 minutes)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 10. ⚡ COMPREHENSIVE DVFS - All 86 frequencies (~3-5 hours, change --time to 06:00:00)
+# 11. ⚡ COMPREHENSIVE DVFS - All 86 frequencies (~3-5 hours, change --time to 06:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 11. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1.5-3 hours, change --time to 04:00:00)
+# 12. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1.5-3 hours, change --time to 04:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 12. 📈 STATISTICAL DVFS - High statistical power (~5-10 hours, change --time to 12:00:00)
+# 13. 📈 STATISTICAL DVFS - High statistical power (~5-10 hours, change --time to 12:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
 # 🛠️ TOOL AND COMPATIBILITY CONFIGURATIONS  
@@ -155,8 +158,8 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # 14. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 15. 💾 MEMORY STRESS TEST - Large model testing (H100 has 80GB)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-70b --max-tokens 100' --num-runs 3"
+# 15. 💾 MEMORY STRESS TEST - Large model testing with benchmark (H100 has 80GB)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-70b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
@@ -173,8 +176,8 @@ LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,9
 # 🚀 ADVANCED H100 CONFIGURATIONS
 # ============================================================================
 
-# 19. 🔥 TRANSFORMER ENGINE - Optimized for large language models
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --precision float16 --max-tokens 150' --num-runs 3"
+# 19. 🔥 TRANSFORMER ENGINE - Optimized for large language models with benchmark
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --precision float16 --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
 # 20. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"

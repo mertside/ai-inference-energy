@@ -103,6 +103,9 @@ class LlamaInferenceEngine:
             precision: Model precision ('float16', 'float32', 'int8')
             max_memory_mb: Maximum GPU memory to use in MB
         """
+        # Initialize logger first
+        self.logger = logging.getLogger(__name__)
+        
         self.model_name = self._resolve_model_name(model_name)
         self.device = self._setup_device(device)
         self.precision = precision
@@ -121,8 +124,6 @@ class LlamaInferenceEngine:
             "total_tokens_generated": 0,
             "average_tokens_per_second": 0.0
         }
-        
-        self.logger = logging.getLogger(__name__)
         
     def _resolve_model_name(self, model_name: str) -> str:
         """Resolve model name from shorthand to full Hugging Face identifier."""
@@ -194,14 +195,18 @@ class LlamaInferenceEngine:
                 **model_kwargs
             )
             
-            # Create pipeline
-            self.pipeline = pipeline(
-                "text-generation",
-                model=self.model,
-                tokenizer=self.tokenizer,
-                device=0 if self.device == "cuda" else -1,
-                torch_dtype=torch_dtype
-            )
+            # Create pipeline - don't specify device if using device_map
+            pipeline_kwargs = {
+                "model": self.model,
+                "tokenizer": self.tokenizer,
+                "torch_dtype": torch_dtype
+            }
+            
+            # Only specify device if not using device_map="auto"
+            if self.device == "cpu" or "device_map" not in model_kwargs:
+                pipeline_kwargs["device"] = 0 if self.device == "cuda" else -1
+            
+            self.pipeline = pipeline("text-generation", **pipeline_kwargs)
             
             load_time = time.time() - start_time
             self.metrics["model_load_time"] = load_time

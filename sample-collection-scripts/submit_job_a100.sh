@@ -115,8 +115,8 @@ determine_results_dir() {
 # 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
-# 6. 📝 LLAMA - Text generation profiling  
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --num-runs 5"
+# 6. 📝 LLAMA - Text generation profiling with benchmark suite  
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
 # 7. 🔧 CUSTOM APPLICATION - Template for your own applications
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
@@ -153,8 +153,8 @@ LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,9
 # 14. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 15. 💾 MEMORY STRESS TEST - Large model testing (A100 has 40GB)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama-30b --max-tokens 100' --num-runs 3"
+# 15. 💾 MEMORY STRESS TEST - Large model testing with benchmark (A100 has 40GB)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama-30b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
