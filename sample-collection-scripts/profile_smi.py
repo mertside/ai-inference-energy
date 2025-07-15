@@ -12,7 +12,7 @@ at regular intervals and saving them to CSV files for analysis.
 Requirements:
     - NVIDIA GPU with nvidia-smi support
     - nvidia-smi tool (part of NVIDIA drivers)
-    - Python 3.6+
+    - Python 3.8+
 
 Note:
     This is an alternative to the DCGMI-based profile.py script.

@@ -81,7 +81,7 @@ A comprehensive demonstration script that shows:
 
 ## Requirements
 
-- Python 3.6+
+- Python 3.8+
 - All framework dependencies (see `../requirements.txt`)
 - Access to GPU for profiling examples
 - Proper framework installation and configuration
