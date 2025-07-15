@@ -63,7 +63,7 @@ DEFAULT_NUM_RETURN_SEQUENCES = 1
 
 ## Requirements
 
-- Python 3.6+
+- Python 3.8+
 - PyTorch
 - Transformers (Hugging Face)
 - CUDA-capable GPU (recommended)

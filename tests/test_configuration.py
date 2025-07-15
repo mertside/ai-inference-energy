@@ -92,10 +92,11 @@ class TestEnvironmentSetup(unittest.TestCase):
 
     def test_python_version_compatibility(self):
         """Test Python version compatibility."""
-        # Test minimum Python version (3.6+)
+        # Test minimum Python version (3.8+)
         version_info = sys.version_info
         self.assertGreaterEqual(version_info.major, 3)
-        self.assertGreaterEqual(version_info.minor, 6)
+        if version_info.major == 3:
+            self.assertGreaterEqual(version_info.minor, 8)
 
     def test_required_imports(self):
         """Test that required external packages can be imported."""
@@ -128,7 +129,7 @@ class TestEnvironmentSetup(unittest.TestCase):
                     pass  # Optional packages are allowed to be missing
 
     def test_subprocess_compatibility(self):
-        """Test subprocess functionality for Python 3.6+ compatibility."""
+        """Test subprocess functionality for Python 3.8+ compatibility."""
         import subprocess
 
         # Test basic subprocess functionality

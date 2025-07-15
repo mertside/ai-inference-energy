@@ -9,7 +9,7 @@ The test suite ensures the framework works correctly across different Python ver
 ## Test Files
 
 ### **Configuration Tests**
-- **`test_configuration.py`** - Tests configuration module loading and Python 3.6+ compatibility
+- **`test_configuration.py`** - Tests configuration module loading and Python 3.8+ compatibility
 
 ### **Compatibility Tests**  
 - **`run_tests.py`** - Entry point for running the full test suite
@@ -60,12 +60,12 @@ pytest -v
 - ✅ DCGMI fields configuration
 - ✅ GPU frequency settings (A100/V100)
 - ✅ Model configuration parameters
-- ✅ Python 3.6+ class compatibility
+- ✅ Python 3.8+ class compatibility
 
 ### Subprocess Testing  
 - ✅ `run_command()` function with output capture
 - ✅ `run_command()` function without output capture
-- ✅ Python 3.6+ subprocess.run() compatibility
+- ✅ Python 3.8+ subprocess.run() compatibility
 - ✅ Error handling and timeout functionality
 
 ### Compatibility Testing
@@ -100,7 +100,7 @@ pytest -v
 
 ## Requirements
 
-- Python 3.6+ (tests verify compatibility across versions)
+- Python 3.8+ (tests verify compatibility across versions)
 - Access to project modules (`config.py`, `utils.py`)
 - Basic shell environment for bash tests
 
@@ -127,7 +127,7 @@ chmod +x tests/*.sh
 python --version
 
 # Test with specific Python version
-python3.6 tests/test_configuration.py  # If available
+python3.8 tests/test_configuration.py  # If available
 ```
 
 ## Adding New Tests
