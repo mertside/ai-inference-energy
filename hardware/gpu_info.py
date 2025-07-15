@@ -24,7 +24,7 @@ Usage:
     # Get GPU specifications
     gpu_info = GPUSpecifications('V100')
     freq_range = gpu_info.get_frequency_range()
-    memory_specs = gpu_info.get_memory_specifications()
+    memory_spec = gpu_info.get_memory_specification()
 
     # Quick lookup
     specs = get_gpu_info('A100')
