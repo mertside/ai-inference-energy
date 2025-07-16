@@ -51,7 +51,7 @@ determine_conda_env() {
             echo "tensorflow"
             ;;
         "LLaMA")
-            echo "tensorflow"  # Default for now, can be adjusted
+            echo "llama"  # Updated to use the new llama environment
             ;;
         *)
             echo "tensorflow"  # Default environment
@@ -94,91 +94,91 @@ determine_results_dir() {
 # CONFIGURATION SECTION - Uncomment ONE configuration below
 # ============================================================================
 
-# 📋 QUICK START CONFIGURATIONS
+# 📋 BASELINE CONFIGURATIONS
 # ============================================================================
 
-# 1. 🚀 QUICK TEST - Baseline profiling (fastest, ~? minutes) - PyTorch LSTM
+# 1. 🤖 LSTM - Basic deep learning benchmark
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
 
-# 2. 🔬 RESEARCH BASELINE - Extended baseline for statistical significance (~15-20 minutes)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 5 --sleep-interval 2"
-
-# 3. 🎯 FREQUENCY SAMPLING - Extended baseline for comparative analysis (~30-45 minutes)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
-
-# 📊 AI APPLICATION CONFIGURATIONS
-# ============================================================================
-
-# 4. 🤖 LSTM PROFILING - Default sentiment analysis benchmark
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5"
-
-# 5. 🎨 STABLE DIFFUSION - Image generation profiling (1000 steps, 768x768, astronaut riding horse)
+# 2. 🎨 STABLE DIFFUSION - Image generation benchmark
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
 
-# 6. 📝 LLAMA - Text generation profiling with benchmark suite  
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
+# 3. 📝 LLAMA - Text generation benchmark
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 7. 🔧 CUSTOM APPLICATION - Template for your own applications
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
-
-# 🎯 TARGETED DVFS APPLICATION STUDIES
+# 📊 CUSTOM FREQUENCY CONFIGURATIONS (Low/Mid/High Analysis)
 # ============================================================================
-# NOTE: Framework v2.0.1 now supports 'custom' mode for targeted frequency analysis.
-# Use --custom-frequencies to specify exact frequencies to test.
 
-# 8. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high, ~20-30 minutes)
-LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+# 4. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 9. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high, ~40-60 minutes)
+# 5. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
+
+# 6. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
+LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 10. ⚡ COMPREHENSIVE DVFS - All 117 frequencies (⚠️ LONG: 6-12 hours, change --time to 12:00:00)
+# 7. ⚡ COMPREHENSIVE DVFS - All 117 frequencies (⚠️ LONG: 6-12 hours, change --time to 12:00:00)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 11. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~4-6 hours, change --time to 08:00:00)
+# 8. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~4-6 hours, change --time to 08:00:00)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 12. 📈 STATISTICAL DVFS - High statistical power (⚠️ VERY LONG: 12-20 hours, change --time to 24:00:00)
+# 9. 📈 STATISTICAL DVFS - High statistical power (⚠️ VERY LONG: 12-20 hours, change --time to 24:00:00)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
-
-# 🛠️ TOOL AND COMPATIBILITY CONFIGURATIONS  
-# ============================================================================
-
-# 13. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
-# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
-
-# 14. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
-
-# 15. 💾 MEMORY STRESS TEST - Large model testing with benchmark (V100 has 32GB)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama-13b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 16. 📊 ENERGY EFFICIENCY STUDY - Focus on power vs performance (Use DVFS mode)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
+# 10. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,650,800,960,1120,1260,1380' --num-runs 7 --sleep-interval 2"
 
-# 17. 🔬 PRECISION COMPARISON - Different model precisions
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable stable_diffusion --app-params '--precision fp16' --num-runs 5"
+# 11. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
-# 18. 📈 SCALING ANALYSIS - Batch size impact study (Use baseline for quick comparison)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 64' --num-runs 5"
+# 12. 📈 SCALING ANALYSIS - Batch size impact study
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 64' --num-runs 5"
+
+# 🚀 ADVANCED V100 CONFIGURATIONS
+# ============================================================================
+
+# 13. 🔥 TENSOR CORE OPTIMIZATION - Mixed precision workloads
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
+
+# 14. 💾 MEMORY STRESS TEST - Large model testing with 32GB HBM2
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
+
+# 15. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
+
+# 🛠️ UTILITY AND DEBUG CONFIGURATIONS
+# ============================================================================
+
+# 16. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
+
+# 17. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
+
+# 18. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
 # Configuration 1-3:     --time=01:00:00  (1 hour)
-# Configuration 4-7:     --time=02:00:00  (2 hours) 
-# Configuration 8-9:     --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies
-# Configuration 10-11:   --time=08:00:00  (8 hours)
-# Configuration 12:      --time=24:00:00  (24 hours)
-# Configuration 13-18:   --time=03:00:00  (3 hours, adjust as needed)
+# Configuration 4-6:     --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies  
+# Configuration 7-9:     --time=12:00:00  (12 hours) - DVFS studies, V100 has 117 frequencies
+# Configuration 10-12:   --time=02:00:00  (2 hours) - Research studies
+# Configuration 13-15:   --time=03:00:00  (3 hours) - Advanced V100 features
+# Configuration 16-18:   --time=01:00:00  (1 hour) - Utility configurations
 #
-# 💡 TIP: For DVFS studies (8-12), consider running during off-peak hours
+# 💡 TIP: V100 has 117 frequencies (most of all GPU generations), DVFS studies take longer
+# 🚀 TIP: Take advantage of V100's tensor cores for mixed precision workloads
+# 💡 TIP: For DVFS studies (7-9), consider running during off-peak hours due to long duration
 # ============================================================================
 
 # Logging functions with colored output
