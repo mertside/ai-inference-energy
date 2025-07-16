@@ -1,0 +1,23 @@
+name: llama-minimal
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  - torchaudio=2.5.1
+  - pytorch-cuda=11.8
+  - pip
+  - pip:
+    - transformers==4.53.2
+    - accelerate==1.8.1
+    - datasets==3.6.0
+    - huggingface_hub==0.33.4
+    - tokenizers==0.21.3
+    - safetensors==0.5.3
+    - numpy
+    - matplotlib
+    - jupyter
+    - ipywidgets

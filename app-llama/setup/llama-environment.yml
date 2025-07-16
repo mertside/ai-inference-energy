@@ -1,4 +1,4 @@
-name: llama-h100
+name: llama
 channels:
   - pytorch
   - nvidia
@@ -500,4 +500,4 @@ dependencies:
       - torch==2.5.1
       - torchvision==0.20.1
       - triton==3.1.0
-prefix: /mnt/DISCL/home/meside/miniforge3/envs/llama-h100
+prefix: /mnt/DISCL/home/meside/miniforge3/envs/llama
