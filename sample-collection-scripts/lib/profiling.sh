@@ -632,7 +632,7 @@ run_custom_experiment() {
             current_run=$((current_run + 1))
             show_progress "$current_run" "$total_runs" "Custom Frequency Progress"
             
-            local run_id="freq_${frequency}_$(printf "%02d" "$run")"
+            local run_id="$(printf "%02d" "$run")"
             
             if ! run_application_with_profiling \
                 "$profiling_tool" "$app_executable" \

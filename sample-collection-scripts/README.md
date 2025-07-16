@@ -11,6 +11,9 @@ This directory contains a **production-ready, modular AI inference energy profil
 - ✅ **Enhanced Cleanup Tool**: Advanced filtering, backup, and selective cleanup options
 - ✅ **High-Resolution Profiling**: Consistent 50ms sampling for both DCGMI and nvidia-smi
 - ✅ **Comprehensive Summaries**: Rich experiment metadata and performance statistics
+- ✅ **Configuration Consolidation**: Unified DCGMI field configuration (25 comprehensive fields)
+- ✅ **Clean Filenames**: Fixed duplicate frequency in custom experiment filenames
+- ✅ **Robust Import System**: Resolved configuration import conflicts for reliable operation
 - ✅ **Production Stability**: Improved reliability and user experience
 
 ---
@@ -723,7 +726,7 @@ Options:
 - **Temporal Precision**: Captures brief GPU activity transitions
 
 #### Data Collection
-- **Metrics per Sample**: 17 DCGMI fields, 17 nvidia-smi fields
+- **Metrics per Sample**: 25 DCGMI fields, 17 nvidia-smi fields
 - **File Format**: CSV with timestamps and comprehensive GPU telemetry
 - **Storage**: ~150KB per 20-second run (typical application)
 ### Experiment Modes

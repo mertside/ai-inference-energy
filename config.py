@@ -327,25 +327,50 @@ class GPUConfig:
 class ProfilingConfig:
     """Configuration for power and performance profiling."""
 
-    # DCGMI monitoring fields
+    # DCGMI monitoring fields - comprehensive set used in production
+    # This matches the field configuration actually used by profile.py
+    # DCGMI one-liner: dcgmi dmon -d 50 -e 52,50,155,160,156,150,140,203,204,250,251,252,100,101,110,111,190,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
     DCGMI_FIELDS = [
-        1001,
-        1002,
-        1003,
-        1004,
-        1005,
-        1006,
-        1007,
-        1008,
-        1009,
-        1010,
-        203,
-        204,
-        210,
-        211,
-        155,
-        156,
-        110,
+        # Basic device information
+        52,          # DCGM_FI_DEV_NVML_INDEX - GPU device index
+        50,          # DCGM_FI_DEV_NAME - GPU device name
+        
+        # Power metrics
+        155,         # DCGM_FI_DEV_POWER_USAGE - Current power draw (W)
+        160,         # DCGM_FI_DEV_POWER_MGMT_LIMIT - Power management limit (W)
+        156,         # DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION - Total energy consumption (mJ)
+        
+        # Temperature metrics
+        150,         # DCGM_FI_DEV_GPU_TEMP - GPU temperature (C)
+        140,         # DCGM_FI_DEV_MEMORY_TEMP - Memory (HBM) temperature (C)
+        
+        # Utilization metrics
+        203,         # DCGM_FI_DEV_GPU_UTIL - GPU utilization (coarse) (%)
+        204,         # DCGM_FI_DEV_MEM_COPY_UTIL - Memory copy utilization (≈ util.mem) (%)
+        
+        # Memory metrics
+        250,         # DCGM_FI_DEV_FB_TOTAL - Total framebuffer memory (MB)
+        251,         # DCGM_FI_DEV_FB_FREE - Free framebuffer memory (MB)
+        252,         # DCGM_FI_DEV_FB_USED - Used framebuffer memory (MB)
+        
+        # Clock frequencies
+        100,         # DCGM_FI_DEV_SM_CLOCK - SM clock frequency (MHz)
+        101,         # DCGM_FI_DEV_MEM_CLOCK - Memory clock frequency (MHz)
+        110,         # DCGM_FI_DEV_APP_SM_CLOCK - Application SM clock (MHz)
+        111,         # DCGM_FI_DEV_APP_MEM_CLOCK - Application memory clock (MHz)
+        
+        # Performance state
+        190,         # DCGM_FI_DEV_PSTATE - Performance state (P-state)
+        
+        # Advanced compute activity metrics (DCGM 2.0+)
+        1001,        # DCGM_FI_PROF_GR_ENGINE_ACTIVE - Graphics engine active (%)
+        1002,        # DCGM_FI_PROF_SM_ACTIVE - SM active (%)
+        1003,        # DCGM_FI_PROF_SM_OCCUPANCY - SM occupancy (%)
+        1004,        # DCGM_FI_PROF_PIPE_TENSOR_ACTIVE - Tensor pipe active (%)
+        1005,        # DCGM_FI_PROF_DRAM_ACTIVE - DRAM active (%)
+        1006,        # DCGM_FI_PROF_PIPE_FP64_ACTIVE - FP64 pipe active (%)
+        1007,        # DCGM_FI_PROF_PIPE_FP32_ACTIVE - FP32 pipe active (%)
+        1008,        # DCGM_FI_PROF_PIPE_FP16_ACTIVE - FP16 pipe active (%)
     ]
 
     # Profiling intervals

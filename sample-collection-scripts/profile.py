@@ -27,69 +27,41 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path for imports and handle config import robustly
+import importlib.util
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_path = os.path.join(parent_dir, "config.py")
+utils_path = os.path.join(parent_dir, "utils.py")
 
 try:
-    from config import profiling_config
-    from utils import (
-        get_timestamp,
-        run_command,
-        setup_logging,
-        validate_dcgmi_available,
-    )
-except ImportError:
-    # Fallback configuration if imports fail
+    # Import config.py directly to avoid name collision with built-in config module
+    spec = importlib.util.spec_from_file_location("energy_config", config_path)
+    config_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(config_module)
+    profiling_config = config_module.profiling_config
+    
+    # Import utils.py directly
+    spec = importlib.util.spec_from_file_location("energy_utils", utils_path)
+    utils_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils_module)
+    
+    get_timestamp = utils_module.get_timestamp
+    run_command = utils_module.run_command
+    setup_logging = utils_module.setup_logging
+    validate_dcgmi_available = utils_module.validate_dcgmi_available
+    
+except (ImportError, FileNotFoundError, AttributeError) as e:
+    print(f"Warning: Could not import main config module: {e}")
+    print("Using fallback configuration (this should not happen in production)")
+    
+    # Minimal fallback configuration - should match main config
     class ProfilingConfig:
-        # DCGMI_FIELDS = [
-        #     1001,
-        #     1002,
-        #     1003,
-        #     1004,
-        #     1005,
-        #     1006,
-        #     1007,
-        #     1008,
-        #     1009,
-        #     1010,
-        #     203,
-        #     204,
-        #     210,
-        #     211,
-        #     155,
-        #     156,
-        #     110,
-        # ]
+        # Use the same comprehensive field list as main config
         DCGMI_FIELDS = [
-            # "timestamp", # 0 ─ dcgmi dmon prints host timestamp automatically
-            52,          # 1 ─ DCGM_FI_DEV_NVML_INDEX
-            50,          # 2 ─ DCGM_FI_DEV_NAME
-            155,         # 3 ─ DCGM_FI_DEV_POWER_USAGE
-            160,         # 4 ─ DCGM_FI_DEV_POWER_MGMT_LIMIT
-            150,         # 5 ─ DCGM_FI_DEV_GPU_TEMP
-            203,         # 6 ─ DCGM_FI_DEV_GPU_UTIL          (coarse)
-            204,         # 7 ─ DCGM_FI_DEV_MEM_COPY_UTIL     (≈ util.mem)
-            250,         # 8 ─ DCGM_FI_DEV_FB_TOTAL
-            251,         # 9 ─ DCGM_FI_DEV_FB_FREE
-            252,         # 10 ─ DCGM_FI_DEV_FB_USED
-            100,         # 11 ─ DCGM_FI_DEV_SM_CLOCK
-            101,         # 12 ─ DCGM_FI_DEV_MEM_CLOCK
-            100,         # 13 ─ (proxy for graphics clock)
-            110,         # 14 ─ DCGM_FI_DEV_APP_SM_CLOCK
-            111,         # 15 ─ DCGM_FI_DEV_APP_MEM_CLOCK
-            190,         # 16 ─ DCGM_FI_DEV_PSTATE
-            140,         # memory (HBM) temperature
-            156,         # total energy consumption (mJ)
-            1001,        # graphics active 
-            1002,        # SM active
-            1003,        # SM occupancy
-            1004,        # tensor pipe active
-            1005,        # DRAM active
-            1006,        # FP64 active
-            1007,        # FP32 active
-            1008         # FP16 active
+            52, 50, 155, 160, 156, 150, 140, 203, 204, 250, 251, 252, 
+            100, 101, 110, 111, 190, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008
         ]
-        # One-liner: dcgmi dmon -d 50 -e 52,50,155,160,150,203,204,250,251,252,100,101,100,110,111,190,140,156,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
         DEFAULT_INTERVAL_MS = 50
         TEMP_OUTPUT_FILE = "changeme"
 
@@ -113,6 +85,9 @@ except ImportError:
 
     def get_timestamp():
         return time.strftime("%Y-%m-%d_%H-%M-%S")
+    
+    def run_command(command, *args, **kwargs):
+        return subprocess.run(command, *args, **kwargs)
 
 
 class GPUProfiler:

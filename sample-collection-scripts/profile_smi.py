@@ -31,14 +31,34 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path for imports and handle config import robustly
+import importlib.util
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_path = os.path.join(parent_dir, "config.py")
+utils_path = os.path.join(parent_dir, "utils.py")
 
 try:
-    from config import profiling_config
-    from utils import get_timestamp, setup_logging, validate_gpu_available
-except ImportError:
-    # Fallback configuration if imports fail
+    # Import config.py directly to avoid name collision with built-in config module
+    spec = importlib.util.spec_from_file_location("energy_config", config_path)
+    config_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(config_module)
+    profiling_config = config_module.profiling_config
+    
+    # Import utils.py directly
+    spec = importlib.util.spec_from_file_location("energy_utils", utils_path)
+    utils_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils_module)
+    
+    get_timestamp = utils_module.get_timestamp
+    setup_logging = utils_module.setup_logging
+    validate_gpu_available = utils_module.validate_gpu_available
+    
+except (ImportError, FileNotFoundError, AttributeError) as e:
+    print(f"Warning: Could not import main config module: {e}")
+    print("Using fallback configuration (this should not happen in production)")
+    
+    # Minimal fallback configuration - should match main config
     class ProfilingConfig:
         DEFAULT_INTERVAL_MS = 50  # nvidia-smi supports millisecond sampling with --loop-ms
         TEMP_OUTPUT_FILE = "changeme"

@@ -79,7 +79,7 @@ pytest -v
 ### Successful Test Run
 ```
 ✓ Config module loaded successfully
-  - DCGMI fields count: 17
+  - DCGMI fields count: 25
   - A100 frequencies count: 61
   - Default interval: 50ms
   - LLaMA model: huggyllama/llama-7b

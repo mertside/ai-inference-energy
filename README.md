@@ -420,7 +420,7 @@ Key configuration options in `config.py` (Python 3.8+ compatible):
 # Profiling settings
 DEFAULT_NUM_RUNS = 2              # Runs per frequency
 DEFAULT_INTERVAL_MS = 50          # Sampling interval
-DCGMI_FIELDS = [1001, 1002, ...]  # GPU metrics to collect
+DCGMI_FIELDS = [52, 50, 155, 160, ...]  # Comprehensive GPU metrics to collect (25 fields)
 
 # Model settings
 LLAMA_MODEL_NAME = "huggyllama/llama-7b"
