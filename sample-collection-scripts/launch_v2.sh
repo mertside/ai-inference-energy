@@ -326,7 +326,11 @@ generate_timing_statistics() {
             ((total_runs++)) || true
             total_duration=$((total_duration + duration)) || true
             
-            [[ "$status" == "success" ]] && ((successful_runs++)) || ((failed_runs++))
+            if [[ "$status" == "success" ]]; then
+                ((successful_runs++))
+            else
+                ((failed_runs++))
+            fi
             
             # Update min/max with safe comparisons
             [[ $duration -lt $min_duration ]] && min_duration=$duration
