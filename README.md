@@ -16,11 +16,18 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - ⚡ **Intelligent Fallback**: Automatic tool selection when DCGMI is unavailable
 - 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
- - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
+- 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
 - 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization
 - ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection
 - 🔬 **Model Validation**: Comprehensive validation framework with robust error handling
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
+
+### 🎉 Latest Updates (v2.0.1)
+
+- ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields (vs 17 previously)
+- ✅ **Clean Filenames**: Fixed duplicate frequency naming in custom experiments (`run_01_freq_510` vs `run_freq_510_01_freq_510`)
+- ✅ **Robust Imports**: Resolved configuration import conflicts for reliable operation
+- ✅ **Enhanced Compatibility**: Improved PyTorch/torchvision compatibility in AI model environments
 
 ### 🔋 Power Modeling Framework
 
@@ -421,6 +428,8 @@ Key configuration options in `config.py` (Python 3.8+ compatible):
 DEFAULT_NUM_RUNS = 2              # Runs per frequency
 DEFAULT_INTERVAL_MS = 50          # Sampling interval
 DCGMI_FIELDS = [52, 50, 155, 160, ...]  # Comprehensive GPU metrics to collect (25 fields)
+                                  # ✅ v2.0.1: Consolidated comprehensive field set
+                                  # ✅ Includes: device info, power, temps, clocks, utilization, activity metrics
 
 # Model settings
 LLAMA_MODEL_NAME = "huggyllama/llama-7b"

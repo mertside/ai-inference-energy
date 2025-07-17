@@ -222,6 +222,17 @@ Results are automatically saved to `results_[GPU]_LLaMA/` directory following th
    export HF_HOME="/fast/storage/path"
    ```
 
+4. **PyTorch/torchvision Compatibility Error**
+   ```bash
+   # Error: RuntimeError: operator torchvision::nms does not exist
+   # Solution: Fix PyTorch ecosystem compatibility
+   conda activate llama
+   pip uninstall torchvision -y
+   pip install torchvision --no-deps
+   # Alternative: 
+   conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
+   ```
+
 ### Debug Mode
 
 Enable detailed debugging:

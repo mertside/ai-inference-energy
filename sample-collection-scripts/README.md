@@ -726,7 +726,8 @@ Options:
 - **Temporal Precision**: Captures brief GPU activity transitions
 
 #### Data Collection
-- **Metrics per Sample**: 25 DCGMI fields, 17 nvidia-smi fields
+- **Metrics per Sample**: 25 comprehensive DCGMI fields (v2.0.1), 17 nvidia-smi fields
+- **DCGMI Fields**: Device info, power metrics, temperatures, utilization, memory, clocks, P-state, compute activity
 - **File Format**: CSV with timestamps and comprehensive GPU telemetry
 - **Storage**: ~150KB per 20-second run (typical application)
 ### Experiment Modes
