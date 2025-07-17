@@ -135,11 +135,25 @@ class LlamaInferenceEngine:
         
     def _setup_device(self, device: Optional[str]) -> str:
         """Setup and validate the target device."""
+        # Enhanced CUDA diagnostics
+        self.logger.info(f"PyTorch version: {torch.__version__}")
+        self.logger.info(f"CUDA available: {torch.cuda.is_available()}")
+        
+        if torch.cuda.is_available():
+            self.logger.info(f"CUDA version: {torch.version.cuda}")
+            self.logger.info(f"GPU count: {torch.cuda.device_count()}")
+        else:
+            self.logger.warning("CUDA not available - check PyTorch installation and CUDA drivers")
+            
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             
         if device == "cuda" and not torch.cuda.is_available():
             self.logger.warning("CUDA requested but not available, falling back to CPU")
+            self.logger.warning("Possible fixes:")
+            self.logger.warning("1. Install PyTorch with CUDA support")
+            self.logger.warning("2. Update NVIDIA drivers")
+            self.logger.warning("3. Check CUDA installation")
             device = "cpu"
             
         if device == "cuda":
