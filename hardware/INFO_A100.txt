@@ -113,3 +113,24 @@ GPU 00000000:21:00.0
             Graphics                      : 225 MHz
             Graphics                      : 210 MHz
 
+(base) gpu-21-11:$ dcgmi -v
+Version : 3.3.9
+Build ID : 45
+Build Date : 2024-11-13
+Build Type : Release
+Commit ID : 9e2b5d2b8914d2571537f9f633e5a91986d4eecd
+Branch Name : rel_dcgm_3_3
+CPU Arch : x86_64
+Build Platform : Linux 4.15.0-180-generic #189-Ubuntu SMP Wed May 18 14:13:57 UTC 2022 x86_64
+CRC : 813bd4bc82cddbb63b59936dc0740c84
+
+Hostengine build info:
+Version : 3.3.9
+Build ID : 45
+Build Date : 2024-11-13
+Build Type : Release
+Commit ID : 9e2b5d2b8914d2571537f9f633e5a91986d4eecd
+Branch Name : rel_dcgm_3_3
+CPU Arch : x86_64
+Build Platform : Linux 4.15.0-180-generic #189-Ubuntu SMP Wed May 18 14:13:57 UTC 2022 x86_64
+CRC : 813bd4bc82cddbb63b59936dc0740c84
