@@ -69,6 +69,7 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
 - **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation  
+- **[Whisper](https://github.com/openai/whisper)**: **NEW** OpenAI Whisper automatic speech recognition for audio processing energy profiling
 - **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
 - **Custom Applications**: Framework supports any Python-based AI inference workload
 
@@ -101,6 +102,17 @@ ai-inference-energy/
 │   ├── setup_stable_diffusion.sh       # Complete setup and validation script
 │   ├── test_stable_diffusion_*.py       # Comprehensive test suites
 │   └── validate_stable_diffusion.py    # Quick validation script
+│
+├── app-whisper/                         # 🎤 **NEW** Whisper speech recognition applications
+│   ├── README.md                        # Comprehensive Whisper documentation
+│   ├── WhisperViaHF.py                  # OpenAI Whisper speech-to-text via Hugging Face
+│   ├── __init__.py                      # Python package initialization
+│   ├── setup/                           # Environment setup and configuration
+│   │   ├── setup_whisper_env.sh         # Automated conda environment setup
+│   │   ├── requirements.txt             # Python dependencies
+│   │   └── whisper-repacss.yml          # REPACSS cluster environment
+│   └── tests/                           # Test suite for Whisper implementation
+│       └── test_whisper.py              # Comprehensive test suite
 │
 ├── app-lstm/                            # LSTM benchmark application
 │   ├── README.md                        # LSTM benchmark documentation
@@ -244,6 +256,12 @@ python LlamaViaHF.py
 ```bash
 cd app-stable-diffusion
 python StableDiffusionViaHF.py
+```
+
+**Run Whisper speech recognition:**
+```bash
+cd app-whisper
+python WhisperViaHF.py --benchmark --num-samples 3
 ```
 
 #### 2. Power Profiling
@@ -663,6 +681,8 @@ The framework includes **streamlined, production-ready documentation** focused o
 - **[examples/README.md](examples/README.md)**: Usage examples and demonstrations
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
+- **[app-whisper/README.md](app-whisper/README.md)**: **NEW** OpenAI Whisper speech recognition for audio processing energy profiling
+- **[app-llama/README.md](app-llama/README.md)**: LLaMA text generation application for language model energy profiling
 
 All documentation follows consistent patterns with **practical examples**, **real commands**, and **comprehensive troubleshooting** sections.
 

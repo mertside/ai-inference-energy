@@ -1,6 +1,11 @@
 # Launch Script Usage Examples
 
-The launch.sh script now accepts all configuration and application details as command-line arguments, making it much more flexible and suitable for automated experiments.
+The launch.sh script now accepts all configurati### 12. Comprehensive Test (more runs)
+```bash
+./launch.sh --num-runs 5 --sleep-interval 3
+```
+
+### 13. Full Custom Configuration application details as command-line arguments, making it much more flexible and suitable for automated experiments.
 
 ## Basic Usage
 
@@ -54,7 +59,15 @@ The launch.sh script now accepts all configuration and application details as co
   --app-params "--model llama-7b --input prompt.txt > results/LLaMA_output.log"
 ```
 
-### 9. Custom Application - Without Output Redirection (automatically added)
+### 9. Custom Application - Whisper
+```bash
+./launch.sh \
+  --app-name "Whisper" \
+  --app-executable "../app-whisper/WhisperViaHF.py" \
+  --app-params "--benchmark --model base --num-samples 3 --quiet > results/Whisper_output.log"
+```
+
+### 10. Custom Application - Without Output Redirection (automatically added)
 ```bash
 ./launch.sh \
   --app-name "MyApp" \
@@ -65,7 +78,7 @@ The launch.sh script now accepts all configuration and application details as co
 
 ## Experiment Configuration Examples
 
-### 10. Quick Test (fewer runs)
+### 11. Quick Test (fewer runs)
 ```bash
 ./launch.sh --num-runs 1 --sleep-interval 0
 ```
@@ -90,12 +103,12 @@ The launch.sh script now accepts all configuration and application details as co
 
 ## Automation Examples
 
-### 13. Script for Testing Multiple Applications
+### 14. Script for Testing Multiple Applications
 ```bash
 #!/bin/bash
 
 # Test different applications with the same configuration
-for app in "LSTM" "StableDiffusion" "LLaMA"; do
+for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper"; do
     ./launch.sh \
       --gpu-type A100 \
       --profiling-mode baseline \
@@ -106,7 +119,7 @@ for app in "LSTM" "StableDiffusion" "LLaMA"; do
 done
 ```
 
-### 14. Script for Testing Multiple GPU Types
+### 15. Script for Testing Multiple GPU Types
 ```bash
 #!/bin/bash
 

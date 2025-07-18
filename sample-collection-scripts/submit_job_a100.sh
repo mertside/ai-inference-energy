@@ -53,6 +53,9 @@ determine_conda_env() {
         "LLaMA")
             echo "llama"  # Updated to use the new llama environment
             ;;
+        "Whisper")
+            echo "whisper"  # Whisper speech recognition environment
+            ;;
         *)
             echo "tensorflow"  # Default environment
             ;;
@@ -106,82 +109,94 @@ determine_results_dir() {
 # 3. 📝 LLAMA - Text generation benchmark
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
+# 4. 🎤 WHISPER - Speech recognition benchmark
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3"
+
 # 📊 CUSTOM FREQUENCY CONFIGURATIONS (Low/Mid/High Analysis)
 # ============================================================================
 
-# 4. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
+# 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 5. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
+# 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
+
+# 6. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
 
-# 6. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
+# 7. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
 LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
+
+# 8. 🎤 WHISPER CUSTOM - Three-point frequency analysis (low/mid/high)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 5 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 7. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
+# 9. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 8. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
+# 10. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 9. 📈 STATISTICAL DVFS - High statistical power (~4-8 hours, change --time to 10:00:00)
+# 11. 📈 STATISTICAL DVFS - High statistical power (~4-8 hours, change --time to 10:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 10. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
+# 🎓 RESEARCH STUDY CONFIGURATIONS
+# ============================================================================
+
+# 12. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,660,810,960,1110,1260,1410' --num-runs 7 --sleep-interval 2"
 
-# 11. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
+# 13. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
-# 12. 📈 SCALING ANALYSIS - Batch size impact study
+# 14. 📈 SCALING ANALYSIS - Batch size impact study
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
 
 # 🚀 ADVANCED A100 CONFIGURATIONS
 # ============================================================================
 
-# 13. 🔥 HIGH THROUGHPUT - Multi-instance profiling with tensor cores
+# 15. 🔥 HIGH THROUGHPUT - Multi-instance profiling with tensor cores
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--multi-instance 4' --num-runs 3"
 
-# 14. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
+# 16. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
 
-# 15. 💾 MEMORY STRESS TEST - Large model testing with 40GB HBM2e
+# 17. 💾 MEMORY STRESS TEST - Large model testing with 40GB HBM2e
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-30b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 16. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
+# 18. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
 
 # 🛠️ UTILITY AND DEBUG CONFIGURATIONS
 # ============================================================================
 
-# 17. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# 19. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
 # LAUNCH_ARGS="--gpu-type A100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
 
-# 18. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
+# 20. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 19. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
+# 21. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
-# Configuration 1-3:     --time=01:00:00  (1 hour)
-# Configuration 4-6:     --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies  
-# Configuration 7-9:     --time=05:00:00  (5 hours) - DVFS studies, adjust as needed
-# Configuration 10-12:   --time=02:00:00  (2 hours) - Research studies
-# Configuration 13-16:   --time=03:00:00  (3 hours) - Advanced A100 features
-# Configuration 17-19:   --time=01:00:00  (1 hour) - Utility configurations
+# Configuration 1-4:     --time=01:00:00  (1 hour)
+# Configuration 5-8:     --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies  
+# Configuration 9-11:    --time=05:00:00  (5 hours) - DVFS studies, adjust as needed
+# Configuration 12-14:   --time=02:00:00  (2 hours) - Research studies
+# Configuration 15-18:   --time=03:00:00  (3 hours) - Advanced A100 features
+# Configuration 19-21:   --time=01:00:00  (1 hour) - Utility configurations
 #
 # 💡 TIP: A100 has 61 frequencies (fewer than V100's 117, more than some others)
 # 🚀 TIP: Take advantage of A100's tensor cores and mixed precision capabilities
-# 💡 TIP: For DVFS studies (7-9), consider running during off-peak hours
+# 💡 TIP: For DVFS studies (9-11), consider running during off-peak hours
 # ============================================================================
 
 # Logging functions with colored output

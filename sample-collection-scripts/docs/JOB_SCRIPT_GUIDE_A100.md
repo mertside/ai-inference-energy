@@ -29,23 +29,28 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 
 ### Application Profiling (1-3 hours)
 ```bash
-# 4. 🤖 LSTM PROFILING - Lightweight benchmark
+# 4. 🎤 WHISPER - Speech recognition benchmark
 # Uncomment: Configuration #4
+# Time needed: 15-25 minutes
+# Use for: Audio processing workload analysis
+
+# 5. 🤖 LSTM PROFILING - Lightweight benchmark
+# Uncomment: Configuration #5
 # Time needed: 15-25 minutes
 # Use for: NLP workload analysis
 
-# 5. 🎨 STABLE DIFFUSION - Image generation
-# Uncomment: Configuration #5  
+# 6. 🎨 STABLE DIFFUSION - Image generation
+# Uncomment: Configuration #6  
 # Time needed: 20-30 minutes
 # Use for: Generative AI workload analysis
 
-# 6. 📝 LLAMA - Text generation
-# Uncomment: Configuration #6
+# 7. 📝 LLAMA - Text generation
+# Uncomment: Configuration #7
 # Time needed: 25-35 minutes
 # Use for: Large language model analysis
 
-# 7. 🔧 CUSTOM APPLICATION - Your own app
-# Uncomment: Configuration #7
+# 8. 🔧 CUSTOM APPLICATION - Your own app
+# Uncomment: Configuration #8
 # Time needed: Varies
 # Use for: Custom application profiling
 ```
@@ -75,7 +80,7 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 | #1 (Quick Test) | 3-5 min | --time=01:00:00 |
 | #2 (Research Baseline) | 8-12 min | --time=01:00:00 |
 | #3 (Frequency Sampling) | 15-25 min | --time=02:00:00 |
-| #4-7 (Applications) | 15-35 min | --time=02:00:00 |
+| #4-8 (Applications) | 15-35 min | --time=02:00:00 |
 | #8 (Comprehensive DVFS) | 4-8 hours | --time=10:00:00 |
 | #9-16 (Advanced) | 1-4 hours | --time=05:00:00 |
 

@@ -102,6 +102,7 @@ All documentation follows consistent patterns:
 - **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework and scripts
 - **[`../app-llama/README.md`](../app-llama/README.md)** - LLaMA inference application
 - **[`../app-stable-diffusion/README.md`](../app-stable-diffusion/README.md)** - Stable Diffusion application
+- **[`../app-whisper/README.md`](../app-whisper/README.md)** - **NEW** Whisper speech recognition application
 
 ## 📞 Support and Contribution
 

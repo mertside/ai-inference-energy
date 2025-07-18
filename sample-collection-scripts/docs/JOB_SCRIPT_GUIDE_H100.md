@@ -29,23 +29,28 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 
 ### Application Profiling (1-3 hours)
 ```bash
-# 4. 🤖 LSTM PROFILING - Lightweight benchmark
+# 4. 🎤 WHISPER - Speech recognition benchmark
 # Uncomment: Configuration #4
+# Time needed: 10-20 minutes
+# Use for: Audio processing workload analysis
+
+# 5. 🤖 LSTM PROFILING - Lightweight benchmark
+# Uncomment: Configuration #5
 # Time needed: 10-20 minutes
 # Use for: NLP workload analysis
 
-# 5. 🎨 STABLE DIFFUSION - Image generation
-# Uncomment: Configuration #5  
+# 6. 🎨 STABLE DIFFUSION - Image generation
+# Uncomment: Configuration #6  
 # Time needed: 15-25 minutes
 # Use for: Generative AI workload analysis
 
-# 6. 📝 LLAMA - Text generation
-# Uncomment: Configuration #6
+# 7. 📝 LLAMA - Text generation
+# Uncomment: Configuration #7
 # Time needed: 20-30 minutes
 # Use for: Large language model analysis
 
-# 7. 🔧 CUSTOM APPLICATION - Your own app
-# Uncomment: Configuration #7
+# 8. 🔧 CUSTOM APPLICATION - Your own app
+# Uncomment: Configuration #8
 # Time needed: Varies
 # Use for: Custom application profiling
 ```
@@ -94,7 +99,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 | #2 (Research Baseline) | 6-10 min | --time=01:00:00 |
 | #3 (Frequency Sampling) | 12-20 min | --time=02:00:00 |
 | #4 (Full DVFS) | 6-12 hours | --time=14:00:00 |
-| #5-7 (Applications) | 10-30 min | --time=02:00:00 |
+| #4-8 (Applications) | 10-30 min | --time=02:00:00 |
 | #8-10 (H100 Features) | 2-5 hours | --time=06:00:00 |
 | #11-16 (Advanced) | 1-8 hours | --time=10:00:00 |
 

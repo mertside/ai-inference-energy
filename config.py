@@ -435,6 +435,39 @@ class ModelConfig:
     STABLE_DIFFUSION_DEFAULT_PROMPT = "a photo of an astronaut riding a horse on mars"
     STABLE_DIFFUSION_OUTPUT_FILE = "astronaut_rides_horse.png"
 
+    # Whisper model configuration
+    WHISPER_DEFAULT_MODEL = "base"
+    WHISPER_TORCH_DTYPE = "float16"
+    WHISPER_DEFAULT_LANGUAGE = "en"
+    WHISPER_SAMPLE_RATE = 16000
+    WHISPER_DEFAULT_DURATION = 30  # seconds
+    
+    # Whisper model variants with their Hugging Face identifiers
+    WHISPER_MODELS = {
+        "tiny": "openai/whisper-tiny",
+        "base": "openai/whisper-base", 
+        "small": "openai/whisper-small",
+        "medium": "openai/whisper-medium",
+        "large": "openai/whisper-large-v2",
+        "large-v3": "openai/whisper-large-v3"
+    }
+    
+    # Whisper benchmark parameters for consistent energy profiling
+    WHISPER_DEFAULT_PARAMS = {
+        "num_samples": 3,
+        "use_dataset": False,
+        "language": "en",
+        "return_timestamps": False
+    }
+    
+    # Benchmark audio configurations for Whisper evaluation
+    WHISPER_BENCHMARK_CONFIGS = [
+        {"duration": 5.0, "complexity": "simple"},
+        {"duration": 15.0, "complexity": "medium"},
+        {"duration": 30.0, "complexity": "complex"},
+        {"duration": 60.0, "complexity": "long_form"}
+    ]
+
 
 class SystemConfig:
     """System-level configuration settings."""

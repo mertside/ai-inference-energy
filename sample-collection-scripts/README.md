@@ -3,7 +3,7 @@
 > **Latest Version**: v2.0.1 (Enhanced) | **Status**: Production Ready ✅  
 > **Quick Start**: `./launch_v2.sh --help` | **Cleanup**: `./clean.sh --help` | **Legacy**: `./legacy/launch.sh`
 
-This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA).
+This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA, Whisper).
 
 **🎉 Recent Enhancements (v2.0.1):**
 - ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
@@ -133,6 +133,12 @@ sample-collection-scripts/
 ./launch_v2.sh \
     --app-executable "LlamaViaHF.py" \
     --app-params "--model-name 'meta-llama/Llama-2-7b-hf' --max-tokens 100"
+
+# Whisper speech recognition profiling
+./launch_v2.sh \
+    --app-name "Whisper" \
+    --app-executable "../app-whisper/WhisperViaHF.py" \
+    --app-params "--benchmark --model base --num-samples 3 --quiet"
 ```
 
 ### Advanced Configuration
