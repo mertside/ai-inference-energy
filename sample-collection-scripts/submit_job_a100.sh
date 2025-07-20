@@ -118,9 +118,6 @@ determine_results_dir() {
 # 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
-
 # 6. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
 
