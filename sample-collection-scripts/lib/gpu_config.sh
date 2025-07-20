@@ -386,7 +386,10 @@ determine_conda_env() {
             conda_env="stable-diffusion-gpu"
             ;;
         *llama*|*llm*)
-            conda_env="pytorch-gpu"
+            conda_env="llama"
+            ;;
+        *whisper*)
+            conda_env="whisper"
             ;;
         *lstm*|lstm.py)
             conda_env="tensorflow"
@@ -399,7 +402,10 @@ determine_conda_env() {
                         conda_env="stable-diffusion-gpu"
                         ;;
                     *llama*|*llm*)
-                        conda_env="pytorch-gpu"
+                        conda_env="llama"
+                        ;;
+                    *whisper*)
+                        conda_env="whisper"
                         ;;
                     *lstm*)
                         conda_env="tensorflow"
