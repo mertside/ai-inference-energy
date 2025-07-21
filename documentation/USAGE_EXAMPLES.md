@@ -67,14 +67,19 @@ The launch.sh script now accepts all configurati### 12. Comprehensive Test (more
   --app-params "--benchmark --model base --num-samples 3 --quiet > results/Whisper_output.log"
 ```
 
-### 10. Custom Application - Without Output Redirection (automatically added)
+### 10. Custom Application - Vision Transformer
 ```bash
 ./launch.sh \
-  --app-name "MyApp" \
-  --app-executable "my_script" \
-  --app-params "--epochs 10 --batch-size 32"
-# Will automatically add: > results/MyApp_RUN_OUT
+  --app-name "ViT" \
+  --app-executable "../app-vision-transformer/ViTViaHF.py" \
+  --app-params "--benchmark --num-images 5 --model google/vit-base-patch16-224 > results/ViT_output.log"
 ```
+
+### 12. Multiple Applications Testing Loop
+```bash
+#!/bin/bash
+
+for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper" "ViT"; do
 
 ## Experiment Configuration Examples
 
@@ -103,7 +108,7 @@ The launch.sh script now accepts all configurati### 12. Comprehensive Test (more
 
 ## Automation Examples
 
-### 14. Script for Testing Multiple Applications
+### 13. Script for Testing Multiple Applications
 ```bash
 #!/bin/bash
 
@@ -119,7 +124,7 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper"; do
 done
 ```
 
-### 15. Script for Testing Multiple GPU Types
+### 14. Script for Testing Multiple GPU Types
 ```bash
 #!/bin/bash
 
