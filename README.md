@@ -69,7 +69,8 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
 - **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation  
-- **[Whisper](https://github.com/openai/whisper)**: **NEW** OpenAI Whisper automatic speech recognition for audio processing energy profiling
+- **[Whisper](https://github.com/openai/whisper)**: OpenAI Whisper automatic speech recognition for audio processing energy profiling
+- **[Vision Transformer (ViT)](https://github.com/huggingface/transformers)**: **NEW** Transformer-based image classification for computer vision energy profiling
 - **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
 - **Custom Applications**: Framework supports any Python-based AI inference workload
 
@@ -103,7 +104,7 @@ ai-inference-energy/
 │   ├── test_stable_diffusion_*.py       # Comprehensive test suites
 │   └── validate_stable_diffusion.py    # Quick validation script
 │
-├── app-whisper/                         # 🎤 **NEW** Whisper speech recognition applications
+├── app-whisper/                         # 🎤 Whisper speech recognition applications
 │   ├── README.md                        # Comprehensive Whisper documentation
 │   ├── WhisperViaHF.py                  # OpenAI Whisper speech-to-text via Hugging Face
 │   ├── __init__.py                      # Python package initialization
@@ -113,6 +114,16 @@ ai-inference-energy/
 │   │   └── whisper-repacss.yml          # REPACSS cluster environment
 │   └── tests/                           # Test suite for Whisper implementation
 │       └── test_whisper.py              # Comprehensive test suite
+│
+├── app-vision-transformer/              # 🖼️ **NEW** Vision Transformer applications
+│   ├── README.md                        # Comprehensive ViT documentation
+│   ├── ViTViaHF.py                      # Vision Transformer image classification via Hugging Face
+│   ├── __init__.py                      # Python package initialization
+│   └── setup/                           # Environment setup and configuration
+│       ├── setup.sh                     # Automated conda environment setup
+│       ├── requirements.txt             # Python dependencies
+│       ├── vit-env-repacss.yml          # REPACSS cluster environment
+│       └── vit-env-hpcc.yml             # HPCC cluster environment
 │
 ├── app-lstm/                            # LSTM benchmark application
 │   ├── README.md                        # LSTM benchmark documentation
