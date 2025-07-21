@@ -68,7 +68,7 @@ A comprehensive demonstration script that shows:
 
 **Features:**
 - Configurable demo mode for quick testing
-- Multiple application examples (LSTM, LLaMA, Stable Diffusion, Whisper)
+- Multiple application examples (LSTM, LLaMA, Stable Diffusion, Whisper, Vision Transformer)
 - Professional logging and error handling
 - Automatic cleanup and resource management
 - **Enhanced robustness** for production environments
