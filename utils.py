@@ -212,3 +212,31 @@ def format_duration(seconds: float) -> str:
         remaining_minutes = int((seconds % 3600) // 60)
         remaining_seconds = seconds % 60
         return f"{hours}h {remaining_minutes}m {remaining_seconds:.2f}s"
+
+
+def setup_experiment_directories() -> None:
+    """
+    Set up required experiment directories.
+    
+    Creates necessary directories for storing experiment data, results,
+    temporary files, and logs.
+    """
+    from config import system_config
+    
+    # List of directories to create
+    directories = [
+        "results",
+        "temp",
+        "temp/images",
+        "logs"
+    ]
+    
+    # Get base directory
+    base_dir = system_config.BASE_DIR
+    
+    # Create directories if they don't exist
+    for directory in directories:
+        dir_path = os.path.join(base_dir, directory)
+        ensure_directory(dir_path)
+    
+    logging.getLogger("ai_inference_energy").info("Experiment directories setup completed")

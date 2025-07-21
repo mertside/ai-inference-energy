@@ -480,6 +480,7 @@ class SystemConfig:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
     APPS_DIR = os.path.join(BASE_DIR, "apps")
+    TEMP_IMAGES_DIR = os.path.join(BASE_DIR, "temp", "images")
 
     # SLURM configuration
     SLURM_PARTITION = "toreador"
