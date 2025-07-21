@@ -56,6 +56,9 @@ determine_conda_env() {
         "Whisper")
             echo "whisper"  # Whisper speech recognition environment
             ;;
+        "ViT")
+            echo "vit"  # Vision Transformer environment
+            ;;
         *)
             echo "tensorflow"  # Default environment
             ;;
@@ -112,25 +115,31 @@ determine_results_dir() {
 # 4. 🎤 WHISPER - Speech recognition benchmark
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3"
 
+# 5. 🖼️ VISION TRANSFORMER - Image classification benchmark
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --model google/vit-base-patch16-224' --num-runs 3"
+
 # 📊 CUSTOM FREQUENCY CONFIGURATIONS (Low/Mid/High Analysis)
 # ============================================================================
 
-# 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
+# 6. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 6. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
+# 7. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
 
-# 7. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
+# 8. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
-# 8. 🎤 WHISPER CUSTOM - Three-point frequency analysis (low/mid/high)
+# 9. 🎤 WHISPER CUSTOM - Three-point frequency analysis (low/mid/high)
 LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 5 --sleep-interval 2"
+
+# 10. 🖼️ VISION TRANSFORMER CUSTOM - Three-point frequency analysis (low/mid/high)
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --model google/vit-base-patch16-224' --num-runs 5 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 9. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
+# 11. ⚡ COMPREHENSIVE DVFS - All 61 frequencies (~2-4 hours, change --time to 05:00:00)
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
 # 10. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1-2 hours, change --time to 03:00:00)
