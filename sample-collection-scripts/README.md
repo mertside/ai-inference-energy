@@ -3,7 +3,7 @@
 > **Latest Version**: v2.0.1 (Enhanced) | **Status**: Production Ready ✅  
 > **Quick Start**: `./launch_v2.sh --help` | **Cleanup**: `./clean.sh --help` | **Legacy**: `./legacy/launch.sh`
 
-This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA, Whisper).
+This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA, Whisper, Vision Transformer).
 
 **🎉 Recent Enhancements (v2.0.1):**
 - ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
@@ -139,6 +139,12 @@ sample-collection-scripts/
     --app-name "Whisper" \
     --app-executable "../app-whisper/WhisperViaHF.py" \
     --app-params "--benchmark --model base --num-samples 3 --quiet"
+
+# Vision Transformer image classification profiling
+./launch_v2.sh \
+    --app-name "ViT" \
+    --app-executable "../app-vision-transformer/ViTViaHF.py" \
+    --app-params "--benchmark --num-images 5 --model google/vit-base-patch16-224"
 ```
 
 ### Advanced Configuration
@@ -794,7 +800,7 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 
 **🎯 V100 Users:** Use the unified `submit_job_v100.sh` script which provides 16 pre-configured options:
 - Quick tests (baseline, frequency sampling)
-- AI applications (LSTM, Stable Diffusion, LLaMA) 
+- AI applications (LSTM, Stable Diffusion, LLaMA, Whisper, Vision Transformer) 
 - DVFS studies (comprehensive, efficient, statistical)
 - Tool compatibility (DCGMI, nvidia-smi fallback)
 - Research configurations (energy efficiency, precision comparison)
