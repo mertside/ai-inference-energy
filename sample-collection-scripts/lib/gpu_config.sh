@@ -391,6 +391,9 @@ determine_conda_env() {
         *whisper*)
             conda_env="whisper"
             ;;
+        *vit*|*vision*|*transformer*)
+            conda_env="vit"
+            ;;
         *lstm*|lstm.py)
             conda_env="tensorflow"
             ;;
@@ -406,6 +409,9 @@ determine_conda_env() {
                         ;;
                     *whisper*)
                         conda_env="whisper"
+                        ;;
+                    *vision*|*transformer*|*vit*)
+                        conda_env="vit"
                         ;;
                     *lstm*)
                         conda_env="tensorflow"
