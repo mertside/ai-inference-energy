@@ -123,70 +123,70 @@ determine_results_dir() {
 # 📊 CUSTOM FREQUENCY CONFIGURATIONS (Low/Mid/High Analysis)
 # ============================================================================
 
-# 5. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
+# 6. 🤖 LSTM CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
-# 6. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
+# 7. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
 
-# 7. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
+# 8. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
-# 8. 🎤 WHISPER CUSTOM - Three-point frequency analysis (low/mid/high)
+# 9. 🎤 WHISPER CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 5 --sleep-interval 2"
 
-# 9. 🖼️ VISION TRANSFORMER CUSTOM - Three-point frequency analysis (low/mid/high)
+# 10. 🖼️ VISION TRANSFORMER CUSTOM - Three-point frequency analysis (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
 
-# 10. ⚡ COMPREHENSIVE DVFS - All 86 frequencies (~3-5 hours, change --time to 06:00:00)
+# 11. ⚡ COMPREHENSIVE DVFS - All 86 frequencies (~3-5 hours, change --time to 06:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 3 --sleep-interval 2"
 
-# 11. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1.5-3 hours, change --time to 04:00:00)
+# 12. 🎯 EFFICIENT DVFS - Reduced runs for faster completion (~1.5-3 hours, change --time to 04:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 2 --sleep-interval 1"
 
-# 12. 📈 STATISTICAL DVFS - High statistical power (~5-10 hours, change --time to 12:00:00)
+# 13. 📈 STATISTICAL DVFS - High statistical power (~5-10 hours, change --time to 12:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 13. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
+# 14. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,700,900,1100,1300,1500,1785' --num-runs 7 --sleep-interval 2"
 
-# 14. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
+# 15. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
-# 15. 📈 SCALING ANALYSIS - Batch size impact study
+# 16. 📈 SCALING ANALYSIS - Batch size impact study
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
 
 # 🚀 ADVANCED H100 CONFIGURATIONS
 # ============================================================================
 
-# 16. 🔥 TRANSFORMER ENGINE - Large language models with advanced optimization
+# 17. 🔥 TRANSFORMER ENGINE - Large language models with advanced optimization
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --precision float16 --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 17. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration with FP8
+# 18. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration with FP8
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"
 
-# 18. 💾 MEMORY STRESS TEST - Large model testing with 80GB HBM3
+# 19. 💾 MEMORY STRESS TEST - Large model testing with 80GB HBM3
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-70b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 19. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
+# 20. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
 
 # 🛠️ UTILITY AND DEBUG CONFIGURATIONS
 # ============================================================================
 
-# 20. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# 21. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
 # LAUNCH_ARGS="--gpu-type H100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
 
-# 21. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
+# 22. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 22. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
+# 23. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
 # ============================================================================
