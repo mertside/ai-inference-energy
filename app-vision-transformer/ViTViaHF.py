@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Vision Transformer (ViT) Implementation via Hugging Face.
 
