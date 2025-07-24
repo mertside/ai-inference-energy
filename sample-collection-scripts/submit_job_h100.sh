@@ -164,7 +164,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3 --sleep-interval 2"
 
 # 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~4-6 hours, change --time to 08:00:00)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================

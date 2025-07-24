@@ -164,49 +164,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3 --sleep-interval 2"
 
 # 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~3-5 hours, change --time to 06:00:00)
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
-
-# 🎓 RESEARCH STUDY CONFIGURATIONS
-# ============================================================================
-
-# 🎓 RESEARCH STUDY CONFIGURATIONS
-# ============================================================================
-
-# 19. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,660,810,960,1110,1260,1410' --num-runs 7 --sleep-interval 2"
-
-# 20. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
-
-# 21. 📈 SCALING ANALYSIS - Batch size impact study
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 128' --num-runs 5"
-
-# 🚀 ADVANCED A100 CONFIGURATIONS
-# ============================================================================
-
-# 22. 🔥 HIGH THROUGHPUT - Multi-instance profiling with tensor cores
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--multi-instance 4' --num-runs 3"
-
-# 23. 💡 TENSOR CORE OPTIMIZATION - Mixed precision workloads
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode custom --custom-frequencies '510,960,1410' --app-name StableDiffusion --app-params '--use-tensor-cores --precision mixed' --num-runs 5"
-
-# 24. 💾 MEMORY STRESS TEST - Large model testing with 40GB HBM2e
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-30b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
-
-# 25. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
-
-# 🛠️ UTILITY AND DEBUG CONFIGURATIONS
-# ============================================================================
-
-# 26. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
-# LAUNCH_ARGS="--gpu-type A100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
-
-# 27. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
-
-# 28. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
-# LAUNCH_ARGS="--gpu-type A100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type A100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER

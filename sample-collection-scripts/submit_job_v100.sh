@@ -3,38 +3,7 @@
 # Unified SLURM Job Submission Script - V100 GPU Profiling
 #
 # This script provides a comprehensive set of V100 profiling configurations.
-# Simply uncomment # 🔧 ADVANCED DEBUGGING CONFIGURATIONS
-# ============================================================================
-
-# 19. 🔍 LOGGING VERBOSITY - High logging with minimal profiling (⏰ 10-15 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode minimal --log-level DEBUG --app-name TestApp --app-params '--verbose --debug' --num-runs 1"
-
-# 20. 🛠️ ENVIRONMENTAL VALIDATION - System health check (⏰ 5-10 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode system-check --log-level INFO --num-runs 1"
-
-# 🚀 V100-SPECIFIC ADVANCED CONFIGURATIONS  
-# ============================================================================
-
-# 21. 🔥 TENSOR CORE OPTIMIZATION - Mixed precision workloads (~15-30 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,960,1380' --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1000 --batch-size 8 --model google/vit-large-patch16-224 --precision float16' --num-runs 3"
-
-# 22. 💾 MEMORY STRESS TEST - Large model testing with 32GB HBM2 (~20-40 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"complex detailed scene\" --steps 100 --width 1024 --height 1024' --num-runs 2"
-
-# 23. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis (~45-90 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '510,650,800,960,1120,1260,1380' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 3 --sleep-interval 2"
-
-# 24. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available (~10-20 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 500 --batch-size 4 --model google/vit-base-patch16-224' --num-runs 2"
-
-# ⏱️ ESTIMATED TIMING GUIDELINES
-# ============================================================================
-# Configurations 1-5 (Quick validation): 5-15 minutes each
-# Configurations 6-10 (Standard profiling): 10-20 minutes each  
-# Configurations 11-13 (DVFS studies): 4-24 hours depending on settings
-# Configurations 14-18 (App-specific DVFS): 6-14 hours per application across all 117 frequencies
-# Configurations 19-20 (Debugging): 5-15 minutes each
-# Configurations 21-24 (V100 Advanced): 10-90 minutes eachiguration and submit with: sbatch submit_job_v100.sh
+# Simply uncomment the desired configuration and submit with: sbatch submit_job_v100.sh
 #
 # V100 Specifications:
 #   - GPU: Tesla V100 (32GB HBM2)
@@ -195,27 +164,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3 --sleep-interval 2"
 
 # 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
-
-# 🎓 RESEARCH STUDY CONFIGURATIONS
-# ============================================================================
-
-# 🔧 ADVANCED DEBUGGING CONFIGURATIONS
-# ============================================================================
-
-# 19. � LOGGING VERBOSITY - High logging with minimal profiling (⏰ 10-15 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode minimal --log-level DEBUG --app-name TestApp --app-params '--verbose --debug' --num-runs 1"
-
-# 20. �️ ENVIRONMENTAL VALIDATION - System health check (⏰ 5-10 min)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode system-check --log-level INFO --num-runs 1"
-
-# ⏱️ ESTIMATED TIMING GUIDELINES
-# ============================================================================
-# Configurations 1-5 (Quick validation): 5-15 minutes each
-# Configurations 6-10 (Standard profiling): 10-20 minutes each  
-# Configurations 11-13 (DVFS studies): 4-24 hours depending on settings
-# Configurations 14-18 (App-specific DVFS): 6-14 hours per application across all 117 frequencies
-# Configurations 19-20 (Debugging): 5-15 minutes each
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
