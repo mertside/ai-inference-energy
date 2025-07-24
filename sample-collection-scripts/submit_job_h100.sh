@@ -18,8 +18,7 @@
 #SBATCH --error=%x.%j.err
 #SBATCH --partition=h100
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=02:00:00
+#SBATCH --ntasks-per-node=32
 #SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
