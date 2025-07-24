@@ -18,8 +18,8 @@
 #SBATCH --error=%x.%j.err
 #SBATCH --partition=matador
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:v100:1
-#SBATCH --ntasks=40
+#SBATCH --ntasks-per-node=40
+#SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 

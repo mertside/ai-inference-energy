@@ -17,11 +17,9 @@
 #SBATCH --output=%x.%j.out
 #SBATCH --error=%x.%j.err
 #SBATCH --partition=h100
-# # SBATCH --partition=h100-build
-# # SBATCH --nodelist=rpg-93-9
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --gres=gpu:1
+#SBATCH --ntasks-per-node=32
+#SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
 
@@ -118,7 +116,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3"
 
 # 5. 🖼️ VISION TRANSFORMER - Image classification benchmark
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --model google/vit-base-patch16-224 --precision float16' --num-runs 3"
 
 # 📊 CUSTOM FREQUENCY CONFIGURATIONS (Low/Mid/High Analysis)
 # ============================================================================
@@ -136,7 +134,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 5 --sleep-interval 2"
 
 # 10. 🖼️ VISION TRANSFORMER CUSTOM - Three-point frequency analysis (low/mid/high)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --model google/vit-base-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
 
 # 🔄 DVFS STUDY CONFIGURATIONS
 # ============================================================================
