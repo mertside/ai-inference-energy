@@ -1,26 +1,26 @@
 #!/bin/bash
-"""
-GPU Frequency Control Script for AI Inference Energy Profiling.
-
-This script controls GPU memory and core frequencies using DCGMI (Data Center GPU 
-Manager Interface) for energy profiling experiments. It sets the specified 
-frequencies and provides a foundation for DVFS (Dynamic Voltage and Frequency 
-Scaling) research on AI inference workloads.
-
-Usage:
-    ./control.sh <memory_freq> <core_freq>
-
-Arguments:
-    memory_freq: Memory frequency in MHz
-    core_freq: Core frequency in MHz
-
-Requirements:
-    - NVIDIA GPU with DCGMI support
-    - DCGMI tools installed and accessible
-    - Appropriate permissions to modify GPU frequencies
-
-Author: Mert Side
-"""
+#
+# GPU Frequency Control Script for AI Inference Energy Profiling.
+#
+# This script controls GPU memory and core frequencies using DCGMI (Data Center GPU 
+# Manager Interface) for energy profiling experiments. It sets the specified 
+# frequencies and provides a foundation for DVFS (Dynamic Voltage and Frequency 
+# Scaling) research on AI inference workloads.
+#
+# Usage:
+#     ./control.sh <memory_freq> <core_freq>
+#
+# Arguments:
+#     memory_freq: Memory frequency in MHz
+#     core_freq: Core frequency in MHz
+#
+# Requirements:
+#     - NVIDIA GPU with DCGMI support
+#     - DCGMI tools installed and accessible
+#     - Appropriate permissions to modify GPU frequencies
+#
+# Author: Mert Side
+#
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 

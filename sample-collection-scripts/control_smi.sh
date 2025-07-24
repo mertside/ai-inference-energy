@@ -1,31 +1,31 @@
 #!/bin/bash
-"""
-GPU Frequency Control Script using nvidia-smi (Alternative to DCGMI).
-
-This script controls GPU memory and core frequencies using nvidia-smi commands
-as an alternative to DCGMI for energy profiling experiments. It provides similar
-functionality for DVFS (Dynamic Voltage and Frequency Scaling) research on AI
-inference workloads.
-
-Usage:
-    ./control_smi.sh <memory_freq> <core_freq>
-
-Arguments:
-    memory_freq: Memory frequency in MHz
-    core_freq: Core frequency in MHz
-
-Requirements:
-    - NVIDIA GPU with frequency control support
-    - nvidia-smi tool (part of NVIDIA drivers)
-    - Appropriate permissions to modify GPU frequencies
-    - sudo access may be required for frequency modifications
-
-Note:
-    This is an alternative to the DCGMI-based control.sh script.
-    nvidia-smi may have different capabilities and limitations compared to DCGMI.
-
-Author: Mert Side
-"""
+#
+# GPU Frequency Control Script using nvidia-smi (Alternative to DCGMI).
+#
+# This script controls GPU memory and core frequencies using nvidia-smi commands
+# as an alternative to DCGMI for energy profiling experiments. It provides similar
+# functionality for DVFS (Dynamic Voltage and Frequency Scaling) research on AI
+# inference workloads.
+#
+# Usage:
+#     ./control_smi.sh <memory_freq> <core_freq>
+#
+# Arguments:
+#     memory_freq: Memory frequency in MHz
+#     core_freq: Core frequency in MHz
+#
+# Requirements:
+#     - NVIDIA GPU with frequency control support
+#     - nvidia-smi tool (part of NVIDIA drivers)
+#     - Appropriate permissions to modify GPU frequencies
+#     - sudo access may be required for frequency modifications
+#
+# Note:
+#     This is an alternative to the DCGMI-based control.sh script.
+#     nvidia-smi may have different capabilities and limitations compared to DCGMI.
+#
+# Author: Mert Side
+#
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 
