@@ -303,33 +303,53 @@ def main():
     
     # Find conda Python executable
     conda_python = None
-    if 'CONDA_PREFIX' in os.environ:
-        # If in a conda environment, use current Python
+    
+    # Method 1: If already in conda environment, use current Python
+    if 'CONDA_PREFIX' in os.environ and conda_env in os.environ.get('CONDA_DEFAULT_ENV', ''):
         conda_python = sys.executable
+        print(f"Using current conda environment Python: {conda_python}", file=sys.stderr)
     else:
-        # Try to find conda and activate environment
+        # Method 2: Try to find conda environment path directly
         import shutil
         conda_cmd = shutil.which('conda')
         if conda_cmd:
-            # Get conda info to find environment path
             try:
-                result = subprocess.run([conda_cmd, 'env', 'list'], 
-                                      capture_output=True, text=True, timeout=10)
+                # Use shorter timeout and more robust parsing
+                result = subprocess.run([conda_cmd, 'info', '--envs'], 
+                                      capture_output=True, text=True, timeout=5)
                 if result.returncode == 0:
                     for line in result.stdout.splitlines():
-                        if line.strip().startswith(conda_env + ' '):
-                            env_path = line.split()[-1]
-                            conda_python = os.path.join(env_path, 'bin', 'python')
-                            break
-            except (subprocess.TimeoutExpired, subprocess.SubprocessError):
-                pass
+                        # Look for environment name at start of line
+                        parts = line.strip().split()
+                        if len(parts) >= 2 and parts[0] == conda_env:
+                            env_path = parts[-1]  # Last part is the path
+                            potential_python = os.path.join(env_path, 'bin', 'python')
+                            if os.path.exists(potential_python):
+                                conda_python = potential_python
+                                print(f"Found conda environment Python: {conda_python}", file=sys.stderr)
+                                break
+            except (subprocess.TimeoutExpired, subprocess.SubprocessError, Exception) as e:
+                print(f"Conda detection failed: {e}, using fallback", file=sys.stderr)
     
-    # Fallback to system python
+    # Fallback to system python if conda detection failed
     if not conda_python or not os.path.exists(conda_python):
         conda_python = sys.executable
+        print(f"Using fallback system Python: {conda_python}", file=sys.stderr)
     
-    print(f"Using Python: {conda_python}", file=sys.stderr)
-    print(f"Running: {app_path} with args: {app_args}", file=sys.stderr)
+    print(f"Final Python executable: {conda_python}", file=sys.stderr)
+    print(f"Application path: {app_path}", file=sys.stderr)
+    print(f"Application directory: {app_dir}", file=sys.stderr)
+    print(f"Application arguments: {app_args}", file=sys.stderr)
+    
+    # Verify application file exists
+    if not os.path.exists(app_path):
+        print(f"ERROR: Application file not found: {app_path}", file=sys.stderr)
+        sys.exit(1)
+        
+    # Verify application is executable
+    if not os.access(app_path, os.X_OK):
+        print(f"ERROR: Application file not executable: {app_path}", file=sys.stderr)
+        sys.exit(1)
     
     # Execute the application
     cmd = [conda_python, app_path] + app_args
@@ -365,27 +385,38 @@ run_application_with_profiling() {
     shift 5
     local app_params=("$@")
     
+    log_debug "Starting run_application_with_profiling: tool=$profiling_tool, app=$app_executable, run_id=$run_id, freq=${frequency}MHz"
+    
     # Resolve application path
     local resolution_result app_path app_dir
+    log_debug "Resolving application path for: $app_executable"
     resolution_result=$(resolve_application_path "$app_executable")
     if [[ $? -ne 0 ]]; then
+        log_error "Failed to resolve application path for: $app_executable"
         return 1
     fi
     
     IFS='|' read -r app_path app_dir <<< "$resolution_result"
+    log_debug "Resolved paths - app_path: $app_path, app_dir: $app_dir"
     
     # Determine conda environment
     local conda_env
+    log_debug "Determining conda environment for: $app_executable"
     conda_env=$(determine_conda_env "$app_executable" "$app_dir")
+    log_debug "Selected conda environment: $conda_env"
     
     # Get profiling script
     local profiling_script
+    log_debug "Getting profiling script for tool: $profiling_tool"
     profiling_script=$(get_profiling_script "$profiling_tool")
     if [[ $? -ne 0 ]]; then
+        log_error "Failed to get profiling script for tool: $profiling_tool"
         return 1
     fi
+    log_debug "Profiling script path: $profiling_script"
     
     # Create output files
+    log_debug "Setting up output directory: $output_dir"
     ensure_directory "$output_dir"
     local output_prefix="${output_dir}/run_${run_id}_freq_${frequency}"
     local app_output="${output_prefix}_app.out"
@@ -400,7 +431,13 @@ run_application_with_profiling() {
     
     # Create temporary Python script for robust execution
     local temp_script
+    log_debug "Creating temporary Python script..."
     temp_script=$(create_temp_python_script "$conda_env" "$app_path" "$app_dir" "${app_params[@]}")
+    if [[ $? -ne 0 || -z "$temp_script" ]]; then
+        log_error "Failed to create temporary Python script"
+        return 1
+    fi
+    log_debug "Temporary script created: $temp_script"
     
     # Build profiling command - profile.py expects: profile.py [options] [command ...]
     # Use -- to separate profile.py options from command arguments
@@ -419,6 +456,23 @@ run_application_with_profiling() {
     
     log_debug "Profiling command: ${profile_cmd[*]}"
     
+    # Verify profiling script exists and is executable
+    if [[ ! -f "$profiling_script" ]]; then
+        log_error "Profiling script not found: $profiling_script"
+        return 1
+    fi
+    
+    if [[ ! -x "$profiling_script" ]]; then
+        log_error "Profiling script not executable: $profiling_script"
+        return 1
+    fi
+    
+    # Verify temporary script exists
+    if [[ ! -f "$temp_script" ]]; then
+        log_error "Temporary script not found: $temp_script"
+        return 1
+    fi
+    
     # Create timing log file if it doesn't exist
     local timing_file="${output_dir}/timing_summary.log"
     if [[ ! -f "$timing_file" ]]; then
@@ -429,6 +483,12 @@ run_application_with_profiling() {
     # Execute profiling with timeout
     local start_time end_time duration exit_code=0
     start_time=$(date +%s)
+    
+    log_debug "Starting profiling command execution..."
+    log_debug "Command: ${profile_cmd[*]}"
+    log_debug "App output: $app_output"
+    log_debug "App error: $app_error"
+    log_debug "Profile output: $profile_output"
     
     if timeout "$DEFAULT_PROFILE_TIMEOUT" "${profile_cmd[@]}" > "$app_output" 2> "$app_error"; then
         end_time=$(date +%s)
@@ -441,6 +501,17 @@ run_application_with_profiling() {
         exit_code=$?
         end_time=$(date +%s)
         duration=$((end_time - start_time))
+        
+        log_error "Profiling command failed with exit code: $exit_code"
+        log_error "Command was: ${profile_cmd[*]}"
+        
+        # Show last few lines of error output for debugging
+        if [[ -f "$app_error" && -s "$app_error" ]]; then
+            log_error "Last few lines of application error output:"
+            tail -5 "$app_error" | while IFS= read -r line; do
+                log_error "  $line"
+            done
+        fi
         
         if [[ $exit_code -eq 124 ]]; then
             log_error "Application timed out after ${DEFAULT_PROFILE_TIMEOUT}s"
@@ -516,21 +587,32 @@ run_dvfs_experiment() {
         log_info "Testing frequency: ${frequency}MHz (${current_run}/${total_runs} runs completed)"
         
         # Set GPU frequency
+        log_debug "Setting GPU frequency to ${frequency}MHz..."
         if ! set_gpu_frequency "$profiling_tool" "$memory_freq" "$frequency" "$gpu_type"; then
             log_error "Failed to set frequency ${frequency}MHz, skipping..."
             continue
         fi
+        log_debug "GPU frequency set successfully to ${frequency}MHz"
         
         # Run multiple times at this frequency
+        log_debug "Starting inner loop: run=1 to num_runs=$num_runs"
         for ((run = 1; run <= num_runs; run++)); do
-            ((current_run++))
+            log_debug "Inner loop iteration: run=$run, num_runs=$num_runs"
+            current_run=$((current_run + 1))
+            log_debug "Incremented current_run to $current_run"
             show_progress "$current_run" "$total_runs" "DVFS Progress"
+            log_debug "show_progress completed successfully"
             
             local run_id="${current_run}_$(printf "%02d" "$run")"
+            log_debug "Starting run $run_id at frequency ${frequency}MHz"
             
+            # Use || true to prevent DVFS from failing on single application failures
             if ! run_application_with_profiling "$profiling_tool" "$app_executable" \
                 "$output_dir" "$run_id" "$frequency" "${app_params[@]}"; then
-                log_warning "Run $run_id failed at frequency ${frequency}MHz"
+                log_warning "Run $run_id failed at frequency ${frequency}MHz - continuing with next run"
+                # Don't exit the entire DVFS experiment for a single failed run
+            else
+                log_debug "Run $run_id completed successfully at frequency ${frequency}MHz"
             fi
             
             # Sleep between runs

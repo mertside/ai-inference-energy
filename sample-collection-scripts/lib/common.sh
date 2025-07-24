@@ -465,5 +465,6 @@ export -f die command_exists file_readable dir_accessible
 export -f get_absolute_path ensure_directory trim to_lower to_upper
 export -f is_positive_integer is_valid_frequency is_valid_gpu_type
 export -f is_valid_profiling_tool is_valid_profiling_mode validate_custom_frequencies
+export -f show_progress
 
 log_debug "Common library v${COMMON_LIB_VERSION} loaded successfully"

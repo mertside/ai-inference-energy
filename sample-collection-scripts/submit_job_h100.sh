@@ -7,7 +7,7 @@
 #
 # H100 Specifications:
 #   - GPU: H100 (80GB HBM3)
-#   - Partition: h100-build (REPACSS Texas Tech)
+#   - Partition: h100 (REPACSS Texas Tech)
 #   - Frequencies: 86 available (510-1785 MHz)
 #   - Memory: 2619 MHz (maximum)
 #   - Architecture: Hopper (GH100)
@@ -18,7 +18,8 @@
 #SBATCH --error=%x.%j.err
 #SBATCH --partition=h100
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=02:00:00
 #SBATCH --gpus-per-node=1
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=mert.side@ttu.edu
@@ -148,43 +149,67 @@ determine_results_dir() {
 # 13. 📈 STATISTICAL DVFS - High statistical power (~5-10 hours, change --time to 12:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --num-runs 5 --sleep-interval 3"
 
+# 🔬 APPLICATION-SPECIFIC DVFS STUDIES (All 86 Frequencies)
+# ============================================================================
+
+# 14. 🤖 LSTM DVFS - Complete frequency analysis for deep learning (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 3 --sleep-interval 2"
+
+# 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~6-8 hours, change --time to 10:00:00)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --log-level INFO' --num-runs 3 --sleep-interval 2"
+
+# 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 3 --sleep-interval 2"
+
+# 17. 🎤 WHISPER DVFS - Complete frequency analysis for speech recognition (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3 --sleep-interval 2"
+
+# 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 2000 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
+
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
 
-# 14. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
+# 19. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,700,900,1100,1300,1500,1785' --num-runs 7 --sleep-interval 2"
 
-# 15. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
+# 20. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
 
-# 16. 📈 SCALING ANALYSIS - Batch size impact study
+# 21. 📈 SCALING ANALYSIS - Batch size impact study
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
 
 # 🚀 ADVANCED H100 CONFIGURATIONS
 # ============================================================================
 
-# 17. 🔥 TRANSFORMER ENGINE - Large language models with advanced optimization
+# 22. 🔥 TRANSFORMER ENGINE - Large language models with advanced optimization
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --precision float16 --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 18. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration with FP8
+# 23. 🧠 4TH GEN TENSOR CORES - Maximum performance configuration with FP8
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,1147,1785' --app-name StableDiffusion --app-params '--use-4th-gen-tensor-cores --precision fp8' --num-runs 5"
 
-# 19. 💾 MEMORY STRESS TEST - Large model testing with 80GB HBM3
+# 24. 💾 MEMORY STRESS TEST - Large model testing with 80GB HBM3
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-70b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
 
-# 20. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
+# 25. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
 
 # 🛠️ UTILITY AND DEBUG CONFIGURATIONS
 # ============================================================================
 
-# 21. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# 26. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
 # LAUNCH_ARGS="--gpu-type H100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
 
-# 22. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
+# 27. 🔧 DEBUG MODE - Test DVFS mode with reduced image count and debug logging
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 100 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 1 --debug"
+
+# 28. 🔍 NVIDIA-SMI DEBUG - Fallback tool with minimal workload
+# LAUNCH_ARGS="--gpu-type H100 --profiling-tool nvidia-smi --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --batch-size 1' --num-runs 1"
+
+# 27. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
 
-# 23. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
+# 28. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
 
 # ============================================================================
@@ -194,11 +219,12 @@ determine_results_dir() {
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
 # Configuration 1-5:     --time=01:00:00  (1 hour)
-# Configuration 6-9:     --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies  
-# Configuration 10-12:   --time=06:00:00  (6 hours) - DVFS studies, adjust as needed
-# Configuration 13-15:   --time=02:00:00  (2 hours) - Research studies
-# Configuration 16-19:   --time=04:00:00  (4 hours) - Advanced H100 features
-# Configuration 20-22:   --time=01:00:00  (1 hour) - Utility configurations
+# Configuration 6-10:    --time=01:00:00  (1 hour) - Custom frequency mode with 3 frequencies  
+# Configuration 11-13:   --time=06:00:00  (6 hours) - DVFS studies, adjust as needed
+# Configuration 14-18:   --time=08:00:00  (8 hours) - Application-specific DVFS studies
+# Configuration 19-21:   --time=02:00:00  (2 hours) - Research studies
+# Configuration 22-25:   --time=04:00:00  (4 hours) - Advanced H100 features
+# Configuration 26-28:   --time=01:00:00  (1 hour) - Utility configurations
 #
 # 💡 TIP: H100 has 86 frequencies (between A100's 61 and V100's 117)
 # 🚀 TIP: Take advantage of H100's advanced features (FP8, Transformer Engine)
@@ -294,7 +320,7 @@ display_h100_info() {
     echo "│                   REPACSS H100 Specifications               │"
     echo "├─────────────────────────────────────────────────────────────┤"
     echo "│ Cluster:      REPACSS at Texas Tech University              │"
-    echo "│ Partition:    h100-build                                    │"
+    echo "│ Partition:    h100                                          │"
     echo "│ Architecture: Hopper (GH100)                                │"
     echo "│ Memory:       80GB HBM3                                     │"
     echo "│ Mem Freq:     2619 MHz (maximum)                            │"
@@ -581,7 +607,7 @@ display_completion_notes() {
     echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
     echo "│ GPU:          H100 (Hopper GH100) - 80GB HBM3               │"
-    echo "│ Cluster:      REPACSS h100-build partition                  │"
+    echo "│ Cluster:      REPACSS h100 partition                        │"
     
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
