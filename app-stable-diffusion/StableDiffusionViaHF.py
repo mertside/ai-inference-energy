@@ -1313,9 +1313,22 @@ Supports latest models (SD v1.x → v2.x → SDXL → Turbo) with advanced optim
     )
     
     output_group.add_argument(
+        "--job-id",
+        type=str,
+        default=None,
+        help="Job ID for organizing images in subfolders (e.g., SLURM job ID)"
+    )
+    
+    output_group.add_argument(
         "--save-metadata",
         action="store_true",
         help="Save generation metadata in image files"
+    )
+    
+    output_group.add_argument(
+        "--no-save-images",
+        action="store_true",
+        help="Skip saving images (research mode - metrics only)"
     )
 
     # === ADVANCED RESEARCH ===
@@ -1471,14 +1484,37 @@ def main():
                 batch_size=args.batch_size,
             )
 
-        # Save generated images
-        timestamp = get_timestamp()
-        output_filename = f"sd_{args.model_variant}_{timestamp}"
-        saved_files = generator.save_images(
-            images, 
-            base_filename=output_filename,
-            output_dir=args.output_dir
-        )
+        # Save generated images (unless disabled for research mode)
+        if not args.no_save_images:
+            # Create job-specific output directory if job ID is provided
+            output_dir = args.output_dir
+            if args.job_id:
+                job_subfolder = f"job_{args.job_id}"
+                output_dir = os.path.join(args.output_dir, job_subfolder)
+                
+                # Create the job-specific directory
+                os.makedirs(output_dir, exist_ok=True)
+                if logger:
+                    logger.info(f"Created job-specific image directory: {output_dir}")
+            
+            timestamp = get_timestamp()
+            output_filename = f"sd_{args.model_variant}_{timestamp}"
+            saved_files = generator.save_images(
+                images, 
+                base_filename=output_filename,
+                output_dir=output_dir
+            )
+            
+            if logger:
+                logger.info(f"Images saved: {len(saved_files)} files")
+                if args.job_id:
+                    logger.info(f"Job ID: {args.job_id} - Images in: {output_dir}")
+                for file_path in saved_files:
+                    logger.debug(f"  Saved: {file_path}")
+        else:
+            if logger:
+                logger.info("Skipping image save (research mode - metrics only)")
+            saved_files = []
 
         # Print final statistics
         final_stats = generator.get_generation_stats()
