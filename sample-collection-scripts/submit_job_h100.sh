@@ -107,7 +107,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 3 --sleep-interval 1 --app-name LSTM --app-executable ../app-lstm/lstm"
 
 # 2. 🎨 STABLE DIFFUSION - Image generation benchmark
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 3 --sleep-interval 1"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 1"
 
 # 3. 📝 LLAMA - Text generation benchmark
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--prompt \"The future of AI is\" --max-tokens 50' --num-runs 3"
@@ -125,7 +125,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 5 --sleep-interval 2"
 
 # 7. 🎨 STABLE DIFFUSION CUSTOM - Three-point frequency analysis (low/mid/high)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --log-level INFO' --num-runs 5 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 500 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 5 --sleep-interval 2"
 
 # 8. 📝 LLAMA CUSTOM - Three-point frequency analysis with benchmark (low/mid/high)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode custom --custom-frequencies '510,960,1785' --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
@@ -154,8 +154,11 @@ determine_results_dir() {
 # 14. 🤖 LSTM DVFS - Complete frequency analysis for deep learning (~4-6 hours, change --time to 08:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 3 --sleep-interval 2"
 
-# 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --log-level INFO' --num-runs 3 --sleep-interval 2"
+# 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~6-8 hours, change --time to 08:00:00)
+# Research Mode (no images): Uncomment for energy-focused research
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --no-save-images --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
+# Full Mode (with images): Uncomment for complete generation study  
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
 
 # 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~4-6 hours, change --time to 08:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 3 --sleep-interval 2"
