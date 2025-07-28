@@ -444,6 +444,16 @@ run_application_with_profiling() {
     local profile_cmd=(
         "$profiling_script"
         --output "$profile_output"
+        --interval "${PARSED_SAMPLING_INTERVAL:-50}"
+    )
+    
+    # Add all-gpus flag if requested
+    if [[ "${PARSED_ALL_GPUS:-false}" == "true" ]]; then
+        profile_cmd+=(--all-gpus)
+    fi
+    
+    # Add command separator and actual command
+    profile_cmd+=(
         --
         # Command and all arguments after -- are treated as positional
         "python3" "$temp_script" "$conda_env" "$app_path" "$app_dir"

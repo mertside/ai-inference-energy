@@ -5,6 +5,11 @@
 # This script provides a comprehensive set of H100 profiling configurations.
 # Simply uncomment the desired configuration and submit with: sbatch submit_job_h100.sh
 #
+# NEW FEATURES (v2.1):
+#   - Customizable DCGMI sampling intervals (10-1000ms)
+#   - Multi-GPU monitoring support (all H100 GPUs 0-3)
+#   - Enhanced configuration examples demonstrating new capabilities
+#
 # H100 Specifications:
 #   - GPU: H100 (80GB HBM3)
 #   - Partition: h100 (REPACSS Texas Tech)
@@ -224,11 +229,35 @@ determine_results_dir() {
 # 28. 🔍 NVIDIA-SMI DEBUG - Fallback tool with minimal workload
 # LAUNCH_ARGS="--gpu-type H100 --profiling-tool nvidia-smi --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --batch-size 1' --num-runs 1"
 
-# 27. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
+# ============================================================================
+# SAMPLING INTERVAL AND MULTI-GPU CONFIGURATIONS (29-32)
+# ============================================================================
+# 
+# New parameters available:
+# --sampling-interval MS   : Set DCGMI sampling interval (10-1000ms, default: 50ms)
+#                            Lower values = more detailed data, higher overhead
+#                            Higher values = less detail, lower overhead
+# --all-gpus              : Monitor all available GPUs instead of just GPU 0
+#                            Useful for multi-GPU systems like H100 nodes (0-3)
+#
+# Examples:
+# - Fast sampling (10-25ms): For detailed power transitions, short experiments
+# - Normal sampling (50ms): Default, good balance of detail and performance  
+# - Slow sampling (100-200ms): For long experiments, reduced data volume
+# - Multi-GPU: Essential for distributed training or multi-GPU inference
+# ============================================================================
 
-# 28. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
+# 29. ⚡ HIGH-FREQUENCY SAMPLING - 10ms interval for fine-grained energy data
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --sampling-interval 10 --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3"
+
+# 30. 🐌 LOW-FREQUENCY SAMPLING - 200ms interval for long-running experiments
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --sampling-interval 200 --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 10 --quiet --metrics' --num-runs 3"
+
+# 31. 🎯 MULTI-GPU MONITORING - Monitor all H100 GPUs (0-3) with default 50ms sampling
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --all-gpus --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1000 --model google/vit-base-patch16-224 --precision float16' --num-runs 3"
+
+# 32. 🔬 ULTRA-FINE MONITORING - 25ms sampling across all GPUs for detailed analysis
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --sampling-interval 25 --all-gpus --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a cyberpunk cityscape\" --steps 100 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
@@ -243,6 +272,7 @@ determine_results_dir() {
 # Configuration 19-21:   --time=02:00:00  (2 hours) - Research studies
 # Configuration 22-25:   --time=04:00:00  (4 hours) - Advanced H100 features
 # Configuration 26-28:   --time=01:00:00  (1 hour) - Utility configurations
+# Configuration 29-32:   --time=02:00:00  (2 hours) - Sampling interval and multi-GPU studies
 #
 # 💡 TIP: H100 has 86 frequencies (between A100's 61 and V100's 117)
 # 🚀 TIP: Take advantage of H100's advanced features (FP8, Transformer Engine)

@@ -795,7 +795,8 @@ output_file = sys.argv[2]
 resolved_app_dir = sys.argv[3]
 resolved_app_script = sys.argv[4]
 conda_env = sys.argv[5]
-app_params = sys.argv[6:]
+GPU_TYPE = sys.argv[6]
+app_params = sys.argv[7:]
 
 # Change to the application directory
 os.chdir(resolved_app_dir)
@@ -821,7 +822,8 @@ result = profile_application(
     command=command,
     output_file=output_file,
     interval_ms=50,
-    gpu_id=0
+    gpu_id=0,
+    monitor_all_gpus=${MONITOR_ALL_GPUS:-$([[ "$GPU_TYPE" == "H100" ]] && echo "true" || echo "false")}  # Respect --all-gpus flag or default to H100 logic
 )
 
 sys.exit(result.get('exit_code', 0))
@@ -844,7 +846,7 @@ EOF
     # Run with profiling, handling output redirection properly
     if [[ -n "$app_output_file" ]]; then
         # If there's output redirection, apply it to the profile command
-        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "${app_args_array[@]}" > "$app_output_file"; then
+        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "$GPU_TYPE" "${app_args_array[@]}" > "$app_output_file"; then
             log_error "Failed to run application: $app_name"
             rm -f "$temp_script"
             cd "$current_dir"
@@ -852,7 +854,7 @@ EOF
         fi
     else
         # No output redirection needed
-        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "${app_args_array[@]}"; then
+        if ! python "$temp_script" "$PROFILE_SCRIPT" "$output_file" "$RESOLVED_APP_DIR" "$RESOLVED_APP_SCRIPT" "$required_env" "$GPU_TYPE" "${app_args_array[@]}"; then
             log_error "Failed to run application: $app_name"
             rm -f "$temp_script"
             cd "$current_dir"
