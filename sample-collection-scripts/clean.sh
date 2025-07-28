@@ -50,6 +50,12 @@ GPU_TYPE=""
 APP_NAME=""
 DRY_RUN=false
 
+# Cleanup flags (initialize all to false for selective mode)
+CLEAN_RESULTS=false
+CLEAN_SLURM=false
+CLEAN_LOGS=false
+CLEAN_TEMP=false
+
 # Logging functions
 log_info() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*" >&2
@@ -340,7 +346,7 @@ remove_files_by_pattern() {
     for file in "${filtered_files[@]}"; do
         if rm -f "$file"; then
             log_verbose "Removed: $file"
-            ((removed_count++))
+            removed_count=$((removed_count + 1))
         else
             log_error "Failed to remove: $file"
         fi
@@ -471,7 +477,7 @@ show_cleanup_preview() {
             local size
             size=$(get_dir_size "$dir")
             log_info "  📁 $dir ($size)"
-            ((item_count++))
+            item_count=$((item_count + 1))
         fi
     done
     
@@ -480,7 +486,7 @@ show_cleanup_preview() {
         local size
         size=$(get_dir_size "$LEGACY_RESULTS_DIR")
         log_info "  📁 $LEGACY_RESULTS_DIR ($size) [legacy]"
-        ((item_count++))
+        item_count=$((item_count + 1))
     fi
     
     # Check SLURM files
@@ -490,13 +496,13 @@ show_cleanup_preview() {
     local slurm_count=0
     for file in "${slurm_files[@]}"; do
         if is_older_than "$file" "$OLDER_THAN"; then
-            ((slurm_count++))
+            slurm_count=$((slurm_count + 1))
         fi
     done
     
     if (( slurm_count > 0 )); then
         log_info "  📄 $slurm_count SLURM output files"
-        ((item_count++))
+        item_count=$((item_count + 1))
     fi
     
     # Check log files
@@ -506,13 +512,13 @@ show_cleanup_preview() {
     local log_count=0
     for file in "${log_files[@]}"; do
         if is_older_than "$file" "$OLDER_THAN"; then
-            ((log_count++))
+            log_count=$((log_count + 1))
         fi
     done
     
     if (( log_count > 0 )); then
         log_info "  📄 $log_count log files"
-        ((item_count++))
+        item_count=$((item_count + 1))
     fi
     
     # Check temp files
@@ -522,14 +528,14 @@ show_cleanup_preview() {
         mapfile -t pattern_files < <(find . -maxdepth 1 -name "$pattern" -type f 2>/dev/null || true)
         for file in "${pattern_files[@]}"; do
             if is_older_than "$file" "$OLDER_THAN"; then
-                ((temp_count++))
+                temp_count=$((temp_count + 1))
             fi
         done
     done
     
     if (( temp_count > 0 )); then
         log_info "  🗑️  $temp_count temporary files"
-        ((item_count++))
+        item_count=$((item_count + 1))
     fi
     
     log_info ""
@@ -561,7 +567,7 @@ display_summary() {
             file_count=$(find "$dir" -type f | wc -l)
             size=$(get_dir_size "$dir")
             log_info "  - $(basename "$dir"): $file_count files ($size)"
-            ((results_count++))
+            results_count=$((results_count + 1))
         fi
     done
     
@@ -570,7 +576,7 @@ display_summary() {
         file_count=$(find "$LEGACY_RESULTS_DIR" -type f | wc -l)
         size=$(get_dir_size "$LEGACY_RESULTS_DIR")
         log_info "  - $LEGACY_RESULTS_DIR (legacy): $file_count files ($size)"
-        ((results_count++))
+        results_count=$((results_count + 1))
     fi
     
     log_info "  - Results directories: $results_count"
@@ -652,10 +658,19 @@ main() {
         CLEAN_TEMP=true
     fi
     
-    # Exit early if dry run and not showing what would be cleaned
+    # Exit early if dry run
     if [[ "$DRY_RUN" == true ]]; then
         log_info "Dry run completed. Use without -n/--dry-run to perform actual cleanup."
         exit 0
+    fi
+    
+    # Ask for confirmation to proceed (unless force mode)
+    if [[ "$FORCE" != true ]]; then
+        echo ""
+        if ! confirm_action "Proceed with cleanup"; then
+            log_info "Cleanup cancelled by user"
+            exit 0
+        fi
     fi
     
     # Create backup if requested
