@@ -106,8 +106,9 @@ show_usage() {
     printf "    \n"
     printf "    %sOutput Configuration:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --output-dir DIR         Output directory for results\n"
-    printf "                             (default: auto-generated as results_GPU_APP)\n"
-    printf "                             (default: %s)\n" "$DEFAULT_OUTPUT_DIR"
+    printf "                             (default: auto-generated as results_GPU_APP_job_ID)\n"
+    printf "                             Job ID automatically appended in SLURM environments\n"
+    printf "                             (fallback: %s)\n" "$DEFAULT_OUTPUT_DIR"
     printf "    \n"
     printf "    %sGeneral Options:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --debug                  Enable debug output\n"
@@ -187,10 +188,13 @@ show_usage() {
     printf "                Standard GPU monitoring, fallback option\n\n"
     
     printf "%sOUTPUT:%s\n" "$COLOR_BLUE" "$COLOR_NC"
-    printf "    Results are saved to an auto-generated directory named results_GPU_APP.\n"
-    printf "    Example: results_h100_stablediffusion/ with the following structure:\n"
+    printf "    Results are saved to an auto-generated directory named results_GPU_APP_job_ID.\n"
+    printf "    Examples:\n"
+    printf "      • results_h100_stablediffusion_job_12345/  (SLURM environment)\n"
+    printf "      • results_h100_stablediffusion/            (non-SLURM environment)\n"
     printf "    \n"
-    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results_GPU_APP}"
+    printf "    Directory structure:\n"
+    printf "    %s/\n" "${PARSED_OUTPUT_DIR:-results_GPU_APP_job_ID}"
     printf "    ├── run_XX_freq_YYYY_app.out      # Application output\n"
     printf "    ├── run_XX_freq_YYYY_app.err      # Application errors\n"
     printf "    ├── run_XX_freq_YYYY_profile.csv  # GPU profiling data\n"
@@ -465,9 +469,22 @@ apply_intelligent_defaults() {
     if [[ "$PARSED_OUTPUT_DIR" == "$DEFAULT_OUTPUT_DIR" ]]; then
         local gpu_name=$(echo "$PARSED_GPU_TYPE" | tr '[:upper:]' '[:lower:]')
         local app_name=$(echo "$PARSED_APP_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
-        local new_output_dir="results_${gpu_name}_${app_name}"
+        local base_output_dir="results_${gpu_name}_${app_name}"
         
-        log_info "Auto-generating results directory: $new_output_dir (was: $DEFAULT_OUTPUT_DIR)"
+        # Append job ID if available (for SLURM environments)
+        if [[ -n "${SLURM_JOB_ID:-}" ]]; then
+            local new_output_dir="${base_output_dir}_job_${SLURM_JOB_ID}"
+            log_info "Auto-generating results directory with job ID: $new_output_dir (was: $DEFAULT_OUTPUT_DIR)"
+        else
+            local new_output_dir="$base_output_dir"
+            log_info "Auto-generating results directory: $new_output_dir (was: $DEFAULT_OUTPUT_DIR)"
+        fi
+        
+        PARSED_OUTPUT_DIR="$new_output_dir"
+    elif [[ -n "${SLURM_JOB_ID:-}" && "$PARSED_OUTPUT_DIR" != *"job_"* ]]; then
+        # Append job ID to custom output directory if not already present
+        local new_output_dir="${PARSED_OUTPUT_DIR}_job_${SLURM_JOB_ID}"
+        log_info "Appending job ID to custom output directory: $new_output_dir (was: $PARSED_OUTPUT_DIR)"
         PARSED_OUTPUT_DIR="$new_output_dir"
     fi
     
