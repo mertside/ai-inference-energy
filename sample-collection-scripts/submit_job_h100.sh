@@ -82,7 +82,12 @@ determine_results_dir() {
     
     if echo "$LAUNCH_ARGS" | grep -q "output-dir"; then
         custom_output=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--output-dir \([^ ]*\).*/\1/p')
-        echo "$custom_output"
+        # Append job ID to custom output directory if available
+        if [[ -n "$SLURM_JOB_ID" ]]; then
+            echo "${custom_output}_job_${SLURM_JOB_ID}"
+        else
+            echo "$custom_output"
+        fi
         return
     fi
     
@@ -90,9 +95,20 @@ determine_results_dir() {
     if [[ -n "$gpu_type" && -n "$app_name" ]]; then
         local gpu_name=$(echo "$gpu_type" | tr '[:upper:]' '[:lower:]')
         local app_name_clean=$(echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
-        echo "results_${gpu_name}_${app_name_clean}"
+        local base_name="results_${gpu_name}_${app_name_clean}"
+        # Append job ID if available
+        if [[ -n "$SLURM_JOB_ID" ]]; then
+            echo "${base_name}_job_${SLURM_JOB_ID}"
+        else
+            echo "$base_name"
+        fi
     else
-        echo "results"
+        # Append job ID to default results directory if available
+        if [[ -n "$SLURM_JOB_ID" ]]; then
+            echo "results_job_${SLURM_JOB_ID}"
+        else
+            echo "results"
+        fi
     fi
 }
 
