@@ -5,6 +5,11 @@
 # This script provides a comprehensive set of V100 profiling configurations.
 # Simply uncomment the desired configuration and submit with: sbatch submit_job_v100.sh
 #
+# NEW FEATURES (v2.1):
+#   - Customizable DCGMI sampling intervals (10-1000ms)
+#   - Multi-GPU monitoring support (all available V100 GPUs)
+#   - Enhanced configuration examples demonstrating new capabilities
+#
 # V100 Specifications:
 #   - GPU: Tesla V100 (32GB HBM2)
 #   - Partition: matador (HPCC Texas Tech)
@@ -182,15 +187,86 @@ determine_results_dir() {
 # 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~6-8 hours, change --time to 10:00:00)
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
 
+# 🎓 RESEARCH STUDY CONFIGURATIONS
+# ============================================================================
+
+# 19. 📊 ENERGY EFFICIENCY STUDY - Seven-point frequency analysis for power vs performance
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '405,600,795,990,1185,1380' --num-runs 7 --sleep-interval 2"
+
+# 20. 🔬 EXTENDED BASELINE - Higher statistical significance for applications
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5"
+
+# 21. 📈 SCALING ANALYSIS - Batch size impact study
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '405,892,1380' --app-name LSTM --app-executable ../app-lstm/lstm --app-params '--batch-size 256' --num-runs 5"
+
+# 🚀 ADVANCED V100 CONFIGURATIONS
+# ============================================================================
+
+# 22. 🔥 TENSOR CORES - Advanced mixed precision optimization
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --precision float16 --quiet --metrics' --num-runs 3"
+
+# 23. 🧠 1ST GEN TENSOR CORES - Mixed precision configuration
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode custom --custom-frequencies '405,892,1380' --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--use-tensor-cores --precision float16 --prompt \"a photograph of an astronaut riding a horse\" --steps 500' --num-runs 5"
+
+# 24. 💾 MEMORY STRESS TEST - Large model testing with 32GB HBM2
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--model llama2-13b --benchmark --num-generations 3 --quiet --metrics' --num-runs 3"
+
+# 25. 🏆 FLAGSHIP PERFORMANCE - Maximum capability demonstration
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 5 --max-tokens 200' --num-runs 2"
+
+# 🛠️ UTILITY AND DEBUG CONFIGURATIONS
+# ============================================================================
+
+# 26. 🔧 NVIDIA-SMI FALLBACK - When DCGMI is not available
+# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --num-runs 3"
+
+# 27. 🔧 DEBUG MODE - Test DVFS mode with reduced image count and debug logging
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 100 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 1 --debug"
+
+# 28. 🔍 NVIDIA-SMI DEBUG - Fallback tool with minimal workload
+# LAUNCH_ARGS="--gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --batch-size 1' --num-runs 1"
+
+# ============================================================================
+# SAMPLING INTERVAL AND MULTI-GPU CONFIGURATIONS (29-32)
+# ============================================================================
+# 
+# New parameters available:
+# --sampling-interval MS   : Set DCGMI sampling interval (10-1000ms, default: 50ms)
+#                            Lower values = more detailed data, higher overhead
+#                            Higher values = less detail, lower overhead
+# --all-gpus              : Monitor all available GPUs instead of just GPU 0
+#                            Useful for multi-GPU systems like V100 nodes
+#
+# Examples:
+# - Fast sampling (10-25ms): For detailed power transitions, short experiments
+# - Normal sampling (50ms): Default, good balance of detail and performance  
+# - Slow sampling (100-200ms): For long experiments, reduced data volume
+# - Multi-GPU: Essential for distributed training or multi-GPU inference
+# ============================================================================
+
+# 29. ⚡ HIGH-FREQUENCY SAMPLING - 10ms interval for fine-grained energy data
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --sampling-interval 10 --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --log-level INFO' --num-runs 3"
+
+# 30. 🐌 LOW-FREQUENCY SAMPLING - 200ms interval for long-running experiments
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --sampling-interval 200 --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 10 --quiet --metrics' --num-runs 3"
+
+# 31. 🎯 MULTI-GPU MONITORING - Monitor all V100 GPUs with default 50ms sampling
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --all-gpus --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1000 --model google/vit-base-patch16-224 --precision float16' --num-runs 3"
+
+# 32. 🔬 ULTRA-FINE MONITORING - 25ms sampling across all GPUs for detailed analysis
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode baseline --sampling-interval 25 --all-gpus --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a cyberpunk cityscape\" --steps 100 --log-level INFO' --num-runs 3"
+
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
-# Configuration 1-4:     --time=01:00:00  (1 hour)
-# Configuration 5-8:     --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies  
-# Configuration 9-11:    --time=12:00:00  (12 hours) - DVFS studies, V100 has 117 frequencies
-# Configuration 12-14:   --time=02:00:00  (2 hours) - Research studies
-# Configuration 15-17:   --time=03:00:00  (3 hours) - Advanced V100 features
-# Configuration 18-20:   --time=01:00:00  (1 hour) - Utility configurations
+# Configuration 1-5:     --time=01:00:00  (1 hour)
+# Configuration 6-10:    --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies  
+# Configuration 11-13:   --time=12:00:00  (12 hours) - DVFS studies, V100 has 117 frequencies
+# Configuration 14-18:   --time=10:00:00  (10 hours) - Application-specific DVFS studies
+# Configuration 19-21:   --time=02:00:00  (2 hours) - Research studies
+# Configuration 22-25:   --time=03:00:00  (3 hours) - Advanced V100 features
+# Configuration 26-28:   --time=01:00:00  (1 hour) - Utility configurations
+# Configuration 29-32:   --time=02:00:00  (2 hours) - Sampling interval and multi-GPU studies
 #
 # 💡 TIP: V100 has 117 frequencies (most of all GPU generations), DVFS studies take longer
 # 🚀 TIP: Take advantage of V100's tensor cores for mixed precision workloads
