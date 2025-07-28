@@ -161,18 +161,19 @@ sample-collection-scripts/
     --conda-env "pytorch_2.1" \
     --app-executable "custom_model.py"
 
-# Profiling tool comparison (auto-named directories)
+# Profiling tool comparison (auto-named directories with job IDs)
 ./launch_v2.sh --gpu-type H100 --app-name StableDiffusion --profiling-tool dcgmi
-# → Creates: results_h100_stablediffusion/
+# → Creates: results_h100_stablediffusion_job_12345/ (SLURM) or results_h100_stablediffusion/ (non-SLURM)
 
 ./launch_v2.sh --gpu-type A100 --app-name LSTM --profiling-tool nvidia-smi  
-# → Creates: results_a100_lstm/
+# → Creates: results_a100_lstm_job_12346/ (SLURM) or results_a100_lstm/ (non-SLURM)
 
 ./launch_v2.sh --gpu-type V100 --app-name StableDiffusion --profiling-mode baseline
-# → Creates: results_v100_stablediffusion/
+# → Creates: results_v100_stablediffusion_job_12347/ (SLURM) or results_v100_stablediffusion/ (non-SLURM)
 
-# Custom output directory (overrides auto-naming)
+# Custom output directory (job ID still appended automatically)
 ./launch_v2.sh --output-dir custom_results_dir
+# → Creates: custom_results_dir_job_12348/ (SLURM) or custom_results_dir/ (non-SLURM)
 ```
 
 ---
@@ -428,24 +429,29 @@ This provides:
 
 ### Automatic Directory Naming (v2.0)
 
-Results are automatically organized using the naming convention `results_[gpu]_[app]`:
+Results are automatically organized using the naming convention `results_[gpu]_[app]_job_[id]`:
 
 ```
-results_h100_stablediffusion/     # H100 + Stable Diffusion
-results_h100_lstm/               # H100 + LSTM
-results_a100_stablediffusion/    # A100 + Stable Diffusion  
-results_a100_lstm/               # A100 + LSTM
-results_v100_stablediffusion/    # V100 + Stable Diffusion
-results_v100_lstm/               # V100 + LSTM
-results_h100_customapp/          # H100 + Custom Application
+# SLURM Environment (with job IDs)
+results_h100_stablediffusion_job_12345/    # H100 + Stable Diffusion, Job 12345
+results_h100_lstm_job_12346/               # H100 + LSTM, Job 12346
+results_a100_stablediffusion_job_12347/    # A100 + Stable Diffusion, Job 12347
+results_a100_lstm_job_12348/               # A100 + LSTM, Job 12348
+results_v100_stablediffusion_job_12349/    # V100 + Stable Diffusion, Job 12349
+
+# Non-SLURM Environment (without job IDs)
+results_h100_stablediffusion/              # H100 + Stable Diffusion
+results_h100_lstm/                         # H100 + LSTM
+results_a100_stablediffusion/              # A100 + Stable Diffusion
 ```
 
 The naming is automatically generated based on:
 - **GPU Type**: H100, A100, V100
 - **Application Name**: Derived from `--app-name` or `--app-executable`
+- **Job ID**: Automatically appended in SLURM environments (`${SLURM_JOB_ID}`)
 - **Intelligent Defaults**: Framework automatically determines appropriate names
 
-You can override the automatic naming with `--output-dir custom_name`.
+You can override the automatic naming with `--output-dir custom_name` (job ID will still be appended).
 
 ### Output Structure
 
