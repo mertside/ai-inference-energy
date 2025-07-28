@@ -823,7 +823,7 @@ result = profile_application(
     output_file=output_file,
     interval_ms=50,
     gpu_id=0,
-    monitor_all_gpus=GPU_TYPE == "H100"  # Enable all-GPU monitoring for H100
+    monitor_all_gpus=${MONITOR_ALL_GPUS:-$([[ "$GPU_TYPE" == "H100" ]] && echo "true" || echo "false")}  # Respect --all-gpus flag or default to H100 logic
 )
 
 sys.exit(result.get('exit_code', 0))
