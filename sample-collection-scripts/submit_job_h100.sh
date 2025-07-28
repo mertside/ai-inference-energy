@@ -229,12 +229,6 @@ determine_results_dir() {
 # 28. 🔍 NVIDIA-SMI DEBUG - Fallback tool with minimal workload
 # LAUNCH_ARGS="--gpu-type H100 --profiling-tool nvidia-smi --profiling-mode baseline --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 5 --batch-size 1' --num-runs 1"
 
-# 27. 🐛 DEBUG MODE - Minimal configuration for troubleshooting
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --num-runs 1 --sleep-interval 0"
-
-# 28. 🔧 CUSTOM APPLICATION TEMPLATE - Template for your own applications
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --app-name CustomApp --app-executable my_app --app-params '--config config.json > results/custom_output.log' --num-runs 3"
-
 # ============================================================================
 # SAMPLING INTERVAL AND MULTI-GPU CONFIGURATIONS (29-32)
 # ============================================================================
@@ -263,7 +257,7 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --all-gpus --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1000 --model google/vit-base-patch16-224 --precision float16' --num-runs 3"
 
 # 32. 🔬 ULTRA-FINE MONITORING - 25ms sampling across all GPUs for detailed analysis
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --sampling-interval 25 --all-gpus --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a cyberpunk cityscape\" --steps 100 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode baseline --sampling-interval 25 --all-gpus --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a cyberpunk cityscape\" --steps 100 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3"
 
 # ============================================================================
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
