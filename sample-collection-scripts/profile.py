@@ -103,6 +103,7 @@ class GPUProfiler:
         output_file: str = None,
         interval_ms: int = None,
         gpu_id: int = 0,
+        monitor_all_gpus: bool = False,
         logger: Optional[logging.Logger] = None,
     ):
         """
@@ -111,12 +112,14 @@ class GPUProfiler:
         Args:
             output_file: Output file for profiling data
             interval_ms: Sampling interval in milliseconds
-            gpu_id: GPU device ID to monitor
+            gpu_id: GPU device ID to monitor (ignored if monitor_all_gpus=True)
+            monitor_all_gpus: Monitor all available GPUs instead of specific ID
             logger: Optional logger instance
         """
         self.output_file = output_file or profiling_config.TEMP_OUTPUT_FILE
         self.interval_ms = interval_ms or profiling_config.DEFAULT_INTERVAL_MS
         self.gpu_id = gpu_id
+        self.monitor_all_gpus = monitor_all_gpus
         self.logger = logger or setup_logging()
         self.monitoring_process = None
         self.start_time = None
@@ -139,13 +142,20 @@ class GPUProfiler:
         command = [
             "dcgmi",
             "dmon",
-            "-i",
-            str(self.gpu_id),
+        ]
+        
+        # Add GPU selection: monitor all GPUs (-i -1) or specific GPU ID
+        if self.monitor_all_gpus:
+            command.extend(["-i", "-1"])  # Monitor all GPUs
+        else:
+            command.extend(["-i", str(self.gpu_id)])  # Monitor specific GPU
+            
+        command.extend([
             "-e",
             fields_str,
             "-d",
             str(self.interval_ms),
-        ]
+        ])
 
         return command
 
@@ -153,8 +163,9 @@ class GPUProfiler:
         """Start GPU monitoring in a separate process."""
         try:
             command = self._build_dcgmi_command()
+            gpu_target = "all GPUs" if self.monitor_all_gpus else f"GPU {self.gpu_id}"
             self.logger.info(
-                f"Starting GPU monitoring with command: {' '.join(command)}"
+                f"Starting GPU monitoring ({gpu_target}) with command: {' '.join(command)}"
             )
             self.logger.info(f"Output file: {self.output_file}")
             self.logger.info(f"Sampling interval: {self.interval_ms}ms")
@@ -292,7 +303,11 @@ class GPUProfiler:
 
 
 def profile_application(
-    command, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
+    command, 
+    output_file: str = None, 
+    interval_ms: int = None, 
+    gpu_id: int = 0,
+    monitor_all_gpus: bool = False
 ) -> Dict[str, Any]:
     """
     Convenience function to profile an application with GPU monitoring.
@@ -301,13 +316,17 @@ def profile_application(
         command: Command to execute and profile (string or list of arguments)
         output_file: Output file for profiling data
         interval_ms: Sampling interval in milliseconds
-        gpu_id: GPU device ID to monitor
+        gpu_id: GPU device ID to monitor (ignored if monitor_all_gpus=True)
+        monitor_all_gpus: Monitor all available GPUs instead of specific ID
 
     Returns:
         Dictionary containing profiling results
     """
     profiler = GPUProfiler(
-        output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id
+        output_file=output_file, 
+        interval_ms=interval_ms, 
+        gpu_id=gpu_id,
+        monitor_all_gpus=monitor_all_gpus
     )
 
     try:
@@ -344,6 +363,9 @@ def main():
         "-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)"
     )
     parser.add_argument(
+        "--all-gpus", action="store_true", help="Monitor all available GPUs instead of specific ID"
+    )
+    parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable verbose logging"
     )
 
@@ -363,6 +385,7 @@ def main():
             output_file=args.output,
             interval_ms=args.interval,
             gpu_id=args.gpu,
+            monitor_all_gpus=args.all_gpus,
         )
 
         # Display results

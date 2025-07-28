@@ -48,6 +48,8 @@ readonly APPLICATION_TIMEOUT=1800       # 30 minutes: Same as profile timeout fo
 
 # Profiling intervals
 readonly PROFILE_INTERVAL=0.1
+readonly DEFAULT_SAMPLING_INTERVAL=50    # 50ms default DCGMI sampling interval
+readonly DEFAULT_ALL_GPUS=false          # Monitor only GPU 0 by default
 readonly STATUS_UPDATE_INTERVAL=5
 
 # Output file settings

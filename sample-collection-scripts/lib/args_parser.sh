@@ -36,6 +36,8 @@ declare -g PARSED_APP_NAME=""
 declare -g PARSED_APP_EXECUTABLE=""
 declare -g PARSED_APP_PARAMS=""
 declare -g PARSED_OUTPUT_DIR=""
+declare -g PARSED_SAMPLING_INTERVAL=""
+declare -g PARSED_ALL_GPUS=false
 declare -g PARSED_HELP_REQUESTED=false
 declare -g PARSED_VERSION_REQUESTED=false
 declare -g PARSED_DEBUG_MODE=false
@@ -89,6 +91,10 @@ show_usage() {
     printf "    --custom-frequencies FREQS Comma-separated list of frequencies (MHz)\n"
     printf "                             Required when profiling-mode is 'custom'\n"
     printf "                             Example: '405,892,1380' for low/mid/high\n"
+    printf "    --sampling-interval MS   DCGMI sampling interval in milliseconds\n"
+    printf "                             (default: %s, range: 10-1000ms)\n" "$DEFAULT_SAMPLING_INTERVAL"
+    printf "    --all-gpus               Monitor all GPUs instead of just GPU 0\n"
+    printf "                             (default: disabled, monitors GPU 0 only)\n"
     printf "    \n"
     printf "    %sExperiment Configuration:%s\n" "$COLOR_YELLOW" "$COLOR_NC"
     printf "    --num-runs NUM           Number of runs per frequency\n"
@@ -245,6 +251,8 @@ parse_arguments() {
     PARSED_APP_NAME="$DEFAULT_APP_NAME"
     PARSED_APP_EXECUTABLE="$DEFAULT_APP_EXECUTABLE"
     PARSED_APP_PARAMS="$DEFAULT_APP_PARAMS"
+    PARSED_SAMPLING_INTERVAL="$DEFAULT_SAMPLING_INTERVAL"
+    PARSED_ALL_GPUS="$DEFAULT_ALL_GPUS"
     PARSED_OUTPUT_DIR="$DEFAULT_OUTPUT_DIR"
     
     # Parse arguments
@@ -319,6 +327,19 @@ parse_arguments() {
                     die "Option --output-dir requires an argument"
                 fi
                 PARSED_OUTPUT_DIR="$1"
+                ;;
+            --sampling-interval)
+                shift
+                if [[ $# -eq 0 ]]; then
+                    die "Option --sampling-interval requires an argument"
+                fi
+                if ! [[ "$1" =~ ^[1-9][0-9]*$ ]] || [[ "$1" -lt 10 ]] || [[ "$1" -gt 1000 ]]; then
+                    die "Option --sampling-interval must be a positive integer between 10 and 1000 (milliseconds)"
+                fi
+                PARSED_SAMPLING_INTERVAL="$1"
+                ;;
+            --all-gpus)
+                PARSED_ALL_GPUS=true
                 ;;
             --debug)
                 PARSED_DEBUG_MODE=true
@@ -508,6 +529,12 @@ show_configuration_summary() {
     printf "  Mode:           %s\n" "$PARSED_PROFILING_MODE"
     printf "  Runs per freq:  %s\n" "$PARSED_NUM_RUNS"
     printf "  Sleep interval: %ss\n" "$PARSED_SLEEP_INTERVAL"
+    printf "  Sampling rate:  %sms\n" "$PARSED_SAMPLING_INTERVAL"
+    if [[ "$PARSED_ALL_GPUS" == "true" ]]; then
+        printf "  GPU monitoring: All available GPUs\n"
+    else
+        printf "  GPU monitoring: GPU 0 only\n"
+    fi
     printf "\n"
     printf "%sApplication Configuration:%s\n" "$COLOR_BLUE" "$COLOR_NC"
     printf "  Name:           %s\n" "$PARSED_APP_NAME"
