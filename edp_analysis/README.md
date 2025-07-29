@@ -21,6 +21,8 @@ The EDP Analysis module provides a comprehensive framework for energy-performanc
 - Configuration recommendations with justification
 
 ### 📊 **Comprehensive Visualization**
+- **Time-series profiling plots**: Any metric vs normalized time with multi-frequency overlays
+- **Production-ready CLI tool**: `plot_metric_vs_time.py` for immediate visualization
 - Feature importance plots for EDP optimization
 - FGCS model validation and comparison plots
 - Energy efficiency analysis and breakdown
@@ -107,6 +109,50 @@ validation_plot = power_plotter.plot_fgcs_power_validation(
     app_name="Your Application"
 )
 ```
+
+### 🎯 **Time-Series Visualization CLI Tool**
+
+The module now includes a production-ready command-line tool for immediate profiling data visualization:
+
+```bash
+# Navigate to your project directory
+cd /path/to/ai-inference-energy
+
+# Plot GPU utilization for LLAMA on V100 at multiple frequencies
+python edp_analysis/visualization/plot_metric_vs_time.py \
+    --gpu V100 \
+    --app LLAMA \
+    --frequencies 510,960,1380 \
+    --metric GPUTL \
+    --run 2
+
+# Plot power consumption with custom title and save to file
+python edp_analysis/visualization/plot_metric_vs_time.py \
+    --gpu A100 \
+    --app VIT \
+    --frequencies 1200,1410 \
+    --metric POWER \
+    --title "Power Analysis - Vision Transformer on A100" \
+    --save results/power_analysis.png \
+    --no-show
+
+# List available metrics for your data
+python edp_analysis/visualization/plot_metric_vs_time.py \
+    --gpu V100 \
+    --app LLAMA \
+    --list-metrics
+```
+
+**Available Metrics**: POWER, GPUTL, MCUTL, TMPTR, DRAMA, FBTTL, TENSO, SMACT, FP32A, and 15+ more DCGMI metrics.
+
+**Key Features**:
+- Multi-frequency comparison with color-coded lines
+- Normalized time axis (0-1) for fair comparison
+- Professional styling with 300 DPI output for publications
+- Automatic DCGMI CSV parsing and error handling
+- Support for all GPU types and applications in the framework
+
+See [`visualization/README.md`](visualization/README.md) for complete usage guide.
 
 ## 🔧 Core Features
 
