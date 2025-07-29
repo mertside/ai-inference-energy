@@ -632,3 +632,306 @@ plotter.plot_metric_vs_normalized_time(df, "TMPTR")  # Check thermal behavior
 ---
 
 **Need Help?** Run any script with `--help` for detailed usage information.
+
+---
+
+## 🛠️ **Individual Script Usage Guide**
+
+### **1. plot_metric_vs_time.py** - Production CLI Tool
+
+**Purpose:** Production-ready visualization for any DCGMI metric vs normalized time
+
+**Key Features:**
+- Multi-frequency overlay plotting
+- All DCGMI metrics supported
+- Publication-ready output
+- Batch processing capabilities
+
+**Quick Start:**
+```bash
+# Basic usage - GPU utilization over time
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric GPUTL
+
+# Power consumption analysis
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER --frequencies 510,960,1380
+
+# Save without displaying (great for batch processing)
+python plot_metric_vs_time.py --gpu A100 --app VIT --metric TMPTR --no-show --save thermal_analysis.png
+
+# List all available metrics
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --list-metrics
+```
+
+**Common Workflows:**
+```bash
+# 1. Thermal Analysis Workflow
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric TMPTR --save thermal_llama.png --no-show
+python plot_metric_vs_time.py --gpu V100 --app VIT --metric TMPTR --save thermal_vit.png --no-show
+python plot_metric_vs_time.py --gpu V100 --app STABLEDIFFUSION --metric TMPTR --save thermal_sd.png --no-show
+
+# 2. Power Optimization Analysis
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER --frequencies 510,800,1200,1380 --save power_comparison.png --no-show
+
+# 3. Memory Activity Study
+python plot_metric_vs_time.py --gpu A100 --app STABLEDIFFUSION --metric DRAMA --frequencies 1200,1410 --save memory_activity.png --no-show
+
+# 4. Performance Validation
+python plot_metric_vs_time.py --gpu V100 --app WHISPER --metric GPUTL --run 1 --save perf_run1.png --no-show
+python plot_metric_vs_time.py --gpu V100 --app WHISPER --metric GPUTL --run 2 --save perf_run2.png --no-show
+```
+
+**Advanced Usage:**
+```bash
+# Custom data directory (if running from different location)
+python plot_metric_vs_time.py --data-dir /path/to/sample-collection-scripts --gpu V100 --app LLAMA --metric POWER
+
+# High-resolution output for publications
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER --save high_res_power.png --no-show
+
+# Specific run number analysis
+python plot_metric_vs_time.py --gpu A100 --app VIT --metric GPUTL --run 3 --frequencies 1000,1200,1410
+```
+
+### **2. time_series_demo.py** - Educational/Research Tool
+
+**Purpose:** Interactive demonstration and advanced analysis capabilities
+
+**Key Features:**
+- Synthetic data generation for testing
+- Multi-metric correlation analysis  
+- Advanced statistical visualizations
+- Educational examples
+
+**Quick Start:**
+```bash
+# Generate synthetic demo data and explore
+python time_series_demo.py
+
+# Load real data and run advanced analysis
+python time_series_demo.py --real-data --gpu V100 --app LLAMA
+
+# Generate correlation analysis
+python time_series_demo.py --real-data --gpu A100 --app VIT --analysis correlation
+
+# Export data for external analysis
+python time_series_demo.py --real-data --gpu V100 --app LLAMA --export data_export.csv
+```
+
+**Research Workflows:**
+```bash
+# 1. Multi-metric Correlation Study
+python time_series_demo.py --real-data --gpu V100 --app LLAMA --analysis correlation --save correlation_matrix.png
+
+# 2. Statistical Analysis
+python time_series_demo.py --real-data --gpu A100 --app VIT --analysis stats --frequencies 1200,1410
+
+# 3. Synthetic Data Testing (for algorithm development)
+python time_series_demo.py --synthetic --samples 1000 --frequencies 800,1200,1600 --noise 0.1
+
+# 4. Data Quality Assessment
+python time_series_demo.py --real-data --gpu V100 --app STABLEDIFFUSION --validate --frequencies 800,1200
+```
+
+### **3. data_preprocessor.py** - Data Loading Module
+
+**Purpose:** Programmatic data access and preprocessing utilities
+
+**Key Features:**
+- DCGMI CSV parsing
+- Frequency extraction
+- Data validation
+- Time-series preparation
+
+**Programmatic Usage:**
+```python
+# Import the module
+from data_preprocessor import load_dcgmi_data, extract_frequencies
+
+# Load specific experiment data
+df = load_dcgmi_data(
+    gpu="V100", 
+    app="LLAMA", 
+    frequencies=[510, 960, 1380], 
+    run_number=2
+)
+
+# Quick data exploration
+print(f"Loaded {len(df)} samples")
+print(f"Available metrics: {[col for col in df.columns if col not in ['Entity', 'frequency', 'timestamp']]}")
+print(f"Frequency distribution: {df['frequency'].value_counts()}")
+
+# Extract specific metrics for analysis
+power_data = df[df['frequency'] == 960]['POWER'].values
+gpu_util = df[df['frequency'] == 960]['GPUTL'].values
+```
+
+**Command Line Usage:**
+```bash
+# Validate data availability
+python -c "
+from data_preprocessor import ProfilingDataLoader
+loader = ProfilingDataLoader()
+result_dir = loader.find_result_directory('V100', 'LLAMA')
+print(f'Result directory: {result_dir}')
+"
+
+# Quick data statistics
+python -c "
+from data_preprocessor import load_dcgmi_data
+df = load_dcgmi_data('V100', 'LLAMA', [510, 960, 1380], 2)
+print(f'Total samples: {len(df)}')
+print(f'Frequency breakdown: {df.groupby(\"frequency\").size().to_dict()}')
+"
+```
+
+### **4. power_plots.py** - Advanced Power Analysis
+
+**Purpose:** Specialized power consumption visualization and analysis
+
+**Key Features:**
+- Power efficiency analysis
+- Multi-application power comparison
+- Power model validation
+- Energy optimization plots
+
+**Programmatic Usage:**
+```python
+from power_plots import PowerPlotter
+from data_preprocessor import load_dcgmi_data
+
+# Load data
+df = load_dcgmi_data("V100", "LLAMA", [510, 960, 1380], 2)
+
+# Initialize plotter
+plotter = PowerPlotter(figsize=(12, 8))
+
+# Create power analysis plots
+fig1 = plotter.plot_power_vs_time(df, save_path="power_timeline.png")
+fig2 = plotter.plot_power_temperature_correlation(df, save_path="power_temp_corr.png")
+
+# Advanced energy efficiency analysis
+fig3 = plotter.plot_energy_efficiency_analysis(
+    df, 
+    power_col="POWER",
+    performance_col="GPUTL", 
+    save_path="efficiency_analysis.png"
+)
+```
+
+### **5. performance_plots.py** - Performance Analysis
+
+**Purpose:** GPU performance metrics visualization and analysis
+
+**Key Features:**
+- GPU utilization analysis
+- Memory utilization patterns
+- Clock frequency analysis
+- Multi-metric dashboards
+
+**Programmatic Usage:**
+```python
+from performance_plots import PerformancePlotter
+from data_preprocessor import load_dcgmi_data
+
+# Load data
+df = load_dcgmi_data("A100", "VIT", [1200, 1410], 1)
+
+# Initialize plotter  
+plotter = PerformancePlotter()
+
+# Performance analysis
+fig1 = plotter.plot_gpu_utilization_vs_time(df, save_path="gpu_util.png")
+fig2 = plotter.plot_memory_utilization_analysis(df, save_path="memory_analysis.png")
+fig3 = plotter.plot_clock_frequency_analysis(df, save_path="clock_analysis.png")
+```
+
+### **6. edp_plots.py** - EDP Optimization Visualization
+
+**Purpose:** Energy-Delay Product optimization and analysis plots
+
+**Key Features:**
+- EDP surface plots
+- Pareto frontier analysis
+- Optimization result visualization
+- Multi-dimensional EDP analysis
+
+**Programmatic Usage:**
+```python
+from edp_plots import EDPPlotter, create_optimization_summary_plot
+
+# Load optimization results
+edp_results = load_edp_optimization_results("V100", "LLAMA")
+
+# Create EDP analysis plots
+plotter = EDPPlotter()
+fig1 = plotter.plot_edp_surface(edp_results, save_path="edp_surface.png")
+fig2 = plotter.plot_pareto_frontier(edp_results, save_path="pareto_frontier.png")
+
+# Optimization summary
+fig3 = create_optimization_summary_plot(
+    edp_results, 
+    title="LLAMA V100 EDP Optimization",
+    save_path="optimization_summary.png"
+)
+```
+
+---
+
+## 🚀 **Quick Reference Commands**
+
+### **Most Common Use Cases:**
+
+```bash
+# 1. Quick power analysis
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER
+
+# 2. GPU utilization check  
+python plot_metric_vs_time.py --gpu A100 --app VIT --metric GPUTL
+
+# 3. Thermal monitoring
+python plot_metric_vs_time.py --gpu V100 --app STABLEDIFFUSION --metric TMPTR
+
+# 4. Memory activity analysis
+python plot_metric_vs_time.py --gpu A100 --app WHISPER --metric DRAMA
+
+# 5. Interactive exploration
+python time_series_demo.py --real-data --gpu V100 --app LLAMA
+
+# 6. Batch plot generation (no GUI)
+for metric in POWER GPUTL TMPTR DRAMA; do
+    python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric $metric --no-show --save ${metric}_analysis.png
+done
+```
+
+### **Troubleshooting Commands:**
+
+```bash
+# Check available data
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --list-metrics
+
+# Validate data paths
+ls -la ../../sample-collection-scripts/results_v100_llama_job_*/
+
+# Test script functionality
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER --no-show --save test.png
+
+# Check dependencies
+python -c "import matplotlib, pandas, numpy; print('✅ All dependencies available')"
+```
+
+---
+
+## 📁 **File Structure Reference**
+
+```
+edp_analysis/visualization/
+├── plot_metric_vs_time.py      # 🎯 Main CLI tool - start here
+├── time_series_demo.py         # 📚 Interactive demo and tutorials
+├── data_preprocessor.py        # 🔧 Data loading utilities  
+├── power_plots.py              # ⚡ Advanced power analysis
+├── performance_plots.py        # 📊 GPU performance analysis
+├── edp_plots.py                # 🎛️ EDP optimization plots
+└── README.md                   # 📖 This comprehensive guide
+```
+
+**Ready to start?** Begin with `plot_metric_vs_time.py --help` for the main CLI tool, or `python time_series_demo.py` for interactive exploration! 🚀
