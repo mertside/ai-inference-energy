@@ -43,6 +43,8 @@ This directory contains a **production-ready, modular AI inference energy profil
 ./clean.sh --gpu-type H100  # Clean only H100 results
 ```
 
+**Note:** `launch_v2.sh` is the recommended entry point. `launch.sh` is preserved for compatibility but redirects to the legacy implementation in `legacy/launch.sh`.
+
 ---
 
 ## 📋 Framework Overview

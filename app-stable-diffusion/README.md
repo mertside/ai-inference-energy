@@ -8,16 +8,16 @@ GPU-enabled Stable Diffusion implementation optimized for energy profiling and p
 
 ## Directory Structure
 ```
+```
 app-stable-diffusion/
-├── StableDiffusionViaHF.py          # Main application
-├── StableDiffusionViaHF_original.py # Original implementation
-├── README.md                        # This file
-├── __init__.py                      # Package initialization
-├── tests/                          # Test scripts
-│   ├── test_stable_diffusion.sh    # Environment testing
-│   └── validate_stable_diffusion.py # Validation scripts
-└── scripts/                        # Setup and utility scripts
-    └── setup_stable_diffusion.sh  # Setup script
+├── StableDiffusionViaHF.py        # Modernized main application
+├── README.md                      # This documentation
+├── __init__.py                   # Python package initialization
+├── scripts/                      # Setup and utility scripts
+│   └── setup_stable_diffusion.sh # Setup script
+├── tests/                        # Test suite and validation
+└── images/                       # Generated image outputs
+```
 ```
 
 ## Quick Start
@@ -359,13 +359,13 @@ python StableDiffusionViaHF.py --model-variant sdxl --prompt "architecture compa
 cd ../sample-collection-scripts
 
 # V100 profiling
-./launch.sh --gpu-type V100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 15 --log-level WARNING"
+./launch_v2.sh --gpu-type V100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 15 --log-level WARNING"
 
 # A100 profiling
-./launch.sh --gpu-type A100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 20 --dtype float16"
+./launch_v2.sh --gpu-type A100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'profiling test image' --steps 20 --dtype float16"
 
 # H100 profiling with SDXL
-./launch.sh --gpu-type H100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--model-variant sdxl --prompt 'profiling test image' --steps 15"
+./launch_v2.sh --gpu-type H100 --app-name StableDiffusion --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--model-variant sdxl --prompt 'profiling test image' --steps 15"
 ```
 
 ## Quick Reference

@@ -4,7 +4,11 @@ A **comprehensive, production-ready framework** for studying energy-efficient GP
 
 ## 🎯 Project Overview
 
-As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
+As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal tra    ./launch_v2.sh \
+      --gpu-type "$gpu" \
+      --app-name "$app" \
+      --profiling-mode baseline \
+      --num-runs 2fs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
 
 ### ✨ Key Features
 
@@ -99,8 +103,8 @@ ai-inference-energy/
 ├── app-stable-diffusion/                # 🎨 Modernized Stable Diffusion applications  
 │   ├── README.md                        # Comprehensive Stable Diffusion documentation
 │   ├── StableDiffusionViaHF.py          # **Modernized** image generation with latest models
-│   ├── StableDiffusionViaHF_original.py # Legacy version for compatibility
-│   ├── setup_stable_diffusion.sh       # Complete setup and validation script
+│   ├── scripts/                         # Setup and utility scripts
+│   │   └── setup_stable_diffusion.sh    # Complete setup and validation script
 │   ├── test_stable_diffusion_*.py       # Comprehensive test suites
 │   └── validate_stable_diffusion.py    # Quick validation script
 │
@@ -172,7 +176,8 @@ ai-inference-energy/
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
-    ├── launch.sh                        # 🎯 Main experiment orchestration (CLI enhanced)
+    ├── launch_v2.sh                     # 🎯 Main experiment orchestration (enhanced CLI)
+    ├── launch.sh                        # Legacy experiment script (preserved for compatibility)
     ├── profile.py                       # DCGMI-based GPU profiler
     ├── profile_smi.py                   # nvidia-smi alternative profiler  
     ├── control.sh                       # DCGMI frequency control
@@ -213,6 +218,10 @@ ai-inference-energy/
 - NVIDIA DCGMI tools (automatically falls back to nvidia-smi if unavailable)
 - Hugging Face account with model access
 
+**Framework Note:** This project provides two profiling frameworks:
+- **`launch_v2.sh`** - Enhanced framework with modular architecture (recommended)
+- **`launch.sh`** - Legacy framework preserved for compatibility
+
 #### HPC Environment (Optional)
 - SLURM workload manager
 - Environment modules (GCC, CUDA, cuDNN)
@@ -251,6 +260,7 @@ ai-inference-energy/
    ```bash
    chmod +x sample-collection-scripts/*.sh
    chmod +x sample-collection-scripts/profile.py
+   chmod +x app-stable-diffusion/scripts/setup_stable_diffusion.sh
    ```
 
 ### Basic Usage
@@ -296,22 +306,22 @@ cd sample-collection-scripts
 cd sample-collection-scripts
 
 # Show all available options
-./launch.sh --help
+./launch_v2.sh --help
 
 # Default A100 DVFS experiment with DCGMI
-./launch.sh
+./launch_v2.sh
 
 # V100 baseline experiment with nvidia-smi fallback
-./launch.sh --gpu-type V100 --profiling-mode baseline --profiling-tool nvidia-smi
+./launch_v2.sh --gpu-type V100 --profiling-mode baseline --profiling-tool nvidia-smi
 
 # Custom application profiling
-./launch.sh \
+./launch_v2.sh \
   --app-name "StableDiffusion" \
   --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
   --app-params "--prompt 'A beautiful landscape' --steps 20"
 
 # Quick test configuration
-./launch.sh --num-runs 1 --sleep-interval 0
+./launch_v2.sh --num-runs 1 --sleep-interval 0
 ```
 
 #### 4. HPC Cluster Deployment
@@ -434,7 +444,11 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 The `launch.sh` script accepts comprehensive command-line arguments for flexible experiment configuration:
 
 ```bash
-./launch.sh [OPTIONS]
+The `launch_v2.sh` script accepts comprehensive command-line arguments for flexible experiment configuration:
+
+```bash
+./launch_v2.sh [OPTIONS]
+```
 
 Options:
   --gpu-type TYPE          GPU type: A100 or V100 (default: A100)
@@ -546,7 +560,7 @@ To add new AI applications to the framework:
      --app-params "--model bert-base --batch-size 32"
    
    # For Stable Diffusion (modernized)
-   ./launch.sh \
+   ./launch_v2.sh \
      --app-name "StableDiffusion" \
      --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
      --app-params "--model-variant sdxl --steps 30"
@@ -556,7 +570,7 @@ To add new AI applications to the framework:
 
 #### **A100 Configuration (Toreador)**
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --gpu-type A100 \
   --profiling-tool dcgmi \
   --profiling-mode dvfs
@@ -564,7 +578,7 @@ To add new AI applications to the framework:
 
 #### **V100 Configuration (Matador)**
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --gpu-type V100 \
   --profiling-tool nvidia-smi \
   --profiling-mode baseline
@@ -572,7 +586,7 @@ To add new AI applications to the framework:
 
 #### **H100 Configuration (REPACSS)**
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --gpu-type H100 \
   --profiling-tool dcgmi \
   --profiling-mode dvfs
@@ -584,10 +598,10 @@ The framework supports intelligent profiling tool selection:
 
 ```bash
 # Prefer DCGMI (will fallback to nvidia-smi if unavailable)
-./launch.sh --profiling-tool dcgmi
+./launch_v2.sh --profiling-tool dcgmi
 
 # Force nvidia-smi usage
-./launch.sh --profiling-tool nvidia-smi
+./launch_v2.sh --profiling-tool nvidia-smi
 
 # Test profiling tool availability
 dcgmi discovery --list  # Check DCGMI
@@ -625,7 +639,7 @@ nvidia-smi
 dcgmi discovery --list
 
 # Test profiling tool fallback
-./launch.sh --profiling-tool dcgmi  # Will auto-fallback to nvidia-smi if needed
+./launch_v2.sh --profiling-tool dcgmi  # Will auto-fallback to nvidia-smi if needed
 
 # Reset GPU if needed
 sudo nvidia-smi --gpu-reset
