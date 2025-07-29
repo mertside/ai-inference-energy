@@ -38,7 +38,7 @@ except ImportError:
 class ProfilingDataLoader:
     """Load and process GPU profiling data from job result directories."""
     
-    def __init__(self, data_dir: str = "sample-collection-scripts"):
+    def __init__(self, data_dir: str = "../../sample-collection-scripts"):
         self.data_dir = Path(data_dir)
         
         # Supported configurations
@@ -129,15 +129,10 @@ class ProfilingDataLoader:
             data_start_idx = 0
             
             for i, line in enumerate(lines):
-                if line.startswith('# Entity') or line.startswith('#Entity'):
-                    header_line = line[1:].strip()  # Remove the # prefix
-                    # Skip the units line if it exists
-                    search_start = i + 1
-                    if search_start < len(lines) and not lines[search_start].startswith('GPU'):
-                        search_start += 1  # Skip units line
-                    
+                if line.strip().startswith('# Entity') or line.strip().startswith('#Entity'):
+                    header_line = line.strip()[1:].strip()  # Remove the # prefix
                     # Find the next GPU data line
-                    for j in range(search_start, len(lines)):
+                    for j in range(i + 1, len(lines)):
                         if lines[j].strip().startswith('GPU'):
                             data_start_idx = j
                             break
@@ -150,27 +145,65 @@ class ProfilingDataLoader:
             # Parse column names from header
             columns = header_line.split()
             
-            # Read data lines
+            # Read data lines and handle the device name parsing correctly
             data_lines = []
+            
             for line in lines[data_start_idx:]:
-                if line.strip().startswith('GPU') and line.strip():
-                    parts = line.strip().split()
-                    data_lines.append(parts)
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                    
+                if line.startswith('GPU'):
+                    parts = line.split()
+                    
+                    # Handle device name split issue
+                    # Expected structure: GPU 0 0 Tesla V100-PCIE-32GB 25.584 250.000 ...
+                    # But device name gets split into: ['GPU', '0', '0', 'Tesla', 'V100-PCIE-32GB', '25.584', '250.000', ...]
+                    
+                    if len(parts) >= 7:  # Need at least 7 parts for basic data
+                        # Reconstruct properly aligned data
+                        reconstructed = []
+                        
+                        # Entity, NVIDX
+                        reconstructed.append(parts[0])  # GPU
+                        reconstructed.append(parts[1])  # 0
+                        
+                        # Device name - join parts 2,3,4 as needed
+                        # Look for the power value (should be a decimal around 20-50)
+                        power_idx = None
+                        for idx in range(2, min(len(parts), 8)):
+                            try:
+                                val = float(parts[idx])
+                                if 15.0 <= val <= 500.0:  # Reasonable power range
+                                    power_idx = idx
+                                    break
+                            except ValueError:
+                                continue
+                        
+                        if power_idx is not None:
+                            # Everything from index 2 to power_idx-1 is device name
+                            device_name = ' '.join(parts[2:power_idx])
+                            reconstructed.append(device_name)
+                            
+                            # Add the rest of the numeric data
+                            reconstructed.extend(parts[power_idx:])
+                            
+                            # Trim to expected number of columns
+                            if len(reconstructed) >= len(columns):
+                                data_lines.append(reconstructed[:len(columns)])
+                        else:
+                            # Fallback - assume standard format
+                            if len(parts) >= len(columns):
+                                data_lines.append(parts[:len(columns)])
             
             if not data_lines:
                 logger.error(f"No data lines found in {csv_path}")
                 return pd.DataFrame()
             
-            # Ensure we have the right number of columns
-            max_cols = max(len(row) for row in data_lines)
-            if len(columns) < max_cols:
-                for i in range(len(columns), max_cols):
-                    columns.append(f'Col_{i}')
-            
             # Create DataFrame
-            df = pd.DataFrame(data_lines, columns=columns[:max_cols])
+            df = pd.DataFrame(data_lines, columns=columns)
             
-            # Convert numeric columns (DCGMI metrics)
+            # Convert numeric columns (DCGMI metrics) 
             numeric_columns = ['POWER', 'PMLMT', 'TOTEC', 'TMPTR', 'MMTMP', 'GPUTL', 'MCUTL', 
                              'FBTTL', 'FBFRE', 'FBUSD', 'SMCLK', 'MMCLK', 'SACLK', 'MACLK', 
                              'PSTAT', 'GRACT', 'SMACT', 'SMOCC', 'TENSO', 'DRAMA', 'FP64A', 
@@ -192,6 +225,12 @@ class ProfilingDataLoader:
             )
             
             logger.info(f"Loaded {len(df)} samples from {csv_path.name}")
+            
+            # Log some basic stats for verification
+            if 'POWER' in df.columns and not df['POWER'].isna().all():
+                power_range = f"{df['POWER'].min():.1f}-{df['POWER'].max():.1f}W"
+                logger.debug(f"Power range: {power_range}")
+            
             return df
             
         except Exception as e:
@@ -234,8 +273,10 @@ class MetricPlotter:
     
     def __init__(self, figsize=(12, 8)):
         self.figsize = figsize
-        self.colors = plt.cm.viridis  # Use viridis colormap for frequency colors
-    
+        self.colors = plt.cm.viridis  # Use viridis colormap for frequency colors 
+        # plt.cm.plasma  # Use plasma colormap for frequency colors
+                    
+
     def plot_metric_vs_time(
         self, 
         df: pd.DataFrame, 
@@ -259,6 +300,11 @@ class MetricPlotter:
             logger.error("No data to plot")
             return None
         
+        # Check if metric has valid data
+        if df[metric].isna().all():
+            logger.error(f"All values for metric '{metric}' are NaN - check data parsing")
+            return None
+        
         # Create the plot
         fig, ax = plt.subplots(figsize=self.figsize)
         
@@ -271,14 +317,22 @@ class MetricPlotter:
             freq_data = df[df['frequency'] == freq].copy()
             freq_data = freq_data.sort_values('normalized_time')
             
-            ax.plot(
-                freq_data['normalized_time'], 
-                freq_data[metric],
-                color=color,
-                linewidth=2,
-                alpha=0.8,
-                label=f"{freq} MHz"
-            )
+            # Filter out NaN values for this frequency
+            valid_data = freq_data.dropna(subset=[metric])
+            
+            if len(valid_data) > 0:
+                ax.plot(
+                    valid_data['normalized_time'], 
+                    valid_data[metric],
+                    color=color,
+                    linewidth=2,
+                    alpha=0.8,
+                    label=f"{freq} MHz"
+                )
+                
+                # Log some stats for this frequency
+                metric_values = valid_data[metric]
+                logger.debug(f"{freq}MHz {metric}: {metric_values.min():.2f}-{metric_values.max():.2f} (mean: {metric_values.mean():.2f})")
         
         # Customize plot
         ax.set_xlabel('Normalized Time', fontsize=12)
@@ -289,6 +343,40 @@ class MetricPlotter:
         
         # Set x-axis to always be 0 to 1
         ax.set_xlim(0, 1)
+        
+        # Set appropriate y-axis limits based on metric type
+        metric_data = df[metric].dropna()
+        if len(metric_data) > 0:
+            if metric == 'POWER':
+                # For power, use PMLMT (power limit/TDP) as the upper bound
+                if 'PMLMT' in df.columns and not df['PMLMT'].isna().all():
+                    power_limit = df['PMLMT'].dropna().iloc[0]
+                    y_max = power_limit  # Use the actual TDP as upper bound
+                    logger.info(f"Using power limit (TDP) as y-axis maximum: {power_limit:.0f}W")
+                else:
+                    # Fallback if PMLMT not available
+                    power_max = metric_data.max()
+                    y_max = power_max * 1.2
+                    logger.warning(f"PMLMT not available, using 120% of max power: {y_max:.0f}W")
+                ax.set_ylim(0, y_max)
+                ax.set_ylabel('Power (W)', fontsize=12)
+            elif metric in ['GPUTL', 'MCUTL', 'GRACT', 'SMACT']:
+                # For utilization metrics, set 0-100%
+                ax.set_ylim(0, 100)
+                ax.set_ylabel(f'{metric} (%)', fontsize=12)
+            elif metric == 'TMPTR':
+                # For temperature, set reasonable range
+                temp_min = max(0, metric_data.min() - 5)
+                temp_max = metric_data.max() + 10
+                ax.set_ylim(temp_min, temp_max)
+                ax.set_ylabel('Temperature (°C)', fontsize=12)
+            else:
+                # For other metrics, use data-driven range with some padding
+                data_min = metric_data.min()
+                data_max = metric_data.max()
+                data_range = data_max - data_min
+                padding = data_range * 0.1 if data_range > 0 else 1
+                ax.set_ylim(data_min - padding, data_max + padding)
         
         # Add some styling
         ax.spines['top'].set_visible(False)
@@ -415,8 +503,8 @@ Examples:
                        help="Run number to read from (default: 1)")
     
     # Optional parameters
-    parser.add_argument("--data-dir", type=str, default="sample-collection-scripts",
-                       help="Directory containing result folders (default: sample-collection-scripts)")
+    parser.add_argument("--data-dir", type=str, default="../../sample-collection-scripts",
+                       help="Directory containing result folders (default: ../../sample-collection-scripts)")
     parser.add_argument("--save", type=str, default=None,
                        help="Path to save the plot (default: show plot)")
     parser.add_argument("--title", type=str, default=None,
