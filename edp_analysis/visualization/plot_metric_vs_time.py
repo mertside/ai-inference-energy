@@ -308,6 +308,16 @@ class MetricPlotter:
         # Create the plot
         fig, ax = plt.subplots(figsize=self.figsize)
         
+        # Check if metric values are between 0-1 and should be converted to percentage
+        metric_data = df[metric].dropna()
+        convert_to_percentage = False
+        if len(metric_data) > 0:
+            data_min, data_max = metric_data.min(), metric_data.max()
+            # Convert to percentage if all values are between 0 and 1
+            if data_min >= 0 and data_max <= 1:
+                convert_to_percentage = True
+                logger.info(f"Converting {metric} from 0-1 range to 0-100% for better readability")
+        
         # Get unique frequencies and sort them
         frequencies = sorted(df['frequency'].unique())
         colors = self.colors(np.linspace(0, 1, len(frequencies)))
@@ -321,25 +331,39 @@ class MetricPlotter:
             valid_data = freq_data.dropna(subset=[metric])
             
             if len(valid_data) > 0:
+                # Convert to percentage if needed
+                plot_values = valid_data[metric] * 100 if convert_to_percentage else valid_data[metric]
+                
                 ax.plot(
                     valid_data['normalized_time'], 
-                    valid_data[metric],
+                    plot_values,
                     color=color,
-                    linewidth=2,
-                    alpha=0.8,
+                    linewidth=3,
+                    alpha=0.9,
                     label=f"{freq} MHz"
                 )
                 
                 # Log some stats for this frequency
                 metric_values = valid_data[metric]
-                logger.debug(f"{freq}MHz {metric}: {metric_values.min():.2f}-{metric_values.max():.2f} (mean: {metric_values.mean():.2f})")
+                if convert_to_percentage:
+                    logger.debug(f"{freq}MHz {metric}: {metric_values.min()*100:.1f}%-{metric_values.max()*100:.1f}% (mean: {metric_values.mean()*100:.1f}%)")
+                else:
+                    logger.debug(f"{freq}MHz {metric}: {metric_values.min():.2f}-{metric_values.max():.2f} (mean: {metric_values.mean():.2f})")
         
-        # Customize plot
-        ax.set_xlabel('Normalized Time', fontsize=12)
-        ax.set_ylabel(f'{metric}', fontsize=12)
-        ax.set_title(title or f'{metric} vs Time - {gpu} {app} (Run {run_number})', fontsize=14, fontweight='bold')
+        # Customize plot with larger, bolder text
+        ax.set_xlabel('Normalized Time', fontsize=16, fontweight='bold')
+        ax.set_ylabel(f'{metric}', fontsize=16, fontweight='bold')
+        ax.set_title(title or f'{metric} vs Time - {gpu} {app} (Run {run_number})', fontsize=18, fontweight='bold')
         ax.grid(True, alpha=0.3)
-        ax.legend(title="Frequency", fontsize=10)
+        
+        # Style legend with larger, bold text
+        legend = ax.legend(title="Frequency", fontsize=14, title_fontsize=14)
+        legend.get_title().set_fontweight('bold')
+        
+        # Make tick labels larger and bold
+        ax.tick_params(axis='both', which='major', labelsize=14)
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set_fontweight('bold')
         
         # Set x-axis to always be 0 to 1
         ax.set_xlim(0, 1)
@@ -359,24 +383,26 @@ class MetricPlotter:
                     y_max = power_max * 1.2
                     logger.warning(f"PMLMT not available, using 120% of max power: {y_max:.0f}W")
                 ax.set_ylim(0, y_max)
-                ax.set_ylabel('Power (W)', fontsize=12)
-            elif metric in ['GPUTL', 'MCUTL', 'GRACT', 'SMACT']:
-                # For utilization metrics, set 0-100%
+                ax.set_ylabel('Power (W)', fontsize=16, fontweight='bold')
+            elif metric in ['GPUTL', 'MCUTL', 'GRACT', 'SMACT'] or convert_to_percentage:
+                # For utilization metrics or converted percentage metrics, set 0-100%
                 ax.set_ylim(0, 100)
-                ax.set_ylabel(f'{metric} (%)', fontsize=12)
+                if convert_to_percentage:
+                    ax.set_ylabel(f'{metric} (%)', fontsize=16, fontweight='bold')
+                else:
+                    ax.set_ylabel(f'{metric} (%)', fontsize=16, fontweight='bold')
             elif metric == 'TMPTR':
-                # For temperature, set reasonable range
-                temp_min = max(0, metric_data.min() - 5)
+                # For temperature, set reasonable range starting from 0
                 temp_max = metric_data.max() + 10
-                ax.set_ylim(temp_min, temp_max)
-                ax.set_ylabel('Temperature (°C)', fontsize=12)
+                ax.set_ylim(0, temp_max)
+                ax.set_ylabel('Temperature (°C)', fontsize=16, fontweight='bold')
             else:
-                # For other metrics, use data-driven range with some padding
-                data_min = metric_data.min()
+                # For other metrics, use data-driven range with some padding, starting from 0
+                data_min = 0  # Always start from 0
                 data_max = metric_data.max()
                 data_range = data_max - data_min
                 padding = data_range * 0.1 if data_range > 0 else 1
-                ax.set_ylim(data_min - padding, data_max + padding)
+                ax.set_ylim(0, data_max + padding)
         
         # Add some styling
         ax.spines['top'].set_visible(False)
@@ -428,6 +454,26 @@ class MetricPlotter:
         return available_metrics
 
 
+def get_default_frequencies(gpu: str) -> str:
+    """Get default frequencies for each GPU type with consistent low/mid frequencies.
+    
+    Uses standardized frequency points for comparison across GPUs:
+    - 510 MHz: Minimum frequency (energy efficiency baseline)
+    - 750 MHz: Low-medium frequency (often optimal EDP point)
+    - 960 MHz: Medium frequency (balanced performance-energy)
+    - 1200 MHz: High-medium frequency (performance focus)
+    - GPU-specific maximum: Peak performance reference
+    """
+    
+    gpu_frequencies = {
+        "V100": "510,750,960,1200,1380",    # V100 max: 1380 MHz
+        "A100": "510,750,960,1200,1410",    # A100 max: 1410 MHz  
+        "H100": "510,750,960,1200,1830"     # H100 max: 1830 MHz
+    }
+    
+    return gpu_frequencies.get(gpu.upper(), "510,750,960,1200,1380")  # Default to V100
+
+
 def parse_frequencies(freq_string: str) -> List[int]:
     """Parse comma-separated frequency string into list of integers."""
     try:
@@ -471,6 +517,25 @@ def validate_inputs(gpu: str, app: str, frequencies: List[int], metric: str, run
     return True
 
 
+def generate_plot_filename(gpu: str, app: str, metric: str, frequencies: List[int], run_number: int, plots_dir: str = "plots") -> str:
+    """Generate an appropriate filename for the plot based on parameters."""
+    
+    # Create plots directory if it doesn't exist
+    plots_path = Path(plots_dir)
+    plots_path.mkdir(exist_ok=True)
+    
+    # Format frequencies for filename
+    freq_str = "_".join(map(str, sorted(frequencies)))
+    
+    # Generate filename: {gpu}_{app}_{metric}_freq{frequencies}_run{run}.png
+    filename = f"{gpu.lower()}_{app.lower()}_{metric.lower()}_freq{freq_str}_run{run_number:02d}.png"
+    
+    # Return full path
+    full_path = plots_path / filename
+    
+    return str(full_path)
+
+
 def main():
     """Main function with command line interface."""
     
@@ -479,14 +544,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    # Plot GPU utilization for LLAMA on V100 at multiple frequencies
+    # Plot GPU utilization for LLAMA on V100 (auto-saves to plots/v100_llama_gputl_freq510_960_1380_run02.png)
     python plot_metric_vs_time.py --gpu V100 --app LLAMA --frequencies 510,960,1380 --metric GPUTL --run 2
     
-    # Plot power consumption for Vision Transformer on A100
+    # Plot power consumption for Vision Transformer on A100 (auto-saves to plots/a100_vit_power_freq1200_1410_run01.png)
     python plot_metric_vs_time.py --gpu A100 --app VIT --frequencies 1200,1410 --metric POWER
     
-    # Plot DRAM activity for Stable Diffusion 
+    # Plot DRAM activity for Stable Diffusion (auto-saves to plots/v100_stablediffusion_drama_freq800_1200_run01.png)
     python plot_metric_vs_time.py --gpu V100 --app STABLEDIFFUSION --frequencies 800,1200 --metric DRAMA --run 1
+    
+    # Save to custom location
+    python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER --save custom_power_plot.png
         """
     )
     
@@ -495,8 +563,8 @@ Examples:
                        help="GPU type (default: V100)")
     parser.add_argument("--app", type=str, default="LLAMA", 
                        help="Application name (default: LLAMA)")
-    parser.add_argument("--frequencies", type=str, default="510,960,1380",
-                       help="Comma-separated frequencies in MHz (default: 510,960,1380)")
+    parser.add_argument("--frequencies", type=str, default=None,
+                       help="Comma-separated frequencies in MHz (default: GPU-specific optimal set)")
     parser.add_argument("--metric", type=str, default="GPUTL",
                        help="Profiling metric to plot (default: GPUTL)")
     parser.add_argument("--run", type=int, default=1,
@@ -506,7 +574,7 @@ Examples:
     parser.add_argument("--data-dir", type=str, default="../../sample-collection-scripts",
                        help="Directory containing result folders (default: ../../sample-collection-scripts)")
     parser.add_argument("--save", type=str, default=None,
-                       help="Path to save the plot (default: show plot)")
+                       help="Path to save the plot (default: auto-generate filename in plots/ folder)")
     parser.add_argument("--title", type=str, default=None,
                        help="Custom plot title")
     parser.add_argument("--list-metrics", action="store_true",
@@ -519,6 +587,11 @@ Examples:
     if not HAS_MATPLOTLIB:
         logger.error("Matplotlib is required but not available")
         return 1
+    
+    # Set GPU-specific default frequencies if not provided
+    if args.frequencies is None:
+        args.frequencies = get_default_frequencies(args.gpu)
+        logger.info(f"Using default frequencies for {args.gpu}: {args.frequencies}")
     
     # Parse frequencies
     frequencies = parse_frequencies(args.frequencies)
@@ -563,6 +636,18 @@ Examples:
     # Create plot
     logger.info(f"📈 Creating plot: {args.metric} vs normalized time")
     
+    # Generate automatic filename if no save path provided
+    save_path = args.save
+    if save_path is None:
+        save_path = generate_plot_filename(
+            gpu=args.gpu.upper(),
+            app=args.app.upper(),
+            metric=args.metric,
+            frequencies=frequencies,
+            run_number=args.run
+        )
+        logger.info(f"💾 Auto-generating filename: {save_path}")
+    
     fig = plotter.plot_metric_vs_time(
         df=df,
         metric=args.metric,
@@ -570,7 +655,7 @@ Examples:
         app=args.app.upper(), 
         run_number=args.run,
         title=args.title,
-        save_path=args.save,
+        save_path=save_path,
         show_plot=not args.no_show
     )
     
