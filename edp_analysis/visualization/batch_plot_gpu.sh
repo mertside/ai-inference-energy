@@ -35,7 +35,7 @@ APPLICATIONS=("LLAMA" "VIT" "STABLEDIFFUSION" "WHISPER" "LSTM")
 METRICS=("DRAMA" "GPUTL" "POWER" "MCUTL" "TMPTR")
 
 # Default run number
-RUN_NUMBER=1
+RUN_NUMBER=3
 
 # Function to display usage
 usage() {
