@@ -864,6 +864,253 @@ class PerformancePlotter:
 
         return fig
 
+    def plot_metric_vs_normalized_time(
+        self,
+        df: pd.DataFrame,
+        metric_col: str,
+        time_col: str = "timestamp",
+        frequency_filter: Optional[Union[int, List[int]]] = None,
+        app_name: str = "Application",
+        normalize_time: bool = True,
+        normalize_metric: bool = False,
+        title: Optional[str] = None,
+        save_path: Optional[str] = None,
+    ) -> Figure:
+        """
+        Plot any profiling metric against normalized time.
+        
+        Args:
+            df: DataFrame with profiling data
+            metric_col: Column name for the metric to plot (y-axis)
+            time_col: Column name for time data
+            frequency_filter: Single frequency or list of frequencies to include
+            app_name: Application name for labeling
+            normalize_time: Whether to normalize time to [0,1] range
+            normalize_metric: Whether to normalize metric values
+            title: Custom plot title
+            save_path: Path to save the plot
+        
+        Returns:
+            Matplotlib Figure object
+        """
+        check_plotting_dependencies()
+        
+        df_work = df.copy()
+        
+        # Filter by frequency if specified
+        if frequency_filter is not None:
+            if isinstance(frequency_filter, int):
+                frequency_filter = [frequency_filter]
+            df_work = df_work[df_work['frequency'].isin(frequency_filter)]
+        
+        if df_work.empty:
+            raise ValueError("No data available after filtering")
+        
+        # Convert time column to datetime if it's not already
+        if time_col in df_work.columns and df_work[time_col].dtype == 'object':
+            try:
+                df_work[time_col] = pd.to_datetime(df_work[time_col])
+            except:
+                logger.warning(f"Could not convert {time_col} to datetime, using as-is")
+        
+        # Normalize time if requested
+        if normalize_time:
+            if pd.api.types.is_datetime64_any_dtype(df_work[time_col]):
+                # Convert datetime to numeric for normalization
+                time_numeric = df_work[time_col].astype('int64') / 1e9  # Convert to seconds
+                time_min = time_numeric.min()
+                time_max = time_numeric.max()
+                df_work['normalized_time'] = (time_numeric - time_min) / (time_max - time_min)
+            else:
+                time_min = df_work[time_col].min()
+                time_max = df_work[time_col].max()
+                df_work['normalized_time'] = (df_work[time_col] - time_min) / (time_max - time_min)
+            x_col = 'normalized_time'
+            x_label = "Normalized Time"
+        else:
+            x_col = time_col
+            x_label = "Time"
+        
+        # Normalize metric if requested
+        if normalize_metric:
+            metric_min = df_work[metric_col].min()
+            metric_max = df_work[metric_col].max()
+            df_work['normalized_metric'] = (df_work[metric_col] - metric_min) / (metric_max - metric_min)
+            y_col = 'normalized_metric'
+            y_label = f"Normalized {metric_col}"
+        else:
+            y_col = metric_col
+            y_label = metric_col.replace('_', ' ').title()
+        
+        # Create the plot
+        fig, ax = plt.subplots(figsize=self.figsize)
+        
+        # Plot different frequencies with different colors
+        if 'frequency' in df_work.columns and len(df_work['frequency'].unique()) > 1:
+            frequencies = sorted(df_work['frequency'].unique())
+            colors = plt.cm.viridis(np.linspace(0, 1, len(frequencies)))
+            
+            for freq, color in zip(frequencies, colors):
+                freq_data = df_work[df_work['frequency'] == freq].sort_values(x_col)
+                ax.plot(freq_data[x_col], freq_data[y_col], 
+                       color=color, linewidth=2, alpha=0.8, 
+                       label=f"{freq} MHz")
+        else:
+            df_work = df_work.sort_values(x_col)
+            ax.plot(df_work[x_col], df_work[y_col], 
+                   'b-', linewidth=2, alpha=0.8)
+        
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_title(title or f"{metric_col} vs {x_label} - {app_name}")
+        ax.grid(True, alpha=0.3)
+        
+        if 'frequency' in df_work.columns and len(df_work['frequency'].unique()) > 1:
+            ax.legend()
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            logger.info(f"Metric plot saved to {save_path}")
+        
+        return fig
+
+    def plot_multi_metric_dashboard(
+        self,
+        df: pd.DataFrame,
+        metrics: List[str],
+        frequency_filter: Optional[Union[int, List[int]]] = None,
+        app_name: str = "Application",
+        time_col: str = "timestamp",
+        cols: int = 2,
+        title: Optional[str] = None,
+        save_path: Optional[str] = None,
+    ) -> Figure:
+        """Create a dashboard with multiple metrics vs normalized time."""
+        
+        check_plotting_dependencies()
+        
+        n_metrics = len(metrics)
+        rows = (n_metrics + cols - 1) // cols
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(self.figsize[0] * cols, self.figsize[1] * rows))
+        if rows == 1 and cols == 1:
+            axes = [axes]
+        elif rows == 1 or cols == 1:
+            axes = axes.flatten()
+        else:
+            axes = axes.flatten()
+        
+        df_work = df.copy()
+        
+        # Filter by frequency
+        if frequency_filter is not None:
+            if isinstance(frequency_filter, int):
+                frequency_filter = [frequency_filter]
+            df_work = df_work[df_work['frequency'].isin(frequency_filter)]
+        
+        # Normalize time
+        if pd.api.types.is_datetime64_any_dtype(df_work[time_col]):
+            time_numeric = df_work[time_col].astype('int64') / 1e9
+            time_min = time_numeric.min()
+            time_max = time_numeric.max()
+            df_work['normalized_time'] = (time_numeric - time_min) / (time_max - time_min)
+        else:
+            time_min = df_work[time_col].min()
+            time_max = df_work[time_col].max()
+            df_work['normalized_time'] = (df_work[time_col] - time_min) / (time_max - time_min)
+        
+        for i, metric in enumerate(metrics):
+            ax = axes[i]
+            
+            if metric not in df_work.columns:
+                ax.text(0.5, 0.5, f"Metric '{metric}'\nnot available", 
+                       ha='center', va='center', transform=ax.transAxes)
+                ax.set_title(f"{metric} (N/A)")
+                continue
+            
+            # Plot by frequency if multiple frequencies
+            if 'frequency' in df_work.columns and len(df_work['frequency'].unique()) > 1:
+                frequencies = sorted(df_work['frequency'].unique())
+                colors = plt.cm.viridis(np.linspace(0, 1, len(frequencies)))
+                
+                for freq, color in zip(frequencies, colors):
+                    freq_data = df_work[df_work['frequency'] == freq].sort_values('normalized_time')
+                    ax.plot(freq_data['normalized_time'], freq_data[metric], 
+                           color=color, linewidth=2, alpha=0.8, 
+                           label=f"{freq} MHz")
+            else:
+                df_work = df_work.sort_values('normalized_time')
+                ax.plot(df_work['normalized_time'], df_work[metric], 
+                       'b-', linewidth=2, alpha=0.8)
+            
+            ax.set_xlabel("Normalized Time")
+            ax.set_ylabel(metric.replace('_', ' ').title())
+            ax.set_title(f"{metric.replace('_', ' ').title()}")
+            ax.grid(True, alpha=0.3)
+            
+            if i == 0 and 'frequency' in df_work.columns and len(df_work['frequency'].unique()) > 1:
+                ax.legend()
+        
+        # Hide unused subplots
+        for i in range(n_metrics, len(axes)):
+            axes[i].set_visible(False)
+        
+        plt.suptitle(title or f"Multi-Metric Dashboard - {app_name}")
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            logger.info(f"Multi-metric dashboard saved to {save_path}")
+        
+        return fig
+
+    def analyze_temporal_patterns(
+        self,
+        df: pd.DataFrame,
+        metric_col: str,
+        frequency_col: str = "frequency",
+        time_col: str = "timestamp",
+        window_size: str = "1s"
+    ) -> Dict[str, Any]:
+        """Analyze temporal patterns in profiling metrics."""
+        
+        results = {}
+        
+        for freq in df[frequency_col].unique():
+            freq_data = df[df[frequency_col] == freq].copy()
+            
+            # Convert time to datetime index if needed
+            if pd.api.types.is_datetime64_any_dtype(freq_data[time_col]):
+                freq_data = freq_data.set_index(time_col)
+            else:
+                freq_data[time_col] = pd.to_datetime(freq_data[time_col])
+                freq_data = freq_data.set_index(time_col)
+            
+            # Calculate rolling statistics
+            rolling_mean = freq_data[metric_col].rolling(window_size).mean()
+            rolling_std = freq_data[metric_col].rolling(window_size).std()
+            
+            # Detect anomalies (values > 2 std from rolling mean)
+            anomalies = freq_data[
+                np.abs(freq_data[metric_col] - rolling_mean) > 2 * rolling_std
+            ]
+            
+            # Calculate trend using linear regression
+            time_numeric = pd.to_numeric(freq_data.index)
+            trend_coeff = np.polyfit(time_numeric, freq_data[metric_col], 1)[0]
+            
+            results[freq] = {
+                'mean': freq_data[metric_col].mean(),
+                'std': freq_data[metric_col].std(),
+                'stability': 1 / (freq_data[metric_col].std() / freq_data[metric_col].mean()) if freq_data[metric_col].mean() != 0 else 0,
+                'anomaly_count': len(anomalies),
+                'trend': trend_coeff
+            }
+        
+        return results
+
     def plot_performance_breakdown(
         self,
         df: pd.DataFrame,

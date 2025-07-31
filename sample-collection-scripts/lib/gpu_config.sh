@@ -70,11 +70,6 @@ declare -A GPU_CLUSTERS=(
     ["H100"]="REPACSS"
 )
 
-# Node Specifications (optional, for specific cluster configurations)
-declare -A GPU_NODES=(
-    ["H100"]="rpg-93-9"
-)
-
 # =============================================================================
 # GPU Detection Functions
 # =============================================================================
