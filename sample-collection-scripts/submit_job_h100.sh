@@ -597,7 +597,7 @@ run_experiment() {
         log_error "🛠️  Common H100 Issues and Solutions:"
         log_error "   • Frequency control permissions → Try nvidia-smi fallback (config #11)"
         log_error "   • DCGMI tool unavailable → Automatic fallback should occur"
-        log_error "   • Node access → Check REPACSS node allocation (rpg-93-9)"
+        log_error "   • Node access → Check REPACSS node allocation"
         log_error "   • Advanced features → Verify CUDA/cuDNN versions for FP8/Transformer Engine"
         log_error "   • Module loading issues → Check REPACSS environment setup"
         
