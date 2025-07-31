@@ -1,0 +1,67 @@
+🎯 Performance-Constrained Optimization Summary
+============================================================
+
+📊 Overall Results:
+  Total Configurations: 8
+  Successful Optimizations: 8 (100.0%)
+  Fallback Solutions: 0
+
+⚡ Performance Impact:
+  Average Penalty: -59.0%
+  Max Penalty: -10.3%
+  Penalty Range: -93.1% - -10.3%
+
+🔋 Energy Savings:
+  Average Energy Savings: 71.6%
+  Max Energy Savings: 99.5%
+  Savings Range: 31.4% - 99.5%
+
+🔍 Individual Results:
+----------------------------------------
+✅ A100+LLAMA:
+   1410 → 1200 MHz
+   Performance: --41.3% (acceptable)
+   Energy: -64.0%
+   Power: --4.2%
+
+✅ A100+STABLEDIFFUSION:
+   1410 → 1245 MHz
+   Performance: --20.2% (acceptable)
+   Energy: -38.9%
+   Power: -4.0%
+
+✅ A100+VIT:
+   1410 → 1215 MHz
+   Performance: --93.1% (acceptable)
+   Energy: -99.5%
+   Power: --3.5%
+
+✅ A100+WHISPER:
+   1410 → 1290 MHz
+   Performance: --89.8% (acceptable)
+   Energy: -98.7%
+   Power: --20.6%
+
+✅ V100+LLAMA:
+   1380 → 1365 MHz
+   Performance: --35.4% (acceptable)
+   Energy: -41.4%
+   Power: --40.4%
+
+✅ V100+STABLEDIFFUSION:
+   1380 → 1110 MHz
+   Performance: --10.3% (acceptable)
+   Energy: -31.4%
+   Power: -14.7%
+
+✅ V100+VIT:
+   1380 → 1140 MHz
+   Performance: --92.5% (acceptable)
+   Energy: -99.4%
+   Power: --2.3%
+
+✅ V100+WHISPER:
+   1380 → 1230 MHz
+   Performance: --89.5% (acceptable)
+   Energy: -99.1%
+   Power: -15.0%

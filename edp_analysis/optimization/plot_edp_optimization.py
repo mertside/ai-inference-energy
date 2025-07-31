@@ -9,7 +9,7 @@ Usage:
     python plot_edp_optimization.py --data ../data_aggregation/complete_aggregation.csv --optimal optimal_frequencies.json
     python plot_edp_optimization.py --data ../data_aggregation/complete_aggregation.csv --gpu V100 --app LLAMA
 
-Author: AI Inference Energy Profiling Framework
+Author: Mert Side
 """
 
 import sys

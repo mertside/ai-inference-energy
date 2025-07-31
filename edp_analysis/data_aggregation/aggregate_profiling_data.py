@@ -10,7 +10,7 @@ Usage:
     python aggregate_profiling_data.py --gpu V100 --app LLAMA --run 1 --output llama_data.csv
     python aggregate_profiling_data.py --help
 
-Author: AI Inference Energy Profiling Framework
+Author: Mert Side
 """
 
 import sys
