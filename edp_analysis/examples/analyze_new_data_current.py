@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Example: Analyzing New Profiling Data for GPU Frequency Optimization
+GPU Frequency Optimization Analysis Tool (Current Framework)
 
-This example demonstrates how to apply the current EDP analysis framework to new
-profiling datasets using the existing optimization pipeline.
-
-Usage:
-    python analyze_new_data_current.py --data-dir ./new_profiling_data --output ./results
+This script provides a complete pipeline for analyzing new profiling data
+and finding optimal GPU frequencies using the current framework structure.
 """
 
-import argparse
 import os
 import sys
-from pathlib import Path
+import argparse
 import pandas as pd
+from pathlib import Path
+
+# Add the parent directory to the Python path so we can import edp_analysis modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Add the edp_analysis module to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -42,7 +42,8 @@ def main():
         print("\n📊 Step 1: Aggregating profiling data...")
         
         # Use the existing data aggregation module
-        from edp_analysis.data_aggregation.aggregate_profiling_data import (
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'data_aggregation'))
+        from aggregate_profiling_data import (
             discover_result_directories, process_result_directory, save_aggregated_data
         )
         
@@ -89,10 +90,12 @@ def main():
         print(f"✅ Aggregated {len(aggregated_df)} total configurations")
         print(f"✅ Saved aggregated data to: {aggregated_file}")
         
-        # Step 2: Optimization using existing production optimizer
-        print("\n🎯 Step 2: Finding optimal frequencies...")
+        # Step 2: Use existing production optimizer
+        print("
+🎯 Step 2: Finding optimal frequencies...")
         
-        from edp_analysis.optimization.production_optimizer import ProductionOptimizer
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'optimization'))
+        from production_optimizer import ProductionOptimizer
         
         optimizer = ProductionOptimizer()
         optimization_results = optimizer.optimize_with_constraints(aggregated_df)
