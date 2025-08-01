@@ -1,0 +1,82 @@
+GPU Frequency Optimization Results
+==================================================
+
+Analysis Date: 2025-08-01 14:57:02.671022
+Data Source: ../data_aggregation/complete_aggregation_run2.csv
+Total Configurations: 8
+Production Ready: 2
+A/B Testing Recommended: 2
+Batch Processing Only: 4
+
+A100+LLAMA:
+  Optimal Frequency: 975 MHz
+  Baseline Frequency: 1410 MHz
+  Performance Penalty: -39.7%
+  Energy Savings: 44.9%
+  Category: 🟡 Needs A/B testing
+  Optimal EDP: 146456.033740
+  Baseline EDP: 440893.657450
+
+A100+STABLEDIFFUSION:
+  Optimal Frequency: 1020 MHz
+  Baseline Frequency: 1410 MHz
+  Performance Penalty: -14.9%
+  Energy Savings: 32.3%
+  Category: 🟢 Production ready
+  Optimal EDP: 8994.428480
+  Baseline EDP: 15615.247160
+
+A100+VIT:
+  Optimal Frequency: 615 MHz
+  Baseline Frequency: 1410 MHz
+  Performance Penalty: -93.0%
+  Energy Savings: 94.2%
+  Category: 🔵 Batch processing only
+  Optimal EDP: 38682.360975
+  Baseline EDP: 9407661.888790
+
+A100+WHISPER:
+  Optimal Frequency: 645 MHz
+  Baseline Frequency: 1410 MHz
+  Performance Penalty: -89.3%
+  Energy Savings: 89.9%
+  Category: 🔵 Batch processing only
+  Optimal EDP: 2223.093310
+  Baseline EDP: 204647.336515
+
+V100+LLAMA:
+  Optimal Frequency: 1140 MHz
+  Baseline Frequency: 1380 MHz
+  Performance Penalty: -33.5%
+  Energy Savings: 24.1%
+  Category: 🟡 Needs A/B testing
+  Optimal EDP: 172563.302250
+  Baseline EDP: 341806.160933
+
+V100+STABLEDIFFUSION:
+  Optimal Frequency: 1110 MHz
+  Baseline Frequency: 1380 MHz
+  Performance Penalty: -10.3%
+  Energy Savings: 23.5%
+  Category: 🟢 Production ready
+  Optimal EDP: 13697.917630
+  Baseline EDP: 19957.500075
+
+V100+VIT:
+  Optimal Frequency: 540 MHz
+  Baseline Frequency: 1380 MHz
+  Performance Penalty: -92.5%
+  Energy Savings: 93.6%
+  Category: 🔵 Batch processing only
+  Optimal EDP: 29039.830328
+  Baseline EDP: 6096494.217520
+
+V100+WHISPER:
+  Optimal Frequency: 645 MHz
+  Baseline Frequency: 1380 MHz
+  Performance Penalty: -89.3%
+  Energy Savings: 93.2%
+  Category: 🔵 Batch processing only
+  Optimal EDP: 1743.978780
+  Baseline EDP: 239810.717895
+
