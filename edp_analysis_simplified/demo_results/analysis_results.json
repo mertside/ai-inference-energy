@@ -1,0 +1,40 @@
+{
+  "analysis_parameters": {
+    "data_source": "../edp_analysis/data_aggregation/complete_aggregation_run2.csv",
+    "max_degradation": 15.0,
+    "min_efficiency": 2.0,
+    "gpu_filter": "A100",
+    "app_filter": null
+  },
+  "summary_statistics": {
+    "total_configurations": 2,
+    "average_energy_savings": 29.328090008306717,
+    "average_performance_impact": 0.07462686567163755,
+    "best_efficiency_ratio": 2933.3053188765634,
+    "configurations_by_category": {
+      "Minimal Impact": 2
+    }
+  },
+  "optimal_configurations": [
+    {
+      "config": "A100+LLAMA",
+      "gpu": "A100",
+      "application": "LLAMA",
+      "optimal_frequency": 825,
+      "performance_penalty": -0.1492537313432751,
+      "energy_savings": 29.323126827847794,
+      "efficiency_ratio": 196.46494974659137,
+      "category": "Minimal Impact"
+    },
+    {
+      "config": "A100+STABLEDIFFUSION",
+      "gpu": "A100",
+      "application": "STABLEDIFFUSION",
+      "optimal_frequency": 675,
+      "performance_penalty": 0.0,
+      "energy_savings": 29.333053188765636,
+      "efficiency_ratio": 2933.3053188765634,
+      "category": "Minimal Impact"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "analysis_metadata": {
+    "data_source": "../data_aggregation/complete_aggregation_run2.csv",
+    "filters": {
+      "gpu": "A100",
+      "application": "STABLEDIFFUSION"
+    },
+    "parameters": {
+      "max_performance_degradation": 10.0,
+      "min_efficiency_ratio": 2.0
+    }
+  },
+  "summary": {
+    "total_configurations_analyzed": 61,
+    "optimal_configurations_found": 1,
+    "configurations_by_category": {
+      "Minimal Impact": 1
+    }
+  },
+  "optimal_configurations": [
+    {
+      "config": "A100+STABLEDIFFUSION",
+      "gpu": "A100",
+      "application": "STABLEDIFFUSION",
+      "optimal_frequency": 675,
+      "performance_penalty": 0.0,
+      "energy_savings": 29.333053188765636,
+      "efficiency_ratio": 2933.3053188765634,
+      "category": "Minimal Impact"
+    }
+  ]
+}
