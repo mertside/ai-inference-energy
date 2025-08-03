@@ -284,7 +284,6 @@ def main():
         logger.info("🎉 All demos completed successfully!")
         logger.info("✅ Core power modeling components are working")
         logger.info("✅ EDP/ED2P framework is complete and functional")
-        logger.info("✅ Ready for production use!")
     else:
         logger.error(f"❌ {failed} demos failed")
 

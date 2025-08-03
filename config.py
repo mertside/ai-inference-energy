@@ -327,7 +327,7 @@ class GPUConfig:
 class ProfilingConfig:
     """Configuration for power and performance profiling."""
 
-    # DCGMI monitoring fields - comprehensive set used in production
+    # DCGMI monitoring fields
     # This matches the field configuration actually used by profile.py
     # DCGMI one-liner: dcgmi dmon -d 50 -e 52,50,155,160,156,150,140,203,204,250,251,252,100,101,110,111,190,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
     DCGMI_FIELDS = [

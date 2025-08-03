@@ -17,7 +17,6 @@ This directory contains the conda environment configuration for running LLaMA in
 ✅ **CUDA 12.4 Support**: Full GPU acceleration with latest CUDA toolkit  
 ✅ **Transformers Library**: Latest version for LLaMA model support  
 ✅ **H100 Optimized**: Tested and validated on H100 hardware  
-✅ **Production Ready**: Used in energy profiling research framework  
 
 ## Quick Setup
 
@@ -108,4 +107,4 @@ conda env create -f llama-environment.yml
   - PyTorch 2.5.1 + CUDA 12.4
   - Transformers 4.53.2
   - Validated on H100 NVL 80GB
-  - Production-ready for energy profiling research
+  - Energy profiling research

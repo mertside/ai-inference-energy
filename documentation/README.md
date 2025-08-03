@@ -1,6 +1,6 @@
 # Documentation Directory
 
-This directory contains concise, production-ready documentation for the AI Inference Energy Profiling Framework.
+This directory contains concise, documentation for the AI Inference Energy Profiling Framework.
 
 ## 📚 Core Documentation
 
@@ -8,7 +8,7 @@ This directory contains concise, production-ready documentation for the AI Infer
 - **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - **Complete GPU support guide** for A100, V100, and H100 across HPCC and REPACSS clusters
 - **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - CLI usage examples and automation scripts
 - **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - SLURM job submission and HPC cluster deployment
-- **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - **Production-ready** power modeling and EDP optimization framework
+- **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - Oower modeling and EDP optimization framework
 
 ## 🚀 Quick Start Paths
 
@@ -120,6 +120,3 @@ All documentation follows consistent patterns:
 4. **Test** all commands and examples before submitting
 5. **Update** this index file when adding new documentation
 
----
-
-**Framework Status**: ✅ **Production Ready (v1.0.0)** - Complete documentation for production deployment

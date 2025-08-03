@@ -1,6 +1,6 @@
 # LLaMA Text Generation for Energy Profiling
 
-This directory contains a production-ready LLaMA text generation application designed for comprehensive energy profiling studies on GPU inference workloads.
+This directory contains a LLaMA text generation application designed for comprehensive energy profiling studies on GPU inference workloads.
 
 ## Features
 
@@ -133,7 +133,7 @@ python LlamaViaHF.py --model llama2-13b --benchmark --num-generations 5 --max-to
 python LlamaViaHF.py --prompt "Artificial intelligence" --num-generations 10 --max-tokens 75
 ```
 
-### Development and Testing
+### Testing
 
 ```bash
 # Quick test with minimal resource usage
@@ -146,7 +146,7 @@ python LlamaViaHF.py --log-level DEBUG --prompt "Test prompt" --max-tokens 20
 python LlamaViaHF.py --benchmark --output-file results.json --metrics
 ```
 
-### Production Profiling
+### Profiling
 
 ```bash
 # Minimal output for clean profiling logs

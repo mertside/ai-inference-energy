@@ -10,7 +10,6 @@ Extending ICPP 2023/FGCS 2023 DVFS methodology to contemporary generative AI wor
     - ⚡ Advanced Schedulers: DPM++, Euler, DDIM, HEUN, and more
     - 🧠 Memory Optimization: Dynamic batching, attention slicing, CPU offload
     - 📊 Research Integration: Detailed performance metrics, profiling framework integration
-    - 🔧 Production Ready: Comprehensive CLI, error handling, logging
     - 🎛️ Benchmark Suite: Multi-resolution, quality-performance trade-offs
 
 🔬 RESEARCH APPLICATIONS:
@@ -119,7 +118,6 @@ class StableDiffusionGenerator:
         - ⚡ Advanced Schedulers: DPM++, Euler, DDIM, UniPC, and more
         - 🧠 Memory Optimization: Dynamic batching, attention slicing
         - 📊 Performance Monitoring: Detailed metrics for energy analysis
-        - 🔧 Production Ready: Robust error handling and logging
     
     🔬 RESEARCH APPLICATIONS:
         - DVFS sensitivity analysis for generative AI
@@ -222,7 +220,7 @@ class StableDiffusionGenerator:
         }
     }
 
-    # ⚡ ADVANCED SCHEDULER CONFIGURATIONS - Production-Grade Inference
+    # ⚡ ADVANCED SCHEDULER CONFIGURATIONS
     SCHEDULER_CONFIGS = {
         "dpm++": {
             "class": DPMSolverMultistepScheduler,
@@ -350,7 +348,7 @@ class StableDiffusionGenerator:
         🚀 Initialize the Modernized Stable Diffusion Image Generator
         
         Comprehensive initialization with support for latest models, advanced schedulers,
-        and production-grade optimizations for energy profiling research.
+        and optimizations for energy profiling research.
 
         Args:
             model_name: Explicit model name (overrides model_variant)
