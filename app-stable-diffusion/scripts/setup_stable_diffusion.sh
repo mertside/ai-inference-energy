@@ -210,14 +210,14 @@ fi
 
 # Framework integration test
 log_info "Testing framework integration..."
-if [[ -f "sample-collection-scripts/launch.sh" ]]; then
-    if ./sample-collection-scripts/launch.sh --help > /dev/null; then
+if [[ -f "sample-collection-scripts/launch_v2.sh" ]]; then
+    if ./sample-collection-scripts/launch_v2.sh --help > /dev/null; then
         log_info "✅ Framework integration ready"
     else
         log_warn "❌ Framework integration issues"
     fi
 else
-    log_warn "launch.sh not found - framework integration not tested"
+    log_warn "launch_v2.sh not found - framework integration not tested"
 fi
 
 echo ""
@@ -226,7 +226,7 @@ echo "========================================================="
 echo ""
 echo "Next steps:"
 echo "1. Run full test: python3 test_stable_diffusion_revised.py --model-variant sd-v1.4"
-echo "2. Test with framework: cd sample-collection-scripts && ./launch.sh --app-name StableDiffusion --help"
+echo "2. Test with framework: cd sample-collection-scripts && ./launch_v2.sh --app-name StableDiffusion --help"
 echo "3. Start energy profiling studies with different model variants"
 echo ""
 echo "Available model variants:"

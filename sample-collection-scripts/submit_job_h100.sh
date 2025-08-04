@@ -32,7 +32,7 @@
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
-readonly LAUNCH_SCRIPT_LEGACY="./launch.sh"
+readonly LAUNCH_SCRIPT_LEGACY="./legacy/launch.sh"
 readonly LAUNCH_SCRIPT_V2="./launch_v2.sh"
 
 # Use new framework by default, fallback to legacy if needed

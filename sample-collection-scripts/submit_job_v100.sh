@@ -32,7 +32,7 @@
 set -eo pipefail  # Removed -u to avoid issues with conda environment scripts
 
 # Configuration
-readonly LAUNCH_SCRIPT_LEGACY="./launch.sh"
+readonly LAUNCH_SCRIPT_LEGACY="./legacy/launch.sh"
 readonly LAUNCH_SCRIPT_V2="./launch_v2.sh"
 
 # Use new framework by default, fallback to legacy if needed
@@ -606,10 +606,10 @@ display_completion_notes() {
     # Next steps
     log_info ""
     log_info "🎯 Next Steps:"
-    log_info "   📊 Analyze results with power modeling framework:"
-    log_info "      python -c \"from power_modeling import analyze_application; analyze_application('$RESULTS_DIR/GV100*.csv')\""
-    log_info "   📈 Run EDP optimization:"
-    log_info "      python -c \"from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('$RESULTS_DIR/GV100*.csv')\""
+    log_info "   📊 Analyze results with visualization tools:"
+    log_info "      cd visualization && python plot_metric_vs_time.py --gpu V100 --app MyApp --metric POWER"
+    log_info "   📈 View profiling data:"
+    log_info "      head '$RESULTS_DIR/GV100*.csv'"
     log_info "   🔄 Submit additional configurations by editing this script and resubmitting"
 }
 

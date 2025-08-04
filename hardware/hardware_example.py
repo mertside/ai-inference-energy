@@ -233,17 +233,17 @@ def demonstrate_integration_examples():
     print("\n4. Integration Code Example:")
     print(
         """
-   # Integration with EDP analysis
+   # Integration with future EDP analysis module
    from hardware import get_gpu_info
-   from edp_analysis import EDPCalculator
+   # from edp_analysis import EDPCalculator  # Planned for future release
    
    gpu_info = get_gpu_info('A100')
    frequencies = gpu_info.get_fgcs_compatible_frequencies()
    
-   calculator = EDPCalculator()
+   # calculator = EDPCalculator()  # Will be available in future release
    for freq in frequencies:
        if gpu_info.validate_frequency(freq):
-           # Run EDP analysis with validated frequency
+           # Run EDP analysis with validated frequency (future feature)
            pass
    """
     )

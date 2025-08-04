@@ -98,10 +98,10 @@ python lstm_modern.py
 ### Profiling Usage
 ```bash
 # From sample-collection-scripts directory
-./launch.sh  # Uses LSTM by default
+./launch_v2.sh  # Uses LSTM by default
 
-# Explicit LSTM specification
-./launch.sh --app-name "LSTM" --app-executable "lstm"
+# Or explicitly specify LSTM:
+./launch_v2.sh --app-name "LSTM" --app-executable "lstm"
 ```
 
 ### Custom Configuration

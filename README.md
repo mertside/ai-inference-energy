@@ -1,25 +1,25 @@
 # AI Inference Energy
 
-A **comprehensive, production-ready framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **advanced power modeling**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
+A **comprehensive framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **advanced power modeling**, and **multiple profiling tools** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
-As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
+As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
 
 ### ✨ Key Features
 
 - 🔧 **Complete CLI Interface**: Configure all experiments via command-line arguments with --help support
-- 🎯 **Triple GPU Support**: Native A100 (toreador), V100 (matador), and H100 configurations 
+- 🎯 **Triple GPU Support**: Native A100, V100, and H100 configurations 
 - 🛠️ **Multiple Profiling Tools**: Support for both DCGMI and nvidia-smi profiling with automatic fallback
 - 📊 **Flexible Experiment Modes**: DVFS (full frequency sweep) or baseline (single frequency) modes
 - 🚀 **HPC Integration**: Ready-to-use SLURM submission scripts for cluster environments
 - ⚡ **Intelligent Fallback**: Automatic tool selection when DCGMI is unavailable
-- 📈 **Comprehensive Logging**: Enterprise-grade error handling and progress tracking
+- 📈 **Comprehensive Logging**: Error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
 - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
-- 🧠 **Advanced Power Modeling**: ML-based power prediction with EDP optimization
-- ⚡ **EDP Analysis**: Energy-Delay Product and ED²P optimization for optimal frequency selection
-- 🔬 **Model Validation**: Comprehensive validation framework with robust error handling
+- 📊 **Profiling Infrastructure**: Comprehensive GPU profiling with DCGMI and nvidia-smi support
+- 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads  
+- �️ **Framework Foundation**: Extensible foundation for power modeling and analysis (modules in development)
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
 
 ### 🎉 Latest Updates (v2.0.1)
@@ -30,40 +30,28 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - ✅ **Enhanced Compatibility**: Improved PyTorch/torchvision compatibility in AI model environments
 - ✅ **Visualization Module Fixes**: Resolved syntax errors and duplicate code in `power_plots.py`, enhanced module reliability
 
-### 🔋 Power Modeling Framework
+### 🔋 Profiling Infrastructure Foundation
 
-This framework now includes a comprehensive power modeling system extracted and modernized from the FGCS 2023 paper:
+This framework provides a robust foundation for GPU energy profiling and comprehensive data collection:
 
-#### **Core Models**
-- **FGCS Original**: Exact implementation from FGCS 2023 paper with validated coefficients
-- **Polynomial Models**: Configurable polynomial regression (degree 1-5)
-- **Enhanced Random Forest**: Tuned ensemble with 500+ trees and feature engineering
-- **XGBoost**: GPU-accelerated gradient boosting with automatic hyperparameter tuning
-- **Ensemble Methods**: Automatic model combination and selection
+#### **Core Infrastructure (Available)**
+- **Profiling Data Collection**: Comprehensive GPU profiling with DCGMI and nvidia-smi across V100, A100, and H100
+- **Application Integration**: Support for LLaMA, Stable Diffusion, Whisper, Vision Transformer, and LSTM workloads
+- **Job Automation**: Complete SLURM integration with automated frequency sweeping
+- **Data Export**: Structured CSV output for analysis and visualization
+- **Comprehensive Testing**: Full test coverage for profiling infrastructure and AI applications
 
-#### **Optimization Features**
-- **EDP Optimization**: Energy-Delay Product minimization for balanced trade-offs
-- **ED²P Optimization**: Energy-Delay² Product for performance-prioritized optimization
-- **Multi-objective Analysis**: Pareto frontier identification and trade-off analysis
-- **Intelligent Recommendations**: Context-aware frequency selection with justification
+#### **Planned Extensions (Future Work)**
+- **FGCS Power Models**: ML-based power prediction models from FGCS 2023 methodology
+- **EDP Optimization**: Energy-Delay Product and ED²P optimization algorithms
+- **Advanced Analytics**: Statistical analysis and model validation frameworks
+- **Visualization Suite**: Comprehensive plotting and analysis tools
 
-#### **GPU Support & Frequencies**
-- **V100**: 117 production frequencies (1380-510 MHz) with validated ranges
-- **A100**: 61 production frequencies (1410-510 MHz) with DCGMI integration
-- **H100**: 86 production frequencies (1785-510 MHz) with 15MHz step validation
-
-#### **Validation & Robustness**
-- **Statistical Validation**: K-fold cross-validation with confidence intervals
-- **Error Handling**: Robust division-by-zero protection and NaN value handling
-- **Energy Metrics**: Power-specific accuracy measures and frequency validation
-- **Comprehensive Testing**: 28+ test cases covering all framework components
-
-```python
-# Quick power analysis - One line of code!
-from power_modeling import analyze_application
-results = analyze_application("profiling_data.csv", gpu_type="V100")
-print(f"Optimal frequency: {results['summary']['optimal_frequency']}")
-print(f"Energy savings: {results['summary']['energy_savings']}")
+```bash
+# Quick profiling example - Available now!
+cd sample-collection-scripts
+./launch_v2.sh --app-name "StableDiffusion" --profiling-mode baseline
+# Results saved to structured CSV files for analysis
 ```
 
 ### Supported AI Models & Applications
@@ -71,7 +59,7 @@ print(f"Energy savings: {results['summary']['energy_savings']}")
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
 - **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation  
 - **[Whisper](https://github.com/openai/whisper)**: OpenAI Whisper automatic speech recognition for audio processing energy profiling
-- **[Vision Transformer (ViT)](https://github.com/huggingface/transformers)**: **NEW** Transformer-based image classification for computer vision energy profiling
+- **[Vision Transformer (ViT)](https://github.com/huggingface/transformers)**: Transformer-based image classification for computer vision energy profiling
 - **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
 - **Custom Applications**: Framework supports any Python-based AI inference workload
 
@@ -130,51 +118,29 @@ ai-inference-energy/
 │   ├── README.md                        # LSTM benchmark documentation
 │   └── lstm.py                          # Sentiment analysis benchmark
 │
-├── power_modeling/                      # 🧠 Advanced Power Modeling Framework
-│   ├── README.md                        # Comprehensive power modeling documentation
-│   ├── __init__.py                      # High-level framework interface with quick analysis
-│   ├── fgcs_integration.py              # Complete FGCS 2023 framework integration
-│   ├── models/                          # ML model implementations
-│   │   ├── fgcs_models.py               # FGCS original + polynomial models
-│   │   ├── ensemble_models.py           # Random Forest + XGBoost models
-│   │   └── model_factory.py             # Model factory and training pipeline
-│   ├── feature_engineering/             # Data preprocessing and feature engineering
-│   │   └── preprocessing.py             # Advanced data preparation utilities
-│   ├── validation/                      # Model validation and testing framework
-│   │   ├── metrics.py                   # Comprehensive validation metrics
-│   │   └── test_validation.py           # Validation test suite
-│   └── examples/                        # Usage examples and demonstrations
-│       └── demo_framework.py            # Complete framework usage examples
-│
-├── edp_analysis/                        # ⚡ Energy-Delay Product Analysis
-│   ├── __init__.py                      # EDP analysis module exports
-│   └── edp_calculator.py                # EDP/ED²P optimization with robust error handling
-│
 ├── examples/                            # 📋 Usage examples and demonstrations
 │   ├── README.md                        # Comprehensive examples documentation
 │   ├── example_usage.py                 # Framework usage demonstration
-│   ├── simple_power_modeling_demo.py    # Basic power modeling demonstration
+│   ├── simple_power_modeling_demo.py    # Basic demonstration (planned feature preview)
 │   └── submit_helper.sh                 # SLURM submission helper
 │
 ├── tests/                               # 🧪 Comprehensive test suite
 │   ├── README.md                        # Test documentation and coverage
-│   ├── test_power_modeling_framework.py # Complete power modeling tests (28+ tests)
 │   ├── test_integration.py              # Integration and system tests
 │   ├── test_configuration.py            # Configuration and compatibility tests
-│   ├── README.md                        # Test documentation
+│   ├── test_hardware_module.py          # Hardware detection tests
+│   ├── test_utils.py                    # Utility function tests
 │   └── test_python_compatibility.sh   # Python compatibility test
 │
 ├── documentation/                       # 📚 Essential documentation (streamlined)
 │   ├── README.md                        # Documentation index and quick reference
 │   ├── GPU_USAGE_GUIDE.md               # Complete GPU support guide (A100/V100/H100)
 │   ├── USAGE_EXAMPLES.md                # CLI usage examples and automation
-│   ├── SUBMIT_JOBS_README.md            # SLURM usage and HPC deployment
-│   └── README_POWER_MODELING.md         # Power modeling and EDP optimization guide
+│   └── SUBMIT_JOBS_README.md            # SLURM usage and HPC deployment
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
     ├── launch_v2.sh                     # 🎯 Main experiment orchestration (enhanced CLI)
-    ├── launch.sh                        # Legacy experiment script (preserved for compatibility)
     ├── profile.py                       # DCGMI-based GPU profiler
     ├── profile_smi.py                   # nvidia-smi alternative profiler  
     ├── control.sh                       # DCGMI frequency control
@@ -217,7 +183,7 @@ ai-inference-energy/
 
 **Framework Note:** This project provides two profiling frameworks:
 - **`launch_v2.sh`** - Enhanced framework with modular architecture (recommended)
-- **`launch.sh`** - Legacy framework preserved for compatibility
+- **`launch_v2.sh`** - Enhanced framework with modular architecture
 
 #### HPC Environment (Optional)
 - SLURM workload manager
@@ -369,47 +335,22 @@ sbatch submit_job_v100_comprehensive.sh
 sbatch submit_job_h100_comprehensive.sh
 ```
 
-#### 5. Power Modeling and EDP Optimization
+#### 5. Profiling Data Analysis
 
-**Quick power analysis from profiling data:**
-```python
-from power_modeling import analyze_application
+**Analyze profiling results:**
+```bash
+cd sample-collection-scripts
 
-# Analyze profiling results
-results = analyze_application(
-    profiling_file="results/application_profiling.csv",
-    gpu_type="V100"
-)
+# Basic analysis with built-in tools
+./launch_v2.sh --help  # See analysis options
 
-print(f"Optimal frequency: {results['summary']['optimal_frequency']}")
-print(f"Energy savings: {results['summary']['energy_savings']}")
-```
+# View profiling results
+ls -la results_*/
+head results_*/profiling_*.csv
 
-**Full framework usage with model training:**
-```python
-from power_modeling import FGCSPowerModelingFramework
-import pandas as pd
-
-# Initialize framework with multiple models
-framework = FGCSPowerModelingFramework(
-    model_types=['fgcs_original', 'random_forest_enhanced', 'xgboost'],
-    gpu_type='V100'
-)
-
-# Train models on your data
-training_data = pd.read_csv("training_data.csv")
-training_results = framework.train_models(training_data, target_column='power')
-print(f"Best model: {training_results['best_model_name']}")
-
-# Optimize application for EDP
-optimization_results = framework.optimize_application(
-    fp_activity=0.3,
-    dram_activity=0.15,
-    baseline_runtime=1.0,
-    app_name="MyApp"
-)
-
-print(f"EDP optimal frequency: {optimization_results['edp_optimal']['frequency']}")
+# Use visualization tools
+cd visualization
+python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER
 ```
 
 **📚 For detailed examples, see [`documentation/USAGE_EXAMPLES.md`](documentation/USAGE_EXAMPLES.md) and [`documentation/SUBMIT_JOBS_README.md`](documentation/SUBMIT_JOBS_README.md)**
@@ -438,9 +379,6 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 
 ### Command-Line Interface
 
-The `launch.sh` script accepts comprehensive command-line arguments for flexible experiment configuration:
-
-```bash
 The `launch_v2.sh` script accepts comprehensive command-line arguments for flexible experiment configuration:
 
 ```bash
@@ -551,7 +489,7 @@ To add new AI applications to the framework:
 
 2. **Run with launch script**:
    ```bash
-   ./launch.sh \
+   ./launch_v2.sh \
      --app-name "MyApp" \
      --app-executable "my_app" \
      --app-params "--model bert-base --batch-size 32"
@@ -614,7 +552,7 @@ nvidia-smi              # Check nvidia-smi
 
 for gpu in A100 V100; do
   for app in "LSTM" "StableDiffusion"; do
-    ./launch.sh \
+    ./launch_v2.sh \
       --gpu-type $gpu \
       --app-name $app \
       --profiling-mode baseline \
@@ -689,21 +627,18 @@ sbatch --test-only submit_job.sh
 
 ## 📚 Documentation
 
-The framework includes **streamlined, production-ready documentation** focused on practical usage:
+The framework includes **streamlined documentation** focused on practical usage:
 
 ### 🎯 **Essential Guides**
 - **[GPU_USAGE_GUIDE.md](documentation/GPU_USAGE_GUIDE.md)**: Complete GPU support guide for A100, V100, and H100 across HPCC and REPACSS clusters
 - **[USAGE_EXAMPLES.md](documentation/USAGE_EXAMPLES.md)**: Complete CLI usage examples and automation scripts
 - **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC cluster deployment
-- **[README_POWER_MODELING.md](documentation/README_POWER_MODELING.md)**: Production-ready power modeling and EDP optimization framework
 
 ### 📋 **Additional Module Documentation**
-- **[power_modeling/README.md](power_modeling/README.md)**: Core power modeling framework documentation
-- **[edp_analysis/README.md](edp_analysis/README.md)**: EDP analysis module documentation
 - **[examples/README.md](examples/README.md)**: Usage examples and demonstrations
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
-- **[app-whisper/README.md](app-whisper/README.md)**: **NEW** OpenAI Whisper speech recognition for audio processing energy profiling
+- **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling
 - **[app-llama/README.md](app-llama/README.md)**: LLaMA text generation application for language model energy profiling
 
 All documentation follows consistent patterns with **practical examples**, **real commands**, and **comprehensive troubleshooting** sections.

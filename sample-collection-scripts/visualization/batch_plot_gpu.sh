@@ -29,7 +29,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLOT_SCRIPT="$SCRIPT_DIR/plot_metric_vs_time.py"
 
 # Applications to analyze
-APPLICATIONS=("LLAMA" "VIT" "STABLEDIFFUSION" "WHISPER" "LSTM")
+APPLICATIONS=("LLAMA" "VIT" "STABLEDIFFUSION" "WHISPER")
 
 # Key metrics for comprehensive analysis
 METRICS=("DRAMA" "GPUTL" "POWER" "MCUTL" "TMPTR")
@@ -71,7 +71,8 @@ check_plot_script() {
 # Function to validate GPU type
 validate_gpu() {
     local gpu="$1"
-    case "${gpu^^}" in
+    local gpu_upper=$(echo "$gpu" | tr '[:lower:]' '[:upper:]')
+    case "$gpu_upper" in
         V100|A100|H100)
             return 0
             ;;
@@ -86,7 +87,8 @@ validate_gpu() {
 # Function to get GPU frequency information
 get_gpu_frequencies() {
     local gpu="$1"
-    case "${gpu^^}" in
+    local gpu_upper=$(echo "$gpu" | tr '[:lower:]' '[:upper:]')
+    case "$gpu_upper" in
         V100)
             echo "510,750,960,1200,1380"
             ;;
@@ -125,10 +127,10 @@ generate_plot() {
     exit_code=$?
     
     if [[ $exit_code -eq 0 ]]; then
-        echo -e "${GREEN}✅ Success: ${gpu}_${app,,}_${metric,,}${NC}"
+        echo -e "${GREEN}✅ Success: ${gpu}_$(echo "$app" | tr '[:upper:]' '[:lower:]')_$(echo "$metric" | tr '[:upper:]' '[:lower:]')${NC}"
         return 0
     else
-        echo -e "${RED}❌ Failed: ${gpu}_${app,,}_${metric,,}${NC}"
+        echo -e "${RED}❌ Failed: ${gpu}_$(echo "$app" | tr '[:upper:]' '[:lower:]')_$(echo "$metric" | tr '[:upper:]' '[:lower:]')${NC}"
         echo -e "${RED}Error output:${NC}"
         echo "$output" | head -10
         return 1
@@ -162,9 +164,9 @@ display_summary() {
     # Show plots directory contents
     if [[ -d "plots" ]]; then
         echo -e "${YELLOW}Generated plots in plots/ directory:${NC}"
-        ls -la plots/*${gpu,,}* 2>/dev/null | head -10 || echo "  No plots found for $gpu"
+        ls -la plots/*$(echo "$gpu" | tr '[:upper:]' '[:lower:]')* 2>/dev/null | head -10 || echo "  No plots found for $gpu"
         
-        local plot_count=$(ls plots/*${gpu,,}* 2>/dev/null | wc -l)
+        local plot_count=$(ls plots/*$(echo "$gpu" | tr '[:upper:]' '[:lower:]')* 2>/dev/null | wc -l)
         if [[ $plot_count -gt 10 ]]; then
             echo "  ... and $((plot_count - 10)) more files"
         fi
@@ -185,7 +187,7 @@ main() {
     check_plot_script
     
     # Convert to uppercase for consistency
-    gpu="${gpu^^}"
+    gpu=$(echo "$gpu" | tr '[:lower:]' '[:upper:]')
     
     # Get GPU-specific frequencies
     local frequencies

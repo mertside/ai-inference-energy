@@ -1,14 +1,13 @@
 # Documentation Directory
 
-This directory contains concise, documentation for the AI Inference Energy Profiling Framework.
+This directory contains comprehensive documentation for the AI Inference Energy
 
 ## 📚 Core Documentation
 
 ### **Essential Guides**
 - **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - **Complete GPU support guide** for A100, V100, and H100 across HPCC and REPACSS clusters
 - **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - CLI usage examples and automation scripts
-- **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - SLURM job submission and HPC cluster deployment
-- **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - Oower modeling and EDP optimization framework
+- **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - SLURM job submission and HPC cluster deployment (future development)
 
 ## 🚀 Quick Start Paths
 
@@ -19,8 +18,8 @@ This directory contains concise, documentation for the AI Inference Energy Profi
 4. **[`../sample-collection-scripts/V100_SCRIPT_GUIDE.md`](../sample-collection-scripts/V100_SCRIPT_GUIDE.md)** - V100 unified submission script guide
 
 ### For Researchers and Advanced Users  
-1. **[`README_POWER_MODELING.md`](README_POWER_MODELING.md)** - Advanced power modeling and EDP optimization
-2. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Complete GPU specifications and performance characteristics
+1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Complete GPU specifications and performance characteristics
+2. **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - Advanced CLI usage and automation examples
 
 ### For HPC System Administrators
 1. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Cluster integration and job management
@@ -35,32 +34,33 @@ cd sample-collection-scripts
 ./interactive_gpu.sh              # Auto-detection and setup guidance
 
 # A100 (HPCC toreador partition)
-./launch.sh --gpu-type A100 --profiling-mode baseline
+./launch_v2.sh --gpu-type A100 --profiling-mode baseline
 sbatch submit_job_a100_baseline.sh
 
 # V100 (HPCC matador partition)  
-./launch.sh --gpu-type V100 --profiling-mode baseline
+./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 sbatch submit_job_v100_baseline.sh
 
 # H100 (REPACSS h100-build partition)
-./launch.sh --gpu-type H100 --profiling-mode baseline  
+./launch_v2.sh --gpu-type H100 --profiling-mode baseline  
 sbatch submit_job_h100_baseline.sh
 ```
 
-### Power Modeling Framework
+### Power Modeling Framework (Future Development)
 ```bash
-# Quick power analysis
-python -c "
-from power_modeling import analyze_application
-results = analyze_application('profiling_data.csv', app_name='MyApp', gpu_type='A100')
-print(f'Optimal frequency: {results[\"summary\"][\"optimal_frequency\"]} MHz')
-"
+# Note: Power modeling framework is planned for future releases
+# Current framework focuses on data collection and profiling
 
-# Advanced framework usage
+# For now, use visualization tools for analysis
+cd sample-collection-scripts/visualization
+python plot_metric_vs_time.py --gpu A100 --app MyApp --metric POWER
+
+# Basic CSV analysis
 python -c "
-from power_modeling import FGCSPowerModelingFramework
-framework = FGCSPowerModelingFramework(gpu_type='A100')
-results = framework.analyze_from_file('data/profiling.csv', app_name='MyApp')
+import pandas as pd
+df = pd.read_csv('profiling_data.csv')
+print(f'Average power: {df[\"power\"].mean():.1f}W')
+print(f'Peak power: {df[\"power\"].max():.1f}W')
 "
 ```
 
@@ -71,8 +71,8 @@ nvidia-smi
 dcgmi discovery --list
 
 # Test framework configuration  
-./launch.sh --help
-./launch.sh --gpu-type A100 --profiling-mode baseline --num-runs 1
+./launch_v2.sh --help
+./launch_v2.sh --gpu-type A100 --profiling-mode baseline --num-runs 1
 
 # Interactive sessions for testing (use unified script)
 ./interactive_gpu.sh a100 test   # A100 testing
@@ -94,8 +94,6 @@ All documentation follows consistent patterns:
 
 ### Project Root Documentation
 - **[`../README.md`](../README.md)** - Main project overview and installation guide
-- **[`../power_modeling/README.md`](../power_modeling/README.md)** - Power modeling module documentation
-- **[`../edp_analysis/README.md`](../edp_analysis/README.md)** - EDP optimization module documentation
 - **[`../examples/README.md`](../examples/README.md)** - Usage examples and demonstrations
 
 ### Application-Specific Documentation  

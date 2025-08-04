@@ -14,7 +14,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 - ✅ **Configuration Consolidation**: Unified DCGMI field configuration (25 comprehensive fields)
 - ✅ **Clean Filenames**: Fixed duplicate frequency in custom experiment filenames
 - ✅ **Robust Import System**: Resolved configuration import conflicts for reliable operation
-- ✅ **Production Stability**: Improved reliability and user experience
+- ✅ **Stability**: Improved reliability and user experience
 
 ---
 
@@ -43,7 +43,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 ./clean.sh --gpu-type H100  # Clean only H100 results
 ```
 
-**Note:** `launch_v2.sh` is the recommended entry point. `launch.sh` is preserved for compatibility but redirects to the legacy implementation in `legacy/launch.sh`.
+**Note:** `launch_v2.sh` is the recommended entry point. Legacy scripts are preserved in `legacy/launch.sh`.
 
 ---
 
@@ -57,7 +57,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 - 🛠️ **Tool Flexibility**: DCGMI, nvidia-smi with automatic fallback
 - ⚡ **High Resolution**: 50ms sampling interval for both DCGMI and nvidia-smi
 - 📊 **Experiment Modes**: DVFS (frequency sweep) and baseline profiling
-- 🚀 **SLURM Ready**: Production HPC cluster integration
+- 🚀 **SLURM Ready**: HPC cluster integration
 - 🔍 **Auto-Detection**: GPU types, profiling tools, conda environments
 - ✅ **Zero Raw Escapes**: Clean terminal output across all environments
 
@@ -68,14 +68,6 @@ sample-collection-scripts/
 ├── launch_v2.sh              # 🎯 Main entry point (recommended)
 ├── clean.sh                  # 🧹 Enhanced workspace cleanup tool
 ├── lib/                      # 📚 Modular libraries
-│   ├── common.sh             #   ├─ Common utilities & logging
-│   ├── gpu_config.sh         #   ├─ GPU detection & configuration  
-│   ├── profiling.sh          #   ├─ Profiling orchestration
-│   └── args_parser.sh        #   └─ CLI argument parsing
-├── config/                   # ⚙️ Configuration management
-│   └── defaults.sh           #   └─ Default values & settings
-├── legacy/                   # 📜 Original scripts (preserved)
-│   ├── launch.sh             #   ├─ Legacy entry point
 │   └── ...                   #   └─ All original files
 └── tests/                    # 🧪 Testing framework
     ├── test_framework.sh     #   ├─ Framework validation
@@ -302,7 +294,7 @@ module load anaconda3
 ## 🔄 Migration from Legacy
 
 ### For New Users
-- **Start with `launch_v2.sh`** - The new framework is production-ready
+- **Start with `launch_v2.sh`** - The new framework
 - **Use `--help`** for comprehensive guidance
 - **Leverage auto-detection** for GPU types and tools
 
@@ -327,7 +319,7 @@ module load anaconda3
 #### Phase 3: Full Migration
 ```bash
 # Update job scripts (optional)
-# Old: ./launch.sh
+# Old: ./legacy/launch.sh
 # New: ./launch_v2.sh --gpu-type H100 --profiling-mode dvfs
 ```
 
@@ -335,7 +327,7 @@ module load anaconda3
 
 | Legacy Method | New Framework Equivalent |
 |---------------|--------------------------|
-| Edit `launch.sh` for GPU type | `--gpu-type A100/V100/H100` |
+| Edit legacy scripts for GPU type | `--gpu-type A100/V100/H100` |
 | Edit script for profiling tool | `--profiling-tool dcgmi/nvidia-smi` |
 | Edit script for number of runs | `--num-runs N` |
 | Edit script for application | `--app-executable path --app-params "args"` |
@@ -606,49 +598,23 @@ The modular architecture makes contributions straightforward:
 
 ---
 
-## 🎉 Final Status
-
-### Production Ready ✅
-The refactored framework (v2.0) is **fully operational and production-ready**:
-
-- ✅ **Complete Functionality**: All original features preserved and enhanced  
-- ✅ **Robust Implementation**: Comprehensive error handling and validation
-- ✅ **Clean User Experience**: Professional CLI with proper color handling
-- ✅ **Comprehensive Testing**: Validated across multiple environments
-- ✅ **Zero-Risk Migration**: Legacy framework preserved for safety
-- ✅ **Future-Proof Architecture**: Modular design enables easy enhancement
-
-### Success Metrics
-- 🎯 **100% Feature Parity**: All legacy functionality preserved and enhanced
-- 🔧 **6x Maintainability**: Modular architecture vs monolithic
-- ⚡ **10x Setup Speed**: CLI args vs script editing  
-- 🐛 **Zero Color Issues**: Clean output across all environments
-- 📚 **Complete Documentation**: Comprehensive usage and migration guides
-- ✅ **Robust Error Handling**: Graceful handling of edge cases and failures
-- 🗂️ **Intelligent Naming**: Automatic results directory organization
-- 🧹 **Advanced Cleanup**: Enhanced workspace management with filtering and backup
-- 🔍 **Comprehensive Debugging**: Detailed error reporting and troubleshooting
-- 📊 **Rich Output Format**: Structured experiment summaries and timing data
-
----
-
-*The AI Inference Energy Profiling Framework v2.0 - Production-ready modular architecture for comprehensive power analysis across GPU architectures and AI workloads.*
+*The AI Inference Energy Profiling Framework v2.0 - Modular architecture for comprehensive power analysis across GPU architectures and AI workloads.*
 
 ## Quick Start
 
 ### CLI-Based Usage (Recommended)
 ```bash
 # Show all available options
-./launch.sh --help
+./launch_v2.sh --help
 
 # Default A100 DVFS experiment
-./launch.sh
+./launch_v2.sh
 
 # V100 baseline experiment 
-./launch.sh --gpu-type V100 --profiling-mode baseline
+./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 
 # Custom application profiling
-./launch.sh \
+./launch_v2.sh \
   --app-name "StableDiffusion" \
   --app-executable "stable_diffusion" \
   --app-params "--prompt 'A beautiful landscape' --steps 20"
@@ -659,16 +625,16 @@ The refactored framework (v2.0) is **fully operational and production-ready**:
 # Clean previous results
 ./clean.sh -f
 
-# Run with defaults
-./launch.sh
+# Run with legacy scripts
+./legacy/launch.sh
 ```
 
 ## Command-Line Interface
 
-The `launch.sh` script now accepts comprehensive command-line arguments:
+The `launch_v2.sh` script accepts comprehensive command-line arguments:
 
 ```bash
-./launch.sh [OPTIONS]
+./launch_v2.sh [OPTIONS]
 
 Options:
   --gpu-type TYPE          GPU type: A100 or V100 (default: A100)
@@ -687,7 +653,7 @@ Options:
 
 #### A100 GPU (Toreador Partition)
 ```bash
-./launch.sh --gpu-type A100
+./launch_v2.sh --gpu-type A100
 ```
 - Architecture: GA100
 - Memory: 1215 MHz
@@ -698,7 +664,7 @@ Options:
 
 #### V100 GPU (Matador Partition)
 ```bash
-./launch.sh --gpu-type V100
+./launch_v2.sh --gpu-type V100
 ```
 - Architecture: GV100  
 - Memory: 877 MHz
@@ -708,7 +674,7 @@ Options:
 
 #### H100 GPU (REPACSS h100-build Partition)
 ```bash
-./launch.sh --gpu-type H100
+./launch_v2.sh --gpu-type H100
 ```
 - Architecture: GH100  
 - Memory: 2619 MHz
@@ -721,7 +687,7 @@ Options:
 
 #### DCGMI (Default with Automatic Fallback)
 ```bash
-./launch.sh --profiling-tool dcgmi
+./launch_v2.sh --profiling-tool dcgmi
 ```
 - Uses: `profile.py` and `control.sh`
 - Requires: DCGMI tools installed
@@ -730,7 +696,7 @@ Options:
 
 #### nvidia-smi (Alternative)
 ```bash
-./launch.sh --profiling-tool nvidia-smi
+./launch_v2.sh --profiling-tool nvidia-smi
 ```
 - Uses: `profile_smi.py` and `control_smi.sh`
 - Requires: NVIDIA drivers (nvidia-smi)
@@ -754,7 +720,7 @@ Options:
 
 #### DVFS Mode (Default)
 ```bash
-./launch.sh --profiling-mode dvfs
+./launch_v2.sh --profiling-mode dvfs
 ```
 - **Full frequency sweep** across all supported frequencies
 - Comprehensive energy analysis
@@ -762,7 +728,7 @@ Options:
 
 #### Baseline Mode
 ```bash
-./launch.sh --profiling-mode baseline
+./launch_v2.sh --profiling-mode baseline
 ```
 - **Single frequency** at default GPU settings
 - Quick profiling for testing and validation
@@ -977,24 +943,24 @@ dcgmi discovery --list
 
 #### Default A100 DVFS Experiment
 ```bash
-./launch.sh
+./launch_v2.sh
 ```
 
 #### V100 Baseline Testing
 ```bash
-./launch.sh --gpu-type V100 --profiling-mode baseline --num-runs 1
+./launch_v2.sh --gpu-type V100 --profiling-mode baseline --num-runs 1
 ```
 
 #### Custom Application Profiling
 ```bash
 # Stable Diffusion
-./launch.sh \
+./launch_v2.sh \
   --app-name "StableDiffusion" \
   --app-executable "../app-stable-diffusion/StableDiffusionViaHF.py" \
   --app-params "--prompt 'A beautiful landscape' --steps 20"
 
 # LLaMA
-./launch.sh \
+./launch_v2.sh \
   --app-name "LLaMA" \
   --app-executable "../app-llama/LlamaViaHF" \
   --app-params "--max-length 100"
@@ -1002,12 +968,12 @@ dcgmi discovery --list
 
 #### Quick Testing Configuration
 ```bash
-./launch.sh --num-runs 1 --sleep-interval 0 --profiling-mode baseline
+./launch_v2.sh --num-runs 1 --sleep-interval 0 --profiling-mode baseline
 ```
 
 #### Comprehensive Experiment
 ```bash
-./launch.sh --gpu-type A100 --profiling-mode dvfs --num-runs 3
+./launch_v2.sh --gpu-type A100 --profiling-mode dvfs --num-runs 3
 ```
 
 ### SLURM Usage Examples

@@ -1,51 +1,46 @@
 # Launch Script Usage Examples
 
-The launch.sh script now accepts all configurati### 12. Comprehensive Test (more runs)
-```bash
-./launch.sh --num-runs 5 --sleep-interval 3
-```
-
-### 13. Full Custom Configuration application details as command-line arguments, making it much more flexible and suitable for automated experiments.
+The launch_v2.sh script now accepts all configuration and application details as command-line arguments, making it much more flexible and suitable for automated experiments.
 
 ## Basic Usage
 
 ### 1. Default Configuration (LSTM on A100 with DCGMI and DVFS)
 ```bash
-./launch.sh
+./launch_v2.sh
 ```
 
 ### 2. Show Help
 ```bash
-./launch.sh --help
+./launch_v2.sh --help
 ```
 
 ## GPU Configuration Examples
 
 ### 3. Switch to V100 GPU
 ```bash
-./launch.sh --gpu-type V100
+./launch_v2.sh --gpu-type V100
 ```
 
 ### 4. Use nvidia-smi instead of DCGMI
 ```bash
-./launch.sh --profiling-tool nvidia-smi
+./launch_v2.sh --profiling-tool nvidia-smi
 ```
 
 ### 5. Baseline profiling (single frequency, no frequency control)
 ```bash
-./launch.sh --profiling-mode baseline
+./launch_v2.sh --profiling-mode baseline
 ```
 
 ### 6. V100 baseline with nvidia-smi
 ```bash
-./launch.sh --gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline
+./launch_v2.sh --gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline
 ```
 
 ## Application Configuration Examples
 
 ### 7. Custom Application - Stable Diffusion
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --app-name "StableDiffusion" \
   --app-executable "stable_diffusion" \
   --app-params "--prompt 'A beautiful landscape' --steps 20 > results/SD_output.log"
@@ -53,7 +48,7 @@ The launch.sh script now accepts all configurati### 12. Comprehensive Test (more
 
 ### 8. Custom Application - LLaMA
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --app-name "LLaMA" \
   --app-executable "llama_inference" \
   --app-params "--model llama-7b --input prompt.txt > results/LLaMA_output.log"
@@ -61,7 +56,7 @@ The launch.sh script now accepts all configurati### 12. Comprehensive Test (more
 
 ### 9. Custom Application - Whisper
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --app-name "Whisper" \
   --app-executable "../app-whisper/WhisperViaHF.py" \
   --app-params "--benchmark --model base --num-samples 3 --quiet > results/Whisper_output.log"
@@ -69,7 +64,7 @@ The launch.sh script now accepts all configurati### 12. Comprehensive Test (more
 
 ### 10. Custom Application - Vision Transformer
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --app-name "ViT" \
   --app-executable "../app-vision-transformer/ViTViaHF.py" \
   --app-params "--benchmark --num-images 5 --model google/vit-base-patch16-224 > results/ViT_output.log"
@@ -85,17 +80,17 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper" "ViT"; do
 
 ### 11. Quick Test (fewer runs)
 ```bash
-./launch.sh --num-runs 1 --sleep-interval 0
+./launch_v2.sh --num-runs 1 --sleep-interval 0
 ```
 
 ### 11. Comprehensive Test (more runs)
 ```bash
-./launch.sh --num-runs 5 --sleep-interval 2
+./launch_v2.sh --num-runs 5 --sleep-interval 2
 ```
 
 ### 12. Full Custom Configuration
 ```bash
-./launch.sh \
+./launch_v2.sh \
   --gpu-type A100 \
   --profiling-tool dcgmi \
   --profiling-mode dvfs \
@@ -114,7 +109,7 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper" "ViT"; do
 
 # Test different applications with the same configuration
 for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper"; do
-    ./launch.sh \
+    ./launch_v2.sh \
       --gpu-type A100 \
       --profiling-mode baseline \
       --num-runs 2 \
@@ -130,7 +125,7 @@ done
 
 # Test the same application on different GPU types
 for gpu in "A100" "V100"; do
-    ./launch.sh \
+    ./launch_v2.sh \
       --gpu-type "$gpu" \
       --profiling-mode baseline \
       --app-name "LSTM" \

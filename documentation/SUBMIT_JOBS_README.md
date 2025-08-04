@@ -1,6 +1,6 @@
 # SLURM Job Submission Scripts for AI Inference Energy Profiling
 
-This directory contains SLURM job submission scripts for running AI inference energy profiling experiments on HPC clusters. All scripts have been updated to work with the enhanced `launch.sh` command-line interface.
+This directory contains SLURM job submission scripts for running AI inference energy profiling experiments on HPC clusters. All scripts have been updated to work with the enhanced `launch_v2.sh` command-line interface.
 
 ## Available Submit Scripts
 
@@ -10,7 +10,7 @@ The primary SLURM job submission script with configurable `LAUNCH_ARGS`.
 **Features:**
 - Configurable experiment parameters via `LAUNCH_ARGS` variable
 - Comprehensive environment setup and validation
-- Support for all launch.sh command-line options
+- Support for all launch_v2.sh command-line options
 - Detailed logging and error handling
 
 **Usage:**
@@ -76,7 +76,7 @@ All scripts use the following SLURM settings (modify as needed):
 
 ## Launch Script Arguments
 
-The submit scripts pass arguments to `launch.sh`. Available options:
+The submit scripts pass arguments to `launch_v2.sh`. Available options:
 
 | Argument | Description | Default |
 |----------|-------------|---------|
@@ -153,4 +153,4 @@ Results are saved in the `results/` directory with naming convention:
 - **DCGMI Issues**: Use nvidia-smi profiling as alternative
 - **Permission Errors**: Some frequency control operations may require special permissions
 
-For more details, see the main project documentation and `launch.sh --help`.
+For more details, see the main project documentation and `launch_v2.sh --help`.

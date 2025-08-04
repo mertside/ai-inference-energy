@@ -10,7 +10,7 @@ This document outlines the remaining components of the Hardware Abstraction Laye
 - **Status**: ✅ **COMPLETE**
 - **Features**: Comprehensive GPU specifications for V100, A100, H100
 - **Capabilities**: Frequency validation, memory specs, FGCS compatibility
-- **Integration**: Fully integrated with power modeling and EDP analysis
+- **Integration**: Future integration with power modeling and EDP analysis modules
 
 ---
 
@@ -70,9 +70,9 @@ class NVMLPowerMonitor(PowerMonitor):
 ```
 
 #### **Integration Benefits**
-- **Energy Profiler**: Direct integration with `edp_analysis.energy_profiler`
-- **Power Modeling**: Real-time validation of FGCS power model predictions
-- **Sample Scripts**: Replace tool-specific power monitoring in `launch.sh`
+- **Energy Profiler**: Future integration with planned energy profiling module
+- **Power Modeling**: Real-time validation of future FGCS power model predictions
+- **Sample Scripts**: Replace tool-specific power monitoring in `launch_v2.sh`
 - **Cross-Platform**: Works across different HPC clusters and environments
 
 #### **Implementation Complexity**: 🟡 **Medium** (2-3 weeks)
@@ -236,7 +236,7 @@ class ClusterInfo:
 ### **Framework Integration Points**
 1. **EDP Analysis**: `edp_analysis.energy_profiler` → `PowerMonitor`
 2. **Power Modeling**: `power_modeling.fgcs_integration` → `PowerMonitor` + `PerformanceCounters`
-3. **Sample Scripts**: `launch.sh` → `DeviceManager` + `PowerMonitor`
+3. **Sample Scripts**: `launch_v2.sh` → `DeviceManager` + `PowerMonitor`
 4. **Testing**: Hardware-agnostic testing with mock devices
 
 ## 🚀 **Benefits of Complete HAL Implementation**

@@ -74,9 +74,9 @@ class NVMLPowerMonitor(PowerMonitor):
 ```
 
 #### **Integration Points**
-- **Energy Profiler**: Direct integration with `edp_analysis.energy_profiler`
-- **Power Modeling**: Real-time validation of power model predictions
-- **FGCS Framework**: Power measurement for FGCS methodology validation
+- **Energy Profiler**: Future integration with planned energy profiling module
+- **Power Modeling**: Real-time validation of future power model predictions
+- **FGCS Framework**: Power measurement for future FGCS methodology validation
 
 #### **Estimated Implementation**: 2-3 weeks
 
@@ -144,8 +144,8 @@ class FGCSPerformanceExtractor:
 ```
 
 #### **Integration Points**
-- **Feature Selection**: Direct feed to `edp_analysis.feature_selection`
-- **Performance Profiler**: Enhanced `edp_analysis.performance_profiler` capabilities
+- **Feature Selection**: Planned integration with future analysis modules
+- **Performance Profiler**: Enhanced performance monitoring capabilities
 - **FGCS Models**: Real-time validation of FGCS feature extraction
 
 #### **Estimated Implementation**: 3-4 weeks
@@ -249,18 +249,16 @@ is_valid = hal.validate_configuration(frequency=1200)
 
 ### **Integration with Existing Framework**
 ```python
-# Enhanced EDP Analysis with HAL
+# Hardware Abstraction Layer (planned development)
 from hardware import HAL
-from edp_analysis import EDPCalculator, EnergyProfiler
 
+# Note: Advanced analysis integration planned for future development
 hal = HAL('V100')
-energy_profiler = EnergyProfiler(hal.create_power_monitor())
-edp_calculator = EDPCalculator()
 
-# Real-time EDP analysis
-for frequency in hal.get_fgcs_compatible_frequencies():
+# Current capabilities - hardware detection and monitoring
+for frequency in hal.get_compatible_frequencies():
     hal.set_frequency(frequency)
-    power_data = energy_profiler.monitor_power(duration=30.0)
+    power_data = hal.monitor_power(duration=30.0)
     performance_data = hal.get_performance_metrics()
     
     edp_results = edp_calculator.calculate_edp_with_features(

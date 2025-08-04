@@ -1,8 +1,10 @@
 # Visualization Framework
 
-**Production-ready visualization tools for GPU profiling data analysis and EDP optimization.**
+**Basic visualization tools for GPU profiling data analysis.**
 
-This module provides comprehensive visualization capabilities for the AI Inference Energy Profiling Framework, including time-series analysis, EDP optimization plots, and performance visualization.
+> **Note**: This documentation references advanced visualization features that are planned for future development. Current capabilities include basic plotting tools available in this directory.
+
+This module provides visualization capabilities for the AI Inference Energy Profiling Framework, with basic time-series analysis and plotting tools.
 
 ## 🎯 Quick Start - Main Plotting Tool
 
@@ -220,50 +222,6 @@ The plots generated include:
 - **High-resolution output** (300 DPI) for publications
 - **Automatic scaling** and metric-appropriate units
 
-## � Visualization Modules
-
-### ✅ **Production-Ready Modules**
-
-All visualization modules have been recently validated and are **production-ready**:
-
-| Module | Status | Description |
-|--------|--------|-------------|
-| `plot_metric_vs_time.py` | ✅ **VALIDATED** | Primary CLI tool for time-series visualization |
-| `data_preprocessor.py` | ✅ **FIXED** | DCGMI CSV parsing and preprocessing utilities |
-| `time_series_demo.py` | ✅ **ENHANCED** | Educational demo with synthetic data generation |
-| `power_plots.py` | ✅ **RESTRUCTURED** | Comprehensive power analysis plotting classes |
-| `performance_plots.py` | ✅ **READY** | Performance analysis and throughput visualization |
-| `edp_plots.py` | ✅ **INTEGRATED** | EDP optimization and trade-off analysis plots |
-
-### 🛠️ **Recent Improvements (July 2025)**
-
-#### **power_plots.py - Major Restructuring**
-- ✅ **Fixed duplicate code sections** - Removed 800+ lines of redundant content
-- ✅ **Resolved syntax errors** - File now parses correctly with valid Python AST
-- ✅ **Cleaned class structure** - Single `PowerPlotter` class with comprehensive methods
-- ✅ **Enhanced error handling** - Graceful fallback for missing dependencies
-- ✅ **Validated functionality** - All plotting methods tested and working
-
-#### **data_preprocessor.py - Import Fixes**  
-- ✅ **Added missing imports** - Fixed `re` module import for regex functionality
-- ✅ **Enhanced reliability** - Robust DCGMI field parsing and validation
-- ✅ **Tested integration** - Verified compatibility with real profiling data
-
-#### **time_series_demo.py - Compatibility Updates**
-- ✅ **Optional dependencies** - Graceful handling of missing seaborn/advanced libraries
-- ✅ **Enhanced examples** - Improved synthetic data generation and correlation analysis
-- ✅ **Educational value** - Better documentation and example workflows
-
-### 🧪 **Validation Status**
-
-**Last Tested**: July 29, 2025  
-**Test Data**: 11,815 samples from V100 LLAMA experiments across 3 frequencies  
-**Validation Results**:
-- ✅ All modules import successfully
-- ✅ Main CLI tool generates publication-quality plots
-- ✅ Real data processing works without errors
-- ✅ 16 DCGMI metrics available and accessible
-- ✅ No syntax or structural errors remaining
 
 **Test Command Used**:
 ```bash
@@ -279,7 +237,7 @@ This visualization tool is designed to work seamlessly with:
 - **DCGMI profiling data** from main framework experiments
 - **Job submission scripts** in `sample-collection-scripts/`
 - **EDP analysis** results from `edp_analysis/` module
-- **Power modeling** outputs from `power_modeling/` module
+- **Profiling** outputs from DCGMI and nvidia-smi profiling tools
 
 ## 🔧 Troubleshooting
 
@@ -637,9 +595,9 @@ plotter.plot_metric_vs_normalized_time(df, "TMPTR")  # Check thermal behavior
 
 ## 🛠️ **Individual Script Usage Guide**
 
-### **1. plot_metric_vs_time.py** - Production CLI Tool
+### **1. plot_metric_vs_time.py** - CLI Tool
 
-**Purpose:** Production-ready visualization for any DCGMI metric vs normalized time
+**Purpose:** Visualization for any DCGMI metric vs normalized time
 
 **Key Features:**
 - Multi-frequency overlay plotting
