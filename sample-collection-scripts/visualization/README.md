@@ -149,8 +149,8 @@ edp_analysis/visualization/
 For advanced users who want to integrate plotting into their own scripts:
 
 ```python
-from edp_analysis.visualization import EDPPlotter, PowerPlotter, PerformancePlotter
-from edp_analysis.visualization.data_preprocessor import ProfilingDataPreprocessor
+# from edp_analysis.visualization  # Future visualization module import EDPPlotter, PowerPlotter, PerformancePlotter
+# from edp_analysis.visualization  # Future visualization module.data_preprocessor import ProfilingDataPreprocessor
 
 # Load profiling data
 loader = ProfilingDataPreprocessor()
@@ -345,7 +345,7 @@ frequency_analysis.png
 
 #### **Programmatic Usage**
 ```python
-from edp_analysis.visualization.data_preprocessor import ProfilingDataPreprocessor
+# from edp_analysis.visualization  # Future visualization module.data_preprocessor import ProfilingDataPreprocessor
 
 # Load profiling data from result directory
 loader = ProfilingDataPreprocessor()
@@ -378,7 +378,7 @@ synthetic_df = loader.create_synthetic_profiling_data(
 
 #### **Programmatic Usage**
 ```python
-from edp_analysis.visualization.power_plots import PowerPlotter, plot_power_histogram
+# from edp_analysis.visualization  # Future visualization module.power_plots import PowerPlotter, plot_power_histogram
 
 # Initialize plotter
 power_plotter = PowerPlotter(figsize=(12, 8))
@@ -443,7 +443,7 @@ fig5 = plot_power_histogram(
 
 #### **Programmatic Usage**
 ```python
-from edp_analysis.visualization.performance_plots import PerformancePlotter
+# from edp_analysis.visualization  # Future visualization module.performance_plots import PerformancePlotter
 
 # Initialize plotter
 perf_plotter = PerformancePlotter(figsize=(14, 10))
@@ -491,7 +491,7 @@ print(f"Power stability across frequencies: {patterns}")
 
 #### **Programmatic Usage**
 ```python
-from edp_analysis.visualization.edp_plots import EDPPlotter
+# from edp_analysis.visualization  # Future visualization module.edp_plots import EDPPlotter
 
 # Initialize EDP plotter
 edp_plotter = EDPPlotter(figsize=(12, 8))
@@ -547,7 +547,7 @@ fig5 = edp_plotter.create_optimization_summary_plot(
 
 #### **Research Pipeline Example**
 ```python
-from edp_analysis.visualization import *
+# from edp_analysis.visualization  # Future visualization module import *
 
 # 1. Load and preprocess data
 loader = ProfilingDataPreprocessor()

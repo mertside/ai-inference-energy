@@ -197,19 +197,19 @@ After job completion, analyze results with:
 
 ```bash
 # Power modeling analysis
-python -c "from power_modeling import analyze_application; analyze_application('results/GH100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_application; # analyze_application(  # Planned analysis function'results/GH100*.csv')"
 
 # EDP optimization
-python -c "from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('results/GH100*.csv')"
+python -c "# from edp_analysis import  # Future EDP analysis module edp_calculator; # edp_calculator.find_optimal_configuration(  # Planned EDP optimization function'results/GH100*.csv')"
 
 # H100-specific FP8 analysis
-python -c "from power_modeling import analyze_fp8_precision; analyze_fp8_precision('results/GH100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_fp8_precision; # analyze_fp8_precision(  # Planned analysis function'results/GH100*.csv')"
 
 # Transformer Engine analysis
-python -c "from power_modeling import analyze_transformer_engine; analyze_transformer_engine('results/GH100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_transformer_engine; # analyze_transformer_engine(  # Planned analysis function'results/GH100*.csv')"
 
 # HBM3 memory analysis
-python -c "from power_modeling import analyze_memory_bandwidth; analyze_memory_bandwidth('results/GH100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_memory_bandwidth; # analyze_memory_bandwidth(  # Planned analysis function'results/GH100*.csv')"
 ```
 
 ## 🔬 Research Use Cases

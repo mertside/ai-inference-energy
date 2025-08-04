@@ -157,13 +157,13 @@ After job completion, analyze results with:
 
 ```bash
 # Power modeling analysis
-python -c "from power_modeling import analyze_application; analyze_application('results/GA100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_application; # analyze_application(  # Planned analysis function'results/GA100*.csv')"
 
 # EDP optimization
-python -c "from edp_analysis import edp_calculator; edp_calculator.find_optimal_configuration('results/GA100*.csv')"
+python -c "# from edp_analysis import  # Future EDP analysis module edp_calculator; # edp_calculator.find_optimal_configuration(  # Planned EDP optimization function'results/GA100*.csv')"
 
 # A100-specific Tensor Core analysis
-python -c "from power_modeling import analyze_tensor_cores; analyze_tensor_cores('results/GA100*.csv')"
+python -c "# from power_modeling import  # Future power modeling module analyze_tensor_cores; # analyze_tensor_cores(  # Planned analysis function'results/GA100*.csv')"
 ```
 
 ## 🔗 Related Resources

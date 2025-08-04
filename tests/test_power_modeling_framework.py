@@ -37,13 +37,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # from edp_analysis.edp_calculator import (
 #     DVFSOptimizationPipeline,
 #     EDPCalculator,
-#     FGCSEDPOptimizer,
+#     EDPOptimizer,
 # )
-# from power_modeling import FGCSPowerModelingFramework, analyze_application
+# from power_modeling import PowerModelingFramework, analyze_application
 # from power_modeling.models.ensemble_models import EnhancedRandomForestModel
-# from power_modeling.models.fgcs_models import FGCSPowerModel
+# from power_modeling.models.fgcs_models import PowerModel
 # from power_modeling.models.model_factory import (
-#     FGCSModelFactory,
+#     ModelFactory,
 #     ModelPipeline,
 #     PolynomialPowerModel,
 # )
@@ -84,7 +84,7 @@ class TestPowerModelingFramework(unittest.TestCase):
     def test_framework_initialization(self):
         """Test framework initialization with different GPU types."""
         # Test default initialization
-        framework_default = FGCSPowerModelingFramework(
+        framework_default = PowerModelingFramework(
             model_types=["polynomial_deg2"]
         )
         self.assertIsNotNone(framework_default)
@@ -92,7 +92,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
         # Test with different GPU types
         for gpu_type in ["V100", "A100", "H100"]:
-            framework = FGCSPowerModelingFramework(
+            framework = PowerModelingFramework(
                 model_types=["polynomial_deg2"], gpu_type=gpu_type
             )
             self.assertEqual(framework.gpu_type, gpu_type)
@@ -101,16 +101,16 @@ class TestPowerModelingFramework(unittest.TestCase):
     def test_model_imports_and_creation(self):
         """Test that all required models can be imported and created."""
         # Test model factory
-        fgcs_model = FGCSModelFactory.create_fgcs_power_model()
-        self.assertIsInstance(fgcs_model, FGCSPowerModel)
+        fgcs_model = ModelFactory.create_fgcs_power_model()
+        self.assertIsInstance(fgcs_model, PowerModel)
 
-        poly_model = FGCSModelFactory.create_polynomial_model(degree=2)
+        poly_model = ModelFactory.create_polynomial_model(degree=2)
         self.assertIsInstance(poly_model, PolynomialPowerModel)
 
-        rf_model = FGCSModelFactory.create_enhanced_random_forest()
+        rf_model = ModelFactory.create_enhanced_random_forest()
         self.assertIsInstance(rf_model, EnhancedRandomForestModel)
 
-        pipeline = FGCSModelFactory.create_model_pipeline()
+        pipeline = ModelFactory.create_model_pipeline()
         self.assertIsInstance(pipeline, ModelPipeline)
 
     def test_random_forest_optimization(self):
@@ -142,7 +142,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_model_training_pipeline(self):
         """Test the complete model training pipeline."""
-        framework = FGCSPowerModelingFramework(model_types=["polynomial_deg2"])
+        framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Test model training
         training_results = framework.train_models(
@@ -156,7 +156,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_power_prediction(self):
         """Test power prediction functionality."""
-        framework = FGCSPowerModelingFramework(model_types=["polynomial_deg2"])
+        framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Train models first
         framework.train_models(self.training_data, target_column="power")
@@ -219,7 +219,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         )
 
         # Test EDP optimization
-        edp_freq, edp_time, edp_power, edp_energy = FGCSEDPOptimizer.edp_optimal(df)
+        edp_freq, edp_time, edp_power, edp_energy = EDPOptimizer.edp_optimal(df)
 
         self.assertIn(edp_freq, frequencies)
         self.assertGreater(edp_time, 0)
@@ -227,7 +227,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         self.assertGreater(edp_energy, 0)
 
         # Test ED²P optimization
-        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = FGCSEDPOptimizer.ed2p_optimal(
+        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = EDPOptimizer.ed2p_optimal(
             df
         )
 
@@ -235,7 +235,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         self.assertGreater(ed2p_time, 0)
 
         # Test full optimization analysis
-        results = FGCSEDPOptimizer.analyze_dvfs_optimization(df, "TestApp")
+        results = EDPOptimizer.analyze_dvfs_optimization(df, "TestApp")
 
         self.assertIn("edp_optimal", results)
         self.assertIn("ed2p_optimal", results)
@@ -247,7 +247,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         expected_counts = {
             "V100": len(config.gpu_config.V100_CORE_FREQUENCIES),
             "A100": len(config.gpu_config.A100_CORE_FREQUENCIES),
-            "H100": 86,  # FGCSPowerModelingFramework defines 86 frequencies
+            "H100": 86,  # Power modeling framework will define 86 frequencies
         }
         expected_ranges = {
             "V100": (510, 1380),
@@ -256,7 +256,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         }
 
         for gpu_type in ["V100", "A100", "H100"]:
-            framework = FGCSPowerModelingFramework(
+            framework = PowerModelingFramework(
                 model_types=["polynomial_deg2"], gpu_type=gpu_type
             )
             frequencies = framework.frequency_configs[gpu_type]
@@ -281,7 +281,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_optimization_pipeline(self):
         """Test the complete optimization pipeline."""
-        framework = FGCSPowerModelingFramework(model_types=["polynomial_deg2"])
+        framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Train models first
         framework.train_models(self.training_data, target_column="power")
@@ -310,7 +310,7 @@ class TestPowerModelingFramework(unittest.TestCase):
 
     def test_end_to_end_pipeline(self):
         """Test the complete end-to-end pipeline."""
-        framework = FGCSPowerModelingFramework(model_types=["polynomial_deg2"])
+        framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Test model training
         training_results = framework.train_models(
@@ -347,14 +347,14 @@ def test_quick_analysis_function(monkeypatch):
 
     # from power_modeling import fgcs_integration as fgcs_mod
 
-    # OriginalFramework = fgcs_mod.FGCSPowerModelingFramework
+    # OriginalFramework = power_mod.PowerModelingFramework
 
     class PatchedFramework(OriginalFramework):
         def __init__(self, *args, **kwargs):
             kwargs.setdefault("model_types", ["polynomial_deg2"])
             super().__init__(*args, **kwargs)
 
-    monkeypatch.setattr(fgcs_mod, "FGCSPowerModelingFramework", PatchedFramework)
+    # monkeypatch.setattr(power_mod, "PowerModelingFramework", PatchedFramework)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         profiling_data = pd.DataFrame(

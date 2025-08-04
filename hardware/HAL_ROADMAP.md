@@ -100,7 +100,7 @@ class PerformanceCounters:
     def __init__(self, gpu_id: int = 0, gpu_type: str = 'auto'):
         """Initialize with automatic GPU detection."""
         
-    def collect_fgcs_metrics(self, duration: float = 1.0) -> FGCSMetrics:
+    def collect_hardware_metrics(self, duration: float = 1.0) -> HardwareMetrics:
         """Collect FGCS-specific metrics (FP activity, DRAM activity)."""
         
     def collect_comprehensive_metrics(self, duration: float = 1.0) -> Dict[str, float]:
@@ -116,7 +116,7 @@ class PerformanceCounters:
         """Validate collected metrics for quality and consistency."""
 
 @dataclass
-class FGCSMetrics:
+class HardwareMetrics:
     fp_activity: float      # Floating-point operation activity
     dram_activity: float    # DRAM memory activity
     sm_activity: float      # Streaming Multiprocessor activity
@@ -125,7 +125,7 @@ class FGCSMetrics:
 
 @dataclass 
 class WorkloadProfile:
-    fgcs_metrics: FGCSMetrics
+    hardware_metrics: HardwareMetrics
     compute_intensity: float    # Compute vs memory bound ratio
     memory_throughput: float    # Memory bandwidth utilization
     workload_type: str         # 'compute_bound', 'memory_bound', 'balanced'

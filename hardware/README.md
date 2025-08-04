@@ -109,7 +109,7 @@ class PerformanceCounters:
     def collect_counters(self, duration: float = 1.0) -> Dict[str, float]:
         """Collect all available counters for specified duration."""
         
-    def get_fgcs_metrics(self) -> Dict[str, float]:
+    def get_hardware_metrics(self) -> Dict[str, float]:
         """Get FGCS-specific metrics (FP activity, DRAM activity, etc.)."""
         
     def get_utilization_metrics(self) -> Dict[str, float]:
@@ -130,7 +130,7 @@ class PerformanceCounters:
     def stop_continuous_monitoring(self, session_id: str) -> List[Dict[str, float]]:
         """Stop monitoring and return collected data."""
 
-class FGCSPerformanceExtractor:
+class PerformanceExtractor:
     """Specialized extractor for FGCS methodology metrics."""
     
     def extract_fp_activity(self, counters: Dict[str, float]) -> float:
@@ -238,7 +238,7 @@ current_power = power_monitor.get_current_power()
 
 # Performance monitoring
 perf_monitor = hal.create_performance_monitor()
-fgcs_metrics = perf_monitor.get_fgcs_metrics()
+hardware_metrics = perf_monitor.get_hardware_metrics()
 
 # Frequency control
 hal.set_frequency(core_freq=1200, memory_freq=1215)
