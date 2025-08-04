@@ -4,11 +4,7 @@ A **comprehensive, production-ready framework** for studying energy-efficient GP
 
 ## 🎯 Project Overview
 
-As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal tra    ./launch_v2.sh \
-      --gpu-type "$gpu" \
-      --app-name "$app" \
-      --profiling-mode baseline \
-      --num-runs 2fs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
+As AI workloads grow in complexity and energy demand, static frequency settings on GPUs often result in sub-optimal trade-offs between performance and power consumption. This framework provides enterprise-grade tools for conducting comprehensive energy profiling experiments on **NVIDIA A100, V100, and H100 GPUs** across various AI inference tasks.
 
 ### ✨ Key Features
 
@@ -120,7 +116,7 @@ ai-inference-energy/
 │   └── tests/                           # Test suite for Whisper implementation
 │       └── test_whisper.py              # Comprehensive test suite
 │
-├── app-vision-transformer/              # 🖼️ **NEW** Vision Transformer applications
+├── app-vision-transformer/              # 🖼️ Vision Transformer applications
 │   ├── README.md                        # Comprehensive ViT documentation
 │   ├── ViTViaHF.py                      # Vision Transformer image classification via Hugging Face
 │   ├── __init__.py                      # Python package initialization
