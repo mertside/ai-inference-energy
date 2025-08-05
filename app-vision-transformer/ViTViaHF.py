@@ -293,10 +293,10 @@ class ViTViaHF:
             for i in range(min(num_images, len(sample_urls))):
                 image = self.download_sample_image(sample_urls[i % len(sample_urls)])
                 images.append(image)
-                
+
             # Fill remaining with repeated images if needed
             while len(images) < num_images:
-                images.append(images[i % len(sample_urls)])
+                images.append(images[len(images) % len(sample_urls)])
                 
             # Warm up
             logger.info("Warming up model...")
