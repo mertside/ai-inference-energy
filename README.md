@@ -19,7 +19,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
 - 📊 **Profiling Infrastructure**: Comprehensive GPU profiling with DCGMI and nvidia-smi support
 - 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads  
-- �️ **Framework Foundation**: Extensible foundation for power modeling and analysis (modules in development)
+- ⚙️ **Framework Foundation**: Extensible foundation for power modeling and analysis (modules in development)
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
 
 ### 🎉 Latest Updates (v2.0.1)
