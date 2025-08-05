@@ -121,7 +121,7 @@ ViT experiments can be submitted through the job submission system:
 - Increase batch size for better throughput (within memory limits)
 - Pre-download sample images to reduce network overhead
 
-## Files Structure
+## File Structure
 
 ```
 app-vision-transformer/
