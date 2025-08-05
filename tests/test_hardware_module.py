@@ -9,6 +9,7 @@ ensuring all specifications, validation, and functionality work correctly.
 import sys
 import unittest
 from pathlib import Path
+import copy
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -117,6 +118,18 @@ class TestFrequencyManagement(unittest.TestCase):
 
                 # Check frequencies are sorted in descending order
                 self.assertEqual(frequencies, sorted(frequencies, reverse=True))
+
+    def test_single_frequency_case(self):
+        """Ensure single-frequency specifications return a single value."""
+        gpu_info = get_gpu_info("V100")
+        gpu_info.specifications = copy.deepcopy(gpu_info.specifications)
+        gpu_info.specifications["frequency"] = {
+            "min_freq": 1234,
+            "max_freq": 1234,
+            "count": 1,
+        }
+        frequencies = gpu_info.get_available_frequencies()
+        self.assertEqual(frequencies, [1234])
 
     def test_frequency_validation(self):
         """Test frequency validation functionality."""

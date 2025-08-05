@@ -175,6 +175,8 @@ class GPUSpecifications:
                 frequencies.append(freq)
                 freq += freq_spec.step_size
         else:
+            if freq_spec.count <= 1:
+                return [freq_spec.min_freq]
             # Use count to determine approximate step size
             step = (freq_spec.max_freq - freq_spec.min_freq) / (freq_spec.count - 1)
             for i in range(freq_spec.count):
