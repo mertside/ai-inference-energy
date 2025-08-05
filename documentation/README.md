@@ -15,7 +15,7 @@ This directory contains comprehensive documentation for the AI Inference Energy
 1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Start here for GPU-specific setup and usage
 2. **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - Learn the CLI interface with examples
 3. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Submit jobs to HPC clusters
-4. **[`../sample-collection-scripts/V100_SCRIPT_GUIDE.md`](../sample-collection-scripts/V100_SCRIPT_GUIDE.md)** - V100 unified submission script guide
+4. **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Submission script guide
 
 ### For Researchers and Advanced Users  
 1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Complete GPU specifications and performance characteristics
@@ -94,7 +94,6 @@ All documentation follows consistent patterns:
 
 ### Project Root Documentation
 - **[`../README.md`](../README.md)** - Main project overview and installation guide
-- **[`../examples/README.md`](../examples/README.md)** - Usage examples and demonstrations
 
 ### Application-Specific Documentation  
 - **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework and scripts
