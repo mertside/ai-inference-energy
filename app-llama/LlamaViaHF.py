@@ -127,10 +127,11 @@ class LlamaInferenceEngine:
         
     def _resolve_model_name(self, model_name: str) -> str:
         """Resolve model name from shorthand to full Hugging Face identifier."""
-        if model_name in DEFAULT_MODELS:
-            resolved = DEFAULT_MODELS[model_name]
-            self.logger.info(f"Resolved model shorthand '{model_name}' to '{resolved}'")
-            return resolved
+        for k in DEFAULT_MODELS:
+            if k.lower() == model_name.lower():
+                resolved = DEFAULT_MODELS[k]
+                self.logger.info(f"Resolved model shorthand '{model_name}' to '{resolved}'")
+                return resolved
         return model_name
         
     def _setup_device(self, device: Optional[str]) -> str:
