@@ -127,8 +127,9 @@ class LlamaInferenceEngine:
         
     def _resolve_model_name(self, model_name: str) -> str:
         """Resolve model name from shorthand to full Hugging Face identifier."""
-        if model_name in DEFAULT_MODELS:
-            resolved = DEFAULT_MODELS[model_name]
+        key = model_name.lower()
+        if key in DEFAULT_MODELS:
+            resolved = DEFAULT_MODELS[key]
             self.logger.info(f"Resolved model shorthand '{model_name}' to '{resolved}'")
             return resolved
         return model_name
