@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Vision Transform# Check if vit environment already exists
+# Vision Transformer setup script
+# Check if vit environment already exists
 if conda env list | grep -q "vit"; then
     echo "⚠️  vit environment already exists."
     read -p "Do you want to remove and recreate it? (y/N): " -n 1 -r
