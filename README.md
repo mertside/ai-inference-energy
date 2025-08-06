@@ -635,7 +635,6 @@ The framework includes **streamlined documentation** focused on practical usage:
 - **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC cluster deployment
 
 ### 📋 **Additional Module Documentation**
-- **[examples/README.md](examples/README.md)**: Usage examples and demonstrations
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
 - **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling
