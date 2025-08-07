@@ -1,0 +1,20 @@
+OPTIMAL FREQUENCY VALIDATION SUMMARY
+==================================================
+
+Total GPU-Workload Combinations: 8
+Validated with Real Data: 4
+Conservative Estimates: 4
+Validation Rate: 50.0%
+
+H100 Results:
+            llama:  990MHz ( 27.5% energy) [validated_real_data]
+  stablediffusion: 1140MHz ( 29.4% energy) [validated_real_data]
+              vit:  735MHz ( 54.8% energy) [validated_real_data]
+          whisper: 1500MHz ( 36.9% energy) [validated_real_data]
+
+A100 Results:
+            llama: 1057MHz ( 15.0% energy) [conservative_estimate]
+  stablediffusion: 1057MHz ( 15.0% energy) [conservative_estimate]
+              vit: 1057MHz ( 15.0% energy) [conservative_estimate]
+          whisper: 1057MHz ( 15.0% energy) [conservative_estimate]
+

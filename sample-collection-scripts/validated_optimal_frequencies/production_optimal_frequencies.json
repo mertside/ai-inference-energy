@@ -1,0 +1,62 @@
+{
+  "H100": {
+    "llama": {
+      "frequency_mhz": 990,
+      "energy_savings_percent": 27.5,
+      "performance_impact_percent": -27.0,
+      "source": "validated_real_data",
+      "data_quality": "high"
+    },
+    "stablediffusion": {
+      "frequency_mhz": 1140,
+      "energy_savings_percent": 29.4,
+      "performance_impact_percent": -23.1,
+      "source": "validated_real_data",
+      "data_quality": "high"
+    },
+    "vit": {
+      "frequency_mhz": 735,
+      "energy_savings_percent": 54.8,
+      "performance_impact_percent": -34.6,
+      "source": "validated_real_data",
+      "data_quality": "high"
+    },
+    "whisper": {
+      "frequency_mhz": 1500,
+      "energy_savings_percent": 36.9,
+      "performance_impact_percent": -36.8,
+      "source": "validated_real_data",
+      "data_quality": "high"
+    }
+  },
+  "A100": {
+    "llama": {
+      "frequency_mhz": 1057,
+      "energy_savings_percent": 15.0,
+      "performance_impact_percent": 2.0,
+      "source": "conservative_estimate",
+      "data_quality": "low_anomalous_data"
+    },
+    "stablediffusion": {
+      "frequency_mhz": 1057,
+      "energy_savings_percent": 15.0,
+      "performance_impact_percent": 2.0,
+      "source": "conservative_estimate",
+      "data_quality": "low_anomalous_data"
+    },
+    "vit": {
+      "frequency_mhz": 1057,
+      "energy_savings_percent": 15.0,
+      "performance_impact_percent": 2.0,
+      "source": "conservative_estimate",
+      "data_quality": "low_anomalous_data"
+    },
+    "whisper": {
+      "frequency_mhz": 1057,
+      "energy_savings_percent": 15.0,
+      "performance_impact_percent": 2.0,
+      "source": "conservative_estimate",
+      "data_quality": "low_anomalous_data"
+    }
+  }
+}
