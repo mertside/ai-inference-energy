@@ -6,7 +6,7 @@ This directory contains all the analysis, deployment, and utility tools for the 
 
 ### 📊 Analysis (`analysis/`)
 Core analysis scripts for processing measured experimental data:
-- `measured_data_analysis.py` - Main analysis using 100% measured experimental data
+- `measured_data_analysis_v3.py` - Main analysis using 100% measured experimental data with corrected timing
 - `edp_analysis.py` - Energy-Delay Product (EDP) analysis
 - `power_modeling.py` - Power and performance modeling
 - `aggregate_data.py` - Data aggregation utilities
@@ -42,7 +42,7 @@ Run scripts from the project root directory:
 
 ```bash
 # Main measured data analysis
-python tools/analysis/measured_data_analysis.py
+python tools/analysis/measured_data_analysis_v3.py
 
 # EDP analysis
 python tools/analysis/edp_analysis.py aggregated_results.csv
