@@ -172,24 +172,27 @@ determine_results_dir() {
 # 🔬 APPLICATION-SPECIFIC DVFS STUDIES (All 117 Frequencies)
 # ============================================================================
 
-# 14. 🤖 LSTM DVFS - Complete frequency analysis for deep learning (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 3 --sleep-interval 2"
+# 14. 🤖 LSTM DVFS - Complete frequency analysis for deep learning (~4-6 hours, change --time to 08:00:00)
+LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name LSTM --app-executable ../app-lstm/lstm --num-runs 3 --sleep-interval 2"
 
-# 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~8-12 hours, change --time to 14:00:00)
+# 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~6-8 hours, change --time to 08:00:00)
 # Research Mode (no images): Uncomment for energy-focused research
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --no-save-images --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --no-save-images --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 5 --sleep-interval 2"
 # Full Mode (with images): Uncomment for complete generation study  
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
 
+# 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
-# 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 3 --sleep-interval 2"
+# 17. 🎤 WHISPER DVFS - Complete frequency analysis for speech recognition (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 10 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
+# 17b. 🎤 WHISPER LARGE MODEL - Longer inference times with large model for better utilization capture
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model large --num-samples 5 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
+# 17c. 🎤 WHISPER HIGH-INTENSITY - Maximum model with many samples for extended GPU activity
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model large-v3 --num-samples 15 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
 
-# 17. 🎤 WHISPER DVFS - Complete frequency analysis for speech recognition (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 3 --quiet' --num-runs 3 --sleep-interval 2"
-
-# 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~6-8 hours, change --time to 10:00:00)
-# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 3 --sleep-interval 2"
+# 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~4-6 hours, change --time to 08:00:00)
+# LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
