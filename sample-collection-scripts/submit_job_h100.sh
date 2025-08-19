@@ -185,14 +185,14 @@ determine_results_dir() {
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
 
 # 17. 🎤 WHISPER DVFS - Complete frequency analysis for speech recognition (~4-6 hours, change --time to 08:00:00)
-LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 10 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model base --num-samples 10 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
 # 17b. 🎤 WHISPER LARGE MODEL - Longer inference times with large model for better utilization capture
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model large --num-samples 5 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
 # 17c. 🎤 WHISPER HIGH-INTENSITY - Maximum model with many samples for extended GPU activity
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name Whisper --app-executable ../app-whisper/WhisperViaHF.py --app-params '--benchmark --model large-v3 --num-samples 15 --quiet' --num-runs 5 --sleep-interval 2 --sampling-interval 25"
 
 # 18. 🖼️ VISION TRANSFORMER DVFS - Complete frequency analysis for image classification (~4-6 hours, change --time to 08:00:00)
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
+LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name ViT --app-executable ../app-vision-transformer/ViTViaHF.py --app-params '--benchmark --num-images 1200 --batch-size 4 --model google/vit-large-patch16-224 --precision float16' --num-runs 5 --sleep-interval 2"
 
 # 🎓 RESEARCH STUDY CONFIGURATIONS
 # ============================================================================
