@@ -710,7 +710,13 @@ def main():
                 json.dump(results, f, indent=2)
             logger.info(f"Results saved to: {args.output_file}")
         
-        # Print summary
+        # Always output critical timing metrics for energy analysis
+        if args.benchmark:
+            print(f"Total Inference Time: {results['total_inference_time']:.2f}s")
+        else:
+            print(f"Inference Time: {results['inference_time']:.2f}s")
+        
+        # Print detailed summary only if not quiet
         if not args.quiet:
             print("\n" + "="*50)
             print("WHISPER ENERGY PROFILING SUMMARY")
