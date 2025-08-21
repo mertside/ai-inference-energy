@@ -10,7 +10,7 @@ Usage:
     python plot_metric_vs_time.py --gpu A100 --app VIT --frequencies 1200,1410 --metric POWER
     python plot_metric_vs_time.py --help
 
-Author: AI Inference Energy Profiling Framework
+Author: Mert Side
 """
 
 import sys
