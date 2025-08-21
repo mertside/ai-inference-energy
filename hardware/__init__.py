@@ -38,7 +38,7 @@ from .gpu_info import (
 
 # Module metadata
 __version__ = "1.0.0"
-__author__ = "AI Inference Energy Profiling Framework"
+__author__ = "Mert Side"
 __description__ = "Hardware Abstraction Layer for GPU Energy Profiling"
 
 # Define what gets exported when using "from hardware import *"
