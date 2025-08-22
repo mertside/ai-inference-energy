@@ -17,18 +17,21 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 📈 **Comprehensive Logging**: Error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
 - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
-- 📊 **Profiling Infrastructure**: Comprehensive GPU profiling with DCGMI and nvidia-smi support
+- 📊 **Advanced Analysis Suite**: EDP optimization, optimal frequency selection, and production deployment tools
 - 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads  
-- ⚙️ **Framework Foundation**: Extensible foundation for power modeling and analysis (modules in development)
+- ⚙️ **Production Ready**: Complete optimization pipeline from profiling to deployment
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
 
-### 🎉 Latest Updates (v2.0.1)
+### 🎉 Latest Updates (v2.1.0 - August 2025)
 
+- 🚀 **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with multi-criteria frequency selection
+- 📊 **Advanced Analysis Tools**: Comprehensive analysis pipeline including optimal frequency selection and performance evaluation
+- 🔧 **Production Deployment**: Ready-to-use deployment interface for optimal frequency settings in production environments
+- 📈 **Enhanced Data Analysis**: Sophisticated measured data analysis with hybrid timing extraction and validation
 - ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields (vs 17 previously)
 - ✅ **Clean Filenames**: Fixed duplicate frequency naming in custom experiments (`run_01_freq_510` vs `run_freq_510_01_freq_510`)
 - ✅ **Robust Imports**: Resolved configuration import conflicts for reliable operation
 - ✅ **Enhanced Compatibility**: Improved PyTorch/torchvision compatibility in AI model environments
-- ✅ **Visualization Module Fixes**: Resolved syntax errors and duplicate code in `power_plots.py`, enhanced module reliability
 
 ### 🔋 Profiling Infrastructure Foundation
 
@@ -40,12 +43,21 @@ This framework provides a robust foundation for GPU energy profiling and compreh
 - **Job Automation**: Complete SLURM integration with automated frequency sweeping
 - **Data Export**: Structured CSV output for analysis and visualization
 - **Comprehensive Testing**: Full test coverage for profiling infrastructure and AI applications
+- **EDP Optimization**: Energy-Delay Product optimization with multi-criteria frequency selection
+- **Production Tools**: Ready-to-use deployment interface for optimal frequency settings
+
+#### **Advanced Analysis Suite (Available)**
+- **Optimal Frequency Selection**: Comprehensive algorithms for frequency optimization
+- **EDP Analysis Tools**: Energy-Delay Product optimization and performance evaluation
+- **Measured Data Analysis**: Hybrid timing extraction and validation frameworks
+- **Production Deployment**: Interface for implementing optimal settings in production
+- **Multi-GPU Comparison**: Cross-architecture performance and efficiency analysis
 
 #### **Planned Extensions (Future Work)**
-- **FGCS Power Models**: ML-based power prediction models from FGCS 2023 methodology
-- **EDP Optimization**: Energy-Delay Product and ED²P optimization algorithms
-- **Advanced Analytics**: Statistical analysis and model validation frameworks
-- **Visualization Suite**: Comprehensive plotting and analysis tools
+- **Real-time Optimization**: Dynamic frequency adjustment during inference
+- **ML-based Prediction**: Advanced power prediction models with enhanced accuracy
+- **Multi-node Scaling**: Distributed profiling across multiple GPU nodes
+- **Interactive Dashboard**: Web-based visualization and control interface
 
 ```bash
 # Quick profiling example - Available now!
@@ -137,6 +149,24 @@ ai-inference-energy/
 │   ├── GPU_USAGE_GUIDE.md               # Complete GPU support guide (A100/V100/H100)
 │   ├── USAGE_EXAMPLES.md                # CLI usage examples and automation
 │   └── SUBMIT_JOBS_README.md            # SLURM usage and HPC deployment
+│
+├── tools/                               # 🛠️ Advanced analysis and optimization tools
+│   ├── README.md                        # Tools documentation and usage guide
+│   ├── analysis/                        # EDP optimization and performance analysis
+│   │   ├── edp_optimizer.py             # Energy-Delay Product optimization engine
+│   │   ├── edp_summary_tables.py        # EDP results summarization and reporting
+│   │   └── archived/                    # Historical analysis tools and reports
+│   ├── optimal-frequency/               # Frequency optimization and selection tools
+│   │   ├── comprehensive_optimal_selector.py  # Multi-criteria frequency selector
+│   │   ├── optimal_frequency_analysis.py      # Frequency analysis and evaluation
+│   │   └── production_optimal_selector.py     # Production-ready frequency selector
+│   ├── deployment/                      # Production deployment interfaces
+│   │   └── deployment_interface.py      # Optimal frequency deployment interface
+│   ├── testing/                         # Testing and validation tools
+│   │   ├── test_optimal_frequency.py    # Frequency algorithm testing
+│   │   └── test_real_data.py            # Real data validation
+│   └── utilities/                       # General utility tools
+│       └── ai_optimization_workflow.py  # End-to-end optimization workflows
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
@@ -335,7 +365,42 @@ sbatch submit_job_v100_comprehensive.sh
 sbatch submit_job_h100_comprehensive.sh
 ```
 
-#### 5. Profiling Data Analysis
+#### 5. Advanced Analysis and Optimization
+
+**Run EDP (Energy-Delay Product) optimization:**
+```bash
+cd tools/analysis
+
+# Optimize frequencies for specific GPU and workload
+python edp_optimizer.py --gpu A100 --workload llama
+
+# Generate comprehensive summary tables
+python edp_summary_tables.py --input edp_optimization_results.json
+
+# View optimization results
+cat edp_optimization_results_summary.csv
+```
+
+**Use optimal frequency selection tools:**
+```bash
+cd tools/optimal-frequency
+
+# Select optimal frequencies for production deployment
+python production_optimal_selector.py --gpu-type A100 --criteria power
+
+# Comprehensive frequency analysis
+python comprehensive_optimal_selector.py --gpu H100 --workload stable_diffusion
+```
+
+**Deploy optimal settings in production:**
+```bash
+cd tools/deployment
+
+# Deploy optimal frequency settings
+python deployment_interface.py --gpu A100 --workload llama --deploy
+```
+
+#### 6. Profiling Data Analysis
 
 **Analyze profiling results:**
 ```bash
@@ -635,6 +700,7 @@ The framework includes **streamlined documentation** focused on practical usage:
 - **[SUBMIT_JOBS_README.md](documentation/SUBMIT_JOBS_README.md)**: SLURM submission guide and HPC cluster deployment
 
 ### 📋 **Additional Module Documentation**
+- **[tools/README.md](tools/README.md)**: Advanced analysis and optimization tools documentation
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
 - **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling
