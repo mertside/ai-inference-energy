@@ -8,7 +8,6 @@ GPU-enabled Stable Diffusion implementation optimized for energy profiling and p
 
 ## Directory Structure
 ```
-```
 app-stable-diffusion/
 ├── StableDiffusionViaHF.py        # Modernized main application
 ├── README.md                      # This documentation
@@ -17,7 +16,6 @@ app-stable-diffusion/
 │   └── setup_stable_diffusion.sh # Setup script
 ├── tests/                        # Test suite and validation
 └── images/                       # Generated image outputs
-```
 ```
 
 ## Quick Start
