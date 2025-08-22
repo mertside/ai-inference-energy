@@ -70,7 +70,7 @@ The launch_v2.sh script now accepts all configuration and application details as
   --app-params "--benchmark --num-images 5 --model google/vit-base-patch16-224 > results/ViT_output.log"
 ```
 
-### 12. Multiple Applications Testing Loop
+### 11. Multiple Applications Testing Loop
 ```bash
 #!/bin/bash
 
@@ -78,17 +78,17 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper" "ViT"; do
 
 ## Experiment Configuration Examples
 
-### 11. Quick Test (fewer runs)
+### 12. Quick Test (fewer runs)
 ```bash
 ./launch_v2.sh --num-runs 1 --sleep-interval 0
 ```
 
-### 11. Comprehensive Test (more runs)
+### 13. Comprehensive Test (more runs)
 ```bash
 ./launch_v2.sh --num-runs 5 --sleep-interval 2
 ```
 
-### 12. Full Custom Configuration
+### 14. Full Custom Configuration
 ```bash
 ./launch_v2.sh \
   --gpu-type A100 \
@@ -103,7 +103,7 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper" "ViT"; do
 
 ## Automation Examples
 
-### 13. Script for Testing Multiple Applications
+### 15. Script for Testing Multiple Applications
 ```bash
 #!/bin/bash
 
@@ -119,7 +119,7 @@ for app in "LSTM" "StableDiffusion" "LLaMA" "Whisper"; do
 done
 ```
 
-### 14. Script for Testing Multiple GPU Types
+### 16. Script for Testing Multiple GPU Types
 ```bash
 #!/bin/bash
 
