@@ -5,6 +5,7 @@ This module provides common utility functions used across the profiling
 infrastructure, including logging setup, file operations, and system utilities.
 """
 
+import csv
 import logging
 import os
 import subprocess
@@ -155,6 +156,9 @@ def parse_csv_line(line: str, delimiter: str = ",") -> List[str]:
     """
     Parse a CSV line into fields.
 
+    Supports standard CSV quoting so delimiters within quoted fields are
+    handled correctly.
+
     Args:
         line: CSV line to parse
         delimiter: Field delimiter
@@ -162,7 +166,8 @@ def parse_csv_line(line: str, delimiter: str = ",") -> List[str]:
     Returns:
         List of parsed fields
     """
-    return [field.strip() for field in line.split(delimiter)]
+    reader = csv.reader([line], delimiter=delimiter)
+    return [field.strip() for field in next(reader)]
 
 
 def get_timestamp() -> str:
