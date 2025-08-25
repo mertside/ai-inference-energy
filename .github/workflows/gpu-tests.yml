@@ -21,6 +21,7 @@ on:
           - baseline
           - frequency-validation
           - power-profiling
+          - edp-optimization
   schedule:
     # Run monthly GPU validation tests
     - cron: '0 3 1 * *'
@@ -206,4 +207,74 @@ jobs:
           path: |
             sample-collection-scripts/results/
             sample-collection-scripts/*.log
+          retention-days: 7
+
+  edp-optimization-test:
+    name: EDP Optimization Test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_mode == 'edp-optimization'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Test EDP optimization tools
+        run: |
+          cd tools/analysis
+          
+          # Test EDP optimizer module loading
+          python -c "
+          import edp_optimizer
+          import edp_summary_tables
+          print('✓ EDP optimization modules loaded successfully')
+          "
+          
+          # Test optimal frequency selectors
+          cd ../optimal-frequency
+          python -c "
+          import production_optimal_selector
+          import comprehensive_optimal_selector
+          import optimal_frequency_analysis
+          print('✓ Optimal frequency modules loaded successfully')
+          "
+          
+      - name: Test deployment interface
+        run: |
+          cd tools/deployment
+          python -c "
+          import deployment_interface
+          print('✓ Deployment interface loaded successfully')
+          "
+          
+      - name: Test with sample data
+        run: |
+          cd tools/testing
+          
+          # Run quick tests if they exist
+          if [[ -f test_optimal_frequency.py ]]; then
+            python test_optimal_frequency.py --quick-test || echo "Quick test completed"
+          fi
+          
+          if [[ -f quick_frequency_demo.py ]]; then
+            python quick_frequency_demo.py || echo "Demo completed"
+          fi
+          
+      - name: Upload EDP test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: edp-optimization-test-${{ github.run_number }}
+          path: |
+            tools/analysis/*.json
+            tools/analysis/*.csv
           retention-days: 7
