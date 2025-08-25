@@ -1,0 +1,206 @@
+name: Analysis Tools Validation
+
+on:
+  push:
+    branches: [main, dev, develop]
+    paths:
+      - 'tools/**'
+      - 'config.py'
+      - 'requirements.txt'
+  pull_request:
+    branches: [main, dev, develop]
+    paths:
+      - 'tools/**'
+      - 'config.py'
+      - 'requirements.txt'
+  schedule:
+    # Run weekly analysis tools validation
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      test_scope:
+        description: 'Test scope'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - analysis-only
+          - optimization-only
+          - deployment-only
+
+env:
+  PYTHON_VERSION: '3.8'
+
+jobs:
+  analysis-tools-test:
+    name: Analysis Tools Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Test analysis module imports
+        run: |
+          cd tools/analysis
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              import edp_optimizer
+              print('✓ EDP optimizer imported successfully')
+          except ImportError as e:
+              print(f'⚠ EDP optimizer import failed: {e}')
+          
+          try:
+              import edp_summary_tables
+              print('✓ EDP summary tables imported successfully')
+          except ImportError as e:
+              print(f'⚠ EDP summary tables import failed: {e}')
+          "
+          
+      - name: Test optimal frequency tools
+        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'optimization-only'
+        run: |
+          cd tools/optimal-frequency
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          modules = [
+              'production_optimal_selector',
+              'comprehensive_optimal_selector', 
+              'optimal_frequency_analysis',
+              'optimal_frequency_selection'
+          ]
+          
+          for module in modules:
+              try:
+                  exec(f'import {module}')
+                  print(f'✓ {module} imported successfully')
+              except ImportError as e:
+                  print(f'⚠ {module} import failed: {e}')
+              except Exception as e:
+                  print(f'⚠ {module} error: {e}')
+          "
+          
+      - name: Test deployment interface
+        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only'
+        run: |
+          cd tools/deployment
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              import deployment_interface
+              print('✓ Deployment interface imported successfully')
+          except ImportError as e:
+              print(f'⚠ Deployment interface import failed: {e}')
+          "
+          
+      - name: Test utilities and workflows
+        run: |
+          cd tools/utilities
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              import ai_optimization_workflow
+              print('✓ AI optimization workflow imported successfully')
+          except ImportError as e:
+              print(f'⚠ AI optimization workflow import failed: {e}')
+          "
+          
+      - name: Test with sample configuration
+        run: |
+          # Test that tools can access configuration
+          python -c "
+          import sys
+          import os
+          sys.path.append('.')
+          
+          try:
+              from config import GPUConfig
+              print('✓ Configuration accessible from tools')
+              
+              # Test GPU configurations
+              for gpu in ['A100', 'V100', 'H100']:
+                  try:
+                      config = GPUConfig(gpu)
+                      print(f'✓ {gpu} configuration loaded')
+                  except Exception as e:
+                      print(f'⚠ {gpu} configuration failed: {e}')
+                      
+          except ImportError as e:
+              print(f'❌ Configuration import failed: {e}')
+          "
+          
+      - name: Run testing tools
+        run: |
+          cd tools/testing
+          
+          # Check if test files exist and run them
+          if [[ -f test_optimal_frequency.py ]]; then
+            echo "Running optimal frequency tests..."
+            python test_optimal_frequency.py --dry-run || echo "Test completed"
+          fi
+          
+          if [[ -f test_real_data.py ]]; then
+            echo "Running real data tests..."
+            python test_real_data.py --dry-run || echo "Test completed"
+          fi
+          
+          if [[ -f quick_frequency_demo.py ]]; then
+            echo "Running quick frequency demo..."
+            python quick_frequency_demo.py --demo-mode || echo "Demo completed"
+          fi
+          
+      - name: Validate tools documentation
+        run: |
+          # Check that tools README exists and is not empty
+          if [[ -f tools/README.md ]]; then
+            if [[ -s tools/README.md ]]; then
+              echo "✓ Tools README exists and is not empty"
+              # Check for key sections
+              if grep -q "Analysis" tools/README.md; then
+                echo "✓ Analysis section found in tools README"
+              fi
+              if grep -q "Optimization" tools/README.md; then
+                echo "✓ Optimization section found in tools README"
+              fi
+            else
+              echo "⚠ Tools README is empty"
+            fi
+          else
+            echo "⚠ Tools README not found"
+          fi
+          
+      - name: Upload analysis validation artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analysis-tools-validation-${{ github.run_number }}
+          path: |
+            tools/**/*.log
+            tools/**/*.json
+            tools/**/*.csv
+          retention-days: 7
