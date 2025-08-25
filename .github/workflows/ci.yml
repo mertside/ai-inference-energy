@@ -69,6 +69,26 @@ jobs:
           python -c "from hardware.gpu_info import get_supported_gpus; print('✓ GPUs:', get_supported_gpus())"
           python -c "from config import GPUConfig; print('✓ Config loaded')"
           
+      - name: Test tools directory
+        run: |
+          # Test analysis tools
+          cd tools/analysis
+          python -c "import edp_optimizer; print('✓ EDP optimizer loaded')"
+          python -c "import edp_summary_tables; print('✓ EDP summary tables loaded')"
+          
+          # Test optimal frequency tools
+          cd ../optimal-frequency
+          python -c "import production_optimal_selector; print('✓ Production optimal selector loaded')"
+          python -c "import comprehensive_optimal_selector; print('✓ Comprehensive optimal selector loaded')"
+          
+          # Test deployment tools
+          cd ../deployment
+          python -c "import deployment_interface; print('✓ Deployment interface loaded')"
+          
+          # Test utilities
+          cd ../utilities
+          python -c "import ai_optimization_workflow; print('✓ AI optimization workflow loaded')"
+          
       - name: Test sample-collection-scripts framework
         run: |
           cd sample-collection-scripts
@@ -86,6 +106,31 @@ jobs:
           coverage xml -o coverage.xml
           coverage html -d coverage_html
           bash tests/test_python_compatibility.sh
+          
+      - name: Validate version consistency
+        run: |
+          # Check that setup.py and README versions match
+          SETUP_VERSION=$(python -c "import setup; print(setup.setup.__name__)" 2>/dev/null || python -c "
+          import re
+          with open('setup.py', 'r') as f:
+              content = f.read()
+              match = re.search(r'version=[\"\'](.*?)[\"\']', content)
+              if match:
+                  print(match.group(1))
+              else:
+                  print('unknown')
+          ")
+          
+          README_VERSION=$(grep -o "v[0-9]\+\.[0-9]\+\.[0-9]\+" README.md | head -1 | sed 's/v//')
+          
+          echo "Setup.py version: $SETUP_VERSION"
+          echo "README version: $README_VERSION"
+          
+          if [[ "$SETUP_VERSION" != "$README_VERSION" ]]; then
+            echo "⚠ Version mismatch between setup.py ($SETUP_VERSION) and README.md ($README_VERSION)"
+          else
+            echo "✓ Version consistency verified"
+          fi
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
