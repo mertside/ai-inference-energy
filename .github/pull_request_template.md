@@ -10,6 +10,8 @@
 - [ ] Refactoring (no functional changes)
 - [ ] Performance improvement
 - [ ] Test improvement
+- [ ] EDP optimization improvement
+- [ ] Analysis tools enhancement
 
 ## GPU Support
 <!-- If this PR affects GPU support, mark relevant GPUs -->
@@ -26,6 +28,8 @@
 - [ ] GPU hardware validation (if applicable)
 - [ ] Frequency validation tests
 - [ ] Power profiling tests (if applicable)
+- [ ] EDP optimization tests (if applicable)
+- [ ] Analysis tools validation (if applicable)
 - [ ] Enterprise Linux compatibility (Rocky/CentOS)
 
 ## Checklist
@@ -53,6 +57,8 @@
 - [ ] GPU_USAGE_GUIDE.md updated (if necessary)
 - [ ] Power modeling documentation updated (if necessary)
 - [ ] Script documentation updated (if necessary)
+- [ ] Tools directory documentation updated (if necessary)
+- [ ] EDP optimization documentation updated (if necessary)
 
 ## Breaking Changes
 <!-- If this PR includes breaking changes, describe them -->
