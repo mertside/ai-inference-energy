@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 
 """
-Energy Delay Product (EDP) Optimizer for AI Inference Energy Project
+Energy Delay Product (EDP) and Energy Delay Squared Product (ED²P) Optimizer for AI Inference Energy Project
 
-This script calculates the Energy Delay Product (EDP) for each run of each application
-on each GPU to determine optimal frequency settings that balance energy efficiency
-with performance constraints.
+This script calculates both the Energy Delay Product (EDP) and Energy Delay Squared Product (ED²P) 
+for each run of each application on each GPU to determine optimal frequency settings that balance 
+energy efficiency with performance constraints.
 
 Key Features:
 - Extracts power metrics from DCGMI CSV files
 - Extracts timing information from experiment_summary.log files
 - Ignores cold runs (first run at each frequency)
 - Aggregates remaining runs by averaging
-- Calculates EDP for each frequency point
-- Finds optimal frequency based on configurable performance degradation threshold
-- Provides comprehensive analysis output
+- Calculates both EDP and ED²P for each frequency point
+- Finds optimal frequencies based on both metrics with configurable performance degradation threshold
+- Provides comprehensive analysis output comparing EDP vs ED²P optimization strategies
+
+Metrics:
+- EDP = Energy × Time (balanced energy-performance trade-off)
+- ED²P = Energy × Time² (more performance-sensitive, penalizes delay more heavily)
 
 Author: Mert Side
-Version: 1.0
+Version: 2.0
 """
 
 import re
@@ -55,6 +59,7 @@ class FrequencyData:
     avg_energy: float
     avg_power: float
     edp: float  # Energy Delay Product
+    ed2p: float  # Energy Delay Squared Product
     run_count: int
     timing_std: float
     
@@ -63,17 +68,25 @@ class OptimalResult:
     """Optimal frequency analysis result"""
     gpu: str
     workload: str
-    optimal_frequency: int
+    optimal_frequency_edp: int    # Optimal frequency for EDP
+    optimal_frequency_ed2p: int   # Optimal frequency for ED2P
     max_frequency: int
     fastest_frequency: int
-    energy_savings_vs_max: float  # % savings vs max frequency
-    performance_vs_max: float     # % change vs max frequency (negative = faster)
-    performance_vs_fastest: float # % change vs fastest frequency
-    edp_improvement: float        # % improvement vs max frequency
-    is_max_fastest: bool          # Whether max frequency was fastest
-    optimal_timing: float
-    optimal_energy: float
+    energy_savings_vs_max_edp: float   # % savings vs max frequency (EDP optimal)
+    energy_savings_vs_max_ed2p: float  # % savings vs max frequency (ED2P optimal)
+    performance_vs_max_edp: float      # % change vs max frequency (EDP optimal)
+    performance_vs_max_ed2p: float     # % change vs max frequency (ED2P optimal)
+    performance_vs_fastest_edp: float  # % change vs fastest frequency (EDP optimal)
+    performance_vs_fastest_ed2p: float # % change vs fastest frequency (ED2P optimal)
+    edp_improvement: float             # % improvement vs max frequency
+    ed2p_improvement: float            # % improvement vs max frequency
+    is_max_fastest: bool               # Whether max frequency was fastest
+    optimal_timing_edp: float
+    optimal_timing_ed2p: float
+    optimal_energy_edp: float
+    optimal_energy_ed2p: float
     optimal_edp: float
+    optimal_ed2p: float
     run_count: int
 
 class EDPOptimizer:
@@ -306,8 +319,9 @@ class EDPOptimizer:
             avg_power = statistics.mean(powers)
             timing_std = statistics.stdev(timings) if len(timings) > 1 else 0.0
             
-            # Calculate EDP (Energy Delay Product)
+            # Calculate EDP (Energy Delay Product) and ED²P (Energy Delay Squared Product)
             edp = avg_energy * avg_timing
+            ed2p = avg_energy * (avg_timing ** 2)
             
             freq_data = FrequencyData(
                 frequency=frequency,
@@ -315,6 +329,7 @@ class EDPOptimizer:
                 avg_energy=avg_energy,
                 avg_power=avg_power,
                 edp=edp,
+                ed2p=ed2p,
                 run_count=len(warm_runs),
                 timing_std=timing_std
             )
@@ -324,7 +339,7 @@ class EDPOptimizer:
     
     def find_optimal_frequency(self, freq_data: List[FrequencyData], gpu: str, workload: str) -> OptimalResult:
         """
-        Find optimal frequency based on EDP optimization with performance constraints
+        Find optimal frequencies based on both EDP and ED²P optimization with performance constraints
         """
         if not freq_data:
             raise ValueError("No frequency data available")
@@ -352,30 +367,45 @@ class EDPOptimizer:
             print(f"Warning: No frequencies meet {self.performance_threshold}% performance constraint")
             valid_frequencies = freq_data
         
-        # Find optimal frequency (minimum EDP among valid frequencies)
-        optimal_data = min(valid_frequencies, key=lambda x: x.edp)
+        # Find optimal frequencies for both EDP and ED²P
+        optimal_edp_data = min(valid_frequencies, key=lambda x: x.edp)
+        optimal_ed2p_data = min(valid_frequencies, key=lambda x: x.ed2p)
         
-        # Calculate metrics
-        energy_savings = ((max_freq_data.avg_energy - optimal_data.avg_energy) / max_freq_data.avg_energy) * 100
-        performance_vs_max = ((optimal_data.avg_timing - max_freq_data.avg_timing) / max_freq_data.avg_timing) * 100
-        performance_vs_fastest = ((optimal_data.avg_timing - fastest_data.avg_timing) / fastest_data.avg_timing) * 100
-        edp_improvement = ((max_freq_data.edp - optimal_data.edp) / max_freq_data.edp) * 100
+        # Calculate metrics for EDP optimal frequency
+        energy_savings_edp = ((max_freq_data.avg_energy - optimal_edp_data.avg_energy) / max_freq_data.avg_energy) * 100
+        performance_vs_max_edp = ((optimal_edp_data.avg_timing - max_freq_data.avg_timing) / max_freq_data.avg_timing) * 100
+        performance_vs_fastest_edp = ((optimal_edp_data.avg_timing - fastest_data.avg_timing) / fastest_data.avg_timing) * 100
+        edp_improvement = ((max_freq_data.edp - optimal_edp_data.edp) / max_freq_data.edp) * 100
+        
+        # Calculate metrics for ED²P optimal frequency
+        energy_savings_ed2p = ((max_freq_data.avg_energy - optimal_ed2p_data.avg_energy) / max_freq_data.avg_energy) * 100
+        performance_vs_max_ed2p = ((optimal_ed2p_data.avg_timing - max_freq_data.avg_timing) / max_freq_data.avg_timing) * 100
+        performance_vs_fastest_ed2p = ((optimal_ed2p_data.avg_timing - fastest_data.avg_timing) / fastest_data.avg_timing) * 100
+        ed2p_improvement = ((max_freq_data.ed2p - optimal_ed2p_data.ed2p) / max_freq_data.ed2p) * 100
         
         return OptimalResult(
             gpu=gpu,
             workload=workload,
-            optimal_frequency=optimal_data.frequency,
+            optimal_frequency_edp=optimal_edp_data.frequency,
+            optimal_frequency_ed2p=optimal_ed2p_data.frequency,
             max_frequency=max_frequency,
             fastest_frequency=fastest_frequency,
-            energy_savings_vs_max=energy_savings,
-            performance_vs_max=performance_vs_max,
-            performance_vs_fastest=performance_vs_fastest,
+            energy_savings_vs_max_edp=energy_savings_edp,
+            energy_savings_vs_max_ed2p=energy_savings_ed2p,
+            performance_vs_max_edp=performance_vs_max_edp,
+            performance_vs_max_ed2p=performance_vs_max_ed2p,
+            performance_vs_fastest_edp=performance_vs_fastest_edp,
+            performance_vs_fastest_ed2p=performance_vs_fastest_ed2p,
             edp_improvement=edp_improvement,
+            ed2p_improvement=ed2p_improvement,
             is_max_fastest=(fastest_frequency == max_frequency),
-            optimal_timing=optimal_data.avg_timing,
-            optimal_energy=optimal_data.avg_energy,
-            optimal_edp=optimal_data.edp,
-            run_count=optimal_data.run_count
+            optimal_timing_edp=optimal_edp_data.avg_timing,
+            optimal_timing_ed2p=optimal_ed2p_data.avg_timing,
+            optimal_energy_edp=optimal_edp_data.avg_energy,
+            optimal_energy_ed2p=optimal_ed2p_data.avg_energy,
+            optimal_edp=optimal_edp_data.edp,
+            optimal_ed2p=optimal_ed2p_data.ed2p,
+            run_count=optimal_edp_data.run_count
         )
     
     def analyze_all_results(self) -> List[OptimalResult]:
@@ -418,10 +448,10 @@ class EDPOptimizer:
         return results
     
     def print_summary(self, results: List[OptimalResult]):
-        """Print comprehensive analysis summary"""
-        print("\n" + "="*80)
-        print("EDP OPTIMIZATION ANALYSIS SUMMARY")
-        print("="*80)
+        """Print comprehensive analysis summary for both EDP and ED²P"""
+        print("\n" + "="*90)
+        print("EDP & ED²P OPTIMIZATION ANALYSIS SUMMARY")
+        print("="*90)
         
         # Group by GPU
         gpu_groups = defaultdict(list)
@@ -431,68 +461,109 @@ class EDPOptimizer:
         for gpu in sorted(gpu_groups.keys()):
             gpu_results = gpu_groups[gpu]
             print(f"\n🔧 {gpu} GPU ANALYSIS:")
-            print("-" * 50)
+            print("-" * 70)
             
-            total_energy_savings = 0
-            max_faster_count = 0
+            total_energy_savings_edp = 0
+            total_energy_savings_ed2p = 0
+            max_faster_count_edp = 0
+            max_faster_count_ed2p = 0
             
             for result in sorted(gpu_results, key=lambda x: x.workload):
                 print(f"\n  🎯 {result.workload}:")
-                print(f"    • Optimal frequency: {result.optimal_frequency} MHz")
-                print(f"    • Max frequency: {result.max_frequency} MHz")
-                print(f"    • Fastest frequency: {result.fastest_frequency} MHz")
-                print(f"    • Energy savings vs max: {result.energy_savings_vs_max:.1f}%")
+                print(f"    📊 EDP Optimization:")
+                print(f"      • Optimal frequency: {result.optimal_frequency_edp} MHz")
+                print(f"      • Energy savings vs max: {result.energy_savings_vs_max_edp:.1f}%")
                 
-                if result.performance_vs_max < 0:
-                    print(f"    • Performance vs max: {abs(result.performance_vs_max):.1f}% FASTER")
-                    max_faster_count += 1
+                if result.performance_vs_max_edp < 0:
+                    print(f"      • Performance vs max: {abs(result.performance_vs_max_edp):.1f}% FASTER")
+                    max_faster_count_edp += 1
                 else:
-                    print(f"    • Performance vs max: {result.performance_vs_max:.1f}% slower")
+                    print(f"      • Performance vs max: {result.performance_vs_max_edp:.1f}% slower")
                 
-                print(f"    • Performance vs fastest: {result.performance_vs_fastest:.1f}% slower")
-                print(f"    • EDP improvement: {result.edp_improvement:.1f}%")
-                print(f"    • Max freq is fastest: {'Yes' if result.is_max_fastest else 'No'}")
-                print(f"    • Runs averaged: {result.run_count}")
+                print(f"      • EDP improvement: {result.edp_improvement:.1f}%")
                 
-                total_energy_savings += result.energy_savings_vs_max
+                print(f"    📈 ED²P Optimization:")
+                print(f"      • Optimal frequency: {result.optimal_frequency_ed2p} MHz")
+                print(f"      • Energy savings vs max: {result.energy_savings_vs_max_ed2p:.1f}%")
+                
+                if result.performance_vs_max_ed2p < 0:
+                    print(f"      • Performance vs max: {abs(result.performance_vs_max_ed2p):.1f}% FASTER")
+                    max_faster_count_ed2p += 1
+                else:
+                    print(f"      • Performance vs max: {result.performance_vs_max_ed2p:.1f}% slower")
+                
+                print(f"      • ED²P improvement: {result.ed2p_improvement:.1f}%")
+                
+                print(f"    ⚡ Reference Points:")
+                print(f"      • Max frequency: {result.max_frequency} MHz")
+                print(f"      • Fastest frequency: {result.fastest_frequency} MHz")
+                print(f"      • Max freq is fastest: {'Yes' if result.is_max_fastest else 'No'}")
+                print(f"      • Runs averaged: {result.run_count}")
+                
+                total_energy_savings_edp += result.energy_savings_vs_max_edp
+                total_energy_savings_ed2p += result.energy_savings_vs_max_ed2p
             
-            avg_savings = total_energy_savings / len(gpu_results)
+            avg_savings_edp = total_energy_savings_edp / len(gpu_results)
+            avg_savings_ed2p = total_energy_savings_ed2p / len(gpu_results)
             print(f"\n  📊 {gpu} Summary:")
-            print(f"    • Average energy savings: {avg_savings:.1f}%")
-            print(f"    • Configurations faster than max freq: {max_faster_count}/{len(gpu_results)}")
+            print(f"    • EDP - Average energy savings: {avg_savings_edp:.1f}%")
+            print(f"    • EDP - Configurations faster than max freq: {max_faster_count_edp}/{len(gpu_results)}")
+            print(f"    • ED²P - Average energy savings: {avg_savings_ed2p:.1f}%")
+            print(f"    • ED²P - Configurations faster than max freq: {max_faster_count_ed2p}/{len(gpu_results)}")
         
         # Overall statistics
         print(f"\n📈 OVERALL STATISTICS:")
-        print("-" * 50)
-        avg_energy_savings = statistics.mean([r.energy_savings_vs_max for r in results])
+        print("-" * 70)
+        avg_energy_savings_edp = statistics.mean([r.energy_savings_vs_max_edp for r in results])
+        avg_energy_savings_ed2p = statistics.mean([r.energy_savings_vs_max_ed2p for r in results])
         avg_edp_improvement = statistics.mean([r.edp_improvement for r in results])
-        faster_than_max = sum(1 for r in results if r.performance_vs_max < 0)
+        avg_ed2p_improvement = statistics.mean([r.ed2p_improvement for r in results])
+        faster_than_max_edp = sum(1 for r in results if r.performance_vs_max_edp < 0)
+        faster_than_max_ed2p = sum(1 for r in results if r.performance_vs_max_ed2p < 0)
         
         print(f"  • Total configurations analyzed: {len(results)}")
-        print(f"  • Average energy savings: {avg_energy_savings:.1f}%")
-        print(f"  • Average EDP improvement: {avg_edp_improvement:.1f}%")
-        print(f"  • Configurations faster than max freq: {faster_than_max}/{len(results)} ({100*faster_than_max/len(results):.1f}%)")
+        print(f"  📊 EDP Results:")
+        print(f"    • Average energy savings: {avg_energy_savings_edp:.1f}%")
+        print(f"    • Average EDP improvement: {avg_edp_improvement:.1f}%")
+        print(f"    • Configurations faster than max freq: {faster_than_max_edp}/{len(results)} ({100*faster_than_max_edp/len(results):.1f}%)")
+        print(f"  📈 ED²P Results:")
+        print(f"    • Average energy savings: {avg_energy_savings_ed2p:.1f}%")
+        print(f"    • Average ED²P improvement: {avg_ed2p_improvement:.1f}%")
+        print(f"    • Configurations faster than max freq: {faster_than_max_ed2p}/{len(results)} ({100*faster_than_max_ed2p/len(results):.1f}%)")
         print(f"  • Performance threshold used: {self.performance_threshold}%")
     
     def export_results(self, results: List[OptimalResult], output_file: str):
-        """Export results to JSON file"""
+        """Export results to JSON file including both EDP and ED²P data"""
+        
+        # Ensure the output directory exists
+        output_path = Path(output_file)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
         export_data = []
         
         for result in results:
             export_data.append({
                 'gpu': result.gpu,
                 'workload': result.workload,
-                'optimal_frequency_mhz': result.optimal_frequency,
+                'optimal_frequency_edp_mhz': result.optimal_frequency_edp,
+                'optimal_frequency_ed2p_mhz': result.optimal_frequency_ed2p,
                 'max_frequency_mhz': result.max_frequency,
                 'fastest_frequency_mhz': result.fastest_frequency,
-                'energy_savings_percent': round(result.energy_savings_vs_max, 2),
-                'performance_vs_max_percent': round(result.performance_vs_max, 2),
-                'performance_vs_fastest_percent': round(result.performance_vs_fastest, 2),
+                'energy_savings_edp_percent': round(result.energy_savings_vs_max_edp, 2),
+                'energy_savings_ed2p_percent': round(result.energy_savings_vs_max_ed2p, 2),
+                'performance_vs_max_edp_percent': round(result.performance_vs_max_edp, 2),
+                'performance_vs_max_ed2p_percent': round(result.performance_vs_max_ed2p, 2),
+                'performance_vs_fastest_edp_percent': round(result.performance_vs_fastest_edp, 2),
+                'performance_vs_fastest_ed2p_percent': round(result.performance_vs_fastest_ed2p, 2),
                 'edp_improvement_percent': round(result.edp_improvement, 2),
+                'ed2p_improvement_percent': round(result.ed2p_improvement, 2),
                 'is_max_frequency_fastest': result.is_max_fastest,
-                'optimal_timing_seconds': round(result.optimal_timing, 2),
-                'optimal_energy_joules': round(result.optimal_energy, 2),
+                'optimal_timing_edp_seconds': round(result.optimal_timing_edp, 2),
+                'optimal_timing_ed2p_seconds': round(result.optimal_timing_ed2p, 2),
+                'optimal_energy_edp_joules': round(result.optimal_energy_edp, 2),
+                'optimal_energy_ed2p_joules': round(result.optimal_energy_ed2p, 2),
                 'optimal_edp': round(result.optimal_edp, 2),
+                'optimal_ed2p': round(result.optimal_ed2p, 2),
                 'runs_averaged': result.run_count
             })
         
@@ -510,8 +581,8 @@ def main():
                        type=float, default=5.0,
                        help='Maximum allowed performance degradation (%) [default: 5.0]')
     parser.add_argument('--output', '-o',
-                       default='edp_optimization_results.json',
-                       help='Output file for results [default: edp_optimization_results.json]')
+                       default='results/edp_optimization_results.json',
+                       help='Output file for results [default: results/edp_optimization_results.json]')
     parser.add_argument('--quiet', '-q',
                        action='store_true',
                        help='Suppress progress output')
