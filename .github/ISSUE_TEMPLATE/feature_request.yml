@@ -19,6 +19,10 @@ body:
         - Power Modeling (algorithms, metrics)
         - Profiling Tools (DCGMI, nvidia-smi)
         - Sample Collection (scripts, automation)
+        - EDP Optimization (energy-delay product analysis)
+        - Optimal Frequency Selection (algorithms, criteria)
+        - Analysis Tools (data processing, visualization)
+        - Deployment Interface (production integration)
         - Documentation
         - Testing/CI
         - Other (please specify)
