@@ -1,11 +1,11 @@
 # AI Inference Energy Profiling Framework
 
-> **Latest Version**: v2.0.1 (Enhanced) | **Status**: Production Ready ✅  
+> **Latest Version**: v2.1.0 (Enhanced) | **Status**: Production Ready ✅  
 > **Quick Start**: `./launch_v2.sh --help` | **Cleanup**: `./clean.sh --help` | **Legacy**: `./legacy/launch.sh`
 
 This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA, Whisper, Vision Transformer).
 
-**🎉 Recent Enhancements (v2.0.1):**
+**🎉 Recent Enhancements (v2.1.0):**
 - ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
 - ✅ **Intelligent Results Naming**: Automatic `results_[gpu]_[app]` directory organization  
 - ✅ **Enhanced Cleanup Tool**: Advanced filtering, backup, and selective cleanup options
@@ -49,7 +49,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 
 ## 📋 Framework Overview
 
-### ✨ Key Features (v2.0)
+### ✨ Key Features (v2.1)
 
 - 🏗️ **Modular Architecture**: Clean separation of concerns with reusable libraries
 - 🔧 **Robust CLI**: Comprehensive command-line interface with intelligent defaults
@@ -61,7 +61,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 - 🔍 **Auto-Detection**: GPU types, profiling tools, conda environments
 - ✅ **Zero Raw Escapes**: Clean terminal output across all environments
 
-### 🏗️ Architecture (v2.0)
+### 🏗️ Architecture (v2.1)
 
 ```
 sample-collection-scripts/
@@ -712,7 +712,7 @@ Options:
 - **Temporal Precision**: Captures brief GPU activity transitions
 
 #### Data Collection
-- **Metrics per Sample**: 25 comprehensive DCGMI fields (v2.0.1), 17 nvidia-smi fields
+- **Metrics per Sample**: 25 comprehensive DCGMI fields (v2.1.0), 17 nvidia-smi fields
 - **DCGMI Fields**: Device info, power metrics, temperatures, utilization, memory, clocks, P-state, compute activity
 - **File Format**: CSV with timestamps and comprehensive GPU telemetry
 - **Storage**: ~150KB per 20-second run (typical application)

@@ -7,7 +7,7 @@ for AI inference workloads on NVIDIA A100 and H100 GPUs.
 Author: Mert Side
 """
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 __author__ = "Mert Side"
 __email__ = "mert.side@ttu.edu"
 

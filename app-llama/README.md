@@ -262,7 +262,7 @@ app-llama/
 ## Version Information
 
 - **Version**: 2.0.1
-- **Compatible with**: Energy Profiling Framework v2.0.1
+- **Compatible with**: Energy Profiling Framework v2.1.0
 - **Python Requirements**: 3.9+ (3.10+ recommended)
 - **CUDA Requirements**: 11.7+ (12.1+ for H100)
 - **Transformers Version**: 4.25.0+ (4.35.0+ recommended)

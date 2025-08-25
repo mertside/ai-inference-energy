@@ -471,7 +471,7 @@ Key configuration options in `config.py` (Python 3.8+ compatible):
 DEFAULT_NUM_RUNS = 2              # Runs per frequency
 DEFAULT_INTERVAL_MS = 50          # Sampling interval
 DCGMI_FIELDS = [52, 50, 155, 160, ...]  # Comprehensive GPU metrics to collect (25 fields)
-                                  # ✅ v2.0.1: Consolidated comprehensive field set
+                                  # ✅ v2.1.0: Consolidated comprehensive field set
                                   # ✅ Includes: device info, power, temps, clocks, utilization, activity metrics
 
 # Model settings
