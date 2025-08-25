@@ -17,16 +17,19 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 📈 **Comprehensive Logging**: Error handling and progress tracking
 - 🔄 **Professional Architecture**: Modular, maintainable, and extensible codebase
 - 🐍 **Python 3.8+ Compatible**: Works with modern cluster environments
-- 📊 **Advanced Analysis Suite**: EDP optimization, optimal frequency selection, and production deployment tools
-- 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads  
-- ⚙️ **Production Ready**: Complete optimization pipeline from profiling to deployment
-- 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking
+- 🎨 **Data Visualizations**: Publication-quality scatter plots and analysis charts using actual experimental data
+- 📊 **Advanced Analysis Suite**: EDP optimization, optimal frequency selection, and production deployment tools with comprehensive visualization framework
+- 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads with DCGMI integration
+- 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking and visualization
 
-### 🎉 Latest Updates (v2.1.0 - August 2025)
+### 🎉 Latest Updates (v2.2.0 - August 2025)
 
+- 🎨 **Data Visualization Framework**: Comprehensive visualization system using actual DCGMI profiling data
+- 📊 **Publication-Quality Plots**: 16 high-resolution scatter plots and summary charts for energy-performance analysis
+- 🔍 **Experimental Data Integration**: Direct loading of power measurements and timing data from sample-collection-scripts
+- 📈 **Enhanced Analysis Tools**: Dual-metric optimization (EDP and ED²P) with visual validation of results
 - 🚀 **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with multi-criteria frequency selection
 - 📊 **Advanced Analysis Tools**: Comprehensive analysis pipeline including optimal frequency selection and performance evaluation
-- 🔧 **Production Deployment**: Ready-to-use deployment interface for optimal frequency settings in production environments
 - 📈 **Enhanced Data Analysis**: Sophisticated measured data analysis with hybrid timing extraction and validation
 - ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields (vs 17 previously)
 - ✅ **Clean Filenames**: Fixed duplicate frequency naming in custom experiments (`run_01_freq_510` vs `run_freq_510_01_freq_510`)
@@ -43,15 +46,16 @@ This framework provides a robust foundation for GPU energy profiling and compreh
 - **Job Automation**: Complete SLURM integration with automated frequency sweeping
 - **Data Export**: Structured CSV output for analysis and visualization
 - **Comprehensive Testing**: Full test coverage for profiling infrastructure and AI applications
-- **EDP Optimization**: Energy-Delay Product optimization with multi-criteria frequency selection
-- **Production Tools**: Ready-to-use deployment interface for optimal frequency settings
+- **EDP Optimization**: Energy-Delay Product optimization with multi-criteria frequency selection and data visualization
+- **Production Tools**: Ready-to-use deployment interface for optimal frequency settings with visual validation
+- **Data Visualization**: Publication-quality plots using actual DCGMI profiling data for accurate analysis
 
 #### **Advanced Analysis Suite (Available)**
-- **Optimal Frequency Selection**: Comprehensive algorithms for frequency optimization
-- **EDP Analysis Tools**: Energy-Delay Product optimization and performance evaluation
-- **Measured Data Analysis**: Hybrid timing extraction and validation frameworks
-- **Production Deployment**: Interface for implementing optimal settings in production
-- **Multi-GPU Comparison**: Cross-architecture performance and efficiency analysis
+- **Optimal Frequency Selection**: Comprehensive algorithms for frequency optimization with visual analysis
+- **EDP Analysis Tools**: Energy-Delay Product optimization and performance evaluation with data plotting
+- **Measured Data Analysis**: Hybrid timing extraction and validation frameworks with experimental data visualization
+- **Production Deployment**: Interface for implementing optimal settings in production with visual confirmation
+- **Multi-GPU Comparison**: Cross-architecture performance and efficiency analysis with publication-quality charts
 
 #### **Planned Extensions (Future Work)**
 - **Real-time Optimization**: Dynamic frequency adjustment during inference
@@ -155,6 +159,19 @@ ai-inference-energy/
 │   ├── analysis/                        # EDP optimization and performance analysis
 │   │   ├── edp_optimizer.py             # Energy-Delay Product optimization engine
 │   │   ├── edp_summary_tables.py        # EDP results summarization and reporting
+│   │   ├── visualize_results.py         # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_summary.py         # 📊 Comprehensive summary analysis charts
+│   │   ├── README_VISUALIZATION.md      # Complete visualization system documentation
+│   │   ├── IMPLEMENTATION_SUMMARY.md    # Real data integration achievement summary
+│   │   ├── results/                     # Analysis outputs and visualizations
+│   │   │   ├── edp_optimization_results.json  # Primary optimization results
+│   │   │   ├── *.csv                    # Detailed analysis tables
+│   │   │   └── plots/                   # 🎨 Generated visualization files (16 total)
+│   │   │       ├── *_energy_performance_scatter.png  # Individual GPU-workload plots
+│   │   │       ├── energy_savings_comparison.png     # EDP vs ED²P comparison
+│   │   │       ├── frequency_optimization_comparison.png  # Frequency analysis
+│   │   │       ├── performance_impact_analysis.png   # Performance trade-offs
+│   │   │       └── comprehensive_summary.png         # 4-panel overview
 │   │   └── archived/                    # Historical analysis tools and reports
 │   ├── optimal-frequency/               # Frequency optimization and selection tools
 │   │   ├── comprehensive_optimal_selector.py  # Multi-criteria frequency selector
@@ -706,7 +723,7 @@ The framework includes **streamlined documentation** focused on practical usage:
 - **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling
 - **[app-llama/README.md](app-llama/README.md)**: LLaMA text generation application for language model energy profiling
 
-All documentation follows consistent patterns with **practical examples**, **real commands**, and **comprehensive troubleshooting** sections.
+All documentation follows consistent patterns with **practical examples**, and **comprehensive troubleshooting** sections.
 
 ## 📝 Citation
 
