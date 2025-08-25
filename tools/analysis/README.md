@@ -1,35 +1,44 @@
-# EDP Optimizer for AI Inference Energy Project
+# EDP & ED²P Optimizer for AI Inference Energy Project
 
-This directory contains tools for calculating Energy Delay Product (EDP) optimization to find optimal GPU frequencies for AI inference workloads.
+This directory contains tools for calculating Energy Delay Product (EDP) and Energy Delay Squared Product (ED²P) optimization to find optimal GPU frequencies for AI inference workloads.
 
-## 📁 Files
+## 📁 Directory Structure
 
-- **`edp_optimizer.py`** - Main EDP calculation and optimization script
+- **`edp_optimizer.py`** - Main EDP & ED²P calculation and optimization script
 - **`edp_summary_tables.py`** - Summary table generator for results visualization  
-- **`edp_optimization_results.json`** - Latest optimization results in JSON format
+- **`results/`** - Output directory containing JSON and CSV results files
+  - **`edp_optimization_results.json`** - Primary results in JSON format
+  - **`*_summary.csv`** - Comprehensive CSV with both EDP and ED²P data
+  - **`*_workload_comparison_*.csv`** - Cross-GPU workload analysis files
+  - **`*_frequency_analysis.csv`** - Detailed frequency scaling analysis
+  - **`*_gpu_summary_*.csv`** - Per-GPU performance summaries
+  - **`README.md`** - Detailed documentation of result files
 
 ## 🎯 Purpose
 
-The EDP optimizer analyzes experimental data from GPU frequency scaling experiments to:
+The EDP/ED²P optimizer analyzes experimental data from GPU frequency scaling experiments to:
 
-1. **Calculate Energy Delay Product (EDP)** for each frequency point
-2. **Find optimal frequencies** that minimize EDP while respecting performance constraints  
+1. **Calculate both EDP and ED²P** for each frequency point
+   - **EDP = Energy × Time** (balanced optimization)
+   - **ED²P = Energy × Time²** (performance-sensitive optimization)
+2. **Find optimal frequencies** for both metrics while respecting performance constraints  
 3. **Compare energy savings** vs. manufacturer maximum frequencies
-4. **Identify performance improvements** from frequency optimization
+4. **Analyze performance trade-offs** between EDP and ED²P strategies
+5. **Export comprehensive data** for further analysis and visualization
 
 ## 🚀 Quick Start
 
 ### Basic Usage
 
 ```bash
-# Run EDP optimization on all experimental data
+# Run EDP & ED²P optimization on all experimental data
 python edp_optimizer.py --results-dir ../../sample-collection-scripts
 
 # Use custom performance threshold (default: 5%)
 python edp_optimizer.py --performance-threshold 10.0
 
-# Generate summary tables from results
-python edp_summary_tables.py
+# Generate summary tables and CSV exports from results
+python edp_summary_tables.py --csv
 ```
 
 ### Advanced Usage
@@ -39,11 +48,11 @@ python edp_summary_tables.py
 python edp_optimizer.py \
     --results-dir ../../sample-collection-scripts \
     --performance-threshold 5.0 \
-    --output my_results.json \
+    --output results/my_custom_results.json \
     --quiet
 
-# Generate tables from custom results file
-python edp_summary_tables.py --input my_results.json
+# Generate tables from custom results file  
+python edp_summary_tables.py --input results/my_custom_results.json --csv
 ```
 
 ## 📊 Latest Results Summary
