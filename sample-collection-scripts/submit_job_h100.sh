@@ -179,7 +179,7 @@ determine_results_dir() {
 # Research Mode (no images): Uncomment for energy-focused research
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --no-save-images --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 5 --sleep-interval 2"
 # Full Mode (with images): Uncomment for complete generation study  
-# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
+# LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 5 --sleep-interval 2"
 
 # 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~4-6 hours, change --time to 08:00:00)
 # LAUNCH_ARGS="--gpu-type H100 --profiling-mode dvfs --app-name LLaMA --app-executable ../app-llama/LlamaViaHF.py --app-params '--benchmark --num-generations 3 --quiet --metrics' --num-runs 5 --sleep-interval 2"
