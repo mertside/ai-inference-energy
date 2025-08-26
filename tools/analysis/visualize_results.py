@@ -383,8 +383,8 @@ class DataVisualizer:
         # Add grid
         ax.grid(True, alpha=0.3, linestyle='--')
         
-        # Add legend
-        ax.legend(loc='upper right', fontsize=18)
+        # Add legend - positioned outside and below the figure in one row
+        ax.legend(bbox_to_anchor=(0.5, -0.1), loc='upper center', ncol=4, fontsize=18, edgecolor='black', fancybox=True)
         # ax.legend(loc='upper right', frameon=True, fancybox=True, shadow=True, fontsize=12)
         
         # Add summary statistics box
