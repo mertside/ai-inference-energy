@@ -41,7 +41,7 @@ sbatch submit_job_a100_baseline.sh
 ./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 sbatch submit_job_v100_baseline.sh
 
-# H100 (REPACSS h100-build partition)
+# H100 (REPACSS h100 partition)
 ./launch_v2.sh --gpu-type H100 --profiling-mode baseline  
 sbatch submit_job_h100_baseline.sh
 ```

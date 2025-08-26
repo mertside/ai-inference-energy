@@ -672,14 +672,14 @@ Options:
 - SLURM partition: matador
 - Interactive helper: `./interactive_gpu.sh --gpu-type V100`
 
-#### H100 GPU (REPACSS h100-build Partition)
+#### H100 GPU (REPACSS h100 Partition)
 ```bash
 ./launch_v2.sh --gpu-type H100
 ```
 - Architecture: GH100  
 - Memory: 2619 MHz
 - Core frequencies: 1785-510 MHz (86 frequencies in 15MHz steps)
-- SLURM partition: h100-build (node: rpg-93-9)
+- SLURM partition: h100 (node: rpg-93-1)
 - Cluster: REPACSS at Texas Tech University
 - Interactive helper: `./interactive_gpu.sh --gpu-type H100`
 

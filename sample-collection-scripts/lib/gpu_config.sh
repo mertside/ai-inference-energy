@@ -60,7 +60,7 @@ declare -A GPU_CORE_FREQ_STEP=(
 declare -A GPU_SLURM_PARTITIONS=(
     ["A100"]="toreador"
     ["V100"]="matador"
-    ["H100"]="h100-build"
+    ["H100"]="h100"
 )
 
 # Cluster Information

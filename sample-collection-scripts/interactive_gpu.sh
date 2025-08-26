@@ -36,10 +36,10 @@ declare -A GPU_CONFIGS=(
     ["a100_system"]="HPCC"
     
     # H100 Configuration (REPACSS)
-    ["h100_partition"]="h100-build"
-    ["h100_node"]="rpg-93-9"
+    ["h100_partition"]="h100"
+    ["h100_node"]="rpg-93-1"
     ["h100_gpu_count"]="1"
-    ["h100_memory"]="80GB HBM3"
+    ["h100_memory"]="94GB HBM3"
     ["h100_freq_range"]="210-2520 MHz (86 steps)"
     ["h100_system"]="REPACSS"
 )
@@ -91,7 +91,7 @@ show_usage() {
     echo -e "${BLUE}Supported GPU Types:${NC}"
     echo -e "    ${GREEN}v100${NC}    - Tesla V100 (32GB) on HPCC matador partition"
     echo -e "    ${GREEN}a100${NC}    - Tesla A100 (40GB) on HPCC toreador partition"
-    echo -e "    ${GREEN}h100${NC}    - H100 (80GB) on REPACSS h100-build partition"
+    echo -e "    ${GREEN}h100${NC}    - H100 (94GB) on REPACSS h100 partition"
     echo
     echo -e "${BLUE}Examples:${NC}"
     echo "    $0 v100                 # Start V100 session"

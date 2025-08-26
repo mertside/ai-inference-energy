@@ -5,8 +5,8 @@
 This guide helps you quickly select the right configuration for your H100 GPU profiling needs.
 
 ### 📊 H100 GPU Specifications
-- **GPU**: H100 (80GB HBM3)
-- **Partition**: h100-build (REPACSS Texas Tech)
+- **GPU**: H100 (94GB HBM3)
+- **Partition**: h100 (REPACSS Texas Tech)
 - **Frequencies**: 86 available (510-1785 MHz)
 - **Memory**: 2619 MHz (maximum)
 - **Architecture**: Hopper (GH100)
@@ -160,7 +160,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 # Consider:
 # 1. Submit jobs during off-peak hours
 # 2. Use shorter configurations (#1-3) for testing
-# 3. Check node availability: sinfo -p h100-build
+# 3. Check node availability: sinfo -p h100
 ```
 
 ### Memory Intensive Workloads
@@ -188,7 +188,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 # 1. Set --time=14:00:00 or higher
 # 2. Use Configuration #3 (sampling) for faster results
 # 3. Submit during weekends or off-peak hours
-# 4. Monitor queue times: squeue -p h100-build
+# 4. Monitor queue times: squeue -p h100
 ```
 
 ## 📊 Results Analysis

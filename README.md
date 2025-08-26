@@ -344,7 +344,7 @@ sbatch submit_job_a100.sh
 # V100 unified submission (matador partition) - Edit script first to uncomment desired config
 sbatch submit_job_v100.sh
 
-# H100 unified submission (h100-build partition) - Edit script first to uncomment desired config
+# H100 unified submission (h100 partition) - Edit script first to uncomment desired config
 sbatch submit_job_h100.sh
 ```
 
