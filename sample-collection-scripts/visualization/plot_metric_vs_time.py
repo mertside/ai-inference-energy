@@ -273,7 +273,7 @@ class MetricPlotter:
     
     def __init__(self, figsize=(12, 8)):
         self.figsize = figsize
-        self.colors = plt.cm.viridis  # Use viridis colormap for frequency colors 
+        self.colors = plt.cm.plasma  # Use viridis colormap for frequency colors 
         # plt.cm.plasma  # Use plasma colormap for frequency colors
                     
 
