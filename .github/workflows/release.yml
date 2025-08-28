@@ -1,0 +1,304 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 2.1.1)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+
+env:
+  PYTHON_VERSION: '3.11'
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "Version from tag: $VERSION"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            echo "Version from input: $VERSION"
+          fi
+          
+          # Validate version format
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            exit 1
+          fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Validate changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # Check if changelog exists and has entry for this version
+          if [ -f "CHANGELOG.md" ]; then
+            if grep -q "## \[$VERSION\]" CHANGELOG.md; then
+              echo "✅ Changelog entry found for version $VERSION"
+            else
+              echo "⚠️ No changelog entry found for version $VERSION"
+              echo "Please add a changelog entry before releasing"
+            fi
+          else
+            echo "⚠️ No CHANGELOG.md file found"
+          fi
+          
+      - name: Validate version consistency
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # Check setup.py version
+          SETUP_VERSION=$(python -c "
+          import re
+          with open('setup.py', 'r') as f:
+              content = f.read()
+              match = re.search(r'version=[\"\'](.*?)[\"\']', content)
+              if match:
+                  print(match.group(1))
+              else:
+                  print('unknown')
+          ")
+          
+          if [[ "$SETUP_VERSION" != "$VERSION" ]]; then
+            echo "❌ Version mismatch: setup.py ($SETUP_VERSION) vs release ($VERSION)"
+            exit 1
+          else
+            echo "✅ Version consistency verified"
+          fi
+
+  build-and-test:
+    name: Build and Test
+    needs: validate-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install build twine
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short
+          
+      - name: Build package
+        if: matrix.python-version == env.PYTHON_VERSION
+        run: |
+          python -m build
+          
+      - name: Check package
+        if: matrix.python-version == env.PYTHON_VERSION
+        run: |
+          twine check dist/*
+          
+      - name: Upload build artifacts
+        if: matrix.python-version == env.PYTHON_VERSION
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-${{ needs.validate-release.outputs.version }}
+          path: dist/
+
+  security-scan-release:
+    name: Security Scan for Release
+    needs: validate-release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install security tools
+        run: |
+          pip install --upgrade pip
+          pip install bandit[toml] safety pip-audit
+          pip install -r requirements.txt
+          
+      - name: Run comprehensive security scan
+        run: |
+          echo "🔍 Running security scans for release..."
+          
+          # Bandit scan
+          bandit -r . --severity-level medium
+          
+          # Safety check
+          safety check --requirement requirements.txt
+          
+          # pip-audit
+          pip-audit --requirement requirements.txt
+          
+          echo "✅ Security scans completed successfully"
+
+  create-release:
+    name: Create GitHub Release
+    needs: [validate-release, build-and-test, security-scan-release]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-${{ needs.validate-release.outputs.version }}
+          path: dist/
+          
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION="${{ needs.validate-release.outputs.version }}"
+          
+          # Generate release notes from changelog or commits
+          if [ -f "CHANGELOG.md" ] && grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            echo "Extracting release notes from CHANGELOG.md..."
+            
+            # Extract section for this version
+            awk "/## \[$VERSION\]/,/## \[/{if(/## \[/ && !/## \[$VERSION\]/) exit; print}" CHANGELOG.md > release_notes.md
+          else
+            echo "Generating release notes from commits..."
+            
+            # Get previous tag
+            PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+            
+            if [ -n "$PREV_TAG" ]; then
+              echo "## Changes since $PREV_TAG" > release_notes.md
+              echo "" >> release_notes.md
+              git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> release_notes.md
+            else
+              echo "## Release $VERSION" > release_notes.md
+              echo "" >> release_notes.md
+              echo "Initial release of AI Inference Energy Profiling Framework." >> release_notes.md
+            fi
+          fi
+          
+          # Add package information
+          echo "" >> release_notes.md
+          echo "## Package Information" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "- Python support: 3.9 - 3.12" >> release_notes.md
+          echo "- GPU support: NVIDIA V100, A100, H100" >> release_notes.md
+          echo "- Platforms: Linux (Ubuntu, CentOS, Rocky Linux)" >> release_notes.md
+          
+          cat release_notes.md
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.validate-release.outputs.version }}
+          name: Release v${{ needs.validate-release.outputs.version }}
+          body_path: release_notes.md
+          files: |
+            dist/*
+          draft: false
+          prerelease: ${{ contains(needs.validate-release.outputs.version, '-') }}
+          generate_release_notes: true
+
+  publish-package:
+    name: Publish to PyPI
+    needs: [validate-release, create-release]
+    runs-on: ubuntu-latest
+    if: github.repository == 'mertside/ai-inference-energy'
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-${{ needs.validate-release.outputs.version }}
+          path: dist/
+          
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          
+  update-documentation:
+    name: Update Documentation
+    needs: [validate-release, create-release]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install documentation dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          
+      - name: Build documentation
+        run: |
+          if [ -f "mkdocs.yml" ]; then
+            mkdocs build
+            echo "✅ Documentation built successfully"
+          else
+            echo "⚠️ No mkdocs.yml found, skipping documentation build"
+          fi
+          
+      - name: Deploy to GitHub Pages
+        if: hashFiles('mkdocs.yml') != ''
+        run: |
+          mkdocs gh-deploy --force

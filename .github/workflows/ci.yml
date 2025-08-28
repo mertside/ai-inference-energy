@@ -1,18 +1,64 @@
-name: Minimal CI
+name: CI Pipeline
 
 on:
   push:
     branches: [main, dev, develop]
   pull_request:
     branches: [main, dev, develop]
+  schedule:
+    # Run weekly to catch dependency issues
+    - cron: '0 2 * * 1'
 
 env:
-  PYTHON_VERSION: '3.8'
+  PYTHON_DEFAULT_VERSION: '3.11'
+  CACHE_VERSION: 1
 
 
 jobs:
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+          cache: 'pip'
+
+      - name: Install security tools
+        run: |
+          pip install --upgrade pip
+          pip install bandit[toml] safety pip-audit
+
+      - name: Run Bandit security scan
+        run: |
+          bandit -r . -f sarif -o bandit-results.sarif || true
+          bandit -r . --severity-level medium
+
+      - name: Upload Bandit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: bandit-results.sarif
+
+      - name: Check dependencies for known vulnerabilities
+        run: |
+          pip-audit --requirement requirements.txt --format=sarif --output=pip-audit-results.sarif || true
+          pip-audit --requirement requirements.txt
+
+      - name: Upload pip-audit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pip-audit-results.sarif
+
   lint:
-    name: Pre-commit Lint
+    name: Code Quality & Linting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +66,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
           cache: 'pip'
 
       - name: Install dependencies
@@ -29,42 +75,37 @@ jobs:
           pip install -r requirements-dev.txt
           pip install -r requirements.txt
 
-      - name: Run pre-commit
-        run: pre-commit run --show-diff-on-failure --color=always
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --show-diff-on-failure --color=always
 
-  # Ultra-fast essential checks only
-  quick-test:
-    name: Quick Test
+  test:
+    name: Test Suite
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.8"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
           
-      - name: Install essential tools
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install black flake8 isort pytest coverage
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           
-      - name: Auto-fix formatting
-        run: |
-          black .
-          isort .
-          
-      - name: Syntax check only
-        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        
-      - name: Install project dependencies
-        run: pip install -r requirements.txt
-        
-      - name: Quick module test
+      - name: Run module import tests
         run: |
           python -c "from hardware.gpu_info import get_supported_gpus; print('✓ GPUs:', get_supported_gpus())"
           python -c "from config import GPUConfig; print('✓ Config loaded')"
@@ -100,17 +141,50 @@ jobs:
           # Test configuration loading
           bash -c "source config/defaults.sh && echo '✓ Configuration loaded'"
           
-      - name: Run tests
+      - name: Run pytest with coverage
         run: |
-          coverage run tests/run_tests.py
+          coverage run -m pytest tests/ -v --tb=short
           coverage xml -o coverage.xml
           coverage html -d coverage_html
+          coverage report --show-missing
+          
+      - name: Run compatibility tests
+        run: |
           bash tests/test_python_compatibility.sh
+          
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            coverage_html/
+
+  version-consistency:
+    name: Version Consistency Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
           
       - name: Validate version consistency
         run: |
           # Check that setup.py and README versions match
-          SETUP_VERSION=$(python -c "import setup; print(setup.setup.__name__)" 2>/dev/null || python -c "
+          SETUP_VERSION=$(python -c "
           import re
           with open('setup.py', 'r') as f:
               content = f.read()
@@ -121,21 +195,43 @@ jobs:
                   print('unknown')
           ")
           
-          README_VERSION=$(grep -o "v[0-9]\+\.[0-9]\+\.[0-9]\+" README.md | head -1 | sed 's/v//')
+          README_VERSION=$(grep -o "v[0-9]\+\.[0-9]\+\.[0-9]\+" README.md | head -1 | sed 's/v//' || echo "unknown")
           
           echo "Setup.py version: $SETUP_VERSION"
           echo "README version: $README_VERSION"
           
-          if [[ "$SETUP_VERSION" != "$README_VERSION" ]]; then
-            echo "⚠ Version mismatch between setup.py ($SETUP_VERSION) and README.md ($README_VERSION)"
+          if [[ "$SETUP_VERSION" != "unknown" && "$README_VERSION" != "unknown" && "$SETUP_VERSION" != "$README_VERSION" ]]; then
+            echo "❌ Version mismatch between setup.py ($SETUP_VERSION) and README.md ($README_VERSION)"
+            exit 1
           else
-            echo "✓ Version consistency verified"
+            echo "✅ Version consistency verified"
           fi
 
-      - name: Upload coverage artifacts
+  package-build:
+    name: Package Build Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+          
+      - name: Install build tools
+        run: |
+          pip install --upgrade pip build twine
+          
+      - name: Build package
+        run: |
+          python -m build
+          
+      - name: Check package
+        run: |
+          twine check dist/*
+          
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-reports
-          path: |
-            coverage.xml
-            coverage_html/
+          name: python-package-distributions
+          path: dist/

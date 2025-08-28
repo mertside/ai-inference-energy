@@ -1,0 +1,259 @@
+name: Dependency Management
+
+on:
+  schedule:
+    # Run weekly dependency checks
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of dependency update'
+        required: true
+        default: 'security-only'
+        type: choice
+        options:
+          - security-only
+          - patch-updates
+          - minor-updates
+          - all-updates
+  pull_request:
+    paths:
+      - 'requirements*.txt'
+      - 'setup.py'
+      - '.pre-commit-config.yaml'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install audit tools
+        run: |
+          pip install --upgrade pip
+          pip install pip-audit safety bandit[toml]
+          
+      - name: Audit dependencies for vulnerabilities
+        run: |
+          echo "🔍 Scanning dependencies for known vulnerabilities..."
+          
+          # Run pip-audit
+          pip-audit --requirement requirements.txt --format=sarif --output=pip-audit-results.sarif || true
+          pip-audit --requirement requirements.txt --format=json --output=pip-audit-results.json || true
+          pip-audit --requirement requirements.txt
+          
+      - name: Upload pip-audit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: pip-audit-results.sarif
+          
+      - name: Run Safety check
+        run: |
+          echo "🔍 Running Safety check..."
+          safety check --requirement requirements.txt --json --output safety-results.json || true
+          safety check --requirement requirements.txt
+          
+      - name: Run Bandit security scan
+        run: |
+          echo "🔍 Running Bandit security scan..."
+          bandit -r . -f sarif -o bandit-results.sarif || true
+          bandit -r . --severity-level medium
+          
+      - name: Upload Bandit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: bandit-results.sarif
+          
+      - name: Upload security scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: |
+            pip-audit-results.json
+            safety-results.json
+            bandit-results.sarif
+          retention-days: 30
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, LGPL-2.1, LGPL-3.0
+
+  check-outdated:
+    name: Check Outdated Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install current dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Check for outdated packages
+        run: |
+          echo "📦 Checking for outdated packages..."
+          pip list --outdated --format=json > outdated-packages.json
+          
+          # Display outdated packages
+          if [ -s outdated-packages.json ]; then
+            echo "📋 Outdated packages found:"
+            pip list --outdated
+          else
+            echo "✅ All packages are up to date"
+          fi
+          
+      - name: Generate dependency update suggestions
+        run: |
+          python3 -c "
+          import json
+          import sys
+          
+          try:
+              with open('outdated-packages.json', 'r') as f:
+                  outdated = json.load(f)
+              
+              if not outdated:
+                  print('✅ All dependencies are current')
+                  sys.exit(0)
+              
+              print('📋 Dependency Update Suggestions:')
+              print('=' * 50)
+              
+              security_updates = []
+              patch_updates = []
+              minor_updates = []
+              major_updates = []
+              
+              for pkg in outdated:
+                  name = pkg['name']
+                  current = pkg['version']
+                  latest = pkg['latest_version']
+                  
+                  # Simple version comparison (could be enhanced)
+                  current_parts = current.split('.')
+                  latest_parts = latest.split('.')
+                  
+                  if len(current_parts) >= 3 and len(latest_parts) >= 3:
+                      if current_parts[0] != latest_parts[0]:
+                          major_updates.append(f'{name}: {current} → {latest} (MAJOR)')
+                      elif current_parts[1] != latest_parts[1]:
+                          minor_updates.append(f'{name}: {current} → {latest} (minor)')
+                      else:
+                          patch_updates.append(f'{name}: {current} → {latest} (patch)')
+                  else:
+                      minor_updates.append(f'{name}: {current} → {latest}')
+              
+              if patch_updates:
+                  print('🔧 Patch Updates (recommended):')
+                  for update in patch_updates:
+                      print(f'  • {update}')
+                  print()
+              
+              if minor_updates:
+                  print('🆙 Minor Updates:')
+                  for update in minor_updates:
+                      print(f'  • {update}')
+                  print()
+              
+              if major_updates:
+                  print('⚠️  Major Updates (requires testing):')
+                  for update in major_updates:
+                      print(f'  • {update}')
+                  print()
+              
+          except Exception as e:
+              print(f'Error analyzing outdated packages: {e}')
+          "
+          
+      - name: Upload dependency analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-analysis
+          path: |
+            outdated-packages.json
+          retention-days: 30
+
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install license checker
+        run: |
+          pip install --upgrade pip
+          pip install pip-licenses
+          pip install -r requirements.txt
+          
+      - name: Generate license report
+        run: |
+          echo "📜 Generating license compliance report..."
+          
+          # Generate detailed license report
+          pip-licenses --format=json --output-file=licenses.json
+          pip-licenses --format=csv --output-file=licenses.csv
+          
+          # Display license summary
+          echo "📋 License Summary:"
+          pip-licenses --summary
+          
+          # Check for problematic licenses
+          echo "🔍 Checking for problematic licenses..."
+          if pip-licenses | grep -E "(GPL-3|AGPL|CPAL|EPL)" > problematic-licenses.txt; then
+            echo "⚠️ Found potentially problematic licenses:"
+            cat problematic-licenses.txt
+          else
+            echo "✅ No problematic licenses found"
+          fi
+          
+      - name: Upload license reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-reports
+          path: |
+            licenses.json
+            licenses.csv
+            problematic-licenses.txt
+          retention-days: 90

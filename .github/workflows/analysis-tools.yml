@@ -30,21 +30,29 @@ on:
           - deployment-only
 
 env:
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.11'
+  CACHE_VERSION: 1
 
 jobs:
   analysis-tools-test:
     name: Analysis Tools Validation
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
           
       - name: Install dependencies
         run: |
@@ -62,19 +70,21 @@ jobs:
           
           try:
               import edp_optimizer
-              print('✓ EDP optimizer imported successfully')
+              print('✅ EDP optimizer imported successfully')
           except ImportError as e:
-              print(f'⚠ EDP optimizer import failed: {e}')
+              print(f'❌ EDP optimizer import failed: {e}')
+              sys.exit(1)
           
           try:
               import edp_summary_tables
-              print('✓ EDP summary tables imported successfully')
+              print('✅ EDP summary tables imported successfully')
           except ImportError as e:
-              print(f'⚠ EDP summary tables import failed: {e}')
+              print(f'❌ EDP summary tables import failed: {e}')
+              sys.exit(1)
           "
           
       - name: Test optimal frequency tools
-        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'optimization-only'
+        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'optimization-only' || github.event.inputs.test_scope == ''
         run: |
           cd tools/optimal-frequency
           python -c "
@@ -89,15 +99,101 @@ jobs:
               'optimal_frequency_selection'
           ]
           
+          failed_modules = []
           for module in modules:
               try:
                   exec(f'import {module}')
-                  print(f'✓ {module} imported successfully')
+                  print(f'✅ {module} imported successfully')
               except ImportError as e:
-                  print(f'⚠ {module} import failed: {e}')
+                  print(f'❌ {module} import failed: {e}')
+                  failed_modules.append(module)
               except Exception as e:
-                  print(f'⚠ {module} error: {e}')
+                  print(f'⚠️ {module} error: {e}')
+                  
+          if failed_modules:
+              print(f'❌ Failed to import: {failed_modules}')
+              sys.exit(1)
           "
+          
+      - name: Test deployment tools
+        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only' || github.event.inputs.test_scope == ''
+        run: |
+          cd tools/deployment
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              import deployment_interface
+              print('✅ Deployment interface imported successfully')
+          except ImportError as e:
+              print(f'❌ Deployment interface import failed: {e}')
+              sys.exit(1)
+          "
+          
+      - name: Test utilities
+        run: |
+          cd tools/utilities
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              import ai_optimization_workflow
+              print('✅ AI optimization workflow imported successfully')
+          except ImportError as e:
+              print(f'❌ AI optimization workflow import failed: {e}')
+              sys.exit(1)
+          "
+          
+      - name: Run analysis tool tests
+        run: |
+          cd tools/analysis
+          
+          # Test EDP optimizer with mock data
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+          
+          try:
+              from edp_optimizer import EDPOptimizer
+              optimizer = EDPOptimizer()
+              print('✅ EDP optimizer can be instantiated')
+          except Exception as e:
+              print(f'⚠️ EDP optimizer instantiation failed: {e}')
+          "
+          
+      - name: Validate tool configurations
+        run: |
+          # Check if tools have proper configuration files
+          echo "Checking tool configurations..."
+          
+          for tool_dir in tools/*/; do
+            if [ -d "$tool_dir" ]; then
+              tool_name=$(basename "$tool_dir")
+              echo "Checking $tool_name..."
+              
+              # Look for config files
+              if find "$tool_dir" -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "config.py" | grep -q .; then
+                echo "✅ $tool_name has configuration files"
+              else
+                echo "⚠️ $tool_name has no obvious configuration files"
+              fi
+            fi
+          done
+          
+      - name: Upload analysis results
+        if: always() && matrix.python-version == env.PYTHON_VERSION
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-tools-validation-results
+          path: |
+            tools/**/*.log
+            tools/**/*.json
+          retention-days: 7
           
       - name: Test deployment interface
         if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only'

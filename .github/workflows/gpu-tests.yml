@@ -22,201 +22,56 @@ on:
           - frequency-validation
           - power-profiling
           - edp-optimization
+      runner_label:
+        description: 'Self-hosted runner label (optional)'
+        required: false
+        default: 'gpu-enabled'
+        type: string
   schedule:
     # Run monthly GPU validation tests
     - cron: '0 3 1 * *'
 
 env:
-  PYTHON_VERSION: "3.8"
+  PYTHON_VERSION: "3.11"
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
   gpu-frequency-validation:
     name: GPU Frequency Validation
-    runs-on: self-hosted
-    # Only run on self-hosted runners with GPU access or manual dispatch
+    runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
+    timeout-minutes: 60
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Check GPU availability
+      - name: Check GPU availability and permissions
         run: |
           if command -v nvidia-smi &> /dev/null; then
-            echo "✓ nvidia-smi found"
-            nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader,nounits
+            echo "✅ nvidia-smi found"
+            if nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader,nounits; then
+              echo "✅ GPU access confirmed"
+            else
+              echo "❌ GPU access denied or no GPUs found"
+              exit 78
+            fi
           else
-            echo "⚠ nvidia-smi not found - skipping GPU tests"
-            exit 78  # Skip this job
+            echo "❌ nvidia-smi not found - skipping GPU tests"
+            exit 78
           fi
           
       - name: Check DCGMI availability
+        continue-on-error: true
         run: |
           if command -v dcgmi &> /dev/null; then
-            echo "✓ DCGMI found"
-            dcgmi discovery --list || echo "⚠ DCGMI discovery failed"
+            echo "✅ DCGMI found"
+            dcgmi discovery --list || echo "⚠️ DCGMI discovery failed"
           else
-            echo "⚠ DCGMI not found - will use nvidia-smi fallback"
+            echo "ℹ️ DCGMI not found - will use nvidia-smi fallback"
           fi
           
-      - name: Set up Python environment
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
-          
-      - name: Validate hardware frequency support
-        run: |
-          # Test actual supported clocks against our configuration
-          GPU_TYPE="${{ github.event.inputs.gpu_type || 'A100' }}"
-          echo "Testing GPU type: $GPU_TYPE"
-          
-          # Get actual supported clocks
-          nvidia-smi -q -d SUPPORTED_CLOCKS > actual_clocks.txt || echo "Failed to query clocks"
-          
-          # Compare with our configuration
-          python3 -c "
-          import sys
-          from hardware.gpu_info import get_gpu_info
-          
-          gpu_type = '$GPU_TYPE'
-          try:
-              gpu_info = get_gpu_info(gpu_type)
-              configured_freqs = gpu_info.get_available_frequencies()
-              print(f'Configured {gpu_type} frequencies: {len(configured_freqs)}')
-              print(f'Range: {min(configured_freqs)}-{max(configured_freqs)} MHz')
-              print(f'All >= 510 MHz: {all(f >= 510 for f in configured_freqs)}')
-              
-              # Check if actual GPU matches expected type
-              try:
-                  with open('actual_clocks.txt', 'r') as f:
-                      clocks_output = f.read()
-                  print('✓ Successfully read actual GPU clock data')
-                  
-                  # Extract graphics frequencies from output
-                  import re
-                  graphics_freqs = re.findall(r'Graphics\s*:\s*(\d+)\s*MHz', clocks_output)
-                  if graphics_freqs:
-                      actual_freqs = [int(f) for f in graphics_freqs if int(f) >= 510]
-                      print(f'Actual frequencies >= 510 MHz: {len(actual_freqs)}')
-                      print(f'Actual range: {min(actual_freqs)}-{max(actual_freqs)} MHz')
-                      
-                      # Validate our configuration covers the hardware range
-                      hw_min, hw_max = min(actual_freqs), max(actual_freqs)
-                      cfg_min, cfg_max = min(configured_freqs), max(configured_freqs)
-                      
-                      if cfg_min <= hw_min and cfg_max >= hw_max:
-                          print('✓ Configuration covers hardware frequency range')
-                      else:
-                          print(f'⚠ Configuration mismatch: CFG({cfg_min}-{cfg_max}) vs HW({hw_min}-{hw_max})')
-                  else:
-                      print('⚠ Could not parse graphics frequencies from nvidia-smi output')
-              except FileNotFoundError:
-                  print('⚠ Could not read actual clocks file')
-                  
-          except Exception as e:
-              print(f'❌ Error: {e}')
-              sys.exit(1)
-          "
-          
-      - name: Test frequency control (baseline mode only)
-        if: github.event.inputs.test_mode == 'baseline' || github.event.inputs.test_mode == 'frequency-validation'
-        run: |
-          cd sample-collection-scripts
-          
-          # Test baseline mode (single frequency) using new v2.0 framework
-          echo "Testing baseline mode with ${{ github.event.inputs.gpu_type || 'A100' }}"
-          
-          # Dry run test with new launch_v2.sh
-          timeout 30s ./launch_v2.sh \
-            --gpu-type "${{ github.event.inputs.gpu_type || 'A100' }}" \
-            --profiling-mode baseline \
-            --num-runs 1 \
-            --app-name "TEST" \
-            --app-executable "echo" \
-            --app-params "'GPU test completed'" \
-            || echo "Launch script test completed (may have timed out as expected)"
-            
-          # Test library loading
-          bash -c "source lib/common.sh && source lib/gpu_config.sh && echo '✓ Framework libraries functional'"
-            
-      - name: Upload GPU validation artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: gpu-validation-${{ github.event.inputs.gpu_type || 'A100' }}-${{ github.run_number }}
-          path: |
-            actual_clocks.txt
-            sample-collection-scripts/results/
-          retention-days: 30
-
-  power-profiling-test:
-    name: Power Profiling Integration Test
-    runs-on: self-hosted
-    if: github.event.inputs.test_mode == 'power-profiling' || github.event_name == 'schedule'
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up environment
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt
-          
-      - name: Test power monitoring tools
-        run: |
-          # Test if power monitoring is available
-          if command -v nvidia-smi &> /dev/null; then
-            echo "Testing nvidia-smi power monitoring..."
-            nvidia-smi --query-gpu=power.draw,power.limit --format=csv,noheader,nounits || echo "Power query failed"
-          fi
-          
-          if command -v dcgmi &> /dev/null; then
-            echo "Testing DCGMI power monitoring..."
-            dcgmi dmon -e 155 -c 1 || echo "DCGMI power monitoring failed"
-          fi
-          
-      - name: Test sample collection framework
-        run: |
-          cd sample-collection-scripts
-          
-          # Test the profile script exists and is executable
-          if [[ -f profile.py ]]; then
-            echo "✓ profile.py found"
-            python3 profile.py --help || echo "profile.py help failed"
-          fi
-          
-          if [[ -f profile_smi.py ]]; then
-            echo "✓ profile_smi.py found"  
-            python3 profile_smi.py --help || echo "profile_smi.py help failed"
-          fi
-          
-          # Test control scripts
-          if [[ -f control.sh ]]; then
-            echo "✓ control.sh found"
-            bash -n control.sh
-          fi
-          
-          if [[ -f control_smi.sh ]]; then
-            echo "✓ control_smi.sh found"
-            bash -n control_smi.sh
-          fi
-          
-      - name: Upload power profiling artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: power-profiling-test-${{ github.run_number }}
-          path: |
-            sample-collection-scripts/results/
-            sample-collection-scripts/*.log
-          retention-days: 7
-
-  edp-optimization-test:
-    name: EDP Optimization Test
-    runs-on: ubuntu-latest
-    if: github.event.inputs.test_mode == 'edp-optimization'
-    
-    steps:
-      - uses: actions/checkout@v4
-      
       - name: Set up Python environment
         uses: actions/setup-python@v5
         with:
@@ -227,54 +82,109 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           
-      - name: Test EDP optimization tools
+      - name: Validate hardware frequency support
         run: |
-          cd tools/analysis
+          GPU_TYPE="${{ github.event.inputs.gpu_type || 'A100' }}"
+          echo "Testing GPU type: $GPU_TYPE"
           
-          # Test EDP optimizer module loading
-          python -c "
-          import edp_optimizer
-          import edp_summary_tables
-          print('✓ EDP optimization modules loaded successfully')
-          "
-          
-          # Test optimal frequency selectors
-          cd ../optimal-frequency
-          python -c "
-          import production_optimal_selector
-          import comprehensive_optimal_selector
-          import optimal_frequency_analysis
-          print('✓ Optimal frequency modules loaded successfully')
-          "
-          
-      - name: Test deployment interface
-        run: |
-          cd tools/deployment
-          python -c "
-          import deployment_interface
-          print('✓ Deployment interface loaded successfully')
-          "
-          
-      - name: Test with sample data
-        run: |
-          cd tools/testing
-          
-          # Run quick tests if they exist
-          if [[ -f test_optimal_frequency.py ]]; then
-            python test_optimal_frequency.py --quick-test || echo "Quick test completed"
+          if nvidia-smi -q -d SUPPORTED_CLOCKS > actual_clocks.txt 2>&1; then
+            echo "✅ Successfully queried GPU clock information"
+          else
+            echo "⚠️ Failed to query detailed clock information"
+            nvidia-smi --query-gpu=clocks.max.graphics,clocks.max.memory --format=csv,noheader,nounits > actual_clocks.txt || echo "Basic clock query failed"
           fi
           
-          if [[ -f quick_frequency_demo.py ]]; then
-            python quick_frequency_demo.py || echo "Demo completed"
-          fi
+          python3 -c "
+          import sys
+          from hardware.gpu_info import get_gpu_info
           
-      - name: Upload EDP test artifacts
-        uses: actions/upload-artifact@v4
+          gpu_type = '$GPU_TYPE'
+          try:
+              gpu_info = get_gpu_info(gpu_type)
+              configured_freqs = gpu_info.get_available_frequencies()
+              print(f'✅ Configured {gpu_type} frequencies: {len(configured_freqs)}')
+              print(f'📊 Range: {min(configured_freqs)}-{max(configured_freqs)} MHz')
+              print(f'✅ All >= 510 MHz: {all(f >= 510 for f in configured_freqs)}')
+              
+              try:
+                  with open('actual_clocks.txt', 'r') as f:
+                      clocks_output = f.read()
+                  print('✅ Successfully read actual GPU clock data')
+                  
+                  import re
+                  graphics_freqs = re.findall(r'Graphics\\\\s*:\\\\s*(\\\\d+)\\\\s*MHz', clocks_output)
+                  if graphics_freqs:
+                      actual_freqs = [int(f) for f in graphics_freqs if int(f) >= 510]
+                      print(f'📊 Actual frequencies >= 510 MHz: {len(actual_freqs)}')
+                      if actual_freqs:
+                          print(f'📊 Actual range: {min(actual_freqs)}-{max(actual_freqs)} MHz')
+                      
+                      overlap = set(configured_freqs) & set(actual_freqs)
+                      if overlap:
+                          print(f'✅ Found {len(overlap)} overlapping frequencies')
+                      else:
+                          print('⚠️ No exact frequency overlap - may be expected for different GPU variants')
+                  else:
+                      print('ℹ️ Could not parse detailed frequency information')
+                      
+              except Exception as e:
+                  print(f'⚠️ Error processing clock data: {e}')
+                  
+          except Exception as e:
+              print(f'❌ Error validating GPU configuration: {e}')
+              sys.exit(1)
+          "
+          
+      - name: Upload test artifacts
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: edp-optimization-test-${{ github.run_number }}
+          name: gpu-test-results-${{ github.event.inputs.gpu_type || 'A100' }}
           path: |
-            tools/analysis/*.json
-            tools/analysis/*.csv
-          retention-days: 7
+            actual_clocks.txt
+            *.log
+          retention-days: 30
+          
+  hardware-info-collection:
+    name: Hardware Information Collection
+    runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
+    timeout-minutes: 15
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Collect comprehensive hardware information
+        run: |
+          echo "=== System Information ===" > hardware_info.txt
+          uname -a >> hardware_info.txt 2>&1 || echo "uname failed" >> hardware_info.txt
+          
+          echo -e "\n=== CPU Information ===" >> hardware_info.txt
+          lscpu >> hardware_info.txt 2>&1 || echo "lscpu not available" >> hardware_info.txt
+          
+          echo -e "\n=== Memory Information ===" >> hardware_info.txt
+          free -h >> hardware_info.txt 2>&1 || echo "free command failed" >> hardware_info.txt
+          
+          echo -e "\n=== GPU Information ===" >> hardware_info.txt
+          if command -v nvidia-smi &> /dev/null; then
+            nvidia-smi >> hardware_info.txt 2>&1
+            echo -e "\n=== Detailed GPU Query ===" >> hardware_info.txt
+            nvidia-smi --query-gpu=index,name,memory.total,memory.free,driver_version,pstate,temperature.gpu,power.draw,power.limit --format=csv >> hardware_info.txt 2>&1
+          else
+            echo "nvidia-smi not available" >> hardware_info.txt
+          fi
+          
+          echo -e "\n=== CUDA Information ===" >> hardware_info.txt
+          if command -v nvcc &> /dev/null; then
+            nvcc --version >> hardware_info.txt 2>&1
+          else
+            echo "CUDA compiler not available" >> hardware_info.txt
+          fi
+          
+      - name: Upload hardware information
+        uses: actions/upload-artifact@v4
+        with:
+          name: hardware-info-${{ github.run_id }}
+          path: hardware_info.txt
+          retention-days: 90

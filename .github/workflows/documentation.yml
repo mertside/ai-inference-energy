@@ -1,0 +1,351 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'mkdocs.yml'
+      - '.github/workflows/documentation.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'mkdocs.yml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          
+      - name: Generate API documentation
+        run: |
+          # Create docs directory if it doesn't exist
+          mkdir -p docs/api
+          
+          # Generate API docs for main modules
+          echo "Generating API documentation..."
+          
+          python -c "
+          import os
+          import pkgutil
+          import importlib
+          import inspect
+          
+          # Main modules to document
+          modules_to_doc = [
+              'hardware.gpu_info',
+              'config',
+              'utils'
+          ]
+          
+          for module_name in modules_to_doc:
+              try:
+                  module = importlib.import_module(module_name)
+                  
+                  # Create markdown file for module
+                  filename = f'docs/api/{module_name.replace(\".\", \"_\")}.md'
+                  
+                  with open(filename, 'w') as f:
+                      f.write(f'# {module_name}\\n\\n')
+                      
+                      # Get module docstring
+                      if module.__doc__:
+                          f.write(f'{module.__doc__}\\n\\n')
+                      
+                      # Document functions and classes
+                      for name, obj in inspect.getmembers(module):
+                          if not name.startswith('_'):
+                              if inspect.isfunction(obj) or inspect.isclass(obj):
+                                  f.write(f'## {name}\\n\\n')
+                                  if obj.__doc__:
+                                      f.write(f'{obj.__doc__}\\n\\n')
+                  
+                  print(f'✅ Generated docs for {module_name}')
+                  
+              except ImportError as e:
+                  print(f'⚠️ Could not import {module_name}: {e}')
+              except Exception as e:
+                  print(f'❌ Error documenting {module_name}: {e}')
+          "
+          
+      - name: Create MkDocs config if missing
+        run: |
+          if [ ! -f "mkdocs.yml" ]; then
+            echo "Creating default mkdocs.yml..."
+            cat > mkdocs.yml << 'EOF'
+          site_name: AI Inference Energy Profiling Framework
+          site_description: Energy profiling framework for AI inference workloads on NVIDIA GPUs
+          site_url: https://mertside.github.io/ai-inference-energy/
+          repo_url: https://github.com/mertside/ai-inference-energy
+          repo_name: mertside/ai-inference-energy
+          
+          theme:
+            name: material
+            palette:
+              - media: "(prefers-color-scheme: light)"
+                scheme: default
+                primary: green
+                accent: green
+                toggle:
+                  icon: material/weather-sunny
+                  name: Switch to dark mode
+              - media: "(prefers-color-scheme: dark)"
+                scheme: slate
+                primary: green
+                accent: green
+                toggle:
+                  icon: material/weather-night
+                  name: Switch to light mode
+            features:
+              - navigation.tabs
+              - navigation.sections
+              - navigation.expand
+              - navigation.top
+              - search.highlight
+              - content.code.copy
+          
+          nav:
+            - Home: index.md
+            - User Guide:
+              - Installation: installation.md
+              - Quick Start: quickstart.md
+              - Configuration: configuration.md
+            - API Reference:
+              - Hardware: api/hardware_gpu_info.md
+              - Configuration: api/config.md
+              - Utilities: api/utils.md
+            - Development:
+              - Contributing: contributing.md
+              - Testing: testing.md
+            - About: about.md
+          
+          plugins:
+            - search
+            - mermaid2
+          
+          markdown_extensions:
+            - admonition
+            - codehilite
+            - pymdownx.superfences:
+                custom_fences:
+                  - name: mermaid
+                    class: mermaid
+                    format: !!python/name:pymdownx.superfences.fence_code_format
+            - pymdownx.tabbed
+            - toc:
+                permalink: true
+          EOF
+          fi
+          
+      - name: Create documentation pages
+        run: |
+          mkdir -p docs
+          
+          # Create index.md from README.md if it doesn't exist
+          if [ ! -f "docs/index.md" ]; then
+            echo "Creating docs/index.md from README.md..."
+            cp README.md docs/index.md
+          fi
+          
+          # Create basic documentation pages if they don't exist
+          if [ ! -f "docs/installation.md" ]; then
+            cat > docs/installation.md << 'EOF'
+          # Installation
+          
+          ## Requirements
+          
+          - Python 3.9 or higher
+          - NVIDIA GPU with CUDA support
+          - Linux operating system (Ubuntu, CentOS, Rocky Linux)
+          
+          ## Install from PyPI
+          
+          ```bash
+          pip install ai-inference-energy
+          ```
+          
+          ## Install from Source
+          
+          ```bash
+          git clone https://github.com/mertside/ai-inference-energy.git
+          cd ai-inference-energy
+          pip install -e .
+          ```
+          
+          ## Development Installation
+          
+          ```bash
+          git clone https://github.com/mertside/ai-inference-energy.git
+          cd ai-inference-energy
+          pip install -r requirements-dev.txt
+          pip install -e .
+          pre-commit install
+          ```
+          EOF
+          fi
+          
+          if [ ! -f "docs/quickstart.md" ]; then
+            cat > docs/quickstart.md << 'EOF'
+          # Quick Start
+          
+          ## Basic Usage
+          
+          ```python
+          from hardware.gpu_info import get_gpu_info
+          from config import GPUConfig
+          
+          # Get GPU information
+          gpu_info = get_gpu_info("A100")
+          print(f"Available frequencies: {gpu_info.get_available_frequencies()}")
+          
+          # Load configuration
+          config = GPUConfig()
+          print(f"Default GPU: {config.default_gpu}")
+          ```
+          
+          ## Running Profiling Scripts
+          
+          ```bash
+          cd sample-collection-scripts
+          ./launch_v2.sh --help
+          ```
+          
+          ## Analysis Tools
+          
+          ```bash
+          cd tools/analysis
+          python edp_summary_tables.py
+          ```
+          EOF
+          fi
+          
+          if [ ! -f "docs/configuration.md" ]; then
+            cat > docs/configuration.md << 'EOF'
+          # Configuration
+          
+          ## GPU Configuration
+          
+          The framework supports multiple NVIDIA GPU types:
+          
+          - V100
+          - A100
+          - H100
+          
+          ## Frequency Settings
+          
+          Each GPU type has predefined frequency ranges for energy profiling.
+          
+          ## Environment Variables
+          
+          - `GPU_TYPE`: Target GPU type
+          - `PROFILING_DURATION`: Duration for profiling runs
+          - `OUTPUT_DIR`: Directory for results
+          EOF
+          fi
+          
+      - name: Build documentation
+        run: |
+          echo "Building documentation with MkDocs..."
+          mkdocs build --verbose
+          
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: site/
+          retention-days: 30
+          
+  deploy-docs:
+    name: Deploy Documentation
+    needs: build-docs
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: site/
+          
+      - name: Deploy to GitHub Pages
+        run: |
+          mkdocs gh-deploy --force --verbose
+          
+  link-checker:
+    name: Check Documentation Links
+    needs: build-docs
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: site/
+          
+      - name: Check internal links
+        run: |
+          echo "Checking internal links in documentation..."
+          
+          # Simple link checker for HTML files
+          find site/ -name "*.html" -exec grep -l "href=" {} \; | while read file; do
+            echo "Checking links in $file..."
+            
+            # Extract relative links and check if target files exist
+            grep -o 'href="[^"]*"' "$file" | sed 's/href="//;s/"//' | while read link; do
+              if [[ "$link" =~ ^[^#]*\.html$ ]] && [[ ! "$link" =~ ^https?:// ]]; then
+                target_file="site/$link"
+                if [ ! -f "$target_file" ]; then
+                  echo "❌ Broken link: $link in $file"
+                fi
+              fi
+            done
+          done
+          
+          echo "✅ Link check completed"
