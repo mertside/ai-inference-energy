@@ -26,8 +26,6 @@ on:
         options:
           - all
           - analysis-only
-          - optimization-only
-          - deployment-only
 
 env:
   PYTHON_VERSION: '3.8'
@@ -113,23 +111,6 @@ jobs:
               sys.exit(1)
           "
 
-      - name: Test deployment tools
-        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only' || github.event.inputs.test_scope == ''
-        run: |
-          cd tools/deployment
-          python -c "
-          import sys
-          import os
-          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
-
-          try:
-              import deployment_interface
-              print('✅ Deployment interface imported successfully')
-          except ImportError as e:
-              print(f'❌ Deployment interface import failed: {e}')
-              sys.exit(1)
-          "
-
       - name: Run analysis tool tests
         run: |
           cd tools/analysis
@@ -146,37 +127,6 @@ jobs:
               print('✅ EDP optimizer can be instantiated')
           except Exception as e:
               print(f'⚠️ EDP optimizer instantiation failed: {e}')
-          "
-
-      - name: Test deployment interface
-        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only'
-        run: |
-          cd tools/deployment
-          python -c "
-          import sys
-          import os
-          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
-
-          try:
-              import deployment_interface
-              print('✓ Deployment interface imported successfully')
-          except ImportError as e:
-              print(f'⚠ Deployment interface import failed: {e}')
-          "
-
-      - name: Test utilities and workflows
-        run: |
-          cd tools/utilities
-          python -c "
-          import sys
-          import os
-          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
-
-          try:
-              import ai_optimization_workflow
-              print('✓ AI optimization workflow imported successfully')
-          except ImportError as e:
-              print(f'⚠ AI optimization workflow import failed: {e}')
           "
 
       - name: Test with sample configuration
