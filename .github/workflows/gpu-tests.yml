@@ -32,7 +32,7 @@ on:
     - cron: '0 3 1 * *'
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.8"
 
 permissions:
   contents: read

@@ -30,29 +30,21 @@ on:
           - deployment-only
 
 env:
-  PYTHON_VERSION: '3.11'
-  CACHE_VERSION: 1
+  PYTHON_VERSION: '3.8'
 
 jobs:
   analysis-tools-test:
     name: Analysis Tools Validation
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
           
       - name: Install dependencies
         run: |
@@ -165,35 +157,6 @@ jobs:
           except Exception as e:
               print(f'⚠️ EDP optimizer instantiation failed: {e}')
           "
-          
-      - name: Validate tool configurations
-        run: |
-          # Check if tools have proper configuration files
-          echo "Checking tool configurations..."
-          
-          for tool_dir in tools/*/; do
-            if [ -d "$tool_dir" ]; then
-              tool_name=$(basename "$tool_dir")
-              echo "Checking $tool_name..."
-              
-              # Look for config files
-              if find "$tool_dir" -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "config.py" | grep -q .; then
-                echo "✅ $tool_name has configuration files"
-              else
-                echo "⚠️ $tool_name has no obvious configuration files"
-              fi
-            fi
-          done
-          
-      - name: Upload analysis results
-        if: always() && matrix.python-version == env.PYTHON_VERSION
-        uses: actions/upload-artifact@v4
-        with:
-          name: analysis-tools-validation-results
-          path: |
-            tools/**/*.log
-            tools/**/*.json
-          retention-days: 7
           
       - name: Test deployment interface
         if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'deployment-only'

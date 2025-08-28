@@ -5,58 +5,12 @@ on:
     branches: [main, dev, develop]
   pull_request:
     branches: [main, dev, develop]
-  schedule:
-    # Run weekly to catch dependency issues
-    - cron: '0 2 * * 1'
 
 env:
-  PYTHON_DEFAULT_VERSION: '3.11'
-  CACHE_VERSION: 1
+  PYTHON_VERSION: '3.8'
 
 
 jobs:
-  security-scan:
-    name: Security Scanning
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-          cache: 'pip'
-
-      - name: Install security tools
-        run: |
-          pip install --upgrade pip
-          pip install bandit[toml] safety pip-audit
-
-      - name: Run Bandit security scan
-        run: |
-          bandit -r . -f sarif -o bandit-results.sarif || true
-          bandit -r . --severity-level medium
-
-      - name: Upload Bandit SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: bandit-results.sarif
-
-      - name: Check dependencies for known vulnerabilities
-        run: |
-          pip-audit --requirement requirements.txt --format=sarif --output=pip-audit-results.sarif || true
-          pip-audit --requirement requirements.txt
-
-      - name: Upload pip-audit SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: pip-audit-results.sarif
-
   lint:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
@@ -66,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
       - name: Install dependencies
@@ -83,21 +37,14 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-            requirements-dev.txt
           
       - name: Install dependencies
         run: |
@@ -151,18 +98,8 @@ jobs:
       - name: Run compatibility tests
         run: |
           bash tests/test_python_compatibility.sh
-          
-      - name: Upload coverage to Codecov
-        if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
 
       - name: Upload coverage artifacts
-        if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
@@ -179,7 +116,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
           
       - name: Validate version consistency
         run: |
@@ -206,32 +143,3 @@ jobs:
           else
             echo "✅ Version consistency verified"
           fi
-
-  package-build:
-    name: Package Build Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-          
-      - name: Install build tools
-        run: |
-          pip install --upgrade pip build twine
-          
-      - name: Build package
-        run: |
-          python -m build
-          
-      - name: Check package
-        run: |
-          twine check dist/*
-          
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/

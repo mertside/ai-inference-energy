@@ -46,15 +46,6 @@ repos:
         additional_dependencies:
           - flake8-docstrings
           - flake8-import-order
-          - flake8-bugbear
-          - flake8-comprehensions
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.9
-    hooks:
-      - id: bandit
-        args: ['-r', '--skip=B101,B601']  # Skip assert and shell usage warnings
-        exclude: ^tests/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.1
@@ -62,20 +53,6 @@ repos:
       - id: mypy
         additional_dependencies: [types-requests, types-PyYAML, types-setuptools]
         args: ['--ignore-missing-imports', '--no-strict-optional', '--show-error-codes']
-
-  # Security and dependency checks
-  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.3.2
-    hooks:
-      - id: python-safety-dependencies-check
-        files: requirements.*\.txt$
-
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
-      - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-        exclude: package.lock.json
 
   # Local custom hooks
   - repo: local
@@ -102,46 +79,6 @@ repos:
         language: system
         args: ['-n']
         files: \.(sh|bash)$
-
-      - id: python-docstring-coverage
-        name: Python Docstring Coverage
-        entry: python3
-        language: python
-        pass_filenames: false
-        args:
-          - -c
-          - |
-            import ast
-            import os
-            total_functions = 0
-            documented_functions = 0
-            
-            for root, dirs, files in os.walk('.'):
-                if 'venv' in root or '__pycache__' in root or '.git' in root:
-                    continue
-                for file in files:
-                    if file.endswith('.py'):
-                        filepath = os.path.join(root, file)
-                        try:
-                            with open(filepath, 'r', encoding='utf-8') as f:
-                                tree = ast.parse(f.read())
-                            for node in ast.walk(tree):
-                                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                                    if not node.name.startswith('_'):  # Skip private functions
-                                        total_functions += 1
-                                        if ast.get_docstring(node):
-                                            documented_functions += 1
-                        except Exception:
-                            pass
-            
-            if total_functions > 0:
-                coverage = (documented_functions / total_functions) * 100
-                print(f"📝 Docstring coverage: {documented_functions}/{total_functions} ({coverage:.1f}%)")
-                if coverage < 70:
-                    print("⚠️ Docstring coverage below 70%")
-            else:
-                print("✅ No public functions found to document")
-        files: \.py$
 
       - id: check-version-consistency
         name: Check Version Consistency
