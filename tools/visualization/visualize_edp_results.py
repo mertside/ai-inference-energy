@@ -24,6 +24,44 @@ import pandas as pd
 plt.style.use("default")
 
 
+def detect_outliers(data: List[float], method: str = "iqr", threshold: float = 2.0) -> List[bool]:
+    """Detect outliers in data using specified method
+
+    Args:
+        data: List of numerical values
+        method: "iqr" for Interquartile Range or "zscore" for Z-score
+        threshold: Threshold for outlier detection (IQR multiplier or Z-score threshold)
+
+    Returns:
+        List of booleans indicating which values are outliers (True = outlier)
+    """
+    if len(data) < 3:
+        return [False] * len(data)  # Can't detect outliers with too few points
+
+    data_array = np.array(data)
+
+    if method == "iqr":
+        # Interquartile Range method
+        Q1 = np.percentile(data_array, 25)
+        Q3 = np.percentile(data_array, 75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - threshold * IQR
+        upper_bound = Q3 + threshold * IQR
+        return (data_array < lower_bound) | (data_array > upper_bound)
+
+    elif method == "zscore":
+        # Z-score method
+        mean = np.mean(data_array)
+        std = np.std(data_array)
+        if std == 0:  # All values are the same
+            return [False] * len(data)
+        z_scores = np.abs((data_array - mean) / std)
+        return z_scores > threshold
+
+    else:
+        raise ValueError(f"Unknown outlier detection method: {method}")
+
+
 class DataVisualizer:
     """Visualizer for EDP/ED²P optimization results using experimental data"""
 
@@ -47,9 +85,9 @@ class DataVisualizer:
         # Color scheme
         self.colors = {
             "frequency_points": "#95a5a6",
-            "max_freq": "#cc0000",  #'#e74c3c',
-            "edp_optimal": "#00cc00",  #'#2ecc71',
-            "ed2p_optimal": "#0000cc",  #'#3498db'
+            "max_freq": "#cc0000",  # '#e74c3c',
+            "edp_optimal": "#00cc00",  # '#2ecc71',
+            "ed2p_optimal": "#0000cc",  # '#3498db'
         }
 
     def find_result_directory(self, gpu: str, workload: str) -> Optional[Path]:
@@ -82,10 +120,10 @@ class DataVisualizer:
         return result_dir
 
     def load_timing_data(self, result_dir: Path) -> Dict[int, float]:
-        """Load timing data from timing_summary.log file
+        """Load timing data from timing_summary.log file, averaging warm runs (excluding first run)
 
         Returns:
-            Dict mapping frequency (MHz) to execution time (seconds)
+            Dict mapping frequency (MHz) to averaged execution time (seconds)
         """
         timing_data = {}
 
@@ -93,6 +131,9 @@ class DataVisualizer:
         timing_file = result_dir / "timing_summary.log"
         if timing_file.exists():
             try:
+                # Collect all runs by frequency
+                frequency_runs = {}
+
                 with open(timing_file, "r") as f:
                     for line in f:
                         # Skip comments and empty lines
@@ -101,13 +142,54 @@ class DataVisualizer:
 
                         # Parse format: run_id,frequency_mhz,duration_seconds,exit_code,status
                         parts = line.strip().split(",")
-                        if len(parts) >= 3:
+                        if len(parts) >= 4:
                             try:
+                                run_id = parts[0]
                                 frequency = int(parts[1])
                                 duration = float(parts[2])
-                                timing_data[frequency] = duration
+                                exit_code = int(parts[3])
+
+                                # Only include successful runs
+                                if exit_code == 0:
+                                    if frequency not in frequency_runs:
+                                        frequency_runs[frequency] = []
+                                    frequency_runs[frequency].append((run_id, duration))
                             except (ValueError, IndexError):
                                 continue
+
+                # Average runs for each frequency, excluding the first (cold) run and outliers
+                for frequency, runs in frequency_runs.items():
+                    if len(runs) > 1:
+                        # Sort by run_id to ensure consistent ordering
+                        runs.sort(key=lambda x: x[0])
+                        # Exclude first run (cold run) and get warm runs
+                        warm_runs = [duration for _, duration in runs[1:]]
+
+                        if len(warm_runs) > 2:  # Need at least 3 points for outlier detection
+                            # Detect outliers using IQR method with threshold of 1.5
+                            outlier_mask = detect_outliers(warm_runs, method="iqr", threshold=1.5)
+
+                            # Filter out outliers
+                            filtered_runs = [duration for i, duration in enumerate(warm_runs) if not outlier_mask[i]]
+
+                            # Report outliers if any were found
+                            outliers = [duration for i, duration in enumerate(warm_runs) if outlier_mask[i]]
+                            if outliers:
+                                print(f"    Frequency {frequency} MHz: excluded {len(outliers)} outlier(s) {outliers}")
+
+                            # Use filtered data if we still have at least 2 points, otherwise use all warm runs
+                            final_runs = filtered_runs if len(filtered_runs) >= 2 else warm_runs
+                        else:
+                            final_runs = warm_runs
+
+                        if final_runs:
+                            avg_duration = sum(final_runs) / len(final_runs)
+                            timing_data[frequency] = avg_duration
+                            print(f"    Frequency {frequency} MHz: averaged {len(final_runs)} warm runs (excluded cold run)")
+                    elif len(runs) == 1:
+                        # If only one run, use it (better than no data)
+                        timing_data[frequency] = runs[0][1]
+                        print(f"    Frequency {frequency} MHz: only 1 run available (no warm runs to average)")
 
             except Exception as e:
                 print(f"    Error reading timing file: {e}")
@@ -115,7 +197,7 @@ class DataVisualizer:
         return timing_data
 
     def load_power_data(self, result_dir: Path) -> Dict[int, Tuple[float, float]]:
-        """Load power data from DCGMI profile CSV files
+        """Load power data from DCGMI profile CSV files, averaging warm runs (excluding first run)
 
         Returns:
             Dict mapping frequency (MHz) to (average_power, total_energy) tuple
@@ -131,111 +213,191 @@ class DataVisualizer:
 
         print(f"    Found {len(profile_files)} profile files")
 
+        # Group files by frequency
+        frequency_files = {}
         for profile_file in profile_files:
             try:
-                # Extract frequency from filename
+                # Extract frequency and run number from filename
+                # Format: run_{run_id}_{run_number}_freq_{frequency}_profile.csv
                 freq_match = re.search(r"freq_(\d+)", profile_file.name)
-                if not freq_match:
+                run_match = re.search(r"run_\d+_(\d+)_freq_", profile_file.name)
+
+                if not freq_match or not run_match:
                     continue
 
                 frequency = int(freq_match.group(1))
+                run_number = int(run_match.group(1))
 
-                # Load CSV data - handle DCGMI format with fixed-width columns
-                try:
-                    # First, read the file and identify the structure
-                    with open(profile_file, "r") as f:
-                        lines = f.readlines()
+                if frequency not in frequency_files:
+                    frequency_files[frequency] = []
+                frequency_files[frequency].append((run_number, profile_file))
 
-                    # Find the header line (starts with #Entity) and parse column positions
-                    header_line = None
-                    power_col_start = None
-                    power_col_end = None
-                    data_start_idx = 0
+            except (ValueError, IndexError):
+                continue
 
-                    for i, line in enumerate(lines):
-                        # Handle both "#Entity" and "# Entity" formats
-                        if line.startswith("#") and "Entity" in line:
-                            header_line = line.strip()
-                            # Remove the # symbol and any leading spaces
-                            if header_line.startswith("# "):
-                                header_line = header_line[2:].strip()
-                            elif header_line.startswith("#"):
-                                header_line = header_line[1:].strip()
+        # Process each frequency
+        for frequency, files in frequency_files.items():
+            try:
+                # Sort by run number to ensure consistent ordering
+                files.sort(key=lambda x: x[0])
 
-                            data_start_idx = i + 2  # Skip header and units line
+                # Exclude first run (run number 01) and process warm runs
+                warm_run_files = [f for run_num, f in files if run_num > 1]
 
-                            # Find POWER column position
-                            power_start = line.find("POWER")
-                            if power_start > 0:
-                                # For "# Entity" format, we need to account for the extra space
-                                if line.startswith("# "):
-                                    power_col_start = power_start - 2  # Account for removed "# "
-                                else:
-                                    power_col_start = power_start - 1  # Account for removed "#"
+                if not warm_run_files:
+                    # If no warm runs, use all available runs
+                    warm_run_files = [f for _, f in files]
+                    print(f"    Frequency {frequency} MHz: no warm runs found, using all {len(warm_run_files)} runs")
+                else:
+                    print(f"    Frequency {frequency} MHz: averaging {len(warm_run_files)} warm runs (excluded cold run)")
 
-                                # Find the end of the POWER column by looking for the next column
-                                remaining = line[power_start + 5 :]  # After "POWER"
-                                next_col_match = re.search(r"[A-Z]", remaining)
-                                if next_col_match:
-                                    power_col_end = power_start + 5 + next_col_match.start() - 1
-                                else:
-                                    power_col_end = power_start + 20  # Default width
-                            break
+                # Process each warm run file and collect power data
+                all_power_values = []
+                all_energies = []
 
-                    if header_line is not None and power_col_start is not None:
-                        # Extract power values using fixed-width positions
-                        power_values = []
-                        for line in lines[data_start_idx:]:
-                            if len(line) > power_col_start:
-                                power_str = line[power_col_start:power_col_end].strip()
-                                try:
-                                    power_val = float(power_str)
-                                    # Check if it's in reasonable power range (10-500W)
-                                    if 10 <= power_val <= 500:
-                                        power_values.append(power_val)
-                                except ValueError:
-                                    continue
+                for profile_file in warm_run_files:
+                    power_values = self._extract_power_from_file(profile_file)
 
-                        if len(power_values) > 0:
-                            power_values = pd.Series(power_values)
-                        else:
-                            power_values = None
+                    if power_values is not None and len(power_values) > 0:
+                        # Calculate energy for this run
+                        sampling_rate = 0.05  # 50ms sampling rate
+                        avg_power = power_values.mean()
+                        execution_time = len(power_values) * sampling_rate
+                        total_energy = avg_power * execution_time
+
+                        all_power_values.append(avg_power)
+                        all_energies.append(total_energy)
+
+                # Average across warm runs, excluding outliers
+                if all_power_values and len(all_power_values) > 2:
+                    # Detect outliers in both power and energy measurements
+                    power_outliers = detect_outliers(all_power_values, method="iqr", threshold=1.5)
+                    energy_outliers = detect_outliers(all_energies, method="iqr", threshold=1.5)
+
+                    # Combine outlier masks (exclude if outlier in either power or energy)
+                    combined_outliers = [p_out or e_out for p_out, e_out in zip(power_outliers, energy_outliers)]
+
+                    # Filter out outliers
+                    filtered_power = [power for i, power in enumerate(all_power_values) if not combined_outliers[i]]
+                    filtered_energy = [energy for i, energy in enumerate(all_energies) if not combined_outliers[i]]
+
+                    # Report outliers if any were found
+                    outlier_indices = [i for i, is_outlier in enumerate(combined_outliers) if is_outlier]
+                    if outlier_indices:
+                        outlier_powers = [all_power_values[i] for i in outlier_indices]
+                        outlier_energies = [all_energies[i] for i in outlier_indices]
+                        print(f"    Frequency {frequency} MHz: excluded {len(outlier_indices)} power/energy outlier(s)")
+                        print(f"      Power outliers: {[f'{p:.1f}W' for p in outlier_powers]}")
+                        print(f"      Energy outliers: {[f'{e:.1f}J' for e in outlier_energies]}")
+
+                    # Use filtered data if we still have at least 2 points, otherwise use all data
+                    if len(filtered_power) >= 2:
+                        avg_power = sum(filtered_power) / len(filtered_power)
+                        avg_energy = sum(filtered_energy) / len(filtered_energy)
                     else:
-                        # Fallback to pandas parsing
-                        df = pd.read_csv(profile_file, sep=r"\s+", comment="#", on_bad_lines="skip")
-                        if "POWER" in df.columns:
-                            power_values = pd.to_numeric(df["POWER"], errors="coerce").dropna()
-                        else:
-                            power_values = None
-                except:
-                    try:
-                        # Final fallback - try comma-delimited
-                        df = pd.read_csv(profile_file, comment="#", on_bad_lines="skip")
-                        if "POWER" in df.columns:
-                            power_values = pd.to_numeric(df["POWER"], errors="coerce").dropna()
-                        else:
-                            power_values = None
-                    except:
-                        power_values = None
+                        avg_power = sum(all_power_values) / len(all_power_values)
+                        avg_energy = sum(all_energies) / len(all_energies)
 
-                if power_values is None or len(power_values) == 0:
-                    print(f"    Warning: Could not find power data in {profile_file.name}")
-                    continue
+                    power_data[frequency] = (avg_power, avg_energy)
 
-                # Calculate energy consumption
-                # Assuming 50ms sampling rate (0.05 seconds per sample)
-                sampling_rate = 0.05
-                avg_power = power_values.mean()
-                execution_time = len(power_values) * sampling_rate
-                total_energy = avg_power * execution_time
-
-                power_data[frequency] = (avg_power, total_energy)
+                elif all_power_values:
+                    # Not enough data for outlier detection, use all values
+                    avg_power = sum(all_power_values) / len(all_power_values)
+                    avg_energy = sum(all_energies) / len(all_energies)
+                    power_data[frequency] = (avg_power, avg_energy)
+                else:
+                    print(f"    Warning: No valid power data found for frequency {frequency} MHz")
 
             except Exception as e:
-                print(f"    Warning: Error processing {profile_file.name}: {e}")
+                print(f"    Warning: Error processing frequency {frequency} MHz: {e}")
                 continue
 
         return power_data
+
+    def _extract_power_from_file(self, profile_file: Path) -> Optional[pd.Series]:
+        """Extract power values from a single DCGMI profile CSV file"""
+        try:
+            # Load CSV data - handle DCGMI format with fixed-width columns
+            try:
+                # First, read the file and identify the structure
+                with open(profile_file, "r") as f:
+                    lines = f.readlines()
+
+                # Find the header line (starts with #Entity) and parse column positions
+                header_line = None
+                power_col_start = None
+                power_col_end = None
+                data_start_idx = 0
+
+                for i, line in enumerate(lines):
+                    # Handle both "#Entity" and "# Entity" formats
+                    if line.startswith("#") and "Entity" in line:
+                        header_line = line.strip()
+                        # Remove the # symbol and any leading spaces
+                        if header_line.startswith("# "):
+                            header_line = header_line[2:].strip()
+                        elif header_line.startswith("#"):
+                            header_line = header_line[1:].strip()
+
+                        data_start_idx = i + 2  # Skip header and units line
+
+                        # Find POWER column position
+                        power_start = line.find("POWER")
+                        if power_start > 0:
+                            # For "# Entity" format, we need to account for the extra space
+                            if line.startswith("# "):
+                                power_col_start = power_start - 2  # Account for removed "# "
+                            else:
+                                power_col_start = power_start - 1  # Account for removed "#"
+
+                            # Find the end of the POWER column by looking for the next column
+                            remaining = line[power_start + 5 :]  # After "POWER"
+                            next_col_match = re.search(r"[A-Z]", remaining)
+                            if next_col_match:
+                                power_col_end = power_start + 5 + next_col_match.start() - 1
+                            else:
+                                power_col_end = power_start + 20  # Default width
+                        break
+
+                if header_line is not None and power_col_start is not None:
+                    # Extract power values using fixed-width positions
+                    power_values = []
+                    for line in lines[data_start_idx:]:
+                        if len(line) > power_col_start:
+                            power_str = line[power_col_start:power_col_end].strip()
+                            try:
+                                power_val = float(power_str)
+                                # Check if it's in reasonable power range (10-500W)
+                                if 10 <= power_val <= 500:
+                                    power_values.append(power_val)
+                            except ValueError:
+                                continue
+
+                    if len(power_values) > 0:
+                        return pd.Series(power_values)
+                    else:
+                        return None
+                else:
+                    # Fallback to pandas parsing
+                    df = pd.read_csv(profile_file, sep=r"\s+", comment="#", on_bad_lines="skip")
+                    if "POWER" in df.columns:
+                        return pd.to_numeric(df["POWER"], errors="coerce").dropna()
+                    else:
+                        return None
+            except:
+                try:
+                    # Final fallback - try comma-delimited
+                    df = pd.read_csv(profile_file, comment="#", on_bad_lines="skip")
+                    if "POWER" in df.columns:
+                        return pd.to_numeric(df["POWER"], errors="coerce").dropna()
+                    else:
+                        return None
+                except:
+                    return None
+
+        except Exception as e:
+            print(f"    Warning: Error processing {profile_file.name}: {e}")
+            return None
 
     def load_experimental_data(self, gpu: str, workload: str) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]]:
         """Load experimental data for a GPU-workload combination
@@ -319,7 +481,7 @@ class DataVisualizer:
         if real_data is not None:
             frequencies, timings, energies = real_data
             data_source = "Experimental Data"
-            print(f"    Using experimental data with {len(frequencies)} points")
+            print(f"    Using experimental data with {len(frequencies)} frequency points")
         else:
             # Fallback to synthetic data based on optimization results
             frequencies, timings, energies = self.generate_synthetic_fallback(config)
