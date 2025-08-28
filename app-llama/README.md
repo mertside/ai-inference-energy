@@ -25,7 +25,7 @@ cd setup/
 
 # Or specify GPU type manually
 ./setup_llama.sh h100    # For H100 GPUs
-./setup_llama.sh a100    # For A100 GPUs  
+./setup_llama.sh a100    # For A100 GPUs
 ./setup_llama.sh v100    # For V100 GPUs
 ./setup_llama.sh generic # For development/CPU
 ```
@@ -229,7 +229,7 @@ Results are automatically saved to `results_[GPU]_LLaMA/` directory following th
    conda activate llama
    pip uninstall torchvision -y
    pip install torchvision --no-deps
-   # Alternative: 
+   # Alternative:
    conda install pytorch torchvision pytorch-cuda=11.8 -c pytorch -c nvidia
    ```
 
@@ -262,7 +262,7 @@ app-llama/
 ## Version Information
 
 - **Version**: 2.0.1
-- **Compatible with**: Energy Profiling Framework v2.1.0
+- **Compatible with**: Energy Profiling Framework v2.2.0
 - **Python Requirements**: 3.9+ (3.10+ recommended)
 - **CUDA Requirements**: 11.7+ (12.1+ for H100)
 - **Transformers Version**: 4.25.0+ (4.35.0+ recommended)
@@ -271,6 +271,6 @@ app-llama/
 
 For issues related to:
 - **Model access**: Check Hugging Face documentation and model permissions
-- **CUDA/GPU issues**: Verify driver compatibility and memory requirements  
+- **CUDA/GPU issues**: Verify driver compatibility and memory requirements
 - **Framework integration**: See main repository documentation
 - **Environment setup**: Review setup script logs and conda environment files

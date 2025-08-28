@@ -329,48 +329,42 @@ class ProfilingConfig:
 
     # DCGMI monitoring fields
     # This matches the field configuration actually used by profile.py
-    # DCGMI one-liner: dcgmi dmon -d 50 -e 52,50,155,160,156,150,140,203,204,250,251,252,100,101,110,111,190,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
+    # DCGMI one-liner: dcgmi dmon -d 50 -e 52,50,155,160,156,150,140,203,204,
+    # 250,251,252,100,101,110,111,190,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
     DCGMI_FIELDS = [
         # Basic device information
-        52,          # DCGM_FI_DEV_NVML_INDEX - GPU device index
-        50,          # DCGM_FI_DEV_NAME - GPU device name
-        
+        52,  # DCGM_FI_DEV_NVML_INDEX - GPU device index
+        50,  # DCGM_FI_DEV_NAME - GPU device name
         # Power metrics
-        155,         # DCGM_FI_DEV_POWER_USAGE - Current power draw (W)
-        160,         # DCGM_FI_DEV_POWER_MGMT_LIMIT - Power management limit (W)
-        156,         # DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION - Total energy consumption (mJ)
-        
+        155,  # DCGM_FI_DEV_POWER_USAGE - Current power draw (W)
+        160,  # DCGM_FI_DEV_POWER_MGMT_LIMIT - Power management limit (W)
+        156,  # DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION - Total energy consumption (mJ)
         # Temperature metrics
-        150,         # DCGM_FI_DEV_GPU_TEMP - GPU temperature (C)
-        140,         # DCGM_FI_DEV_MEMORY_TEMP - Memory (HBM) temperature (C)
-        
+        150,  # DCGM_FI_DEV_GPU_TEMP - GPU temperature (C)
+        140,  # DCGM_FI_DEV_MEMORY_TEMP - Memory (HBM) temperature (C)
         # Utilization metrics
-        203,         # DCGM_FI_DEV_GPU_UTIL - GPU utilization (coarse) (%)
-        204,         # DCGM_FI_DEV_MEM_COPY_UTIL - Memory copy utilization (≈ util.mem) (%)
-        
+        203,  # DCGM_FI_DEV_GPU_UTIL - GPU utilization (coarse) (%)
+        204,  # DCGM_FI_DEV_MEM_COPY_UTIL - Memory copy utilization (≈ util.mem) (%)
         # Memory metrics
-        250,         # DCGM_FI_DEV_FB_TOTAL - Total framebuffer memory (MB)
-        251,         # DCGM_FI_DEV_FB_FREE - Free framebuffer memory (MB)
-        252,         # DCGM_FI_DEV_FB_USED - Used framebuffer memory (MB)
-        
+        250,  # DCGM_FI_DEV_FB_TOTAL - Total framebuffer memory (MB)
+        251,  # DCGM_FI_DEV_FB_FREE - Free framebuffer memory (MB)
+        252,  # DCGM_FI_DEV_FB_USED - Used framebuffer memory (MB)
         # Clock frequencies
-        100,         # DCGM_FI_DEV_SM_CLOCK - SM clock frequency (MHz)
-        101,         # DCGM_FI_DEV_MEM_CLOCK - Memory clock frequency (MHz)
-        110,         # DCGM_FI_DEV_APP_SM_CLOCK - Application SM clock (MHz)
-        111,         # DCGM_FI_DEV_APP_MEM_CLOCK - Application memory clock (MHz)
-        
+        100,  # DCGM_FI_DEV_SM_CLOCK - SM clock frequency (MHz)
+        101,  # DCGM_FI_DEV_MEM_CLOCK - Memory clock frequency (MHz)
+        110,  # DCGM_FI_DEV_APP_SM_CLOCK - Application SM clock (MHz)
+        111,  # DCGM_FI_DEV_APP_MEM_CLOCK - Application memory clock (MHz)
         # Performance state
-        190,         # DCGM_FI_DEV_PSTATE - Performance state (P-state)
-        
+        190,  # DCGM_FI_DEV_PSTATE - Performance state (P-state)
         # Advanced compute activity metrics (DCGM 2.0+)
-        1001,        # DCGM_FI_PROF_GR_ENGINE_ACTIVE - Graphics engine active (%)
-        1002,        # DCGM_FI_PROF_SM_ACTIVE - SM active (%)
-        1003,        # DCGM_FI_PROF_SM_OCCUPANCY - SM occupancy (%)
-        1004,        # DCGM_FI_PROF_PIPE_TENSOR_ACTIVE - Tensor pipe active (%)
-        1005,        # DCGM_FI_PROF_DRAM_ACTIVE - DRAM active (%)
-        1006,        # DCGM_FI_PROF_PIPE_FP64_ACTIVE - FP64 pipe active (%)
-        1007,        # DCGM_FI_PROF_PIPE_FP32_ACTIVE - FP32 pipe active (%)
-        1008,        # DCGM_FI_PROF_PIPE_FP16_ACTIVE - FP16 pipe active (%)
+        1001,  # DCGM_FI_PROF_GR_ENGINE_ACTIVE - Graphics engine active (%)
+        1002,  # DCGM_FI_PROF_SM_ACTIVE - SM active (%)
+        1003,  # DCGM_FI_PROF_SM_OCCUPANCY - SM occupancy (%)
+        1004,  # DCGM_FI_PROF_PIPE_TENSOR_ACTIVE - Tensor pipe active (%)
+        1005,  # DCGM_FI_PROF_DRAM_ACTIVE - DRAM active (%)
+        1006,  # DCGM_FI_PROF_PIPE_FP64_ACTIVE - FP64 pipe active (%)
+        1007,  # DCGM_FI_PROF_PIPE_FP32_ACTIVE - FP32 pipe active (%)
+        1008,  # DCGM_FI_PROF_PIPE_FP16_ACTIVE - FP16 pipe active (%)
     ]
 
     # Profiling intervals
@@ -393,21 +387,21 @@ class ModelConfig:
     LLAMA_MODEL_NAME = "huggyllama/llama-7b"  # Default model
     LLAMA_TORCH_DTYPE = "float16"
     LLAMA_DEFAULT_PROMPT = "Plants create energy through a process known as"
-    
+
     # LLaMA model variants with their Hugging Face identifiers
     LLAMA_MODELS = {
         "llama-7b": "huggyllama/llama-7b",
         "llama-13b": "huggyllama/llama-13b",
-        "llama-30b": "huggyllama/llama-30b", 
+        "llama-30b": "huggyllama/llama-30b",
         "llama-65b": "huggyllama/llama-65b",
         "llama2-7b": "meta-llama/Llama-2-7b-hf",
         "llama2-13b": "meta-llama/Llama-2-13b-hf",
         "llama2-70b": "meta-llama/Llama-2-70b-hf",
         "code-llama-7b": "codellama/CodeLlama-7b-hf",
         "code-llama-13b": "codellama/CodeLlama-13b-hf",
-        "code-llama-34b": "codellama/CodeLlama-34b-hf"
+        "code-llama-34b": "codellama/CodeLlama-34b-hf",
     }
-    
+
     # LLaMA generation parameters for consistent benchmarking
     LLAMA_DEFAULT_PARAMS = {
         "max_new_tokens": 50,
@@ -415,9 +409,9 @@ class ModelConfig:
         "top_p": 0.9,
         "top_k": 50,
         "do_sample": True,
-        "repetition_penalty": 1.1
+        "repetition_penalty": 1.1,
     }
-    
+
     # Benchmark prompts for LLaMA evaluation
     LLAMA_BENCHMARK_PROMPTS = [
         "The future of artificial intelligence is",
@@ -427,7 +421,7 @@ class ModelConfig:
         "The impact of social media on society",
         "Quantum computing represents a paradigm shift",
         "The exploration of space has always fascinated",
-        "Sustainable development goals are essential"
+        "Sustainable development goals are essential",
     ]
 
     # Stable Diffusion model configuration
@@ -441,31 +435,26 @@ class ModelConfig:
     WHISPER_DEFAULT_LANGUAGE = "en"
     WHISPER_SAMPLE_RATE = 16000
     WHISPER_DEFAULT_DURATION = 30  # seconds
-    
+
     # Whisper model variants with their Hugging Face identifiers
     WHISPER_MODELS = {
         "tiny": "openai/whisper-tiny",
-        "base": "openai/whisper-base", 
+        "base": "openai/whisper-base",
         "small": "openai/whisper-small",
         "medium": "openai/whisper-medium",
         "large": "openai/whisper-large-v2",
-        "large-v3": "openai/whisper-large-v3"
+        "large-v3": "openai/whisper-large-v3",
     }
-    
+
     # Whisper benchmark parameters for consistent energy profiling
-    WHISPER_DEFAULT_PARAMS = {
-        "num_samples": 3,
-        "use_dataset": False,
-        "language": "en",
-        "return_timestamps": False
-    }
-    
+    WHISPER_DEFAULT_PARAMS = {"num_samples": 3, "use_dataset": False, "language": "en", "return_timestamps": False}
+
     # Benchmark audio configurations for Whisper evaluation
     WHISPER_BENCHMARK_CONFIGS = [
         {"duration": 5.0, "complexity": "simple"},
         {"duration": 15.0, "complexity": "medium"},
         {"duration": 30.0, "complexity": "complex"},
-        {"duration": 60.0, "complexity": "long_form"}
+        {"duration": 60.0, "complexity": "long_form"},
     ]
 
 

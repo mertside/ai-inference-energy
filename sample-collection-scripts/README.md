@@ -1,13 +1,13 @@
 # AI Inference Energy Profiling Framework
 
-> **Latest Version**: v2.1.0 (Enhanced) | **Status**: Production Ready ✅  
+> **Latest Version**: v2.2.0 (Enhanced) | **Status**: Production Ready ✅
 > **Quick Start**: `./launch_v2.sh --help` | **Cleanup**: `./clean.sh --help` | **Legacy**: `./legacy/launch.sh`
 
 This directory contains a **production-ready, modular AI inference energy profiling framework** for comprehensive power analysis across GPU architectures (H100, A100, V100) and AI workloads (Stable Diffusion, LSTM, LLaMA, Whisper, Vision Transformer).
 
-**🎉 Recent Enhancements (v2.1.0):**
+**🎉 Recent Enhancements (v2.2.0):**
 - ✅ **Robust Error Handling**: Resolved "experiment failed" issues with graceful error recovery
-- ✅ **Intelligent Results Naming**: Automatic `results_[gpu]_[app]` directory organization  
+- ✅ **Intelligent Results Naming**: Automatic `results_[gpu]_[app]` directory organization
 - ✅ **Enhanced Cleanup Tool**: Advanced filtering, backup, and selective cleanup options
 - ✅ **High-Resolution Profiling**: Consistent 50ms sampling for both DCGMI and nvidia-smi
 - ✅ **Comprehensive Summaries**: Rich experiment metadata and performance statistics
@@ -53,7 +53,7 @@ This directory contains a **production-ready, modular AI inference energy profil
 
 - 🏗️ **Modular Architecture**: Clean separation of concerns with reusable libraries
 - 🔧 **Robust CLI**: Comprehensive command-line interface with intelligent defaults
-- 🎯 **Multi-GPU Support**: Native H100, A100, and V100 configurations  
+- 🎯 **Multi-GPU Support**: Native H100, A100, and V100 configurations
 - 🛠️ **Tool Flexibility**: DCGMI, nvidia-smi with automatic fallback
 - ⚡ **High Resolution**: 50ms sampling interval for both DCGMI and nvidia-smi
 - 📊 **Experiment Modes**: DVFS (frequency sweep) and baseline profiling
@@ -100,7 +100,7 @@ sample-collection-scripts/
 # H100 experiment with DCGMI
 ./launch_v2.sh --gpu-type H100
 
-# V100 baseline with nvidia-smi fallback  
+# V100 baseline with nvidia-smi fallback
 ./launch_v2.sh --gpu-type V100 --profiling-tool nvidia-smi --profiling-mode baseline
 
 # A100 custom frequency range
@@ -159,7 +159,7 @@ sample-collection-scripts/
 ./launch_v2.sh --gpu-type H100 --app-name StableDiffusion --profiling-tool dcgmi
 # → Creates: results_h100_stablediffusion_job_12345/ (SLURM) or results_h100_stablediffusion/ (non-SLURM)
 
-./launch_v2.sh --gpu-type A100 --app-name LSTM --profiling-tool nvidia-smi  
+./launch_v2.sh --gpu-type A100 --app-name LSTM --profiling-tool nvidia-smi
 # → Creates: results_a100_lstm_job_12346/ (SLURM) or results_a100_lstm/ (non-SLURM)
 
 ./launch_v2.sh --gpu-type V100 --app-name StableDiffusion --profiling-mode baseline
@@ -185,7 +185,7 @@ DEFAULT_PROFILING_TOOL="dcgmi"
 DEFAULT_PROFILING_MODE="dvfs"
 DEFAULT_NUM_RUNS=3
 
-# Application defaults  
+# Application defaults
 DEFAULT_APP_NAME="LSTM"
 DEFAULT_APP_EXECUTABLE="lstm.py"
 DEFAULT_OUTPUT_DIR="results"
@@ -228,7 +228,7 @@ The framework integrates seamlessly with existing SLURM job scripts:
 # H100 job submission
 sbatch submit_job_h100.sh
 
-# A100 job submission  
+# A100 job submission
 sbatch submit_job_a100.sh
 
 # V100 job submission
@@ -308,7 +308,7 @@ module load anaconda3
 ./legacy/launch.sh                       # Keep using legacy
 ```
 
-#### Phase 2: Feature Adoption  
+#### Phase 2: Feature Adoption
 ```bash
 # Start using new features
 ./launch_v2.sh --debug                   # Better debugging
@@ -412,7 +412,7 @@ Enable comprehensive debugging:
 
 This provides:
 - ✅ Library loading status
-- ✅ GPU detection results  
+- ✅ GPU detection results
 - ✅ Profiling tool validation
 - ✅ Configuration summary
 - ✅ Step-by-step execution trace
@@ -487,7 +487,7 @@ The framework generates analysis-ready data:
 ```bash
 # Logging functions
 log_info "Information message"
-log_error "Error message"  
+log_error "Error message"
 log_warning "Warning message"
 log_debug "Debug message"
 
@@ -504,7 +504,7 @@ detect_gpu_type                 # Returns: H100, A100, V100, or unknown
 get_gpu_count                   # Returns: number of GPUs
 validate_gpu_type "H100"        # Validates GPU type
 
-# Frequency management  
+# Frequency management
 get_gpu_memory_freq "A100"      # Returns valid frequency ranges
 generate_frequency_range start end step  # Creates frequency array
 ```
@@ -547,7 +547,7 @@ The modular architecture enables easy extensions:
 
 ### Easy Customization
 - **New GPU Support**: Add configuration in `lib/gpu_config.sh`
-- **Additional Tools**: Extend `lib/profiling.sh` 
+- **Additional Tools**: Extend `lib/profiling.sh`
 - **Custom Analytics**: Create new libraries in `lib/`
 - **Web Frontend**: Build on existing CLI foundation
 
@@ -557,7 +557,7 @@ The modular architecture enables easy extensions:
 
 ### Self-Help Resources
 1. **Comprehensive Help**: `./launch_v2.sh --help`
-2. **Debug Mode**: `./launch_v2.sh --debug`  
+2. **Debug Mode**: `./launch_v2.sh --debug`
 3. **Test Suite**: `./tests/test_framework.sh`
 4. **Library Testing**: `source lib/common.sh && log_info "Test"`
 
@@ -610,7 +610,7 @@ The modular architecture makes contributions straightforward:
 # Default A100 DVFS experiment
 ./launch_v2.sh
 
-# V100 baseline experiment 
+# V100 baseline experiment
 ./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 
 # Custom application profiling
@@ -666,7 +666,7 @@ Options:
 ```bash
 ./launch_v2.sh --gpu-type V100
 ```
-- Architecture: GV100  
+- Architecture: GV100
 - Memory: 877 MHz
 - Core frequencies: 1380-510 MHz (117 frequencies)
 - SLURM partition: matador
@@ -676,7 +676,7 @@ Options:
 ```bash
 ./launch_v2.sh --gpu-type H100
 ```
-- Architecture: GH100  
+- Architecture: GH100
 - Memory: 2619 MHz
 - Core frequencies: 1785-510 MHz (86 frequencies in 15MHz steps)
 - SLURM partition: h100 (node: rpg-93-1)
@@ -712,7 +712,7 @@ Options:
 - **Temporal Precision**: Captures brief GPU activity transitions
 
 #### Data Collection
-- **Metrics per Sample**: 25 comprehensive DCGMI fields (v2.1.0), 17 nvidia-smi fields
+- **Metrics per Sample**: 25 comprehensive DCGMI fields (v2.2.0), 17 nvidia-smi fields
 - **DCGMI Fields**: Device info, power metrics, temperatures, utilization, memory, clocks, P-state, compute activity
 - **File Format**: CSV with timestamps and comprehensive GPU telemetry
 - **Storage**: ~150KB per 20-second run (typical application)
@@ -738,7 +738,7 @@ Options:
 
 ### Core Scripts
 - **`launch.sh`** - 🎯 Main experiment orchestration (CLI enhanced)
-- **`profile.py`** - DCGMI-based GPU profiler  
+- **`profile.py`** - DCGMI-based GPU profiler
 - **`profile_smi.py`** - nvidia-smi-based GPU profiler
 - **`control.sh`** - DCGMI-based frequency control
 - **`control_smi.sh`** - nvidia-smi-based frequency control
@@ -767,14 +767,14 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 - **`submit_job_v100_comprehensive.sh`** - Legacy V100 comprehensive (redirects to unified)
 - **`submit_job_v100_custom_app.sh`** - Legacy V100 custom app (redirects to unified)
 - **`submit_job_h100_baseline.sh`** - H100 baseline profiling
-- **`submit_job_h100_comprehensive.sh`** - H100 comprehensive profiling  
+- **`submit_job_h100_comprehensive.sh`** - H100 comprehensive profiling
 - **`submit_job_h100_custom_app.sh`** - H100 custom application examples
 - **`submit_job_custom_app.sh`** - Custom application examples
 - **`submit_job_comprehensive.sh`** - Full DVFS study
 
 **🎯 V100 Users:** Use the unified `submit_job_v100.sh` script which provides 16 pre-configured options:
 - Quick tests (baseline, frequency sampling)
-- AI applications (LSTM, Stable Diffusion, LLaMA, Whisper, Vision Transformer) 
+- AI applications (LSTM, Stable Diffusion, LLaMA, Whisper, Vision Transformer)
 - DVFS studies (comprehensive, efficient, statistical)
 - Tool compatibility (DCGMI, nvidia-smi fallback)
 - Research configurations (energy efficiency, precision comparison)
@@ -797,7 +797,7 @@ The unified interactive helper (`interactive_gpu.sh`) provides:
 # DCGMI profiling
 ./profile.py "python lstm.py"
 
-# nvidia-smi profiling  
+# nvidia-smi profiling
 ./profile_smi.py "python lstm.py"
 ```
 
@@ -846,7 +846,7 @@ The `clean.sh` script has been significantly enhanced to handle the new results 
 # Clean only specific GPU results
 ./clean.sh --gpu-type H100
 
-# Clean only specific application results  
+# Clean only specific application results
 ./clean.sh --app-name stablediffusion
 
 # Clean results older than 7 days
@@ -874,7 +874,7 @@ The `clean.sh` script has been significantly enhanced to handle the new results 
 
 The enhanced script cleans:
 - **Results Directories**: `results_h100_*`, `results_a100_*`, `results_v100_*`, `results/` (legacy)
-- **SLURM Files**: `PROFILING_*.out`, `PROFILING_*.err` 
+- **SLURM Files**: `PROFILING_*.out`, `PROFILING_*.err`
 - **Log Files**: `log.*` patterns
 - **Temporary Files**: `*.tmp`, `*.temp`, `*.pyc`, `core.*`, `changeme`
 
@@ -907,7 +907,7 @@ results/
 - Python 3.8+
 - Permissions for GPU control
 
-### For nvidia-smi  
+### For nvidia-smi
 - NVIDIA GPU (A100/V100)
 - NVIDIA drivers (nvidia-smi)
 - Python 3.8+
@@ -1011,7 +1011,7 @@ PROFILING_MODE="dvfs"
 ```
 
 #### V100 with nvidia-smi
-```bash  
+```bash
 # Edit launch.sh configuration section:
 GPU_TYPE="V100"
 PROFILING_TOOL="nvidia-smi"
@@ -1062,7 +1062,7 @@ Experiment Details:
   Framework Version: 2.0.1
   Timestamp: 2025-07-10 16:43:43
   Mode: baseline
-  
+
 GPU Configuration:
   Type: H100
   Architecture: GH100
