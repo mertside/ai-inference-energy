@@ -5,27 +5,20 @@ This directory contains a comprehensive analysis suite for calculating Energy De
 ## 📁 Directory Structure
 
 - **`edp_optimizer.py`** - Main EDP & ED²P calculation and optimization script
-- **`edp_summary_tables.py`** - Summary table generator for results visualization  
-- **`visualize_results.py`** - 🎨 **Experimental data visualization** with DCGMI integration
-- **`visualize_summary.py`** - Comprehensive summary visualization generator with comparative analysis
-- **`README_VISUALIZATION.md`** - Complete visualization system documentation
-- **`IMPLEMENTATION_SUMMARY.md`** - Data integration achievement summary
-- **`results/`** - Output directory containing JSON, CSV results, and visualizations
+- **`edp_summary_tables.py`** - Summary table generator for results visualization
+- **`results/`** - Output directory containing JSON and CSV results
   - **`edp_optimization_results.json`** - Primary results in JSON format
   - **`*_summary.csv`** - Comprehensive CSV with both EDP and ED²P data
   - **`*_workload_comparison_*.csv`** - Cross-GPU workload analysis files
   - **`*_frequency_analysis.csv`** - Detailed frequency scaling analysis
   - **`*_gpu_summary_*.csv`** - Per-GPU performance summaries
-  - **`plots/`** - 🎨 **Generated visualization plots directory (16 total files)**
-    - **Individual scatter plots** for each GPU-workload combination using **DCGMI data**
-    - **Summary comparison charts** and multi-GPU analysis plots
-    - **Publication-quality 300 DPI** PNG files ready for research presentations
   - **`README.md`** - Detailed documentation of result files
+- **`archived/`** - Historical analysis tools and reports
 
 ## Data Visualization Framework
 
 ### Key Enhancement: Experimental Data Integration
-The visualization system has been **completely enhanced** to use **experimental data** from DCGMI profiling:
+The visualization system is located in `../visualization/` and has been **completely enhanced** to use **experimental data** from DCGMI profiling:
 
 - **Real Power Measurements**: Direct integration with DCGMI CSV power profiles (50ms sampling)
 - **Actual Execution Times**: Timing data extracted from experimental summary logs
@@ -35,12 +28,12 @@ The visualization system has been **completely enhanced** to use **experimental 
 
 ### Visualization Scripts Overview
 
-1. **`visualize_results.py`** - **Primary visualization script with data integration**
+1. **`../visualization/visualize_edp_results.py`** - **Primary visualization script with data integration**
    - Uses actual DCGMI profiling data from `sample-collection-scripts/`
    - Creates individual scatter plots for each GPU-workload combination
    - Clear annotations showing EDP/ED²P optimal points with measurements
 
-2. **`visualize_summary.py`** - **Comparative analysis and summary plots**
+2. **`../visualization/visualize_edp_summary.py`** - **Comparative analysis and summary plots**
    - Energy savings comparison between EDP and ED²P strategies
    - Frequency optimization analysis across GPU architectures
    - Performance impact visualization with statistical analysis
@@ -53,7 +46,7 @@ The EDP/ED²P optimizer analyzes experimental data from GPU frequency scaling ex
 1. **Calculate both EDP and ED²P** for each frequency point
    - **EDP = Energy × Time** (balanced optimization)
    - **ED²P = Energy × Time²** (performance-sensitive optimization)
-2. **Find optimal frequencies** for both metrics while respecting performance constraints  
+2. **Find optimal frequencies** for both metrics while respecting performance constraints
 3. **Compare energy savings** vs. manufacturer maximum frequencies
 4. **Analyze performance trade-offs** between EDP and ED²P strategies
 5. **Export comprehensive data** for further analysis and visualization
@@ -72,29 +65,34 @@ python edp_optimizer.py --results-dir ../../sample-collection-scripts
 python edp_summary_tables.py --csv
 
 # 3. Create individual scatter plots using experimental data
-python visualize_results.py --input results/edp_optimization_results.json --output-dir results/plots
+cd ../visualization
+python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
 # 4. Generate comprehensive summary visualizations
-python visualize_summary.py --input results/edp_optimization_results.json --output-dir results/plots
+python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
 # 5. View all 16 generated visualization files
-ls results/plots/*.png
+ls edp-plots/*.png
 ```
 
 ### Basic Usage
 
 ```bash
-# Run EDP & ED²P optimization on all experimental data
+# Run EDP & ED²P optimization with default settings (uses ../../sample-collection-scripts automatically)
+python edp_optimizer.py
+
+# Or specify custom paths
 python edp_optimizer.py --results-dir ../../sample-collection-scripts
 
 # Generate summary tables and CSV exports from results
 python edp_summary_tables.py --csv
 
 # Create visualizations with experimental data (RECOMMENDED)
-python visualize_results.py
+cd ../visualization
+python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
 # Create comparative summary analysis
-python visualize_summary.py
+python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 ```
 
 ### Advanced Usage
@@ -107,7 +105,7 @@ python edp_optimizer.py \
     --output results/my_custom_results.json \
     --quiet
 
-# Generate tables from custom results file  
+# Generate tables from custom results file
 python edp_summary_tables.py --input results/my_custom_results.json --csv
 ```
 
@@ -118,11 +116,11 @@ Based on the most recent analysis of all GPU-workload combinations using **exper
 ### Overall Performance
 - **Total configurations analyzed**: 12 (A100×4, H100×4, V100×4)
 - **Data points visualized**: 824 experimental measurements
-  - **A100**: 61 frequency points × 4 workloads = 244 measurements  
+  - **A100**: 61 frequency points × 4 workloads = 244 measurements
   - **H100**: 86 frequency points × 4 workloads = 344 measurements
   - **V100**: 59 frequency points × 4 workloads = 236 measurements
 - **Average energy savings**: 27.1%
-- **Average EDP improvement**: 31.4%  
+- **Average EDP improvement**: 31.4%
 - **Configurations faster than max frequency**: 8/12 (66.7%)
 - **Visualization files generated**: 16 publication-quality plots
 
@@ -184,7 +182,7 @@ This approach accounts for the fact that maximum frequency often underperforms d
 ### Performance Impact Interpretation
 
 - **Negative values**: Performance improvement (faster execution)
-- **Positive values**: Performance degradation (slower execution)  
+- **Positive values**: Performance degradation (slower execution)
 - **Constraint**: All results respect ≤5% degradation threshold
 
 ### EDP Improvement Interpretation
@@ -200,7 +198,7 @@ This approach accounts for the fact that maximum frequency often underperforms d
 **Individual Scatter Plots (12 files)**:
 - `A100_llama_energy_performance_scatter.png` (61 data points)
 - `A100_stablediffusion_energy_performance_scatter.png` (61 data points)
-- `A100_vit_energy_performance_scatter.png` (61 data points) 
+- `A100_vit_energy_performance_scatter.png` (61 data points)
 - `A100_whisper_energy_performance_scatter.png` (61 data points)
 - `H100_llama_energy_performance_scatter.png` (86 data points)
 - `H100_stablediffusion_energy_performance_scatter.png` (86 data points)
@@ -230,13 +228,13 @@ This approach accounts for the fact that maximum frequency often underperforms d
 **Experimental Data Loading**:
 1. **Directory Discovery**: Automatically finds result directories matching `results_{gpu}_{workload}_job_*` pattern
 2. **DCGMI Data Parsing**: Loads power measurements from CSV profiles with robust column detection
-3. **Timing Extraction**: Extracts execution times from `timing_summary.log` files  
+3. **Timing Extraction**: Extracts execution times from `timing_summary.log` files
 4. **Energy Calculation**: Computes total energy using `measured_power × measured_time`
 5. **Data Validation**: Ensures minimum 3 data points for meaningful visualization
 
 **Data Quality Metrics**:
 - **A100 Coverage**: 61/61 frequencies with data (100% coverage)
-- **H100 Coverage**: 86/86 frequencies with data (100% coverage)  
+- **H100 Coverage**: 86/86 frequencies with data (100% coverage)
 - **V100 Coverage**: 59/59 frequencies with data (100% coverage)
 - **Sampling Rate**: 50ms DCGMI power measurements for high precision
 - **Energy Accuracy**: Direct measurement vs estimation-based calculation
@@ -273,7 +271,7 @@ The `visualize_basic.py` script creates detailed scatter plots for each GPU-work
 - **Performance Metrics**: Includes detailed statistics boxes with quantitative results
 
 ### Comprehensive Summary Analysis
-The `visualize_summary.py` script generates comparative analysis across all configurations:
+The `visualize_edp_summary.py` script generates comparative analysis across all configurations:
 
 - **Energy Savings Comparison**: Side-by-side bar charts comparing EDP vs ED²P strategies
 - **Frequency Selection Analysis**: Scatter plots showing how different strategies choose frequencies
@@ -290,15 +288,16 @@ The `visualize_summary.py` script generates comparative analysis across all conf
 ### Quick Visualization Workflow
 ```bash
 # Generate all individual plots (12 scatter plots)
-python visualize_basic.py
+cd ../visualization
+python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
-# Generate all summary comparisons (4 summary plots)  
-python visualize_summary.py
+# Generate all summary comparisons (4 summary plots)
+python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
-# View results in results/plots/ directory
+# View results in edp-plots/ directory
 ```
 
-## �🛠️ Technical Implementation
+## 🛠️ Technical Implementation
 
 ### Input Data Requirements
 
@@ -307,14 +306,14 @@ The optimizer expects the standard experimental directory structure:
 sample-collection-scripts/
 ├── results_<gpu>_<workload>_job_<jobid>/
 │   ├── experiment_summary.log          # Timing data
-│   ├── run_X_YY_freq_ZZZZ_app.out     # Application output  
+│   ├── run_X_YY_freq_ZZZZ_app.out     # Application output
 │   └── run_X_YY_freq_ZZZZ_profile.csv # Power profiling data
 ```
 
 ### CSV Power Data Parsing
 
 Robust parsing handles different GPU naming formats:
-- **A100**: `NVIDIA A100-PCIE-40GB` 
+- **A100**: `NVIDIA A100-PCIE-40GB`
 - **H100**: `NVIDIA H100 NVL`
 - **V100**: `NVIDIA Tesla V100-SXM2-32GB`
 
@@ -338,7 +337,7 @@ Complete machine-readable results including:
 ### Console Summary
 
 Human-readable analysis with:
-- Per-GPU performance breakdowns  
+- Per-GPU performance breakdowns
 - Cross-workload comparisons
 - Statistical reliability indicators
 - Deployment recommendations
@@ -357,7 +356,7 @@ Based on the analysis results, the recommended deployment frequencies are:
 
 ### Production-Ready Configurations
 1. **A100 + LLaMA**: 810 MHz (37.1% energy savings, 1.8% faster)
-2. **H100 + Vision Transformer**: 825 MHz (40.3% energy savings, 30.5% faster)  
+2. **H100 + Vision Transformer**: 825 MHz (40.3% energy savings, 30.5% faster)
 3. **A100 + Whisper**: 870 MHz (36.5% energy savings, 20.0% faster)
 4. **H100 + Stable Diffusion**: 1710 MHz (30.6% energy savings, same performance)
 

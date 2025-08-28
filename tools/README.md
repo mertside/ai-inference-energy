@@ -1,36 +1,33 @@
 # Tools Directory
 
-This directory contains all the analysis, deployment, and utility tools for the AI Inference Energy project.
-
-## Directory Structure
-
-# Tools Directory
-
-This directory contains all the analysis, deployment, and utility tools for the AI Inference Energy project, including a **comprehensive data visualization framework**.
+This directory contains all the analysis, deployment, and utility tools for the AI Inference Energy project, organized into specialized subdirectories for better maintainability.
 
 ## Directory Structure
 
 ### 📊 Analysis (`analysis/`)
-Core analysis scripts for EDP (Energy-Delay Product) optimization with **data visualization**:
+Core analysis scripts for EDP (Energy-Delay Product) optimization:
 - `edp_optimizer.py` - Main EDP & ED²P optimization engine
 - `edp_summary_tables.py` - EDP results summarization and table generation
-- **`visualize_results.py`** - 🎨 **Experimental data visualization** using DCGMI profiling data
-- **`visualize_summary.py`** - 📊 **Comprehensive summary analysis** with comparative charts
-- **`README_VISUALIZATION.md`** - Complete visualization system documentation
-- **`IMPLEMENTATION_SUMMARY.md`** - Data integration achievement summary
-- **`results/`** - Analysis outputs and visualizations
+- `results/` - Analysis outputs
   - `edp_optimization_results.json` - Primary optimization results
   - `*.csv` - Detailed analysis tables
-  - **`plots/`** - 🎨 **Generated visualization files (16 total)**
-    - Individual GPU-workload scatter plots using DCGMI data
-    - Summary comparison charts and multi-GPU analysis
-    - Publication-quality 300 DPI PNG files
 - `archived/` - Historical analysis scripts and reports
   - `measured_data_analysis_v*.py` - Legacy measured data analysis versions
   - `edp_analysis.py` - Original EDP analysis implementation
   - `power_modeling.py` - Power and performance modeling
   - `aggregate_data.py` - Data aggregation utilities
   - `comprehensive_report.py` - Report generation
+
+### 🎨 Visualization (`visualization/`)
+Comprehensive data visualization framework for experimental results:
+- **`visualize_edp_results.py`** - 🎨 **Real experimental data visualization** using DCGMI profiling data
+- **`visualize_edp_summary.py`** - 📊 **Comprehensive summary analysis** with comparative charts
+- **`README.md`** - Complete visualization system documentation
+- **`edp-plots/`** - Generated visualization outputs directory
+- **Generated Outputs:**
+  - 12 individual GPU-workload scatter plots using real DCGMI measurements
+  - 4 summary comparison charts and multi-GPU analysis
+  - Publication-quality 300 DPI PNG files
 
 ### 📡 Data Collection (`data-collection/`)
 Data collection and profiling tools for GPU workloads:
@@ -68,7 +65,7 @@ General utility tools:
 
 ### Key Features
 - **DCGMI Integration**: Uses actual power measurements from experimental data
-- **Publication Quality**: 300 DPI plots suitable for research papers and presentations  
+- **Publication Quality**: 300 DPI plots suitable for research papers and presentations
 - **Comprehensive Coverage**: 16 visualization files covering all GPU-workload combinations
 - **Energy-Performance Analysis**: Detailed scatter plots showing optimization trade-offs
 
@@ -81,13 +78,14 @@ cd tools/analysis
 python edp_optimizer.py --results-dir ../../sample-collection-scripts
 
 # 2. Generate individual scatter plots with DCGMI data
-python visualize_results.py --input results/edp_optimization_results.json --output-dir results/plots
+cd ../visualization
+python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
 # 3. Create summary comparison analysis
-python visualize_summary.py --input results/edp_optimization_results.json --output-dir results/plots
+python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
 
 # 4. View all 16 generated visualization files
-ls results/plots/*.png
+ls edp-plots/*.png
 ```
 
 ## Usage
@@ -102,10 +100,10 @@ python tools/analysis/edp_optimizer.py
 python tools/analysis/edp_summary_tables.py
 
 # Experimental data visualization (RECOMMENDED)
-python tools/analysis/visualize_results.py
+python tools/visualization/visualize_edp_results.py
 
 # Comprehensive summary analysis charts
-python tools/analysis/visualize_summary.py
+python tools/visualization/visualize_edp_summary.py
 
 # Data collection with DCGMI profiling
 python tools/data-collection/profile.py
@@ -140,7 +138,7 @@ python tools/testing/quick_frequency_demo.py
 Scripts generate various output files:
 - `edp_optimization_results.json` - Main EDP optimization results
 - `edp_optimization_results_*.csv` - Analysis summaries and comparisons
-- **`results/plots/*.png`** - 🎨 **16 publication-quality visualization files**
+- **`edp-plots/*.png`** - 🎨 **16 visualization files**
   - Individual scatter plots for each GPU-workload combination
   - Summary analysis charts and comparative visualizations
   - Experimental data integration with 824 data points total
@@ -156,7 +154,7 @@ The enhanced visualization framework generates **16 total files**:
 - DCGMI data integration with 59-86 frequency points per GPU
 - Energy vs execution time analysis with EDP/ED²P optimal point annotations
 
-### Summary Analysis Charts (4 files)  
+### Summary Analysis Charts (4 files)
 - Energy savings comparison between EDP and ED²P strategies
 - Frequency optimization analysis across GPU architectures
 - Performance impact visualization with statistical analysis

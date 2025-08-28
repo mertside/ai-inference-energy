@@ -1,6 +1,38 @@
 # AI Inference Energy
 
-A **comprehensive framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **comprehensive profiling tools**, and **multiple AI model support** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
+A **comprehensive framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **comp│   │   │   │   │   │   │   │   ├── visualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                   # Complete visualization system documentation
+│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **comprehensive profiling tools**, and **multiple AI model support** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
@@ -9,7 +41,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 ### ✨ Key Features
 
 - 🔧 **Complete CLI Interface**: Configure all experiments via command-line arguments with --help support
-- 🎯 **Triple GPU Support**: Native A100, V100, and H100 configurations 
+- 🎯 **Triple GPU Support**: Native A100, V100, and H100 configurations
 - 🛠️ **Multiple Profiling Tools**: Support for both DCGMI and nvidia-smi profiling with automatic fallback
 - 📊 **Flexible Experiment Modes**: DVFS (full frequency sweep) or baseline (single frequency) modes
 - 🚀 **HPC Integration**: Ready-to-use SLURM submission scripts for cluster environments
@@ -73,7 +105,7 @@ cd sample-collection-scripts
 ### Supported AI Models & Applications
 
 - **[LLaMA](https://github.com/meta-llama/llama)**: Text generation via transformer-based large language models
-- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation  
+- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)**: **Modernized** latent diffusion model with latest variants (SD v1.x, v2.x, SDXL, Turbo, Lightning) for high-quality image generation
 - **[Whisper](https://github.com/openai/whisper)**: OpenAI Whisper automatic speech recognition for audio processing energy profiling
 - **[Vision Transformer (ViT)](https://github.com/huggingface/transformers)**: Transformer-based image classification for computer vision energy profiling
 - **LSTM Sentiment Analysis**: Binary classification benchmark for consistent profiling
@@ -92,7 +124,7 @@ cd sample-collection-scripts
 ```
 ai-inference-energy/
 ├── README.md                            # Project documentation
-├── requirements.txt                     # Python dependencies  
+├── requirements.txt                     # Python dependencies
 ├── setup.py                             # Package installation
 ├── config.py                            # Centralized configuration (Python 3.8+ compatible)
 ├── utils.py                             # Utility functions and helpers
@@ -100,8 +132,8 @@ ai-inference-energy/
 ├── app-llama/                           # LLaMA inference applications
 │   ├── README.md                        # LLaMA application documentation
 │   └── LlamaViaHF.py                    # LLaMA text generation via Hugging Face
-│  
-├── app-stable-diffusion/                # 🎨 Modernized Stable Diffusion applications  
+│
+├── app-stable-diffusion/                # 🎨 Modernized Stable Diffusion applications
 │   ├── README.md                        # Comprehensive Stable Diffusion documentation
 │   ├── StableDiffusionViaHF.py          # **Modernized** image generation with latest models
 │   ├── scripts/                         # Setup and utility scripts
@@ -159,20 +191,20 @@ ai-inference-energy/
 │   ├── analysis/                        # EDP optimization and performance analysis
 │   │   ├── edp_optimizer.py             # Energy-Delay Product optimization engine
 │   │   ├── edp_summary_tables.py        # EDP results summarization and reporting
-│   │   ├── visualize_results.py         # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_summary.py         # 📊 Comprehensive summary analysis charts
-│   │   ├── README_VISUALIZATION.md      # Complete visualization system documentation
-│   │   ├── IMPLEMENTATION_SUMMARY.md    # Real data integration achievement summary
-│   │   ├── results/                     # Analysis outputs and visualizations
+│   │   ├── results/                     # Analysis outputs and JSON data
 │   │   │   ├── edp_optimization_results.json  # Primary optimization results
-│   │   │   ├── *.csv                    # Detailed analysis tables
-│   │   │   └── plots/                   # 🎨 Generated visualization files (16 total)
-│   │   │       ├── *_energy_performance_scatter.png  # Individual GPU-workload plots
-│   │   │       ├── energy_savings_comparison.png     # EDP vs ED²P comparison
-│   │   │       ├── frequency_optimization_comparison.png  # Frequency analysis
-│   │   │       ├── performance_impact_analysis.png   # Performance trade-offs
-│   │   │       └── comprehensive_summary.png         # 4-panel overview
+│   │   │   └── *.csv                    # Detailed analysis tables
 │   │   └── archived/                    # Historical analysis tools and reports
+│   ├── visualization/                   # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py         # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py         # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                    # Complete visualization system documentation
+│   │   └── edp-plots/                   # 🎨 Generated visualization files (16 total)
+│   │       ├── *_energy_performance_scatter.png  # Individual GPU-workload plots
+│   │       ├── energy_savings_comparison.png     # EDP vs ED²P comparison
+│   │       ├── frequency_optimization_comparison.png  # Frequency analysis
+│   │       ├── performance_impact_analysis.png   # Performance trade-offs
+│   │       └── comprehensive_summary.png         # 4-panel overview
 │   ├── optimal-frequency/               # Frequency optimization and selection tools
 │   │   ├── comprehensive_optimal_selector.py  # Multi-criteria frequency selector
 │   │   ├── optimal_frequency_analysis.py      # Frequency analysis and evaluation
@@ -189,7 +221,7 @@ ai-inference-energy/
     ├── README.md                        # Profiling framework documentation
     ├── launch_v2.sh                     # 🎯 Main experiment orchestration (enhanced CLI)
     ├── profile.py                       # DCGMI-based GPU profiler
-    ├── profile_smi.py                   # nvidia-smi alternative profiler  
+    ├── profile_smi.py                   # nvidia-smi alternative profiler
     ├── control.sh                       # DCGMI frequency control
     ├── control_smi.sh                   # nvidia-smi frequency control
     ├── clean.sh                         # Enhanced workspace cleanup
@@ -198,7 +230,7 @@ ai-inference-energy/
     ├── interactive_gpu.sh               # 🎯 Unified interactive GPU session helper (V100/A100/H100)
     │
     ├── submit_job_v100.sh               # 🎯 Unified V100 submission (16 configurations)
-    ├── submit_job_a100.sh               # 🎯 Unified A100 submission (16 configurations) 
+    ├── submit_job_a100.sh               # 🎯 Unified A100 submission (16 configurations)
     ├── submit_job_h100.sh               # 🎯 Unified H100 submission (16 configurations)
     │
     ├── submit_job_v100_baseline.sh      # Legacy V100 baseline (redirects to unified)
@@ -260,7 +292,7 @@ ai-inference-energy/
    ```bash
    nvidia-smi                    # Check GPU status
    dcgmi discovery --list        # Verify DCGMI access (optional - will fallback to nvidia-smi)
-   
+
    # Use unified interactive helper for quick setup validation
    cd sample-collection-scripts
    ./interactive_gpu.sh          # Auto-detects GPU type and provides setup guidance
@@ -398,6 +430,20 @@ python edp_summary_tables.py --input edp_optimization_results.json
 cat edp_optimization_results_summary.csv
 ```
 
+**Create comprehensive visualizations:**
+```bash
+cd tools/visualization
+
+# Generate individual scatter plots with real experimental data
+python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+
+# Create summary comparison charts
+python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+
+# View generated plots
+ls edp-plots/*.png
+```
+
 **Use optimal frequency selection tools:**
 ```bash
 cd tools/optimal-frequency
@@ -448,7 +494,7 @@ The framework supports comprehensive frequency scaling for all three GPU archite
 - **Core Frequencies**: 61 different settings from 1410 MHz down to 510 MHz
 - **Frequency Control**: Via DCGMI interface with nvidia-smi fallback
 
-#### **V100 GPU (Matador Partition)**  
+#### **V100 GPU (Matador Partition)**
 - **Memory Frequency**: 877 MHz (V100 default)
 - **Core Frequencies**: 117 different settings from 1380 MHz down to 510 MHz
 - **Frequency Control**: Via nvidia-smi interface
@@ -559,12 +605,12 @@ To add new AI applications to the framework:
    import sys, os
    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
    from utils import setup_logging
-   
+
    def main():
        logger = setup_logging()
        # Your AI inference code here
        logger.info("Inference completed")
-   
+
    if __name__ == "__main__":
        main()
    ```
@@ -575,7 +621,7 @@ To add new AI applications to the framework:
      --app-name "MyApp" \
      --app-executable "my_app" \
      --app-params "--model bert-base --batch-size 32"
-   
+
    # For Stable Diffusion (modernized)
    ./launch_v2.sh \
      --app-name "StableDiffusion" \
