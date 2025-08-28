@@ -142,10 +142,16 @@ jobs:
               print('✓ Configuration accessible from tools')
 
               # Test GPU configurations
-              for gpu in ['A100', 'V100', 'H100']:
+              gpus = ['A100', 'V100', 'H100']
+              for gpu in gpus:
                   try:
-                      config = GPUConfig(gpu)
-                      print(f'✓ {gpu} configuration loaded')
+                      # Test accessing GPU-specific attributes
+                      memory_freq = getattr(GPUConfig, f'{gpu}_MEMORY_FREQ', None)
+                      core_freq = getattr(GPUConfig, f'{gpu}_DEFAULT_CORE_FREQ', None)
+                      if memory_freq and core_freq:
+                          print(f'✓ {gpu} configuration accessible (Memory: {memory_freq}MHz, Core: {core_freq}MHz)')
+                      else:
+                          print(f'⚠ {gpu} configuration incomplete')
                   except Exception as e:
                       print(f'⚠ {gpu} configuration failed: {e}')
 
