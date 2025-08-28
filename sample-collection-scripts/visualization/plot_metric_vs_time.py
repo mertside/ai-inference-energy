@@ -353,15 +353,15 @@ class MetricPlotter:
         # Customize plot with larger, bolder text
         ax.set_xlabel('Normalized Time', fontsize=16, fontweight='bold')
         ax.set_ylabel(f'{metric}', fontsize=16, fontweight='bold')
-        ax.set_title(title or f'{metric} vs Time - {gpu} {app} (Run {run_number})', fontsize=18, fontweight='bold')
+        ax.set_title(title or f'{metric} vs Time - {gpu} {app} (Run {run_number})', fontsize=20, fontweight='bold')
         ax.grid(True, alpha=0.3)
         
         # Style legend with larger, bold text
-        legend = ax.legend(title="Frequency", fontsize=14, title_fontsize=14)
+        legend = ax.legend(title="Frequency", fontsize=16, title_fontsize=16)
         legend.get_title().set_fontweight('bold')
         
         # Make tick labels larger and bold
-        ax.tick_params(axis='both', which='major', labelsize=14)
+        ax.tick_params(axis='both', which='major', labelsize=18)
         for label in ax.get_xticklabels() + ax.get_yticklabels():
             label.set_fontweight('bold')
         
