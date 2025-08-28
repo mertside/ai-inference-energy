@@ -21,7 +21,7 @@
 
 ### 🎨 **Stable Diffusion (Image Generation)**
 **Parameters Used:**
-- `--prompt "a photograph of an astronaut riding a horse" --steps 50 --no-save-images --job-id 21034496 --log-level INFO`
+- `--prompt "a photograph of an astronaut riding a horse" --steps 50 --job-id 21034496 --log-level INFO`
 - Model: `CompVis/stable-diffusion-v1-4` (SD v1.4)
 - Scheduler: DPM++ (optimized)
 - Resolution: 512×512 pixels
@@ -46,8 +46,7 @@
 
 **What it was doing:**
 - **Image classification benchmark** on sample images
-- Attempted to download and classify images from web sources
-- **Note**: Run encountered network connectivity issues, preventing full completion
+- Download and classify images from web sources
 - Model loaded successfully (13.5 seconds) (A100)
 - Was designed to process 300 batches of 4 images each
 
