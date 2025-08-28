@@ -6,10 +6,10 @@ Comprehensive test suite for the GPU Info Module implementation,
 ensuring all specifications, validation, and functionality work correctly.
 """
 
+import copy
 import sys
 import unittest
 from pathlib import Path
-import copy
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -247,9 +247,7 @@ class TestSpecificationObjects(unittest.TestCase):
                 # Sanity checks
                 self.assertGreater(compute_spec.sm_count, 0)
                 self.assertGreater(compute_spec.cuda_cores, 0)
-                self.assertTrue(
-                    compute_spec.tensor_cores
-                )  # All tested GPUs have tensor cores
+                self.assertTrue(compute_spec.tensor_cores)  # All tested GPUs have tensor cores
 
     def test_power_specifications(self):
         """Test power specification objects."""
@@ -265,12 +263,8 @@ class TestSpecificationObjects(unittest.TestCase):
                 # Sanity checks
                 self.assertGreater(power_spec.tdp_watts, 0)
                 self.assertGreater(power_spec.min_power_watts, 0)
-                self.assertGreater(
-                    power_spec.max_power_watts, power_spec.min_power_watts
-                )
-                self.assertGreaterEqual(
-                    power_spec.max_power_watts, power_spec.tdp_watts
-                )
+                self.assertGreater(power_spec.max_power_watts, power_spec.min_power_watts)
+                self.assertGreaterEqual(power_spec.max_power_watts, power_spec.tdp_watts)
                 self.assertGreater(len(power_spec.power_connectors), 0)
 
     def test_thermal_specifications(self):
@@ -285,12 +279,8 @@ class TestSpecificationObjects(unittest.TestCase):
                 self.assertIsInstance(thermal_spec.cooling_solution, str)
 
                 # Sanity checks
-                self.assertGreater(
-                    thermal_spec.max_temp_c, thermal_spec.throttle_temp_c
-                )
-                self.assertGreater(
-                    thermal_spec.throttle_temp_c, thermal_spec.idle_temp_c
-                )
+                self.assertGreater(thermal_spec.max_temp_c, thermal_spec.throttle_temp_c)
+                self.assertGreater(thermal_spec.throttle_temp_c, thermal_spec.idle_temp_c)
                 self.assertGreater(thermal_spec.idle_temp_c, 0)
 
 
@@ -448,9 +438,7 @@ class TestDataConsistency(unittest.TestCase):
 
                 for freq in fgcs_freqs:
                     # Check frequency is within reasonable range
-                    self.assertGreaterEqual(
-                        freq, min_freq - 100
-                    )  # Allow some tolerance
+                    self.assertGreaterEqual(freq, min_freq - 100)  # Allow some tolerance
                     self.assertLessEqual(freq, max_freq + 100)
 
                 # At least 50% of FGCS frequencies should be available
@@ -472,9 +460,7 @@ class TestDataConsistency(unittest.TestCase):
 
                 workload_types = ["inference", "training", "compute", "memory_bound"]
                 for workload in workload_types:
-                    recommended_freq = gpu_info.get_optimal_frequency_for_workload(
-                        workload
-                    )
+                    recommended_freq = gpu_info.get_optimal_frequency_for_workload(workload)
                     # Recommended frequency should be reasonable
                     self.assertIsInstance(recommended_freq, int)
                     self.assertGreaterEqual(recommended_freq, min_freq)

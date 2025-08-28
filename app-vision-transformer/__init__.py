@@ -9,4 +9,4 @@ Author: Mert Side
 
 from .ViTViaHF import ViTViaHF
 
-__all__ = ['ViTViaHF']
+__all__ = ["ViTViaHF"]

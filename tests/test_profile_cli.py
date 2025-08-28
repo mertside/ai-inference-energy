@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """CLI tests for the profile.py script."""
 import os
-import sys
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path

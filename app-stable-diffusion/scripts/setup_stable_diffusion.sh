@@ -101,7 +101,7 @@ check_package "numpy" || missing_packages+=("numpy")
 if [[ ${#missing_packages[@]} -gt 0 ]]; then
     log_warn "Missing packages: ${missing_packages[*]}"
     log_info "Installing missing packages with compatible versions..."
-    
+
     # Install torch first if needed - check for CUDA support
     if [[ " ${missing_packages[*]} " =~ " torch " ]]; then
         log_info "Installing PyTorch..."
@@ -115,20 +115,20 @@ if [[ ${#missing_packages[@]} -gt 0 ]]; then
             pip install torch==2.0.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
         fi
     fi
-    
+
     # Install compatible ML packages that work together
     if [[ " ${missing_packages[*]} " =~ " transformers " ]] || [[ " ${missing_packages[*]} " =~ " diffusers " ]]; then
         log_info "Installing compatible transformers and diffusers versions..."
         # Install specific versions that work together
         pip install transformers==4.30.0
         pip install diffusers==0.29.2
-        pip install accelerate safetensors requests tqdm pyyaml regex tokenizers==0.13.3 
+        pip install accelerate safetensors requests tqdm pyyaml regex tokenizers==0.13.3
         pip install huggingface-hub==0.33.2
         # Ensure numpy and scipy compatibility with older glibc
         pip install "numpy<1.25"
         pip install scipy==1.9.3
     fi
-    
+
     # Install remaining packages
     pip install pillow numpy requests
 else
@@ -149,7 +149,7 @@ if torch.cuda.is_available():
         gpu_name = torch.cuda.get_device_name(0)
         memory_gb = torch.cuda.get_device_properties(0).total_memory / 1024**3
         print(f'✅ GPU: {gpu_name} ({memory_gb:.1f}GB)')
-        
+
         # Check memory for different models
         if memory_gb >= 20:
             print('✅ Sufficient memory for SDXL (20GB+)')

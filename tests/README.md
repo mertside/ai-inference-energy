@@ -11,7 +11,7 @@ The test suite ensures the framework works correctly across different Python ver
 ### **Configuration Tests**
 - **`test_configuration.py`** - Tests configuration module loading and Python 3.8+ compatibility
 
-### **Compatibility Tests**  
+### **Compatibility Tests**
 - **`run_tests.py`** - Entry point for running the full test suite
 - **`test_python_compatibility.sh`** - Comprehensive Python compatibility test suite
 
@@ -33,7 +33,7 @@ python -m pytest test_utils.py -v
 
 #### Run Test Suite
 ```bash
-cd tests  
+cd tests
 python run_tests.py
 ```
 
@@ -62,7 +62,7 @@ pytest -v
 - ✅ Model configuration parameters
 - ✅ Python 3.8+ class compatibility
 
-### Subprocess Testing  
+### Subprocess Testing
 - ✅ `run_command()` function with output capture
 - ✅ `run_command()` function without output capture
 - ✅ Python 3.8+ subprocess.run() compatibility
@@ -94,7 +94,7 @@ pytest -v
 
 ### Failed Test Indicators
 - ✗ Import errors
-- ✗ Subprocess compatibility issues  
+- ✗ Subprocess compatibility issues
 - ✗ Configuration loading failures
 - ✗ Script compilation errors
 
@@ -187,7 +187,7 @@ These tests integrate with:
 ## Test Philosophy
 
 - **Comprehensive**: Cover all critical functionality
-- **Fast**: Run quickly for rapid development feedback  
+- **Fast**: Run quickly for rapid development feedback
 - **Portable**: Work across different environments
 - **Clear**: Provide clear pass/fail indicators
 - **Maintainable**: Easy to update and extend

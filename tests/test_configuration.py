@@ -136,13 +136,9 @@ class TestEnvironmentSetup(unittest.TestCase):
         try:
             # Use a simple command that works on all platforms
             if sys.platform.startswith("win"):
-                result = subprocess.run(
-                    ["echo", "test"], capture_output=True, text=True, shell=True
-                )
+                result = subprocess.run(["echo", "test"], capture_output=True, text=True, shell=True)
             else:
-                result = subprocess.run(
-                    ["echo", "test"], capture_output=True, text=True
-                )
+                result = subprocess.run(["echo", "test"], capture_output=True, text=True)
 
             self.assertEqual(result.returncode, 0)
             self.assertIn("test", result.stdout)

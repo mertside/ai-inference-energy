@@ -13,10 +13,10 @@ This directory contains the conda environment configuration for running LLaMA in
 
 ## Key Features
 
-✅ **Compatible PyTorch/Torchvision**: Resolved version conflicts for stable operation  
-✅ **CUDA 12.4 Support**: Full GPU acceleration with latest CUDA toolkit  
-✅ **Transformers Library**: Latest version for LLaMA model support  
-✅ **H100 Optimized**: Tested and validated on H100 hardware  
+✅ **Compatible PyTorch/Torchvision**: Resolved version conflicts for stable operation
+✅ **CUDA 12.4 Support**: Full GPU acceleration with latest CUDA toolkit
+✅ **Transformers Library**: Latest version for LLaMA model support
+✅ **H100 Optimized**: Tested and validated on H100 hardware
 
 ## Quick Setup
 

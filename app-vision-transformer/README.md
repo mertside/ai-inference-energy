@@ -77,7 +77,7 @@ python sample-collection-scripts/collect_samples.py \
 
 ### Model Sizes (Approximate)
 - ViT-Base: ~86M parameters, ~330MB memory
-- ViT-Large: ~307M parameters, ~1.2GB memory  
+- ViT-Large: ~307M parameters, ~1.2GB memory
 - ViT-Huge: ~632M parameters, ~2.5GB memory
 
 ### Expected Throughput (A100)

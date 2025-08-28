@@ -124,10 +124,7 @@ class GPUSpecifications:
         """
         self.gpu_type = gpu_type.upper()
         if self.gpu_type not in self._get_supported_gpus():
-            raise ValueError(
-                f"Unsupported GPU type: {gpu_type}. "
-                f"Supported: {', '.join(self._get_supported_gpus())}"
-            )
+            raise ValueError(f"Unsupported GPU type: {gpu_type}. " f"Supported: {', '.join(self._get_supported_gpus())}")
 
         self.specifications = self._load_specifications()
         logger.info(f"GPU specifications loaded for {self.gpu_type}")
@@ -809,9 +806,7 @@ def compare_gpus(gpu_types: List[str]) -> Dict[str, Dict[str, Any]]:
     return comparison
 
 
-def validate_gpu_configuration(
-    gpu_type: str, frequency: int, memory_freq: Optional[int] = None
-) -> Dict[str, bool]:
+def validate_gpu_configuration(gpu_type: str, frequency: int, memory_freq: Optional[int] = None) -> Dict[str, bool]:
     """
     Validate a GPU configuration.
 
@@ -866,9 +861,7 @@ if __name__ == "__main__":
 
         # Show some available frequencies
         frequencies = gpu_info.get_available_frequencies()
-        print(
-            f"  Sample Frequencies: {frequencies[:5]}...{frequencies[-5:]} ({len(frequencies)} total)"
-        )
+        print(f"  Sample Frequencies: {frequencies[:5]}...{frequencies[-5:]} ({len(frequencies)} total)")
 
     # Comparison example
     print(f"\n\nGPU Comparison:")
@@ -877,7 +870,4 @@ if __name__ == "__main__":
 
     for gpu, specs in comparison.items():
         if "error" not in specs:
-            print(
-                f"{gpu}: {specs['frequency_count']} frequencies, "
-                f"{specs['memory_size']}, {specs['tdp']}"
-            )
+            print(f"{gpu}: {specs['frequency_count']} frequencies, " f"{specs['memory_size']}, {specs['tdp']}")

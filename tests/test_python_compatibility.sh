@@ -59,4 +59,3 @@ python -m py_compile "$PROJECT_ROOT/sample-collection-scripts/profile.py" && ech
 echo
 
 echo "=== All Python compatibility tests passed! ==="
-

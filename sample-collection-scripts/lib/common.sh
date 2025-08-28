@@ -44,17 +44,17 @@ should_use_colors() {
     if is_color_disabled; then
         return 1
     fi
-    
+
     # Force enable if explicitly requested
     if is_color_forced; then
         return 0
     fi
-    
+
     # Enable colors if output is a TTY and TERM is valid
     if is_terminal_valid; then
         return 0
     fi
-    
+
     # Default to NO colors
     return 1
 }
@@ -141,13 +141,13 @@ dir_accessible() {
 # Validate required environment variables
 check_required_vars() {
     local missing_vars=()
-    
+
     for var in "$@"; do
         if [[ -z "${!var:-}" ]]; then
             missing_vars+=("$var")
         fi
     done
-    
+
     if [[ ${#missing_vars[@]} -gt 0 ]]; then
         die "Missing required environment variables: ${missing_vars[*]}"
     fi
@@ -232,12 +232,12 @@ wait_for_process() {
     local pid="$1"
     local timeout="${2:-30}"
     local count=0
-    
+
     while process_running "$pid" && [[ $count -lt $timeout ]]; do
         sleep 1
         ((count++))
     done
-    
+
     if process_running "$pid"; then
         log_warning "Process $pid still running after ${timeout}s timeout"
         return 1
@@ -300,39 +300,39 @@ is_valid_profiling_mode() {
 validate_custom_frequencies() {
     local frequencies="$1"
     local gpu_type="$2"
-    
+
     # Check if frequencies string is not empty
     [[ -n "$frequencies" ]] || return 1
-    
+
     # Get GPU frequency range
     local min_freq max_freq
     min_freq=$(get_gpu_core_freq_min "$gpu_type")
     max_freq=$(get_gpu_core_freq_max "$gpu_type")
-    
+
     # Check if we can get valid frequency bounds
     [[ -n "$min_freq" && -n "$max_freq" ]] || return 1
-    
+
     # Split frequencies by comma and validate each
     local freq_array
     IFS=',' read -ra freq_array <<< "$frequencies"
-    
+
     # Must have at least one frequency
     [[ ${#freq_array[@]} -gt 0 ]] || return 1
-    
+
     for freq in "${freq_array[@]}"; do
         # Remove whitespace
         freq=$(echo "$freq" | tr -d ' ')
-        
+
         # Check if it's a valid integer
         [[ "$freq" =~ ^[0-9]+$ ]] || return 1
-        
+
         # Check if frequency is within valid range
         if [[ "$freq" -lt "$min_freq" || "$freq" -gt "$max_freq" ]]; then
             log_error "Frequency $freq MHz is outside valid range for $gpu_type: $min_freq-$max_freq MHz"
             return 1
         fi
     done
-    
+
     return 0
 }
 
@@ -354,7 +354,7 @@ array_contains() {
     local element="$1"
     shift
     local array=("$@")
-    
+
     for item in "${array[@]}"; do
         if [[ "$item" == "$element" ]]; then
             return 0
@@ -373,7 +373,7 @@ show_spinner() {
     local message="${2:-Working...}"
     local spinner='|/-\'
     local i=0
-    
+
     while process_running "$pid"; do
         printf "\r%s [%c]" "$message" "${spinner:i++%${#spinner}:1}"
         sleep 0.1
@@ -387,16 +387,16 @@ show_progress() {
     local total="$2"
     local message="${3:-Progress}"
     local width=50
-    
+
     local percent=$((current * 100 / total))
     local filled=$((current * width / total))
     local empty=$((width - filled))
-    
+
     printf "\r%s: [" "$message"
     printf "%*s" "$filled" | tr ' ' '='
     printf "%*s" "$empty"
     printf "] %d%% (%d/%d)" "$percent" "$current" "$total"
-    
+
     if [[ $current -eq $total ]]; then
         printf "\n"
     fi

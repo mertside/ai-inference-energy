@@ -43,10 +43,10 @@ jobs:
     name: GPU Frequency Validation
     runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
     timeout-minutes: 60
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check GPU availability and permissions
         run: |
           if command -v nvidia-smi &> /dev/null; then
@@ -61,7 +61,7 @@ jobs:
             echo "❌ nvidia-smi not found - skipping GPU tests"
             exit 78
           fi
-          
+
       - name: Check DCGMI availability
         continue-on-error: true
         run: |
@@ -71,35 +71,35 @@ jobs:
           else
             echo "ℹ️ DCGMI not found - will use nvidia-smi fallback"
           fi
-          
+
       - name: Set up Python environment
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-          
+
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          
+
       - name: Validate hardware frequency support
         run: |
           GPU_TYPE="${{ github.event.inputs.gpu_type || 'A100' }}"
           echo "Testing GPU type: $GPU_TYPE"
-          
+
           if nvidia-smi -q -d SUPPORTED_CLOCKS > actual_clocks.txt 2>&1; then
             echo "✅ Successfully queried GPU clock information"
           else
             echo "⚠️ Failed to query detailed clock information"
             nvidia-smi --query-gpu=clocks.max.graphics,clocks.max.memory --format=csv,noheader,nounits > actual_clocks.txt || echo "Basic clock query failed"
           fi
-          
+
           python3 -c "
           import sys
           from hardware.gpu_info import get_gpu_info
-          
+
           gpu_type = '$GPU_TYPE'
           try:
               gpu_info = get_gpu_info(gpu_type)
@@ -107,12 +107,12 @@ jobs:
               print(f'✅ Configured {gpu_type} frequencies: {len(configured_freqs)}')
               print(f'📊 Range: {min(configured_freqs)}-{max(configured_freqs)} MHz')
               print(f'✅ All >= 510 MHz: {all(f >= 510 for f in configured_freqs)}')
-              
+
               try:
                   with open('actual_clocks.txt', 'r') as f:
                       clocks_output = f.read()
                   print('✅ Successfully read actual GPU clock data')
-                  
+
                   import re
                   graphics_freqs = re.findall(r'Graphics\\\\s*:\\\\s*(\\\\d+)\\\\s*MHz', clocks_output)
                   if graphics_freqs:
@@ -120,7 +120,7 @@ jobs:
                       print(f'📊 Actual frequencies >= 510 MHz: {len(actual_freqs)}')
                       if actual_freqs:
                           print(f'📊 Actual range: {min(actual_freqs)}-{max(actual_freqs)} MHz')
-                      
+
                       overlap = set(configured_freqs) & set(actual_freqs)
                       if overlap:
                           print(f'✅ Found {len(overlap)} overlapping frequencies')
@@ -128,15 +128,15 @@ jobs:
                           print('⚠️ No exact frequency overlap - may be expected for different GPU variants')
                   else:
                       print('ℹ️ Could not parse detailed frequency information')
-                      
+
               except Exception as e:
                   print(f'⚠️ Error processing clock data: {e}')
-                  
+
           except Exception as e:
               print(f'❌ Error validating GPU configuration: {e}')
               sys.exit(1)
           "
-          
+
       - name: Upload test artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -146,26 +146,26 @@ jobs:
             actual_clocks.txt
             *.log
           retention-days: 30
-          
+
   hardware-info-collection:
     name: Hardware Information Collection
     runs-on: ${{ github.event.inputs.runner_label || 'self-hosted' }}
     timeout-minutes: 15
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Collect comprehensive hardware information
         run: |
           echo "=== System Information ===" > hardware_info.txt
           uname -a >> hardware_info.txt 2>&1 || echo "uname failed" >> hardware_info.txt
-          
+
           echo -e "\n=== CPU Information ===" >> hardware_info.txt
           lscpu >> hardware_info.txt 2>&1 || echo "lscpu not available" >> hardware_info.txt
-          
+
           echo -e "\n=== Memory Information ===" >> hardware_info.txt
           free -h >> hardware_info.txt 2>&1 || echo "free command failed" >> hardware_info.txt
-          
+
           echo -e "\n=== GPU Information ===" >> hardware_info.txt
           if command -v nvidia-smi &> /dev/null; then
             nvidia-smi >> hardware_info.txt 2>&1
@@ -174,14 +174,14 @@ jobs:
           else
             echo "nvidia-smi not available" >> hardware_info.txt
           fi
-          
+
           echo -e "\n=== CUDA Information ===" >> hardware_info.txt
           if command -v nvcc &> /dev/null; then
             nvcc --version >> hardware_info.txt 2>&1
           else
             echo "CUDA compiler not available" >> hardware_info.txt
           fi
-          
+
       - name: Upload hardware information
         uses: actions/upload-artifact@v4
         with:

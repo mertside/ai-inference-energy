@@ -42,7 +42,7 @@ readonly DEFAULT_TEMP_DIR="tmp"
 # =============================================================================
 
 # Profiling timeouts (seconds) - Optimized for low-frequency research
-readonly PROFILE_TIMEOUT=1800           # 30 minutes: Handles 510MHz + model downloads  
+readonly PROFILE_TIMEOUT=1800           # 30 minutes: Handles 510MHz + model downloads
 readonly CONTROL_TIMEOUT=30             # 30 seconds: GPU frequency control
 readonly APPLICATION_TIMEOUT=1800       # 30 minutes: Same as profile timeout for consistency
 
@@ -78,7 +78,7 @@ readonly SLURM_JOB_PREFIX="ai_profiling"
 readonly LSTM_DEFAULT_PARAMS=""
 readonly LSTM_CONDA_ENV="tensorflow"
 
-# Stable Diffusion application  
+# Stable Diffusion application
 readonly STABLE_DIFFUSION_DEFAULT_PARAMS="--prompt 'A beautiful landscape' --steps 20"
 readonly STABLE_DIFFUSION_CONDA_ENV="stable-diffusion-gpu"
 
@@ -184,28 +184,28 @@ readonly ENABLE_DETAILED_LOGGING=true
 # Validate configuration values
 validate_config() {
     local errors=()
-    
+
     # Validate numeric values
     if ! [[ "$DEFAULT_NUM_RUNS" =~ ^[1-9][0-9]*$ ]]; then
         errors+=("DEFAULT_NUM_RUNS must be a positive integer")
     fi
-    
+
     if ! [[ "$DEFAULT_SLEEP_INTERVAL" =~ ^[0-9]+$ ]]; then
         errors+=("DEFAULT_SLEEP_INTERVAL must be a non-negative integer")
     fi
-    
+
     # Validate timeouts
     if [[ "$PROFILE_TIMEOUT" -le 0 ]]; then
         errors+=("PROFILE_TIMEOUT must be positive")
     fi
-    
+
     # Report validation errors
     if [[ ${#errors[@]} -gt 0 ]]; then
         echo "Configuration validation errors:" >&2
         printf "  - %s\n" "${errors[@]}" >&2
         return 1
     fi
-    
+
     return 0
 }
 

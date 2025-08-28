@@ -16,7 +16,7 @@
 ## GPU Support
 <!-- If this PR affects GPU support, mark relevant GPUs -->
 - [ ] A100
-- [ ] V100  
+- [ ] V100
 - [ ] H100
 - [ ] General (affects all GPUs)
 - [ ] Not applicable

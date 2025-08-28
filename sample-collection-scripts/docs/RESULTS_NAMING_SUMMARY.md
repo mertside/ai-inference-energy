@@ -22,7 +22,7 @@ The new naming format is: `results_[gpu]_[app]`
 
 ### 2. Job Scripts Updated
 - **submit_job_h100.sh**: Added `determine_results_dir()` function
-- **submit_job_a100.sh**: Added `determine_results_dir()` function  
+- **submit_job_a100.sh**: Added `determine_results_dir()` function
 - **submit_job_v100.sh**: Added `determine_results_dir()` function
 - All scripts now use `$RESULTS_DIR` variable instead of hardcoded "results"
 

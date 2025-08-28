@@ -9,7 +9,7 @@ All three GPU job submission scripts (`submit_job_h100.sh`, `submit_job_a100.sh`
 ### 📋 BASELINE CONFIGURATIONS (1-5)
 **Purpose**: Quick validation and basic benchmarking
 - **1**: LSTM - Basic deep learning benchmark
-- **2**: Stable Diffusion - Image generation benchmark  
+- **2**: Stable Diffusion - Image generation benchmark
 - **3**: LLaMA - Text generation benchmark
 - **4**: Whisper - Speech recognition benchmark
 - **5**: Vision Transformer - Image classification benchmark
@@ -20,11 +20,11 @@ All three GPU job submission scripts (`submit_job_h100.sh`, `submit_job_a100.sh`
 **Purpose**: Three-point frequency analysis (low/mid/high)
 - **6**: LSTM Custom
 - **7**: Stable Diffusion Custom
-- **8**: LLaMA Custom  
+- **8**: LLaMA Custom
 - **9**: Whisper Custom
 - **10**: Vision Transformer Custom
 
-**Timing**: 
+**Timing**:
 - H100/A100: `--time=01:00:00` (1 hour)
 - V100: `--time=02:00:00` (2 hours)
 
@@ -36,7 +36,7 @@ All three GPU job submission scripts (`submit_job_h100.sh`, `submit_job_a100.sh`
 
 **Timing**:
 - H100: `--time=06:00:00` (6 hours)
-- A100: `--time=05:00:00` (5 hours) 
+- A100: `--time=05:00:00` (5 hours)
 - V100: `--time=12:00:00` (12 hours)
 
 ### 🔬 APPLICATION-SPECIFIC DVFS STUDIES (14-18)
@@ -69,7 +69,7 @@ All three GPU job submission scripts (`submit_job_h100.sh`, `submit_job_a100.sh`
 - **24**: Memory Stress Test - 80GB HBM3
 - **25**: Flagship Performance - Maximum capability
 
-#### A100 (Ampere Architecture)  
+#### A100 (Ampere Architecture)
 - **22**: Tensor Cores - Mixed precision optimization
 - **23**: 3rd Gen Tensor Cores - Maximum performance
 - **24**: Memory Stress Test - 40GB HBM2e
@@ -96,7 +96,7 @@ All three GPU job submission scripts (`submit_job_h100.sh`, `submit_job_a100.sh`
 ### ⚡ SAMPLING INTERVAL AND MULTI-GPU CONFIGURATIONS (29-32)
 **Purpose**: New features for fine-grained monitoring
 - **29**: High-Frequency Sampling - 10ms interval
-- **30**: Low-Frequency Sampling - 200ms interval  
+- **30**: Low-Frequency Sampling - 200ms interval
 - **31**: Multi-GPU Monitoring - All available GPUs
 - **32**: Ultra-Fine Monitoring - 25ms + all GPUs
 
@@ -138,7 +138,7 @@ All scripts now support:
 # Fast sampling
 LAUNCH_ARGS="--gpu-type H100 --sampling-interval 10 --app-name LSTM ..."
 
-# Multi-GPU monitoring  
+# Multi-GPU monitoring
 LAUNCH_ARGS="--gpu-type A100 --all-gpus --app-name ViT ..."
 
 # Combined advanced monitoring

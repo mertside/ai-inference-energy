@@ -2,6 +2,8 @@
 """
 Complete Stable Diffusion Environment Test - Final Version
 """
+
+
 def run_import_test(description, import_statement):
     """Test an import and return success status"""
     try:
@@ -12,13 +14,15 @@ def run_import_test(description, import_statement):
         print(f"❌ {description}: {str(e)[:60]}...")
         return False
 
+
 def get_version(module_name):
     """Get version of a module"""
     try:
         module = __import__(module_name)
-        return getattr(module, '__version__', 'Unknown')
+        return getattr(module, "__version__", "Unknown")
     except:
-        return 'Not available'
+        return "Not available"
+
 
 # Test all core components
 tests = [
@@ -40,6 +44,7 @@ tests = [
 passed = 0
 total = len(tests)
 
+
 def main():
     print("🎯 COMPLETE STABLE DIFFUSION ENVIRONMENT TEST")
     print("=" * 55)
@@ -51,7 +56,7 @@ def main():
         if run_import_test(description, import_stmt):
             passed += 1
 
-# Show versions
+    # Show versions
     print("\n📦 PACKAGE VERSIONS:")
     print("-" * 30)
     print(f"PyTorch: {get_version('torch')}")
@@ -60,23 +65,22 @@ def main():
     print(f"huggingface_hub: {get_version('huggingface_hub')}")
     print(f"safetensors: {get_version('safetensors')}")
 
-# GPU Info
+    # GPU Info
     print("\n🖥️  GPU INFORMATION:")
     print("-" * 25)
     try:
         import torch
+
         if torch.cuda.is_available():
             print(f"GPU: {torch.cuda.get_device_name()}")
             print(f"CUDA Version: {torch.version.cuda}")
-            print(
-                f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
-            )
+            print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
         else:
             print("No GPU available")
     except Exception:
         print("Cannot check GPU info")
 
-# Final score
+    # Final score
     print("\n" + "=" * 55)
     print(f"📊 FINAL SCORE: {passed}/{total} components working")
     print(f"🎯 SUCCESS RATE: {passed/total*100:.1f}%")

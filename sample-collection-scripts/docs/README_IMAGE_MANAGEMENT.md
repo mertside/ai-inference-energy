@@ -4,7 +4,7 @@
 
 When running full DVFS frequency sweeps for Stable Diffusion:
 - **H100**: 86 frequencies × runs = **86+ images**
-- **A100**: 61 frequencies × runs = **61+ images** 
+- **A100**: 61 frequencies × runs = **61+ images**
 - **V100**: 117 frequencies × runs = **117+ images**
 
 Each image is ~1-5 MB, so a complete DVFS sweep can generate **500MB - 2GB** of images!
@@ -22,7 +22,7 @@ Each SLURM job automatically creates its own image subfolder:
 - **Benefits**: Easy to identify which images belong to which experiment
 - **Cleanup**: Target specific jobs for cleanup
 
-### 3. **Full Archive Mode - Save All Images**  
+### 3. **Full Archive Mode - Save All Images**
 For comprehensive analysis or demonstrations
 
 ### 4. **Benchmark Mode - No Image Saving**
@@ -76,7 +76,7 @@ Use cleanup scripts to manage image storage automatically.
 - Structure: `app-stable-diffusion/images/job_<JOB_ID>/`
 - Easy identification and targeted cleanup
 
-### 3. `sd_research_guide.sh` - Research-focused SD configuration  
+### 3. `sd_research_guide.sh` - Research-focused SD configuration
 ### 4. Documentation and examples
 
 ## 📊 **Storage Estimates**
@@ -97,7 +97,7 @@ Use cleanup scripts to manage image storage automatically.
 # This saves energy data but skips image files
 ```
 
-### Validation Mode  
+### Validation Mode
 ```bash
 # Use custom frequencies for spot checks
 --custom-frequencies '510,960,1410,1785'  # Sample key frequencies

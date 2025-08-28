@@ -17,6 +17,8 @@ Requirements:
 Author: Mert Side
 """
 
+# Add parent directory to path for imports and handle config import robustly
+import importlib.util
 import logging
 import multiprocessing as mp
 import os
@@ -26,9 +28,6 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
-# Add parent directory to path for imports and handle config import robustly
-import importlib.util
 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config_path = os.path.join(parent_dir, "config.py")
@@ -40,27 +39,50 @@ try:
     config_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(config_module)
     profiling_config = config_module.profiling_config
-    
+
     # Import utils.py directly
     spec = importlib.util.spec_from_file_location("energy_utils", utils_path)
     utils_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils_module)
-    
+
     get_timestamp = utils_module.get_timestamp
     run_command = utils_module.run_command
     setup_logging = utils_module.setup_logging
     validate_dcgmi_available = utils_module.validate_dcgmi_available
-    
+
 except (ImportError, FileNotFoundError, AttributeError) as e:
     print(f"Warning: Could not import main config module: {e}")
     print("Using fallback configuration (this should not happen in production)")
-    
+
     # Minimal fallback configuration - should match main config
     class ProfilingConfig:
         # Use the same comprehensive field list as main config
         DCGMI_FIELDS = [
-            52, 50, 155, 160, 156, 150, 140, 203, 204, 250, 251, 252, 
-            100, 101, 110, 111, 190, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008
+            52,
+            50,
+            155,
+            160,
+            156,
+            150,
+            140,
+            203,
+            204,
+            250,
+            251,
+            252,
+            100,
+            101,
+            110,
+            111,
+            190,
+            1001,
+            1002,
+            1003,
+            1004,
+            1005,
+            1006,
+            1007,
+            1008,
         ]
         DEFAULT_INTERVAL_MS = 50
         TEMP_OUTPUT_FILE = "changeme"
@@ -85,7 +107,7 @@ except (ImportError, FileNotFoundError, AttributeError) as e:
 
     def get_timestamp():
         return time.strftime("%Y-%m-%d_%H-%M-%S")
-    
+
     def run_command(command, *args, **kwargs):
         return subprocess.run(command, *args, **kwargs)
 
@@ -126,9 +148,7 @@ class GPUProfiler:
 
         # Validate DCGMI availability
         if not validate_dcgmi_available():
-            raise RuntimeError(
-                "DCGMI not available. Please install NVIDIA DCGMI tools."
-            )
+            raise RuntimeError("DCGMI not available. Please install NVIDIA DCGMI tools.")
 
     def _build_dcgmi_command(self) -> List[str]:
         """
@@ -143,19 +163,21 @@ class GPUProfiler:
             "dcgmi",
             "dmon",
         ]
-        
+
         # Add GPU selection: monitor all GPUs (-i -1) or specific GPU ID
         if self.monitor_all_gpus:
             command.extend(["-i", "-1"])  # Monitor all GPUs
         else:
             command.extend(["-i", str(self.gpu_id)])  # Monitor specific GPU
-            
-        command.extend([
-            "-e",
-            fields_str,
-            "-d",
-            str(self.interval_ms),
-        ])
+
+        command.extend(
+            [
+                "-e",
+                fields_str,
+                "-d",
+                str(self.interval_ms),
+            ]
+        )
 
         return command
 
@@ -164,9 +186,7 @@ class GPUProfiler:
         try:
             command = self._build_dcgmi_command()
             gpu_target = "all GPUs" if self.monitor_all_gpus else f"GPU {self.gpu_id}"
-            self.logger.info(
-                f"Starting GPU monitoring ({gpu_target}) with command: {' '.join(command)}"
-            )
+            self.logger.info(f"Starting GPU monitoring ({gpu_target}) with command: {' '.join(command)}")
             self.logger.info(f"Output file: {self.output_file}")
             self.logger.info(f"Sampling interval: {self.interval_ms}ms")
 
@@ -180,9 +200,7 @@ class GPUProfiler:
                 )
 
             self.start_time = time.time()
-            self.logger.info(
-                f"GPU monitoring started (PID: {self.monitoring_process.pid})"
-            )
+            self.logger.info(f"GPU monitoring started (PID: {self.monitoring_process.pid})")
 
         except Exception as e:
             self.logger.error(f"Failed to start GPU monitoring: {e}")
@@ -212,9 +230,7 @@ class GPUProfiler:
             return duration
 
         except subprocess.TimeoutExpired:
-            self.logger.warning(
-                "Monitoring process did not terminate gracefully, forcing kill"
-            )
+            self.logger.warning("Monitoring process did not terminate gracefully, forcing kill")
             os.killpg(os.getpgid(self.monitoring_process.pid), signal.SIGKILL)
             return time.time() - self.start_time if self.start_time else 0.0
         except Exception as e:
@@ -303,11 +319,7 @@ class GPUProfiler:
 
 
 def profile_application(
-    command, 
-    output_file: str = None, 
-    interval_ms: int = None, 
-    gpu_id: int = 0,
-    monitor_all_gpus: bool = False
+    command, output_file: str = None, interval_ms: int = None, gpu_id: int = 0, monitor_all_gpus: bool = False
 ) -> Dict[str, Any]:
     """
     Convenience function to profile an application with GPU monitoring.
@@ -322,12 +334,7 @@ def profile_application(
     Returns:
         Dictionary containing profiling results
     """
-    profiler = GPUProfiler(
-        output_file=output_file, 
-        interval_ms=interval_ms, 
-        gpu_id=gpu_id,
-        monitor_all_gpus=monitor_all_gpus
-    )
+    profiler = GPUProfiler(output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id, monitor_all_gpus=monitor_all_gpus)
 
     try:
         return profiler.profile_command(command)
@@ -340,12 +347,8 @@ def main():
     import argparse
 
     # Set up argument parsing
-    parser = argparse.ArgumentParser(
-        description="GPU power profiling utility for AI inference workloads"
-    )
-    parser.add_argument(
-        "command", nargs="*", help="Command to profile (if empty, just monitors GPU)"
-    )
+    parser = argparse.ArgumentParser(description="GPU power profiling utility for AI inference workloads")
+    parser.add_argument("command", nargs="*", help="Command to profile (if empty, just monitors GPU)")
     parser.add_argument(
         "-o",
         "--output",
@@ -359,15 +362,9 @@ def main():
         default=profiling_config.DEFAULT_INTERVAL_MS,
         help=f"Sampling interval in milliseconds (default: {profiling_config.DEFAULT_INTERVAL_MS})",
     )
-    parser.add_argument(
-        "-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)"
-    )
-    parser.add_argument(
-        "--all-gpus", action="store_true", help="Monitor all available GPUs instead of specific ID"
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose logging"
-    )
+    parser.add_argument("-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)")
+    parser.add_argument("--all-gpus", action="store_true", help="Monitor all available GPUs instead of specific ID")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
 

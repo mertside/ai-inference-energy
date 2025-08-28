@@ -383,9 +383,7 @@ class EDPOptimizer:
         # Calculate metrics for ED²P optimal frequency
         energy_savings_ed2p = ((max_freq_data.avg_energy - optimal_ed2p_data.avg_energy) / max_freq_data.avg_energy) * 100
         performance_vs_max_ed2p = ((optimal_ed2p_data.avg_timing - max_freq_data.avg_timing) / max_freq_data.avg_timing) * 100
-        performance_vs_fastest_ed2p = (
-            (optimal_ed2p_data.avg_timing - fastest_data.avg_timing) / fastest_data.avg_timing
-        ) * 100
+        performance_vs_fastest_ed2p = ((optimal_ed2p_data.avg_timing - fastest_data.avg_timing) / fastest_data.avg_timing) * 100
         ed2p_improvement = ((max_freq_data.ed2p - optimal_ed2p_data.ed2p) / max_freq_data.ed2p) * 100
 
         return OptimalResult(

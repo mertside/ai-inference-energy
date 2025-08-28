@@ -32,9 +32,7 @@ class TestDataProcessingIntegration(unittest.TestCase):
         self.sample_profiling_data = pd.DataFrame(
             {
                 "app_name": ["TestApp"] * self.sample_size,
-                "timestamp": pd.date_range(
-                    "2024-01-01", periods=self.sample_size, freq="1s"
-                ),
+                "timestamp": pd.date_range("2024-01-01", periods=self.sample_size, freq="1s"),
                 "fp_activity": np.random.uniform(0.1, 0.8, self.sample_size),
                 "dram_activity": np.random.uniform(0.05, 0.4, self.sample_size),
                 "sm_clock": np.random.choice(range(800, 1401, 50), self.sample_size),
@@ -56,9 +54,7 @@ class TestDataProcessingIntegration(unittest.TestCase):
             # Test data can be read back correctly
             loaded_data = pd.read_csv(test_file)
             self.assertEqual(len(loaded_data), len(self.sample_profiling_data))
-            self.assertEqual(
-                list(loaded_data.columns), list(self.sample_profiling_data.columns)
-            )
+            self.assertEqual(list(loaded_data.columns), list(self.sample_profiling_data.columns))
 
             # Test data integrity
             pd.testing.assert_frame_equal(
@@ -79,12 +75,7 @@ class TestDataProcessingIntegration(unittest.TestCase):
 
         # Basic validation checks
         self.assertFalse(valid_data.empty)
-        self.assertTrue(
-            all(
-                col in valid_data.columns
-                for col in ["fp_activity", "dram_activity", "sm_clock", "power"]
-            )
-        )
+        self.assertTrue(all(col in valid_data.columns for col in ["fp_activity", "dram_activity", "sm_clock", "power"]))
 
         # Test data ranges are reasonable
         self.assertTrue(all(valid_data["fp_activity"].between(0, 1)))
@@ -98,9 +89,7 @@ class TestDataProcessingIntegration(unittest.TestCase):
         problematic_data.loc[1, "power"] = np.nan  # Missing value
 
         # Count issues
-        invalid_fp = (problematic_data["fp_activity"] < 0) | (
-            problematic_data["fp_activity"] > 1
-        )
+        invalid_fp = (problematic_data["fp_activity"] < 0) | (problematic_data["fp_activity"] > 1)
         missing_power = problematic_data["power"].isna()
 
         self.assertTrue(any(invalid_fp))
@@ -141,7 +130,7 @@ class TestSystemIntegration(unittest.TestCase):
         # Test main module imports - currently only testing existing modules
         modules_to_test = [
             "config",
-            "utils", 
+            "utils",
             "hardware.gpu_info",
         ]
 
@@ -151,7 +140,7 @@ class TestSystemIntegration(unittest.TestCase):
                     __import__(module_name)
                 except ImportError as e:
                     self.fail(f"Failed to import {module_name}: {e}")
-                    
+
         # Note: power_modeling modules not yet implemented
         # When implemented, add them back to the test list
 

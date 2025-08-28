@@ -7,7 +7,7 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 ### 📊 A100 GPU Specifications
 - **GPU**: Tesla A100 (40GB HBM2e)
 - **Partition**: toreador (HPCC Texas Tech)
-- **Frequencies**: 61 available (510-1410 MHz) 
+- **Frequencies**: 61 available (510-1410 MHz)
 - **Memory**: 1215 MHz (fixed)
 - **Architecture**: Ampere (GA100)
 - **Advanced Features**: Tensor Cores, MIG support, PCIe Gen4
@@ -21,7 +21,7 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 # Time needed: 3-5 minutes
 # Use for: Initial testing, debugging
 
-# 2. 🔬 RESEARCH BASELINE - Statistical significance  
+# 2. 🔬 RESEARCH BASELINE - Statistical significance
 # Uncomment: Configuration #2
 # Time needed: 8-12 minutes
 # Use for: Publication-quality baseline data
@@ -40,7 +40,7 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 # Use for: NLP workload analysis
 
 # 6. 🎨 STABLE DIFFUSION - Image generation
-# Uncomment: Configuration #6  
+# Uncomment: Configuration #6
 # Time needed: 20-30 minutes
 # Use for: Generative AI workload analysis
 
@@ -147,7 +147,7 @@ This guide helps you quickly select the right configuration for your A100 GPU pr
 # A100 has 40GB memory vs H100's 80GB
 # For very large models, consider:
 # 1. Model sharding
-# 2. Gradient checkpointing  
+# 2. Gradient checkpointing
 # 3. Mixed precision (Configuration #9)
 ```
 

@@ -49,18 +49,18 @@ source "${LIB_DIR}/args_parser.sh"    # Argument parsing and validation
 # Initialize the profiling environment
 initialize_environment() {
     log_info "Initializing AI Inference Energy Profiling Framework v${FRAMEWORK_VERSION}"
-    
+
     # Setup signal handlers for cleanup
     setup_signal_handlers
-    
+
     # Create necessary directories
     ensure_directory "$PARSED_OUTPUT_DIR"
     ensure_directory "${SCRIPT_DIR}/logs"
     ensure_directory "${SCRIPT_DIR}/tmp"
-    
+
     # Configure output redirection
     local log_file="${SCRIPT_DIR}/logs/launch_$(date +%Y%m%d_%H%M%S).log"
-    
+
     # Enable debug logging if requested
     if $PARSED_DEBUG_MODE; then
         log_info "Debug mode enabled - detailed logging active"
@@ -68,7 +68,7 @@ initialize_environment() {
         export BASH_XTRACEFD=19
         set -x
     fi
-    
+
     log_info "Environment initialized successfully"
     log_debug "Log file: $log_file"
 }
@@ -76,59 +76,59 @@ initialize_environment() {
 # Validate system prerequisites
 check_system_prerequisites() {
     log_info "Checking system prerequisites..."
-    
+
     local missing_tools=()
     local warnings=()
-    
+
     # Check for essential tools
     if ! command_exists "nvidia-smi"; then
         missing_tools+=("nvidia-smi (NVIDIA drivers)")
     fi
-    
+
     if ! command_exists "python3"; then
         missing_tools+=("python3")
     fi
-    
+
     # Check for profiling tools
     local has_profiling_tool=false
     if command_exists "dcgmi"; then
         log_debug "DCGMI available"
         has_profiling_tool=true
     fi
-    
+
     if command_exists "nvidia-smi"; then
         log_debug "nvidia-smi available"
         has_profiling_tool=true
     fi
-    
+
     if ! $has_profiling_tool; then
         missing_tools+=("profiling tools (dcgmi or nvidia-smi)")
     fi
-    
+
     # Check for optional tools
     if ! command_exists "conda"; then
         warnings+=("conda not available - using system Python")
     fi
-    
+
     # Report missing tools
     if [[ ${#missing_tools[@]} -gt 0 ]]; then
         log_error "Missing required tools:"
         printf "  - %s\n" "${missing_tools[@]}" >&2
         die "Please install missing tools before running the profiling framework"
     fi
-    
+
     # Report warnings
     if [[ ${#warnings[@]} -gt 0 ]]; then
         for warning in "${warnings[@]}"; do
             log_warning "$warning"
         done
     fi
-    
+
     # Check GPU availability
     if ! is_gpu_available; then
         die "No GPU detected. Please ensure NVIDIA GPU is available and drivers are installed."
     fi
-    
+
     local gpu_count
     gpu_count=$(get_gpu_count)
     log_info "System check passed - $gpu_count GPU(s) detected"
@@ -137,23 +137,23 @@ check_system_prerequisites() {
 # Validate application and dependencies
 validate_application() {
     log_info "Validating application: $PARSED_APP_EXECUTABLE"
-    
+
     # Try to resolve application path
     local resolution_result
     if ! resolution_result=$(resolve_application_path "$PARSED_APP_EXECUTABLE"); then
         die "Failed to resolve application path: $PARSED_APP_EXECUTABLE"
     fi
-    
+
     local app_path app_dir
     IFS='|' read -r app_path app_dir <<< "$resolution_result"
-    
+
     log_success "Application found: $app_path"
     log_debug "Application directory: $app_dir"
-    
+
     # Validate conda environment
     local conda_env
     conda_env=$(determine_conda_env "$PARSED_APP_EXECUTABLE" "$app_dir")
-    
+
     if command_exists "conda"; then
         if validate_conda_env "$conda_env"; then
             log_info "Conda environment validated: $conda_env"
@@ -161,7 +161,7 @@ validate_application() {
             log_warning "Conda environment '$conda_env' not found - using system Python"
         fi
     fi
-    
+
     log_success "Application validation completed"
 }
 
@@ -169,7 +169,7 @@ validate_application() {
 run_profiling_experiment() {
     log_info "Starting profiling experiment"
     log_info "Mode: $PARSED_PROFILING_MODE, Tool: $PARSED_PROFILING_TOOL, GPU: $PARSED_GPU_TYPE"
-    
+
     # Parse application parameters into array
     local app_params_array=()
     if [[ -n "$PARSED_APP_PARAMS" ]]; then
@@ -178,12 +178,12 @@ run_profiling_experiment() {
             app_params_array+=("$param")
         done < <(printf '%s\0' $PARSED_APP_PARAMS)
     fi
-    
+
     log_debug "Application parameters: ${#app_params_array[@]} items"
     for i in "${!app_params_array[@]}"; do
         log_debug "  [$i]: ${app_params_array[$i]}"
     done
-    
+
     # Run experiment based on mode
     case "$PARSED_PROFILING_MODE" in
         dvfs)
@@ -228,9 +228,9 @@ generate_experiment_summary() {
     local summary_file="${PARSED_OUTPUT_DIR}/experiment_summary.log"
     local end_time
     end_time=$(date '+%Y-%m-%d %H:%M:%S')
-    
+
     log_info "Generating experiment summary: $summary_file"
-    
+
     # Create basic summary with error handling
     {
         cat << EOF
@@ -241,7 +241,7 @@ Experiment Details:
   Framework Version: ${FRAMEWORK_VERSION}
   Timestamp: ${end_time}
   Mode: ${PARSED_PROFILING_MODE}
-  
+
 GPU Configuration:
   Type: ${PARSED_GPU_TYPE}
   Architecture: $(get_gpu_architecture "$PARSED_GPU_TYPE")
@@ -269,13 +269,13 @@ EOF
         log_error "Failed to create basic summary file"
         return 1
     }
-    
+
     # List generated output files with error handling
     if [[ -d "$PARSED_OUTPUT_DIR" ]]; then
         find "$PARSED_OUTPUT_DIR" -name "*.csv" -o -name "*.out" -o -name "*.err" -o -name "*.log" 2>/dev/null | \
             sort | sed 's/^/  /' >> "$summary_file" || true
     fi
-    
+
     # Add timing summary if available - with robust error handling
     local timing_file="${PARSED_OUTPUT_DIR}/timing_summary.log"
     if [[ -f "$timing_file" ]]; then
@@ -286,20 +286,20 @@ EOF
         } >> "$summary_file" || {
             log_warning "Failed to write timing summary header"
         }
-        
+
         # Process timing file with maximum error tolerance
         generate_timing_statistics "$timing_file" "$summary_file" || {
             log_warning "Failed to generate detailed timing statistics, adding basic completion note"
             echo "  Timing details available in: $timing_file" >> "$summary_file" || true
         }
     fi
-    
+
     # Add completion timestamp with error handling
     {
         echo ""
         echo "Experiment completed at: ${end_time}"
     } >> "$summary_file" || true
-    
+
     log_success "Experiment summary saved to: $summary_file"
 }
 
@@ -307,41 +307,41 @@ EOF
 generate_timing_statistics() {
     local timing_file="$1"
     local summary_file="$2"
-    
+
     local total_runs=0
     local total_duration=0
     local successful_runs=0
     local failed_runs=0
     local min_duration=999999
     local max_duration=0
-    
+
     # Process each line with individual error handling
     while IFS=',' read -r run_id freq duration exit_code status || [[ -n "$run_id" ]]; do
         # Skip header and comment lines
         [[ "$run_id" =~ ^#.*$ ]] && continue
         [[ -z "$run_id" ]] && continue
-        
+
         # Validate and process numeric fields
         if [[ "$duration" =~ ^[0-9]+$ ]] && [[ "$freq" =~ ^[0-9]+$ ]]; then
             ((total_runs++)) || true
             total_duration=$((total_duration + duration)) || true
-            
+
             if [[ "$status" == "success" ]]; then
                 ((successful_runs++))
             else
                 ((failed_runs++))
             fi
-            
+
             # Update min/max with safe comparisons
             [[ $duration -lt $min_duration ]] && min_duration=$duration
             [[ $duration -gt $max_duration ]] && max_duration=$duration
-            
+
             # Write individual run details
             printf "  Run %-15s: %3ds (freq: %4dMHz, status: %s)\n" \
                 "$run_id" "$duration" "$freq" "$status" >> "$summary_file" || true
         fi
     done < "$timing_file"
-    
+
     # Add summary statistics if we have valid data
     if [[ $total_runs -gt 0 ]] && [[ $total_duration -gt 0 ]]; then
         local avg_duration=$((total_duration / total_runs))
@@ -362,13 +362,13 @@ generate_timing_statistics() {
 # Cleanup function
 cleanup_experiment() {
     log_debug "Running experiment cleanup..."
-    
+
     # Reset GPU frequencies to default (if not baseline mode)
     if [[ "$PARSED_PROFILING_MODE" != "baseline" ]]; then
         log_info "Resetting GPU frequencies to defaults..."
         reset_gpu_frequency "$PARSED_PROFILING_TOOL" "$PARSED_GPU_TYPE" || true
     fi
-    
+
     # Clean up temporary files
     local temp_files
     temp_files=$(find "${SCRIPT_DIR}/tmp" -name "run_app_*.py" 2>/dev/null || true)
@@ -376,7 +376,7 @@ cleanup_experiment() {
         log_debug "Cleaning up temporary files..."
         echo "$temp_files" | xargs rm -f
     fi
-    
+
     log_debug "Cleanup completed"
 }
 
@@ -387,46 +387,46 @@ cleanup_experiment() {
 main() {
     local start_time end_time duration
     start_time=$(date +%s)
-    
+
     # Process command-line arguments
     process_arguments "$@"
-    
+
     # Initialize environment
     initialize_environment
-    
+
     # Register cleanup function
     register_cleanup cleanup_experiment
-    
+
     # System validation
     check_system_prerequisites
     validate_application
-    
+
     # Show GPU configuration summary
     show_gpu_config "$PARSED_GPU_TYPE"
-    
+
     # Confirm before starting (unless in non-interactive mode)
     if [[ -t 0 ]] && [[ "${SKIP_CONFIRMATION:-false}" != "true" ]]; then
         echo -n "Press Enter to start the experiment, or Ctrl+C to cancel... "
         read -r
     fi
-    
+
     # Run the main experiment
     run_profiling_experiment
-    
+
     # Generate summary with error tolerance
     generate_experiment_summary || {
         log_warning "Summary generation encountered issues, but experiment data was collected successfully"
         log_info "All profiling data is available in: $PARSED_OUTPUT_DIR"
     }
-    
+
     # Calculate and display duration
     end_time=$(date +%s)
     duration=$((end_time - start_time))
-    
+
     log_success "Profiling experiment completed successfully!"
     log_info "Total duration: $(printf '%02d:%02d:%02d' $((duration/3600)) $((duration%3600/60)) $((duration%60)))"
     log_info "Results saved to: $PARSED_OUTPUT_DIR"
-    
+
     return 0
 }
 

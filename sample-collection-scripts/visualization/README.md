@@ -92,7 +92,7 @@ python edp_analysis/visualization/plot_metric_vs_time.py \
     --gpu V100 --app LLAMA --metric POWER --frequencies 510,960,1380
 ```
 
-**2. Performance Analysis**  
+**2. Performance Analysis**
 ```bash
 # Analyze GPU utilization patterns
 python edp_analysis/visualization/plot_metric_vs_time.py \
@@ -138,7 +138,7 @@ edp_analysis/visualization/
 ├── plot_metric_vs_time.py      # 🎯 Main CLI plotting tool
 ├── time_series_demo.py         # Educational demo script
 ├── edp_plots.py                # EDP analysis visualization
-├── power_plots.py              # Power analysis visualization  
+├── power_plots.py              # Power analysis visualization
 ├── performance_plots.py        # Performance analysis visualization
 ├── data_preprocessor.py        # Data loading and preprocessing
 └── __init__.py                 # Module initialization
@@ -162,15 +162,15 @@ perf_plotter = PerformancePlotter()
 
 # Plot power vs time with frequency overlays
 power_fig = power_plotter.plot_power_vs_time(
-    df, 
-    power_col="POWER", 
+    df,
+    power_col="POWER",
     frequency_filter=[510, 960, 1380]
 )
 
 # Create multi-metric dashboard
 metrics = ["POWER", "GPUTL", "TMPTR", "DRAMA"]
 dashboard_fig = perf_plotter.plot_multi_metric_dashboard(
-    df, 
+    df,
     metrics=metrics,
     frequency_filter=[510, 960, 1380]
 )
@@ -249,7 +249,7 @@ python -c "import matplotlib; import pandas; import numpy; print('✅ Core depen
 # For conda environments
 conda install matplotlib pandas numpy
 
-# For pip environments  
+# For pip environments
 pip install matplotlib pandas numpy
 ```
 
@@ -656,7 +656,7 @@ python plot_metric_vs_time.py --gpu A100 --app VIT --metric GPUTL --run 3 --freq
 
 **Key Features:**
 - Synthetic data generation for testing
-- Multi-metric correlation analysis  
+- Multi-metric correlation analysis
 - Advanced statistical visualizations
 - Educational examples
 
@@ -707,9 +707,9 @@ from data_preprocessor import load_dcgmi_data, extract_frequencies
 
 # Load specific experiment data
 df = load_dcgmi_data(
-    gpu="V100", 
-    app="LLAMA", 
-    frequencies=[510, 960, 1380], 
+    gpu="V100",
+    app="LLAMA",
+    frequencies=[510, 960, 1380],
     run_number=2
 )
 
@@ -769,9 +769,9 @@ fig2 = plotter.plot_power_temperature_correlation(df, save_path="power_temp_corr
 
 # Advanced energy efficiency analysis
 fig3 = plotter.plot_energy_efficiency_analysis(
-    df, 
+    df,
     power_col="POWER",
-    performance_col="GPUTL", 
+    performance_col="GPUTL",
     save_path="efficiency_analysis.png"
 )
 ```
@@ -794,7 +794,7 @@ from data_preprocessor import load_dcgmi_data
 # Load data
 df = load_dcgmi_data("A100", "VIT", [1200, 1410], 1)
 
-# Initialize plotter  
+# Initialize plotter
 plotter = PerformancePlotter()
 
 # Performance analysis
@@ -827,7 +827,7 @@ fig2 = plotter.plot_pareto_frontier(edp_results, save_path="pareto_frontier.png"
 
 # Optimization summary
 fig3 = create_optimization_summary_plot(
-    edp_results, 
+    edp_results,
     title="LLAMA V100 EDP Optimization",
     save_path="optimization_summary.png"
 )
@@ -843,7 +843,7 @@ fig3 = create_optimization_summary_plot(
 # 1. Quick power analysis
 python plot_metric_vs_time.py --gpu V100 --app LLAMA --metric POWER
 
-# 2. GPU utilization check  
+# 2. GPU utilization check
 python plot_metric_vs_time.py --gpu A100 --app VIT --metric GPUTL
 
 # 3. Thermal monitoring
@@ -885,7 +885,7 @@ python -c "import matplotlib, pandas, numpy; print('✅ All dependencies availab
 edp_analysis/visualization/
 ├── plot_metric_vs_time.py      # 🎯 Main CLI tool - start here
 ├── time_series_demo.py         # 📚 Interactive demo and tutorials
-├── data_preprocessor.py        # 🔧 Data loading utilities  
+├── data_preprocessor.py        # 🔧 Data loading utilities
 ├── power_plots.py              # ⚡ Advanced power analysis
 ├── performance_plots.py        # 📊 GPU performance analysis
 ├── edp_plots.py                # 🎛️ EDP optimization plots

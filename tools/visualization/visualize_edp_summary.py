@@ -204,9 +204,7 @@ class SummaryVisualizer:
         ax2.hist(ed2p_perf, bins=bins, alpha=0.6, label="ED²P Strategy", color=self.colors["ed2p"], edgecolor="black")
 
         ax2.axvline(x=0, color="red", linestyle="--", alpha=0.7, label="No Change")
-        ax2.axvline(
-            x=np.mean(edp_perf), color=self.colors["edp"], linestyle="-", alpha=0.8, label=f"EDP Avg: {np.mean(edp_perf):.1f}%"
-        )
+        ax2.axvline(x=np.mean(edp_perf), color=self.colors["edp"], linestyle="-", alpha=0.8, label=f"EDP Avg: {np.mean(edp_perf):.1f}%")
         ax2.axvline(
             x=np.mean(ed2p_perf),
             color=self.colors["ed2p"],
@@ -255,12 +253,8 @@ class SummaryVisualizer:
 
         # Panel 2: Frequency Reduction
         ax2 = plt.subplot(2, 2, 2)
-        edp_freq_red = [
-            (r["max_frequency_mhz"] - r["optimal_frequency_edp_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results
-        ]
-        ed2p_freq_red = [
-            (r["max_frequency_mhz"] - r["optimal_frequency_ed2p_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results
-        ]
+        edp_freq_red = [(r["max_frequency_mhz"] - r["optimal_frequency_edp_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results]
+        ed2p_freq_red = [(r["max_frequency_mhz"] - r["optimal_frequency_ed2p_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results]
 
         ax2.bar(x - width / 2, edp_freq_red, width, label="EDP", color=self.colors["edp"], alpha=0.8)
         ax2.bar(x + width / 2, ed2p_freq_red, width, label="ED²P", color=self.colors["ed2p"], alpha=0.8)

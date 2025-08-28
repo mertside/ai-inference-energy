@@ -113,7 +113,7 @@ EXAMPLES:
 
 STORAGE ESTIMATES:
     H100 DVFS (86 freq): ~400MB - 1.2GB
-    A100 DVFS (61 freq): ~300MB - 900MB  
+    A100 DVFS (61 freq): ~300MB - 900MB
     V100 DVFS (117 freq): ~500MB - 1.5GB
 
 AUTHOR:
@@ -197,19 +197,19 @@ get_images_size() {
 # Check if size limit is exceeded
 check_size_limit() {
     [[ -z "$SIZE_LIMIT" ]] && return 1
-    
+
     local current_size
     current_size=$(get_images_size)
     local limit_bytes
     limit_bytes=$(size_to_bytes "$SIZE_LIMIT")
-    
+
     [[ $current_size -gt $limit_bytes ]]
 }
 
 # Find PNG files based on criteria
 find_images() {
     local search_dir="$SD_IMAGES_DIR"
-    
+
     # If job ID is specified, search only in that job's folder
     if [[ -n "$JOB_ID" ]]; then
         search_dir="$SD_IMAGES_DIR/job_$JOB_ID"
@@ -218,14 +218,14 @@ find_images() {
             return 0
         fi
     fi
-    
+
     local find_cmd="find \"$search_dir\" -name \"*.png\" -type f"
-    
+
     # Add age filter if specified
     if [[ -n "$OLDER_THAN" ]]; then
         find_cmd+=" -mtime +$OLDER_THAN"
     fi
-    
+
     eval "$find_cmd" 2>/dev/null || true
 }
 
@@ -233,23 +233,23 @@ find_images() {
 create_archive() {
     local images
     mapfile -t images < <(find_images)
-    
+
     [[ ${#images[@]} -eq 0 ]] && {
         log_info "No images found to archive"
         return 0
     }
-    
+
     local timestamp
     timestamp=$(date +%Y%m%d_%H%M%S)
     local archive_name="sd_images_${timestamp}"
-    
+
     # Create archive directory
     mkdir -p "$ARCHIVE_DIR"
-    
+
     if [[ "$COMPRESS" == "true" ]]; then
         archive_name+=".tar.gz"
         local archive_path="$ARCHIVE_DIR/$archive_name"
-        
+
         log_info "Creating compressed archive: $archive_path"
         if [[ "$DRY_RUN" == "false" ]]; then
             tar -czf "$archive_path" -C "$SD_IMAGES_DIR" . 2>/dev/null || {
@@ -274,12 +274,12 @@ create_archive() {
 # Keep sample images (newest files)
 keep_samples() {
     [[ $KEEP_SAMPLES -eq 0 ]] && return 0
-    
+
     local images
     mapfile -t images < <(find_images | sort -t_ -k3 -r | head -n "$KEEP_SAMPLES")
-    
+
     [[ ${#images[@]} -eq 0 ]] && return 0
-    
+
     log_info "Keeping $KEEP_SAMPLES sample images:"
     printf '%s\n' "${images[@]}" | while read -r img; do
         log_debug "  Keeping: $(basename "$img")"
@@ -296,14 +296,14 @@ remove_images() {
         # Remove all matching images
         mapfile -t images_to_remove < <(find_images)
     fi
-    
+
     [[ ${#images_to_remove[@]} -eq 0 ]] && {
         log_info "No images to remove"
         return 0
     }
-    
+
     log_info "Removing ${#images_to_remove[@]} images..."
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         printf '%s\n' "${images_to_remove[@]}" | while read -r img; do
             echo "  Would remove: $(basename "$img")"
@@ -321,22 +321,22 @@ remove_images() {
 show_status() {
     log_info "🎨 Stable Diffusion Image Status"
     echo "─────────────────────────────────────"
-    
+
     if [[ ! -d "$SD_IMAGES_DIR" ]]; then
         log_info "Images directory doesn't exist: $SD_IMAGES_DIR"
         return 0
     fi
-    
+
     local total_images
     total_images=$(find "$SD_IMAGES_DIR" -name "*.png" -type f 2>/dev/null | wc -l)
-    
+
     local total_size_human
     total_size_human=$(du -sh "$SD_IMAGES_DIR" 2>/dev/null | cut -f1 || echo "0B")
-    
+
     echo "📁 Directory: $SD_IMAGES_DIR"
     echo "🖼️  Images: $total_images PNG files"
     echo "💾 Size: $total_size_human"
-    
+
     # Show job-specific folders if they exist
     local job_folders
     job_folders=$(find "$SD_IMAGES_DIR" -type d -name "job_*" 2>/dev/null | sort)
@@ -351,7 +351,7 @@ show_status() {
             fi
         done <<< "$job_folders"
     fi
-    
+
     if [[ -n "$SIZE_LIMIT" ]]; then
         if check_size_limit; then
             echo "⚠️  Size limit exceeded: $SIZE_LIMIT"
@@ -359,7 +359,7 @@ show_status() {
             echo "✅ Within size limit: $SIZE_LIMIT"
         fi
     fi
-    
+
     # Show newest and oldest images
     if [[ $total_images -gt 0 ]]; then
         local newest oldest
@@ -375,7 +375,7 @@ show_status() {
 confirm_action() {
     [[ "$FORCE" == "true" ]] && return 0
     [[ "$DRY_RUN" == "true" ]] && return 0
-    
+
     echo
     read -p "Proceed with image management? [y/N] " -n 1 -r
     echo
@@ -385,22 +385,22 @@ confirm_action() {
 # Main function
 main() {
     parse_args "$@"
-    
+
     log_info "🎨 Stable Diffusion Image Management"
     echo
-    
+
     # Show current status
     show_status
     echo
-    
+
     # Check if action is needed
     local action_needed=false
-    
+
     if [[ -n "$SIZE_LIMIT" ]] && check_size_limit; then
         log_warning "Size limit ($SIZE_LIMIT) exceeded - cleanup recommended"
         action_needed=true
     fi
-    
+
     if [[ -n "$OLDER_THAN" ]]; then
         local old_images
         old_images=$(find_images | wc -l)
@@ -409,34 +409,34 @@ main() {
             action_needed=true
         fi
     fi
-    
+
     if [[ "$ARCHIVE" == "true" ]] || [[ $KEEP_SAMPLES -ge 0 ]]; then
         action_needed=true
     fi
-    
+
     if [[ "$action_needed" == "false" ]]; then
         log_info "No action needed - all criteria met"
         exit 0
     fi
-    
+
     # Confirm action
     if ! confirm_action; then
         log_info "Operation cancelled"
         exit 0
     fi
-    
+
     # Create archive if requested
     if [[ "$ARCHIVE" == "true" ]]; then
         create_archive
     fi
-    
+
     # Remove images (keeping samples if specified)
     remove_images
-    
+
     # Show final status
     echo
     show_status
-    
+
     log_info "✅ Image management completed"
 }
 

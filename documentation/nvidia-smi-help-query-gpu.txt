@@ -626,4 +626,3 @@ ID of this GPU within the node.
 
 "platform.gpu_fabric_guid"
 Fabric ID for this GPU.
-

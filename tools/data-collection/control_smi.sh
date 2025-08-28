@@ -87,27 +87,27 @@ EOF
 validate_arguments() {
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     # Check if arguments are numeric
     if ! [[ "$memory_freq" =~ ^[0-9]+$ ]]; then
         log_error "Memory frequency must be a positive integer: $memory_freq"
         return 1
     fi
-    
+
     if ! [[ "$core_freq" =~ ^[0-9]+$ ]]; then
         log_error "Core frequency must be a positive integer: $core_freq"
         return 1
     fi
-    
+
     # Check reasonable frequency ranges (basic validation)
     if (( memory_freq < 100 || memory_freq > 2000 )); then
         log_warning "Memory frequency seems unusual: ${memory_freq}MHz"
     fi
-    
+
     if (( core_freq < 100 || core_freq > 2000 )); then
         log_warning "Core frequency seems unusual: ${core_freq}MHz"
     fi
-    
+
     return 0
 }
 
@@ -117,20 +117,20 @@ check_nvidia_smi() {
         log_error "nvidia-smi command not found. Please install NVIDIA drivers."
         return 1
     fi
-    
+
     # Test if nvidia-smi can communicate with GPUs
     if ! nvidia-smi -i "$GPU_ID" --query-gpu=name --format=csv,noheader &> /dev/null; then
         log_error "nvidia-smi cannot communicate with GPU $GPU_ID. Check GPU status and permissions."
         return 1
     fi
-    
+
     return 0
 }
 
 # Function to enable persistence mode
 enable_persistence_mode() {
     log_info "Enabling persistence mode..."
-    
+
     if nvidia-smi -pm 1; then
         log_info "Successfully enabled persistence mode"
     else
@@ -143,12 +143,12 @@ enable_persistence_mode() {
 set_gpu_frequencies() {
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     log_info "Setting GPU frequencies using nvidia-smi: Memory=${memory_freq}MHz, Core=${core_freq}MHz"
-    
+
     # Enable persistence mode for stable frequency control
     enable_persistence_mode
-    
+
     # Set application clocks (memory and graphics clocks)
     log_info "Setting application clocks..."
     if nvidia-smi -i "$GPU_ID" -ac "${memory_freq},${core_freq}"; then
@@ -161,18 +161,18 @@ set_gpu_frequencies() {
         log_error "  3. Proper driver installation"
         return 1
     fi
-    
+
     # Wait for settings to take effect
     log_info "Waiting ${DEFAULT_SLEEP_TIME} seconds for frequency changes to take effect..."
     sleep "$DEFAULT_SLEEP_TIME"
-    
+
     return 0
 }
 
 # Function to verify current GPU frequencies
 verify_frequencies() {
     log_info "Verifying current GPU frequencies..."
-    
+
     # Query current frequencies
     local gpu_info
     if gpu_info=$(nvidia-smi -i "$GPU_ID" --query-gpu=name,clocks.applications.memory,clocks.applications.graphics --format=csv,noheader 2>/dev/null); then
@@ -190,7 +190,7 @@ verify_frequencies() {
 # Function to reset GPU frequencies to default
 reset_frequencies() {
     log_info "Resetting GPU frequencies to default..."
-    
+
     if nvidia-smi -i "$GPU_ID" -rac; then
         log_info "Successfully reset GPU frequencies to default"
     else
@@ -214,42 +214,42 @@ main() {
     # Set up signal handlers for cleanup
     trap cleanup EXIT
     trap 'log_error "Interrupted by user"; exit 130' INT TERM
-    
+
     log_info "Starting GPU frequency control using nvidia-smi"
     log_info "Script: $SCRIPT_NAME"
     log_info "Working directory: $(pwd)"
     log_info "GPU ID: $GPU_ID"
-    
+
     # Check arguments
     if (( $# != 2 )); then
         log_error "Invalid number of arguments. Expected 2, got $#"
         usage
         exit 1
     fi
-    
+
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     log_info "Requested frequencies: Memory=${memory_freq}MHz, Core=${core_freq}MHz"
-    
+
     # Validate arguments
     if ! validate_arguments "$memory_freq" "$core_freq"; then
         exit 1
     fi
-    
+
     # Check nvidia-smi availability
     if ! check_nvidia_smi; then
         exit 1
     fi
-    
+
     # Set GPU frequencies
     if ! set_gpu_frequencies "$memory_freq" "$core_freq"; then
         exit 1
     fi
-    
+
     # Verify the changes
     verify_frequencies
-    
+
     log_info "GPU frequency control completed successfully using nvidia-smi"
 }
 

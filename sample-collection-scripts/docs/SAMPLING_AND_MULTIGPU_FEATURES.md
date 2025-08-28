@@ -18,7 +18,7 @@ Two new parameters have been added to the AI Inference Energy Profiling Framewor
 
 **Recommendations:**
 - **Fast sampling (10-25ms)**: For detailed power transitions, short experiments
-- **Normal sampling (50ms)**: Default, good balance of detail and performance  
+- **Normal sampling (50ms)**: Default, good balance of detail and performance
 - **Slow sampling (100-200ms)**: For long experiments, reduced data volume
 
 ### Multi-GPU Monitoring (`--all-gpus`)

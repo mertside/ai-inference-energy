@@ -9,7 +9,7 @@ Current Status: PLACEHOLDER - Tests will be implemented when power modeling modu
 
 The tests define the planned functionality including:
 1. Model accuracy and training (Future)
-2. EDP/ED2P calculations and optimization (Future) 
+2. EDP/ED2P calculations and optimization (Future)
 3. End-to-end pipeline functionality (Future)
 4. GPU frequency configurations (Available)
 5. Framework integration (Future)
@@ -27,6 +27,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
 import config
 
 # Add project root to path
@@ -48,130 +49,134 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #     PolynomialPowerModel,
 # )
 
+
 # Placeholder classes for syntax checking (to be replaced with actual implementations)
 class PowerModelingFramework:
     """Placeholder for future PowerModelingFramework class."""
+
     def __init__(self, model_types=None, gpu_type="V100"):
         self.model_types = model_types or []
         self.gpu_type = gpu_type
         self.frequency_configs = {
             "V100": list(range(1380, 509, -30)),
-            "A100": list(range(1410, 509, -30)), 
-            "H100": list(range(1785, 509, -15))
+            "A100": list(range(1410, 509, -30)),
+            "H100": list(range(1785, 509, -15)),
         }
-    
+
     def train_models(self, data, target_column):
         return {"models": [], "best_model": "placeholder"}
-    
+
     def predict_power_sweep(self, fp_activity, dram_activity, frequencies):
         return pd.DataFrame({"frequency": frequencies, "power": [100] * len(frequencies)})
-    
+
     def optimize_application(self, fp_activity, dram_activity, baseline_runtime, app_name):
         return {
             "optimization_results": {"edp_optimal": {}, "ed2p_optimal": {}},
             "recommendations": {"primary_recommendation": {}},
             "frequency_sweep_data": {},
-            "input_parameters": {}
+            "input_parameters": {},
         }
+
 
 class ModelFactory:
     """Placeholder for future ModelFactory class."""
+
     @staticmethod
     def create_fgcs_power_model():
         return PowerModel()
-    
+
     @staticmethod
     def create_polynomial_model(degree=2):
         return PolynomialPowerModel(degree)
-    
+
     @staticmethod
     def create_enhanced_random_forest():
         return EnhancedRandomForestModel()
-    
+
     @staticmethod
     def create_model_pipeline():
         return ModelPipeline()
 
+
 class PowerModel:
     """Placeholder for future PowerModel class."""
+
     pass
+
 
 class PolynomialPowerModel:
     """Placeholder for future PolynomialPowerModel class."""
+
     def __init__(self, degree=2):
         self.degree = degree
-    
+
     def fit(self, X, y):
         pass
-    
+
     def predict(self, X):
         return np.array([100] * len(X))
+
 
 class EnhancedRandomForestModel:
     """Placeholder for future EnhancedRandomForestModel class."""
+
     def __init__(self, optimization_method=None, n_iter=None):
         self.optimization_method = optimization_method
         self.n_iter = n_iter
-    
+
     def get_hyperparameter_grid(self):
         return {"n_estimators": [10, 50, 100]}
-    
+
     def fit(self, X, y, optimize=False):
         pass
-    
+
     def predict(self, X):
         return np.array([100] * len(X))
 
+
 class ModelPipeline:
     """Placeholder for future ModelPipeline class."""
+
     pass
+
 
 class EDPCalculator:
     """Placeholder for future EDPCalculator class."""
+
     def calculate_edp(self, energy, delay):
         return energy * delay
-    
+
     def calculate_ed2p(self, energy, delay):
-        return energy * (delay ** 2)
-    
+        return energy * (delay**2)
+
     def find_optimal_configuration(self, df, metric="edp"):
-        return {
-            "optimal_frequency": 1000,
-            "optimal_energy": 100,
-            "optimal_delay": 1.0,
-            "optimal_score": 100
-        }
+        return {"optimal_frequency": 1000, "optimal_energy": 100, "optimal_delay": 1.0, "optimal_score": 100}
+
 
 class EDPOptimizer:
     """Placeholder for future EDPOptimizer class."""
+
     @staticmethod
     def edp_optimal(df):
         return 1000, 1.0, 100, 100
-    
+
     @staticmethod
     def ed2p_optimal(df):
         return 1000, 1.0, 100, 100
-    
+
     @staticmethod
     def analyze_dvfs_optimization(df, app_name):
-        return {
-            "edp_optimal": {},
-            "ed2p_optimal": {},
-            "min_energy": {},
-            "min_time": {}
-        }
+        return {"edp_optimal": {}, "ed2p_optimal": {}, "min_energy": {}, "min_time": {}}
+
 
 def analyze_application(profiling_file, app_name, gpu_type):
     """Placeholder for future analyze_application function."""
     return {
-        "summary": {
-            "optimal_frequency": 1000,
-            "energy_savings": 0.1,
-            "performance_impact": 0.05
-        },
+        "summary": {"optimal_frequency": 1000, "energy_savings": 0.1, "performance_impact": 0.05},
         "optimization_results": {},
-        "profiling_data": {}
+        "profiling_data": {},
     }
+
 
 # Placeholder for OriginalFramework reference
 OriginalFramework = PowerModelingFramework
@@ -212,17 +217,13 @@ class TestPowerModelingFramework(unittest.TestCase):
     def test_framework_initialization(self):
         """Test framework initialization with different GPU types."""
         # Test default initialization
-        framework_default = PowerModelingFramework(
-            model_types=["polynomial_deg2"]
-        )
+        framework_default = PowerModelingFramework(model_types=["polynomial_deg2"])
         self.assertIsNotNone(framework_default)
         self.assertEqual(framework_default.gpu_type, "V100")
 
         # Test with different GPU types
         for gpu_type in ["V100", "A100", "H100"]:
-            framework = PowerModelingFramework(
-                model_types=["polynomial_deg2"], gpu_type=gpu_type
-            )
+            framework = PowerModelingFramework(model_types=["polynomial_deg2"], gpu_type=gpu_type)
             self.assertEqual(framework.gpu_type, gpu_type)
             self.assertIn(gpu_type, framework.frequency_configs)
 
@@ -273,9 +274,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Test model training
-        training_results = framework.train_models(
-            self.training_data, target_column="power"
-        )
+        training_results = framework.train_models(self.training_data, target_column="power")
 
         self.assertIn("models", training_results)
         self.assertIn("best_model", training_results)
@@ -323,9 +322,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         np.testing.assert_allclose(ed2p, expected_ed2p)
 
         # Test with DataFrame
-        df = pd.DataFrame(
-            {"energy": energy, "execution_time": delay, "frequency": [1000, 1100, 1200]}
-        )
+        df = pd.DataFrame({"energy": energy, "execution_time": delay, "frequency": [1000, 1100, 1200]})
 
         optimal_config = calculator.find_optimal_configuration(df, metric="edp")
         self.assertIn("optimal_frequency", optimal_config)
@@ -355,9 +352,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         self.assertGreater(edp_energy, 0)
 
         # Test ED²P optimization
-        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = EDPOptimizer.ed2p_optimal(
-            df
-        )
+        ed2p_freq, ed2p_time, ed2p_power, ed2p_energy = EDPOptimizer.ed2p_optimal(df)
 
         self.assertIn(ed2p_freq, frequencies)
         self.assertGreater(ed2p_time, 0)
@@ -384,9 +379,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         }
 
         for gpu_type in ["V100", "A100", "H100"]:
-            framework = PowerModelingFramework(
-                model_types=["polynomial_deg2"], gpu_type=gpu_type
-            )
+            framework = PowerModelingFramework(model_types=["polynomial_deg2"], gpu_type=gpu_type)
             frequencies = framework.frequency_configs[gpu_type]
 
             # Check frequency count
@@ -441,9 +434,7 @@ class TestPowerModelingFramework(unittest.TestCase):
         framework = PowerModelingFramework(model_types=["polynomial_deg2"])
 
         # Test model training
-        training_results = framework.train_models(
-            self.training_data, target_column="power"
-        )
+        training_results = framework.train_models(self.training_data, target_column="power")
         self.assertIn("models", training_results)
         self.assertIn("best_model", training_results)
         self.assertIsNotNone(training_results["best_model"])
@@ -469,10 +460,9 @@ class TestPowerModelingFramework(unittest.TestCase):
         self.assertIn("recommendations", optimization_results)
 
 
-
 def test_quick_analysis_function():
     """Test the quick analysis helper with a patched framework."""
-    
+
     # This test will be implemented when the actual power modeling module is developed
     with tempfile.TemporaryDirectory() as temp_dir:
         profiling_data = pd.DataFrame(
@@ -488,9 +478,7 @@ def test_quick_analysis_function():
         profiling_file = os.path.join(temp_dir, "profiling.csv")
         profiling_data.to_csv(profiling_file, index=False)
 
-        results = analyze_application(
-            profiling_file=profiling_file, app_name="TestApp", gpu_type="V100"
-        )
+        results = analyze_application(profiling_file=profiling_file, app_name="TestApp", gpu_type="V100")
 
         assert "summary" in results
         assert "optimization_results" in results
@@ -530,9 +518,7 @@ class TestValidationAndMetrics(unittest.TestCase):
                 # Test training
                 if hasattr(model, "fit"):
                     if name == "Enhanced_RF":
-                        model.fit(
-                            X_train, y_train, optimize=False
-                        )  # Skip optimization for speed
+                        model.fit(X_train, y_train, optimize=False)  # Skip optimization for speed
                     else:
                         feature_names = ["fp_activity", "dram_activity", "sm_clock"]
                         X_train_df = pd.DataFrame(X_train, columns=feature_names)
@@ -551,9 +537,7 @@ class TestValidationAndMetrics(unittest.TestCase):
 
 if __name__ == "__main__":
     # Set up test environment
-    os.environ["PYTHONPATH"] = os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))
-    )
+    os.environ["PYTHONPATH"] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Run tests
     unittest.main(verbosity=2)

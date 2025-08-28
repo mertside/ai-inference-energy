@@ -77,23 +77,23 @@ declare -A GPU_CLUSTERS=(
 # Detect GPU type using nvidia-smi
 detect_gpu_type() {
     local detected_gpu=""
-    
+
     if ! command_exists "nvidia-smi"; then
         log_warning "nvidia-smi not available for GPU detection"
         return 1
     fi
-    
+
     log_debug "Detecting GPU type using nvidia-smi..."
     local gpu_name
     gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader,nounits 2>/dev/null | head -n1)
-    
+
     if [[ -z "$gpu_name" ]]; then
         log_warning "Could not detect GPU name"
         return 1
     fi
-    
+
     log_debug "Detected GPU name: $gpu_name"
-    
+
     # Match GPU name to our supported types
     case "$gpu_name" in
         *"A100"*) detected_gpu="A100" ;;
@@ -104,7 +104,7 @@ detect_gpu_type() {
             return 1
             ;;
     esac
-    
+
     log_info "Auto-detected GPU type: $detected_gpu"
     echo "$detected_gpu"
     return 0
@@ -169,21 +169,21 @@ get_gpu_core_freq_step() {
 generate_frequency_range() {
     local gpu_type="$1"
     local min_freq max_freq step
-    
+
     min_freq=$(get_gpu_core_freq_min "$gpu_type")
     max_freq=$(get_gpu_core_freq_max "$gpu_type")
     step=$(get_gpu_core_freq_step "$gpu_type")
-    
+
     if [[ -z "$min_freq" || -z "$max_freq" || -z "$step" ]]; then
         log_error "Invalid GPU type or missing frequency configuration: $gpu_type"
         return 1
     fi
-    
+
     local frequencies=()
     for ((freq = max_freq; freq >= min_freq; freq -= step)); do
         frequencies+=("$freq")
     done
-    
+
     echo "${frequencies[@]}"
 }
 
@@ -221,15 +221,15 @@ get_gpu_node() {
 get_slurm_job_params() {
     local gpu_type="$1"
     local partition node
-    
+
     partition=$(get_slurm_partition "$gpu_type")
     node=$(get_gpu_node "$gpu_type")
-    
+
     local params="--partition=$partition"
     if [[ -n "$node" ]]; then
         params="$params --nodelist=$node"
     fi
-    
+
     echo "$params"
 }
 
@@ -240,20 +240,20 @@ get_slurm_job_params() {
 # Validate GPU type is supported
 validate_gpu_type() {
     local gpu_type="$1"
-    
+
     if ! is_valid_gpu_type "$gpu_type"; then
         log_error "Invalid GPU type: $gpu_type"
         log_error "Supported types: ${!GPU_ARCHITECTURES[*]}"
         return 1
     fi
-    
+
     local architecture
     architecture=$(get_gpu_architecture "$gpu_type")
     if [[ -z "$architecture" ]]; then
         log_error "No architecture found for GPU type: $gpu_type"
         return 1
     fi
-    
+
     log_debug "GPU type $gpu_type validated (architecture: $architecture)"
     return 0
 }
@@ -262,21 +262,21 @@ validate_gpu_type() {
 validate_frequency() {
     local gpu_type="$1"
     local frequency="$2"
-    
+
     if ! is_valid_frequency "$frequency"; then
         log_error "Invalid frequency format: $frequency"
         return 1
     fi
-    
+
     local min_freq max_freq
     min_freq=$(get_gpu_core_freq_min "$gpu_type")
     max_freq=$(get_gpu_core_freq_max "$gpu_type")
-    
+
     if [[ "$frequency" -lt "$min_freq" || "$frequency" -gt "$max_freq" ]]; then
         log_error "Frequency $frequency MHz out of range for $gpu_type (${min_freq}-${max_freq} MHz)"
         return 1
     fi
-    
+
     log_debug "Frequency $frequency MHz validated for $gpu_type"
     return 0
 }
@@ -288,11 +288,11 @@ validate_frequency() {
 # Show GPU configuration summary
 show_gpu_config() {
     local gpu_type="$1"
-    
+
     if ! validate_gpu_type "$gpu_type"; then
         return 1
     fi
-    
+
     local architecture memory_freq min_freq max_freq step partition cluster
     architecture=$(get_gpu_architecture "$gpu_type")
     memory_freq=$(get_gpu_memory_freq "$gpu_type")
@@ -301,10 +301,10 @@ show_gpu_config() {
     step=$(get_gpu_core_freq_step "$gpu_type")
     partition=$(get_slurm_partition "$gpu_type")
     cluster=$(get_cluster_name "$gpu_type")
-    
+
     local freq_count
     freq_count=$(get_frequency_count "$gpu_type")
-    
+
     cat << EOF
 
 ${COLOR_BLUE}GPU Configuration Summary${COLOR_NC}
@@ -327,7 +327,7 @@ show_supported_gpus() {
 ${COLOR_GREEN}Supported GPU Types${COLOR_NC}
 ────────────────────────────────────────
 EOF
-    
+
     for gpu_type in "${!GPU_ARCHITECTURES[@]}"; do
         local architecture cluster
         architecture=$(get_gpu_architecture "$gpu_type")
@@ -344,7 +344,7 @@ EOF
 # Set GPU environment variables
 set_gpu_environment() {
     local gpu_type="$1"
-    
+
     export GPU_TYPE="$gpu_type"
     export GPU_ARCHITECTURE="$(get_gpu_architecture "$gpu_type")"
     export GPU_MEMORY_FREQ="$(get_gpu_memory_freq "$gpu_type")"
@@ -353,13 +353,13 @@ set_gpu_environment() {
     export GPU_CORE_FREQ_STEP="$(get_gpu_core_freq_step "$gpu_type")"
     export GPU_SLURM_PARTITION="$(get_slurm_partition "$gpu_type")"
     export GPU_CLUSTER="$(get_cluster_name "$gpu_type")"
-    
+
     local node
     node=$(get_gpu_node "$gpu_type")
     if [[ -n "$node" ]]; then
         export GPU_NODE="$node"
     fi
-    
+
     log_debug "GPU environment variables set for $gpu_type"
 }
 
@@ -371,10 +371,10 @@ set_gpu_environment() {
 determine_conda_env() {
     local app_executable="$1"
     local app_dir="${2:-}"
-    
+
     # Default environment
     local conda_env="base"
-    
+
     # Application-specific environment mapping
     case "$(to_lower "$(basename "$app_executable")")" in
         *stable*|*diffusion*|*sd*)
@@ -415,7 +415,7 @@ determine_conda_env() {
             fi
             ;;
     esac
-    
+
     log_debug "Determined conda environment '$conda_env' for application '$app_executable'"
     echo "$conda_env"
 }
@@ -423,12 +423,12 @@ determine_conda_env() {
 # Validate conda environment exists
 validate_conda_env() {
     local env_name="$1"
-    
+
     if ! command_exists "conda"; then
         log_warning "Conda not available, cannot validate environment: $env_name"
         return 1
     fi
-    
+
     if conda env list | grep -q "^${env_name} "; then
         log_debug "Conda environment '$env_name' validated"
         return 0

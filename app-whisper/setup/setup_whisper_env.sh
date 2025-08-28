@@ -119,38 +119,38 @@ main() {
     # Handle export-only mode
     if [ "$EXPORT_ONLY" = true ]; then
         log_info "Export-only mode: Exporting environment $ENV_NAME to YAML files..."
-        
+
         # Check if environment exists
         if ! conda env list | grep -q "^$ENV_NAME "; then
             log_error "Environment $ENV_NAME does not exist. Please create it first."
             exit 1
         fi
-        
+
         # Export environment
         export_environment
-        
+
         # Display export completion message
         display_export_completion_message
         return 0
     fi
-    
+
     log_info "Setting up Whisper environment for AI inference energy profiling..."
     log_info "Environment: $ENV_NAME"
     log_info "Python: $PYTHON_VERSION"
     log_info "CUDA: $CUDA_VERSION"
-    
+
     # Check prerequisites
     check_prerequisites
-    
+
     # Setup conda environment
     setup_conda_environment
-    
+
     # Install dependencies
     install_dependencies
-    
+
     # Test installation
     test_installation
-    
+
     # Display completion message
     display_completion_message
 }
@@ -158,13 +158,13 @@ main() {
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
+
     # Check conda
     if ! command -v conda &> /dev/null; then
         log_error "Conda not found. Please install Miniconda or Anaconda."
         exit 1
     fi
-    
+
     # Check CUDA availability
     if command -v nvidia-smi &> /dev/null; then
         log_info "NVIDIA GPU detected:"
@@ -172,7 +172,7 @@ check_prerequisites() {
     else
         log_warning "nvidia-smi not found. GPU support may be limited."
     fi
-    
+
     # Check if environment exists
     if conda env list | grep -q "^$ENV_NAME "; then
         if [ "$FORCE_RECREATE" = true ]; then
@@ -184,36 +184,36 @@ check_prerequisites() {
             return 0
         fi
     fi
-    
+
     log_success "Prerequisites check completed"
 }
 
 # Setup conda environment
 setup_conda_environment() {
     log_info "Creating conda environment: $ENV_NAME"
-    
+
     # Create environment with specific Python version
     conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
-    
+
     # Activate environment
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate "$ENV_NAME"
-    
+
     # Update conda and pip
     conda update -n "$ENV_NAME" -c defaults conda -y
     pip install --upgrade pip
-    
+
     log_success "Conda environment created and activated"
 }
 
 # Install dependencies
 install_dependencies() {
     log_info "Installing dependencies..."
-    
+
     # Ensure we're in the right environment
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate "$ENV_NAME"
-    
+
     # Install PyTorch with CUDA support
     log_info "Installing PyTorch with CUDA $CUDA_VERSION..."
     if [ "$CUDA_VERSION" = "11.8" ]; then
@@ -224,27 +224,27 @@ install_dependencies() {
         log_warning "Using default PyTorch installation for CUDA $CUDA_VERSION"
         pip install torch torchvision torchaudio
     fi
-    
+
     # Install transformers and related packages
     log_info "Installing transformers and Hugging Face ecosystem..."
     pip install transformers>=4.21.0 accelerate>=0.12.0
-    
+
     # Install audio processing libraries
     log_info "Installing audio processing libraries..."
     pip install librosa soundfile datasets
-    
+
     # Install additional dependencies
     log_info "Installing additional dependencies..."
     pip install numpy scipy
-    
+
     # Install requirements file if available
     if [ -f "$SCRIPT_DIR/../requirements.txt" ]; then
         log_info "Installing from requirements.txt..."
         pip install -r "$SCRIPT_DIR/../requirements.txt"
     fi
-    
+
     log_success "Dependencies installed successfully"
-    
+
     # Export environment to YAML
     export_environment
 }
@@ -252,49 +252,49 @@ install_dependencies() {
 # Export environment to YAML file
 export_environment() {
     log_info "Exporting environment to YAML file..."
-    
+
     # Ensure we're in the right environment
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate "$ENV_NAME"
-    
+
     # Create exports directory if it doesn't exist
     EXPORT_DIR="$SCRIPT_DIR/../exports"
     mkdir -p "$EXPORT_DIR"
-    
+
     # Generate timestamp for unique filename
     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-    
+
     # Export full environment (includes all dependencies)
     FULL_EXPORT_FILE="$EXPORT_DIR/${ENV_NAME}_full_${TIMESTAMP}.yml"
     conda env export > "$FULL_EXPORT_FILE"
     log_success "Full environment exported to: $FULL_EXPORT_FILE"
-    
+
     # Export minimal environment (only explicit dependencies)
     MINIMAL_EXPORT_FILE="$EXPORT_DIR/${ENV_NAME}_minimal_${TIMESTAMP}.yml"
     conda env export --from-history > "$MINIMAL_EXPORT_FILE"
     log_success "Minimal environment exported to: $MINIMAL_EXPORT_FILE"
-    
+
     # Create a generic export without timestamp for easy sharing
     GENERIC_EXPORT_FILE="$EXPORT_DIR/${ENV_NAME}_environment.yml"
     conda env export > "$GENERIC_EXPORT_FILE"
     log_success "Generic environment exported to: $GENERIC_EXPORT_FILE"
-    
+
     # Create a cross-platform compatible version
     CROSS_PLATFORM_FILE="$EXPORT_DIR/${ENV_NAME}_cross_platform.yml"
     conda env export --no-builds > "$CROSS_PLATFORM_FILE"
     log_success "Cross-platform environment exported to: $CROSS_PLATFORM_FILE"
-    
+
     log_info "Environment export completed"
 }
 
 # Test installation
 test_installation() {
     log_info "Testing installation..."
-    
+
     # Ensure we're in the right environment
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate "$ENV_NAME"
-    
+
     # Test basic imports
     python -c "
 import torch
@@ -305,7 +305,7 @@ import soundfile
 import numpy as np
 print('✓ All core libraries imported successfully')
 "
-    
+
     # Test CUDA availability
     python -c "
 import torch
@@ -316,7 +316,7 @@ if torch.cuda.is_available():
     print(f'✓ GPU count: {torch.cuda.device_count()}')
     print(f'✓ GPU name: {torch.cuda.get_device_name(0)}')
 "
-    
+
     # Test Whisper model loading (quick test)
     log_info "Testing Whisper model access..."
     python -c "
@@ -328,14 +328,14 @@ except Exception as e:
     print(f'✗ Whisper model access failed: {e}')
     print('This may be normal if no internet connection')
 "
-    
+
     # Test the main application
     if [ -f "$SCRIPT_DIR/../WhisperViaHF.py" ]; then
         log_info "Testing main application..."
         python "$SCRIPT_DIR/../WhisperViaHF.py" --help > /dev/null
         log_success "Main application test passed"
     fi
-    
+
     log_success "Installation test completed"
 }
 

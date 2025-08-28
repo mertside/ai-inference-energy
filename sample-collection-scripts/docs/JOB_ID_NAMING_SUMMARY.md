@@ -8,7 +8,7 @@ Successfully implemented automatic job ID-based folder naming for results direct
 ### SLURM Environment (with `${SLURM_JOB_ID}`)
 ```
 results_h100_stablediffusion_job_12345/    # H100 + Stable Diffusion, Job 12345
-results_a100_lstm_job_12346/               # A100 + LSTM, Job 12346  
+results_a100_lstm_job_12346/               # A100 + LSTM, Job 12346
 results_v100_llama_job_12347/              # V100 + LLaMA, Job 12347
 custom_output_job_12348/                   # Custom output directory, Job 12348
 results_job_12349/                         # Default case, Job 12349
@@ -55,7 +55,7 @@ All scripts now:
 export SLURM_JOB_ID=12345
 sbatch submit_job_h100.sh  # Creates: results_h100_stablediffusion_job_12345/
 
-# Non-SLURM environment  
+# Non-SLURM environment
 ./launch_v2.sh --gpu-type H100 --app-name StableDiffusion  # Creates: results_h100_stablediffusion/
 ```
 

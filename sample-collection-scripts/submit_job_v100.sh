@@ -41,12 +41,12 @@ readonly LAUNCH_SCRIPT="${LAUNCH_SCRIPT_V2}"
 # Function to determine conda environment based on application
 determine_conda_env() {
     local app_name=""
-    
+
     # Extract app name from LAUNCH_ARGS
     if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
         app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
     fi
-    
+
     # Map application names to conda environments
     case "$app_name" in
         "StableDiffusion")
@@ -75,16 +75,16 @@ determine_results_dir() {
     local gpu_type=""
     local app_name=""
     local custom_output=""
-    
+
     # Extract relevant parameters from LAUNCH_ARGS
     if echo "$LAUNCH_ARGS" | grep -q "gpu-type"; then
         gpu_type=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--gpu-type \([^ ]*\).*/\1/p')
     fi
-    
+
     if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
         app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
     fi
-    
+
     if echo "$LAUNCH_ARGS" | grep -q "output-dir"; then
         custom_output=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--output-dir \([^ ]*\).*/\1/p')
         # Append job ID to custom output directory if available
@@ -95,7 +95,7 @@ determine_results_dir() {
         fi
         return
     fi
-    
+
     # Generate auto-generated directory name (same logic as args_parser.sh)
     if [[ -n "$gpu_type" && -n "$app_name" ]]; then
         local gpu_name=$(echo "$gpu_type" | tr '[:upper:]' '[:lower:]')
@@ -178,7 +178,7 @@ determine_results_dir() {
 # 15. 🎨 STABLE DIFFUSION DVFS - Complete frequency analysis for image generation (~6-8 hours, change --time to 08:00:00)
 # Research Mode (no images): Uncomment for energy-focused research
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --no-save-images --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 5 --sleep-interval 2"
-# Full Mode (with images): Uncomment for complete generation study  
+# Full Mode (with images): Uncomment for complete generation study
 # LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name StableDiffusion --app-executable ../app-stable-diffusion/StableDiffusionViaHF.py --app-params '--prompt \"a photograph of an astronaut riding a horse\" --steps 50 --job-id ${SLURM_JOB_ID} --log-level INFO' --num-runs 3 --sleep-interval 2"
 
 # 16. 📝 LLAMA DVFS - Complete frequency analysis for text generation (~4-6 hours, change --time to 08:00:00)
@@ -236,7 +236,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executab
 # ============================================================================
 # SAMPLING INTERVAL AND MULTI-GPU CONFIGURATIONS (29-32)
 # ============================================================================
-# 
+#
 # New parameters available:
 # --sampling-interval MS   : Set DCGMI sampling interval (10-1000ms, default: 50ms)
 #                            Lower values = more detailed data, higher overhead
@@ -246,7 +246,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executab
 #
 # Examples:
 # - Fast sampling (10-25ms): For detailed power transitions, short experiments
-# - Normal sampling (50ms): Default, good balance of detail and performance  
+# - Normal sampling (50ms): Default, good balance of detail and performance
 # - Slow sampling (100-200ms): For long experiments, reduced data volume
 # - Multi-GPU: Essential for distributed training or multi-GPU inference
 # ============================================================================
@@ -267,7 +267,7 @@ LAUNCH_ARGS="--gpu-type V100 --profiling-mode dvfs --app-name ViT --app-executab
 # TIMING GUIDELINES FOR SLURM --time PARAMETER
 # ============================================================================
 # Configuration 1-5:     --time=01:00:00  (1 hour)
-# Configuration 6-10:    --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies  
+# Configuration 6-10:    --time=02:00:00  (2 hours) - Custom frequency mode with 3 frequencies
 # Configuration 11-13:   --time=12:00:00  (12 hours) - DVFS studies, V100 has 117 frequencies
 # Configuration 14-18:   --time=10:00:00  (10 hours) - Application-specific DVFS studies
 # Configuration 19-21:   --time=02:00:00  (2 hours) - Research studies
@@ -301,15 +301,15 @@ log_header() {
 main() {
     log_header "🚀 Starting V100 GPU Profiling Job"
     log_info "Configuration: $LAUNCH_ARGS"
-    
+
     # Determine expected results directory
     readonly RESULTS_DIR=$(determine_results_dir)
     log_info "Expected results directory: $RESULTS_DIR"
-    
+
     # Load HPCC modules
     log_info "Loading HPCC modules..."
     module load gcc cuda cudnn
-    
+
     # Determine and activate conda environment based on application
     local CONDA_ENV=$(determine_conda_env)
     log_info "Activating conda environment: $CONDA_ENV (auto-selected for application)"
@@ -321,7 +321,7 @@ main() {
         log_error "❌ Conda initialization script not found"
         exit 1
     fi
-    
+
     # Check if environment exists
     if ! conda info --envs | grep -q "^$CONDA_ENV "; then
         log_error "❌ Conda environment '$CONDA_ENV' not found"
@@ -338,21 +338,21 @@ main() {
         esac
         exit 1
     fi
-    
+
     conda activate "$CONDA_ENV"
-    
+
     # Display V100 system information
     display_v100_info
-    
+
     # Validate configuration and provide warnings
     validate_configuration
-    
+
     # Check system resources
     check_system_resources
-    
+
     # Display GPU status
     check_gpu_status
-    
+
     # Run the profiling experiment
     run_experiment
 }
@@ -377,13 +377,13 @@ display_v100_info() {
 # Validate configuration and provide appropriate warnings
 validate_configuration() {
     log_header "🔍 Configuration Validation"
-    
+
     # Check for DVFS mode and provide warnings
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
         log_warning "⚠️  DVFS mode detected - this will test ALL 117 V100 frequencies!"
         log_warning "⚠️  Estimated runtime: 6-20 hours depending on runs per frequency"
         log_warning "⚠️  Consider using 'custom' mode with selected frequencies for faster results"
-        
+
         # Calculate estimated runtime
         if echo "$LAUNCH_ARGS" | grep -q "num-runs"; then
             runs=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--num-runs \([0-9]\+\).*/\1/p')
@@ -392,19 +392,19 @@ validate_configuration() {
                 estimated_hours=$((total_runs / 60))  # Rough estimate: 1 minute per run
                 log_warning "⚠️  Estimated total runs: $total_runs"
                 log_warning "⚠️  Estimated runtime: ~${estimated_hours} hours"
-                
+
                 # Recommend time adjustment
                 if (( estimated_hours > 8 )); then
                     log_warning "⚠️  Consider adjusting SLURM --time to ${estimated_hours}:00:00 or higher"
                 fi
             fi
         fi
-        
+
         echo ""
         log_info "💡 For faster results, consider configuration #3 (frequency sampling)"
         log_info "💡 Example: custom --custom-frequencies '405,600,800,1000,1200,1380'"
     fi
-    
+
     # Check for custom frequency selection
     if echo "$LAUNCH_ARGS" | grep -q "custom-frequencies"; then
         frequencies=$(echo "$LAUNCH_ARGS" | sed -n "s/.*--custom-frequencies '\([^']*\)'.*/\1/p")
@@ -412,12 +412,12 @@ validate_configuration() {
         log_info "✅ Custom frequency mode: testing $freq_count selected frequencies"
         log_info "📊 Frequencies: $frequencies"
     fi
-    
+
     # Check for specific applications
     if echo "$LAUNCH_ARGS" | grep -q "app-name"; then
         app_name=$(echo "$LAUNCH_ARGS" | sed -n 's/.*--app-name \([^ ]*\).*/\1/p')
         log_info "🎯 Application: $app_name"
-        
+
         # Application-specific notes
         case "$app_name" in
             "StableDiffusion")
@@ -436,12 +436,12 @@ validate_configuration() {
 # Check system resources
 check_system_resources() {
     log_header "💾 System Resource Check"
-    
+
     # Check available disk space
     local available_space
     available_space=$(df . | awk 'NR==2 {print $4}')
     local available_gb=$((available_space / 1024 / 1024))
-    
+
     if (( available_space < 1000000 )); then  # Less than 1GB
         log_warning "⚠️  Available disk space: ${available_gb}GB (may be insufficient)"
         log_warning "⚠️  Recommended: >2GB for comprehensive studies"
@@ -449,7 +449,7 @@ check_system_resources() {
     else
         log_info "✅ Available disk space: ${available_gb}GB"
     fi
-    
+
     # Check if results directory exists
     if [[ ! -d "results" ]]; then
         log_info "📁 Creating results directory..."
@@ -460,11 +460,11 @@ check_system_resources() {
 # Check GPU status and availability
 check_gpu_status() {
     log_header "🖥️  GPU Status Check"
-    
+
     # Display GPU information
     if gpu_info=$(nvidia-smi --query-gpu=name,memory.total,driver_version,power.max_limit --format=csv,noheader,nounits 2>/dev/null); then
         log_info "📊 GPU Information: $gpu_info"
-        
+
         # Verify it's actually a V100
         if echo "$gpu_info" | grep -qi "v100"; then
             log_info "✅ V100 GPU confirmed"
@@ -475,7 +475,7 @@ check_gpu_status() {
     else
         log_warning "⚠️  Could not query GPU info - continuing anyway"
     fi
-    
+
     # Check frequency control availability
     log_info "🔧 Checking frequency control capabilities..."
     if nvidia-smi -q -d SUPPORTED_CLOCKS &>/dev/null; then
@@ -496,10 +496,10 @@ check_gpu_status() {
 run_experiment() {
     log_header "🚀 Starting V100 Profiling Experiment"
     log_info "Launch command: $LAUNCH_SCRIPT $LAUNCH_ARGS"
-    
+
     local start_time
     start_time=$(date +%s)
-    
+
     # Execute the experiment
     if eval "$LAUNCH_SCRIPT $LAUNCH_ARGS"; then
         # Success path
@@ -508,21 +508,21 @@ run_experiment() {
         local total_time=$((end_time - start_time))
         local hours=$((total_time / 3600))
         local minutes=$(((total_time % 3600) / 60))
-        
+
         log_header "🎉 V100 Profiling Completed Successfully!"
         log_info "⏱️  Total runtime: ${hours}h ${minutes}m"
-        
+
         # Display results summary
         display_results_summary
-        
+
         # Display completion notes
         display_completion_notes
-        
+
     else
         # Failure path
         log_error "❌ V100 profiling experiment failed"
         log_error "🔍 Check the error logs above for details"
-        
+
         # Common troubleshooting suggestions
         log_error ""
         log_error "🛠️  Common V100 Issues and Solutions:"
@@ -531,7 +531,7 @@ run_experiment() {
         log_error "   • Memory limitations → V100 has 32GB vs A100's 80GB"
         log_error "   • Long DVFS runtimes → Use custom frequency selection (config #3)"
         log_error "   • Module loading issues → Check HPCC environment setup"
-        
+
         exit 1
     fi
 }
@@ -539,12 +539,12 @@ run_experiment() {
 # Display comprehensive results summary
 display_results_summary() {
     log_header "📊 Results Summary"
-    
+
     if [[ -d "$RESULTS_DIR" ]]; then
         local result_count
         result_count=$(find "$RESULTS_DIR" -type f | wc -l)
         log_info "📁 Generated $result_count result files in $RESULTS_DIR"
-        
+
         # Show recent files
         if [[ "$result_count" -gt 0 ]]; then
             log_info "📋 Recent result files:"
@@ -556,7 +556,7 @@ display_results_summary() {
                 fi
             done
         fi
-        
+
         # Check for specific output files
         local csv_files
         csv_files=$(find "$RESULTS_DIR" -name "GV100*.csv" 2>/dev/null)
@@ -567,12 +567,12 @@ display_results_summary() {
             csv_lines=$(wc -l < "$csv_file" 2>/dev/null || echo "unknown")
             log_info "📊 Performance data points in $(basename "$csv_file"): $csv_lines"
         fi
-        
+
         # Calculate total data size
         local total_size
         total_size=$(du -sh "$RESULTS_DIR" 2>/dev/null | cut -f1 || echo "unknown")
         log_info "💾 Total results directory size: $total_size"
-        
+
     else
         log_warning "⚠️  No results directory found: $RESULTS_DIR"
     fi
@@ -581,13 +581,13 @@ display_results_summary() {
 # Display completion notes and next steps
 display_completion_notes() {
     log_header "📝 V100 Profiling Completion Notes"
-    
+
     echo "┌─────────────────────────────────────────────────────────────┐"
     echo "│                   Profiling Summary                         │"
     echo "├─────────────────────────────────────────────────────────────┤"
     echo "│ GPU:          V100 (Volta GV100) - 32GB HBM2                │"
     echo "│ Cluster:      HPCC matador partition                        │"
-    
+
     # Mode-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "dvfs"; then
         echo "│ Mode:         DVFS (tested across 117 frequency range)      │"
@@ -596,16 +596,16 @@ display_completion_notes() {
     else
         echo "│ Mode:         Baseline (single frequency profiling)         │"
     fi
-    
+
     # Tool-specific notes
     if echo "$LAUNCH_ARGS" | grep -q "nvidia-smi"; then
         echo "│ Tool:         nvidia-smi profiling                          │"
     else
         echo "│ Tool:         DCGMI (with nvidia-smi fallback)              │"
     fi
-    
+
     echo "└─────────────────────────────────────────────────────────────┘"
-    
+
     # Next steps
     log_info ""
     log_info "🎯 Next Steps:"

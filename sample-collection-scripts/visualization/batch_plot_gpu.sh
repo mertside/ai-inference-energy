@@ -8,7 +8,7 @@
 #
 # Usage:
 #   ./batch_plot_gpu.sh V100
-#   ./batch_plot_gpu.sh A100  
+#   ./batch_plot_gpu.sh A100
 #   ./batch_plot_gpu.sh H100
 #
 # Output: Creates plots in plots/ directory with systematic naming
@@ -107,16 +107,16 @@ generate_plot() {
     local app="$2"
     local metric="$3"
     local frequencies="$4"
-    
+
     echo -e "${BLUE}📊 Generating: ${gpu} + ${app} + ${metric}${NC}"
-    
+
     # Debug: Show the exact command that will be run
     echo -e "${YELLOW}Command: python $PLOT_SCRIPT --gpu $gpu --app $app --metric $metric --frequencies $frequencies --run $RUN_NUMBER --no-show${NC}"
-    
+
     # Run the plotting script with error capture
     local output
     local exit_code
-    
+
     output=$(python "$PLOT_SCRIPT" \
         --gpu "$gpu" \
         --app "$app" \
@@ -125,7 +125,7 @@ generate_plot() {
         --run "$RUN_NUMBER" \
         --no-show 2>&1)
     exit_code=$?
-    
+
     if [[ $exit_code -eq 0 ]]; then
         echo -e "${GREEN}✅ Success: ${gpu}_$(echo "$app" | tr '[:upper:]' '[:lower:]')_$(echo "$metric" | tr '[:upper:]' '[:lower:]')${NC}"
         return 0
@@ -143,7 +143,7 @@ display_summary() {
     local total_plots="$2"
     local successful_plots="$3"
     local failed_plots="$4"
-    
+
     echo ""
     echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
     echo -e "${BLUE}                    BATCH PLOTTING SUMMARY                   ${NC}"
@@ -160,12 +160,12 @@ display_summary() {
     fi
     echo -e "  📊 Total attempts: $total_plots"
     echo ""
-    
+
     # Show plots directory contents
     if [[ -d "plots" ]]; then
         echo -e "${YELLOW}Generated plots in plots/ directory:${NC}"
         ls -la plots/*$(echo "$gpu" | tr '[:upper:]' '[:lower:]')* 2>/dev/null | head -10 || echo "  No plots found for $gpu"
-        
+
         local plot_count=$(ls plots/*$(echo "$gpu" | tr '[:upper:]' '[:lower:]')* 2>/dev/null | wc -l)
         if [[ $plot_count -gt 10 ]]; then
             echo "  ... and $((plot_count - 10)) more files"
@@ -177,22 +177,22 @@ display_summary() {
 # Main execution function
 main() {
     local gpu="$1"
-    
+
     # Input validation
     if [[ $# -ne 1 ]]; then
         usage
     fi
-    
+
     validate_gpu "$gpu"
     check_plot_script
-    
+
     # Convert to uppercase for consistency
     gpu=$(echo "$gpu" | tr '[:lower:]' '[:upper:]')
-    
+
     # Get GPU-specific frequencies
     local frequencies
     frequencies=$(get_gpu_frequencies "$gpu")
-    
+
     echo -e "${BLUE}🚀 Starting Batch Plot Generation${NC}"
     echo -e "${YELLOW}GPU:${NC} $gpu"
     echo -e "${YELLOW}Frequencies:${NC} $frequencies MHz"
@@ -200,39 +200,39 @@ main() {
     echo -e "${YELLOW}Metrics:${NC} ${METRICS[*]}"
     echo -e "${YELLOW}Run Number:${NC} $RUN_NUMBER"
     echo ""
-    
+
     # Create plots directory if it doesn't exist
     mkdir -p plots
-    
+
     # Initialize counters
     local total_plots=0
     local successful_plots=0
     local failed_plots=0
-    
+
     # Generate plots for each combination
     for app in "${APPLICATIONS[@]}"; do
         echo -e "${YELLOW}📱 Processing application: $app${NC}"
-        
+
         for metric in "${METRICS[@]}"; do
             ((total_plots++))
-            
+
             if generate_plot "$gpu" "$app" "$metric" "$frequencies"; then
                 ((successful_plots++))
             else
                 ((failed_plots++))
                 echo -e "${YELLOW}⚠️  Continuing with next plot...${NC}"
             fi
-            
+
             # Small delay to avoid overwhelming the system
             sleep 0.5
         done
-        
+
         echo ""
     done
-    
+
     # Display summary
     display_summary "$gpu" "$total_plots" "$successful_plots" "$failed_plots"
-    
+
     # Exit with appropriate code
     if [[ $failed_plots -eq 0 ]]; then
         echo -e "${GREEN}🎉 All plots generated successfully!${NC}"

@@ -21,7 +21,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 # Time needed: 2-4 minutes
 # Use for: Initial testing, debugging
 
-# 2. 🔬 RESEARCH BASELINE - Statistical significance  
+# 2. 🔬 RESEARCH BASELINE - Statistical significance
 # Uncomment: Configuration #2
 # Time needed: 6-10 minutes
 # Use for: Publication-quality baseline data
@@ -40,7 +40,7 @@ This guide helps you quickly select the right configuration for your H100 GPU pr
 # Use for: NLP workload analysis
 
 # 6. 🎨 STABLE DIFFUSION - Image generation
-# Uncomment: Configuration #6  
+# Uncomment: Configuration #6
 # Time needed: 15-25 minutes
 # Use for: Generative AI workload analysis
 

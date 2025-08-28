@@ -32,12 +32,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
     from config import profiling_config
-    from utils import (
-        get_timestamp,
-        run_command,
-        setup_logging,
-        validate_dcgmi_available,
-    )
+    from utils import get_timestamp, run_command, setup_logging, validate_dcgmi_available
 except ImportError:
     # Fallback configuration if imports fail
     class ProfilingConfig:
@@ -62,32 +57,32 @@ except ImportError:
         # ]
         DCGMI_FIELDS = [
             # "timestamp", # 0 ─ dcgmi dmon prints host timestamp automatically
-            52,          # 1 ─ DCGM_FI_DEV_NVML_INDEX
-            50,          # 2 ─ DCGM_FI_DEV_NAME
-            155,         # 3 ─ DCGM_FI_DEV_POWER_USAGE
-            160,         # 4 ─ DCGM_FI_DEV_POWER_MGMT_LIMIT
-            150,         # 5 ─ DCGM_FI_DEV_GPU_TEMP
-            203,         # 6 ─ DCGM_FI_DEV_GPU_UTIL          (coarse)
-            204,         # 7 ─ DCGM_FI_DEV_MEM_COPY_UTIL     (≈ util.mem)
-            250,         # 8 ─ DCGM_FI_DEV_FB_TOTAL
-            251,         # 9 ─ DCGM_FI_DEV_FB_FREE
-            252,         # 10 ─ DCGM_FI_DEV_FB_USED
-            100,         # 11 ─ DCGM_FI_DEV_SM_CLOCK
-            101,         # 12 ─ DCGM_FI_DEV_MEM_CLOCK
-            100,         # 13 ─ (proxy for graphics clock)
-            110,         # 14 ─ DCGM_FI_DEV_APP_SM_CLOCK
-            111,         # 15 ─ DCGM_FI_DEV_APP_MEM_CLOCK
-            190,         # 16 ─ DCGM_FI_DEV_PSTATE
-            140,         # memory (HBM) temperature
-            156,         # total energy consumption (mJ)
-            1001,        # graphics active 
-            1002,        # SM active
-            1003,        # SM occupancy
-            1004,        # tensor pipe active
-            1005,        # DRAM active
-            1006,        # FP64 active
-            1007,        # FP32 active
-            1008         # FP16 active
+            52,  # 1 ─ DCGM_FI_DEV_NVML_INDEX
+            50,  # 2 ─ DCGM_FI_DEV_NAME
+            155,  # 3 ─ DCGM_FI_DEV_POWER_USAGE
+            160,  # 4 ─ DCGM_FI_DEV_POWER_MGMT_LIMIT
+            150,  # 5 ─ DCGM_FI_DEV_GPU_TEMP
+            203,  # 6 ─ DCGM_FI_DEV_GPU_UTIL          (coarse)
+            204,  # 7 ─ DCGM_FI_DEV_MEM_COPY_UTIL     (≈ util.mem)
+            250,  # 8 ─ DCGM_FI_DEV_FB_TOTAL
+            251,  # 9 ─ DCGM_FI_DEV_FB_FREE
+            252,  # 10 ─ DCGM_FI_DEV_FB_USED
+            100,  # 11 ─ DCGM_FI_DEV_SM_CLOCK
+            101,  # 12 ─ DCGM_FI_DEV_MEM_CLOCK
+            100,  # 13 ─ (proxy for graphics clock)
+            110,  # 14 ─ DCGM_FI_DEV_APP_SM_CLOCK
+            111,  # 15 ─ DCGM_FI_DEV_APP_MEM_CLOCK
+            190,  # 16 ─ DCGM_FI_DEV_PSTATE
+            140,  # memory (HBM) temperature
+            156,  # total energy consumption (mJ)
+            1001,  # graphics active
+            1002,  # SM active
+            1003,  # SM occupancy
+            1004,  # tensor pipe active
+            1005,  # DRAM active
+            1006,  # FP64 active
+            1007,  # FP32 active
+            1008,  # FP16 active
         ]
         # One-liner: dcgmi dmon -d 100 -e 52,50,155,160,150,203,204,250,251,252,100,101,100,110,111,190,140,156,1001,1002,1003,1004,1005,1006,1007,1008 -c 1
         DEFAULT_INTERVAL_MS = 50
@@ -148,9 +143,7 @@ class GPUProfiler:
 
         # Validate DCGMI availability
         if not validate_dcgmi_available():
-            raise RuntimeError(
-                "DCGMI not available. Please install NVIDIA DCGMI tools."
-            )
+            raise RuntimeError("DCGMI not available. Please install NVIDIA DCGMI tools.")
 
     def _build_dcgmi_command(self) -> List[str]:
         """
@@ -178,9 +171,7 @@ class GPUProfiler:
         """Start GPU monitoring in a separate process."""
         try:
             command = self._build_dcgmi_command()
-            self.logger.info(
-                f"Starting GPU monitoring with command: {' '.join(command)}"
-            )
+            self.logger.info(f"Starting GPU monitoring with command: {' '.join(command)}")
             self.logger.info(f"Output file: {self.output_file}")
             self.logger.info(f"Sampling interval: {self.interval_ms}ms")
 
@@ -194,9 +185,7 @@ class GPUProfiler:
                 )
 
             self.start_time = time.time()
-            self.logger.info(
-                f"GPU monitoring started (PID: {self.monitoring_process.pid})"
-            )
+            self.logger.info(f"GPU monitoring started (PID: {self.monitoring_process.pid})")
 
         except Exception as e:
             self.logger.error(f"Failed to start GPU monitoring: {e}")
@@ -226,9 +215,7 @@ class GPUProfiler:
             return duration
 
         except subprocess.TimeoutExpired:
-            self.logger.warning(
-                "Monitoring process did not terminate gracefully, forcing kill"
-            )
+            self.logger.warning("Monitoring process did not terminate gracefully, forcing kill")
             os.killpg(os.getpgid(self.monitoring_process.pid), signal.SIGKILL)
             return time.time() - self.start_time if self.start_time else 0.0
         except Exception as e:
@@ -316,9 +303,7 @@ class GPUProfiler:
             self.stop_monitoring()
 
 
-def profile_application(
-    command, output_file: str = None, interval_ms: int = None, gpu_id: int = 0
-) -> Dict[str, Any]:
+def profile_application(command, output_file: str = None, interval_ms: int = None, gpu_id: int = 0) -> Dict[str, Any]:
     """
     Convenience function to profile an application with GPU monitoring.
 
@@ -331,9 +316,7 @@ def profile_application(
     Returns:
         Dictionary containing profiling results
     """
-    profiler = GPUProfiler(
-        output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id
-    )
+    profiler = GPUProfiler(output_file=output_file, interval_ms=interval_ms, gpu_id=gpu_id)
 
     try:
         return profiler.profile_command(command)
@@ -346,12 +329,8 @@ def main():
     import argparse
 
     # Set up argument parsing
-    parser = argparse.ArgumentParser(
-        description="GPU power profiling utility for AI inference workloads"
-    )
-    parser.add_argument(
-        "command", nargs="*", help="Command to profile (if empty, just monitors GPU)"
-    )
+    parser = argparse.ArgumentParser(description="GPU power profiling utility for AI inference workloads")
+    parser.add_argument("command", nargs="*", help="Command to profile (if empty, just monitors GPU)")
     parser.add_argument(
         "-o",
         "--output",
@@ -365,12 +344,8 @@ def main():
         default=profiling_config.DEFAULT_INTERVAL_MS,
         help=f"Sampling interval in milliseconds (default: {profiling_config.DEFAULT_INTERVAL_MS})",
     )
-    parser.add_argument(
-        "-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)"
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose logging"
-    )
+    parser.add_argument("-g", "--gpu", type=int, default=0, help="GPU device ID to monitor (default: 0)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
 

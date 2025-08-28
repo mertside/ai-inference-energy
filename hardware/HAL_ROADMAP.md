@@ -36,35 +36,35 @@ Unified interface for GPU power monitoring across different tools and hardware c
 class PowerMonitor:
     def __init__(self, gpu_id: int = 0, preferred_tool: str = 'auto'):
         """Initialize with automatic tool detection and fallback."""
-        
+
     def get_current_power(self) -> float:
         """Get instantaneous power consumption in watts."""
-        
+
     def monitor_power_continuous(self, duration: float, interval: float = 0.1) -> List[PowerReading]:
         """Monitor power continuously with timestamps."""
-        
+
     def set_frequency(self, core_freq: int, memory_freq: Optional[int] = None) -> bool:
         """Set GPU frequencies with hardware-specific validation."""
-        
+
     def get_supported_frequencies(self) -> List[int]:
         """Get list of supported frequencies for current GPU."""
-        
+
     def set_power_limit(self, limit_watts: float) -> bool:
         """Set power limit if supported by hardware."""
-        
+
     def get_power_limits(self) -> Tuple[float, float]:
         """Get current min/max power limits."""
-        
+
     def validate_configuration(self) -> Dict[str, bool]:
         """Validate current monitoring setup and permissions."""
 
 # Specialized implementations
 class DCGMIPowerMonitor(PowerMonitor):
     """DCGMI-based monitoring (preferred for A100/H100)."""
-    
+
 class NvidiaSMIPowerMonitor(PowerMonitor):
     """nvidia-smi based monitoring (fallback, V100 compatible)."""
-    
+
 class NVMLPowerMonitor(PowerMonitor):
     """Direct NVML Python bindings (advanced users)."""
 ```
@@ -99,19 +99,19 @@ Standardized collection of GPU performance metrics across different architecture
 class PerformanceCounters:
     def __init__(self, gpu_id: int = 0, gpu_type: str = 'auto'):
         """Initialize with automatic GPU detection."""
-        
+
     def collect_hardware_metrics(self, duration: float = 1.0) -> HardwareMetrics:
         """Collect FGCS-specific metrics (FP activity, DRAM activity)."""
-        
+
     def collect_comprehensive_metrics(self, duration: float = 1.0) -> Dict[str, float]:
         """Collect full set of performance counters."""
-        
+
     def get_available_counters(self) -> List[str]:
         """Get list of available performance counters for current GPU."""
-        
+
     def monitor_workload(self, command: str) -> WorkloadProfile:
         """Profile a workload and return comprehensive metrics."""
-        
+
     def validate_metrics(self, metrics: Dict[str, float]) -> Dict[str, bool]:
         """Validate collected metrics for quality and consistency."""
 
@@ -123,7 +123,7 @@ class HardwareMetrics:
     timestamp: float        # Collection timestamp
     duration: float         # Collection duration
 
-@dataclass 
+@dataclass
 class WorkloadProfile:
     hardware_metrics: HardwareMetrics
     compute_intensity: float    # Compute vs memory bound ratio
@@ -162,19 +162,19 @@ Centralized management of multiple GPUs and device discovery in multi-GPU system
 class DeviceManager:
     def __init__(self):
         """Initialize with automatic device discovery."""
-        
+
     def discover_gpus(self) -> List[GPUDevice]:
         """Discover all available GPUs with capabilities."""
-        
+
     def get_optimal_gpu(self, requirements: Dict[str, Any]) -> GPUDevice:
         """Select optimal GPU based on requirements (memory, compute, etc.)."""
-        
+
     def allocate_gpu_for_experiment(self, experiment_config: Dict) -> GPUDevice:
         """Allocate GPU for specific experiment with resource tracking."""
-        
+
     def get_cluster_information(self) -> ClusterInfo:
         """Get cluster-specific information (SLURM, partitions, etc.)."""
-        
+
     def validate_multi_gpu_setup(self) -> Dict[str, bool]:
         """Validate multi-GPU configuration and communication."""
 
@@ -187,7 +187,7 @@ class GPUDevice:
     performance_counters: PerformanceCounters
     availability: bool
     current_utilization: float
-    
+
 @dataclass
 class ClusterInfo:
     cluster_name: str       # HPCC, REPACSS, etc.

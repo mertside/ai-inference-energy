@@ -20,15 +20,15 @@ The visualization modules handle conditional imports for matplotlib, seaborn, an
 plotting libraries, providing graceful degradation when dependencies are not available.
 """
 
+from .data_preprocessor import ProfilingDataPreprocessor, create_synthetic_profiling_data
 from .edp_plots import EDPPlotter, create_optimization_summary_plot, plot_edp_heatmap
 from .performance_plots import PerformancePlotter, plot_performance_heatmap
 from .power_plots import PowerPlotter, plot_power_histogram
-from .data_preprocessor import ProfilingDataPreprocessor, create_synthetic_profiling_data
 
 __all__ = [
     # Core plotter classes
     "EDPPlotter",
-    "PowerPlotter", 
+    "PowerPlotter",
     "PerformancePlotter",
     # Data preprocessing
     "ProfilingDataPreprocessor",

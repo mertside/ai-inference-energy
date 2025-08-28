@@ -46,7 +46,7 @@ try:
     print(f'✅ PyTorch: {torch.__version__}')
     cuda_available = torch.cuda.is_available()
     print(f'✅ CUDA available: {cuda_available}')
-    
+
     if cuda_available:
         print(f'✅ GPU: {torch.cuda.get_device_name(0)}')
         print(f'✅ GPU Memory: {torch.cuda.get_device_properties(0).total_memory//1024**3}GB')
@@ -55,10 +55,10 @@ try:
             print('ℹ️  CUDA not available on login node (expected)')
         else:
             print('❌ CUDA not available on GPU node (unexpected)')
-    
+
     import transformers
     print(f'✅ Transformers: {transformers.__version__}')
-    
+
     # Try diffusers import
     try:
         import diffusers
@@ -67,9 +67,9 @@ try:
     except Exception as e:
         print(f'⚠️ Diffusers issue: {e}')
         diffusers_working = False
-    
+
     print(f'\\nDiffusers working: {diffusers_working}')
-    
+
 except Exception as e:
     print(f'❌ Import error: {e}')
 "
@@ -82,18 +82,18 @@ echo "------------------------------------------------"
 # Check if the main application exists (now in parent directory)
 if [ -f "../StableDiffusionViaHF.py" ]; then
     echo "📁 Found Stable Diffusion application"
-    
+
     # Try to run with minimal parameters to test functionality
     echo "🚀 Testing with minimal prompt..."
-    
+
     cd ..  # Move to app-stable-diffusion directory
     python StableDiffusionViaHF.py --help 2>/dev/null || echo "Help command failed"
-    
+
     # Test basic functionality
     echo ""
     echo "🧪 Testing basic image generation (if possible)..."
     python StableDiffusionViaHF.py --model-variant sd-v1.4 --device cuda --prompt "a simple test image" --num-images 1 --output-dir ./test_output 2>/dev/null || echo "Image generation test failed - this might be due to diffusers compatibility"
-    
+
     cd tests  # Return to tests directory
 else
     echo "❌ Stable Diffusion application not found at ../StableDiffusionViaHF.py"

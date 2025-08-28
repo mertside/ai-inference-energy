@@ -2,9 +2,9 @@
 """
 GPU Frequency Control Script for AI Inference Energy Profiling.
 
-This script controls GPU memory and core frequencies using DCGMI (Data Center GPU 
-Manager Interface) for energy profiling experiments. It sets the specified 
-frequencies and provides a foundation for DVFS (Dynamic Voltage and Frequency 
+This script controls GPU memory and core frequencies using DCGMI (Data Center GPU
+Manager Interface) for energy profiling experiments. It sets the specified
+frequencies and provides a foundation for DVFS (Dynamic Voltage and Frequency
 Scaling) research on AI inference workloads.
 
 Usage:
@@ -65,7 +65,7 @@ Requirements:
     - DCGMI tools installed and accessible
     - Appropriate permissions to modify GPU frequencies
 
-This script is part of the AI inference energy profiling framework for 
+This script is part of the AI inference energy profiling framework for
 studying GPU DVFS effects on modern AI workloads.
 EOF
 }
@@ -74,27 +74,27 @@ EOF
 validate_arguments() {
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     # Check if arguments are numeric
     if ! [[ "$memory_freq" =~ ^[0-9]+$ ]]; then
         log_error "Memory frequency must be a positive integer: $memory_freq"
         return 1
     fi
-    
+
     if ! [[ "$core_freq" =~ ^[0-9]+$ ]]; then
         log_error "Core frequency must be a positive integer: $core_freq"
         return 1
     fi
-    
+
     # Check reasonable frequency ranges (basic validation)
     if (( memory_freq < 100 || memory_freq > 2000 )); then
         log_warning "Memory frequency seems unusual: ${memory_freq}MHz"
     fi
-    
+
     if (( core_freq < 100 || core_freq > 2000 )); then
         log_warning "Core frequency seems unusual: ${core_freq}MHz"
     fi
-    
+
     return 0
 }
 
@@ -104,13 +104,13 @@ check_dcgmi() {
         log_error "dcgmi command not found. Please install NVIDIA DCGMI tools."
         return 1
     fi
-    
+
     # Test if dcgmi can communicate with GPUs
     if ! dcgmi discovery --list &> /dev/null; then
         log_error "dcgmi cannot communicate with GPUs. Check permissions and GPU status."
         return 1
     fi
-    
+
     return 0
 }
 
@@ -118,9 +118,9 @@ check_dcgmi() {
 set_gpu_frequencies() {
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     log_info "Setting GPU frequencies: Memory=${memory_freq}MHz, Core=${core_freq}MHz"
-    
+
     # Set GPU frequencies using dcgmi config
     if dcgmi config --set -a "${memory_freq},${core_freq}"; then
         log_info "Successfully set GPU frequencies"
@@ -128,18 +128,18 @@ set_gpu_frequencies() {
         log_error "Failed to set GPU frequencies"
         return 1
     fi
-    
+
     # Wait for settings to take effect
     log_info "Waiting ${DEFAULT_SLEEP_TIME} seconds for frequency changes to take effect..."
     sleep "$DEFAULT_SLEEP_TIME"
-    
+
     return 0
 }
 
 # Function to verify current GPU frequencies
 verify_frequencies() {
     log_info "Verifying current GPU frequencies..."
-    
+
     # Query current frequencies (this will show current state)
     if dcgmi dmon -e 210,211 -c 1 2>/dev/null | tail -n +2; then
         log_info "Current GPU frequencies displayed above"
@@ -162,41 +162,41 @@ main() {
     # Set up signal handlers for cleanup
     trap cleanup EXIT
     trap 'log_error "Interrupted by user"; exit 130' INT TERM
-    
+
     log_info "Starting GPU frequency control"
     log_info "Script: $SCRIPT_NAME"
     log_info "Working directory: $(pwd)"
-    
+
     # Check arguments
     if (( $# != 2 )); then
         log_error "Invalid number of arguments. Expected 2, got $#"
         usage
         exit 1
     fi
-    
+
     local memory_freq="$1"
     local core_freq="$2"
-    
+
     log_info "Requested frequencies: Memory=${memory_freq}MHz, Core=${core_freq}MHz"
-    
+
     # Validate arguments
     if ! validate_arguments "$memory_freq" "$core_freq"; then
         exit 1
     fi
-    
+
     # Check DCGMI availability
     if ! check_dcgmi; then
         exit 1
     fi
-    
+
     # Set GPU frequencies
     if ! set_gpu_frequencies "$memory_freq" "$core_freq"; then
         exit 1
     fi
-    
+
     # Verify the changes
     verify_frequencies
-    
+
     log_info "GPU frequency control completed successfully"
 }
 

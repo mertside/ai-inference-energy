@@ -16,7 +16,7 @@ This directory contains conda environment configurations for different cluster s
 conda env create -f conda_env_h100.yml
 conda activate llama-h100
 
-# For A100 clusters  
+# For A100 clusters
 conda env create -f conda_env_a100.yml
 conda activate llama-a100
 

@@ -7,7 +7,7 @@
 #
 # Usage:
 #   ./interactive_gpu.sh v100          # Start V100 interactive session
-#   ./interactive_gpu.sh a100          # Start A100 interactive session  
+#   ./interactive_gpu.sh a100          # Start A100 interactive session
 #   ./interactive_gpu.sh h100          # Start H100 interactive session
 #   ./interactive_gpu.sh <gpu> test    # Run quick framework test
 #   ./interactive_gpu.sh <gpu> status  # Check GPU node status
@@ -26,7 +26,7 @@ declare -A GPU_CONFIGS=(
     ["v100_memory"]="32GB HBM2"
     ["v100_freq_range"]="405-1380 MHz (137 steps)"
     ["v100_system"]="HPCC"
-    
+
     # A100 Configuration (HPCC)
     ["a100_partition"]="toreador"
     ["a100_gpu_count"]="1"
@@ -34,7 +34,7 @@ declare -A GPU_CONFIGS=(
     ["a100_memory"]="40GB HBM2"
     ["a100_freq_range"]="210-1410 MHz (61 steps)"
     ["a100_system"]="HPCC"
-    
+
     # H100 Configuration (REPACSS)
     ["h100_partition"]="h100"
     ["h100_node"]="rpg-93-1"
@@ -143,30 +143,30 @@ check_gpu_status() {
     local gpu_type="$1"
     local partition=$(get_gpu_config "$gpu_type" "partition")
     local system=$(get_gpu_config "$gpu_type" "system")
-    
+
     log_header "${gpu_type^^} Node Status Check"
     log_info "Checking $system ${gpu_type^^} nodes on partition: $partition"
-    
+
     if ! command -v sinfo &> /dev/null; then
         log_warning "SLURM commands not available - make sure you're on a SLURM cluster"
         return 1
     fi
-    
+
     log_info "Partition status:"
     if ! sinfo -p "$partition" 2>/dev/null; then
         log_warning "Could not query partition $partition"
     fi
-    
+
     log_info "GPU node information:"
     if ! sinfo -p "$partition" -o "%n %t %G %C" 2>/dev/null; then
         log_warning "Could not query GPU info for $partition"
     fi
-    
+
     log_info "Current queue:"
     if ! squeue -p "$partition" 2>/dev/null; then
         log_warning "Could not query queue for $partition"
     fi
-    
+
     # Special handling for H100 (single node)
     if [[ "$gpu_type" == "h100" ]]; then
         local node=$(get_gpu_config "$gpu_type" "node")
@@ -175,7 +175,7 @@ check_gpu_status() {
             log_warning "Could not query node $node"
         fi
     fi
-    
+
     # Try to find GPU-specific information
     if [[ "$gpu_type" != "h100" ]]; then
         log_info "${gpu_type^^} GPU availability:"
@@ -188,49 +188,49 @@ start_interactive() {
     local gpu_type="$1"
     local partition=$(get_gpu_config "$gpu_type" "partition")
     local system=$(get_gpu_config "$gpu_type" "system")
-    
+
     log_gpu_header "$gpu_type"
     log_info "$system Configuration:"
     log_info "  GPU Type: ${gpu_type^^}"
     log_info "  Partition: $partition"
     log_info "  Memory: $(get_gpu_config "$gpu_type" "memory")"
     log_info "  System: $system"
-    
+
     case "$gpu_type" in
         "v100")
             local gpu_count=$(get_gpu_config "$gpu_type" "gpu_count")
             local cpu_cores=$(get_gpu_config "$gpu_type" "cpu_cores")
             local gpu_type_slurm=$(get_gpu_config "$gpu_type" "gpu_type")
-            
+
             log_info "  GPU Count: $gpu_count"
             log_info "  CPU Cores: $cpu_cores"
-            
+
             local cmd="srun --partition=$partition --gres=gpu:$gpu_type_slurm:$gpu_count --nodes=1 --ntasks=1 --cpus-per-task=$cpu_cores --pty bash"
             log_info "Command: $cmd"
             log_warning "Starting V100 interactive session..."
             exec $cmd
             ;;
-            
+
         "a100")
             local gpu_count=$(get_gpu_config "$gpu_type" "gpu_count")
             local reservation=$(get_gpu_config "$gpu_type" "reservation")
-            
+
             log_info "  GPU Count: $gpu_count"
             log_info "  Reservation: $reservation"
-            
+
             local cmd="srun --partition=$partition --gpus-per-node=$gpu_count --reservation=$reservation --pty bash"
             log_info "Command: $cmd"
             log_warning "Starting A100 interactive session..."
             exec $cmd
             ;;
-            
+
         "h100")
             local gpu_count=$(get_gpu_config "$gpu_type" "gpu_count")
             local node=$(get_gpu_config "$gpu_type" "node")
-            
+
             log_info "  GPU Count: $gpu_count"
             log_info "  Node: $node"
-            
+
             local cmd="interactive -p $partition -g $gpu_count -w $node"
             log_info "Command: $cmd"
             log_warning "Starting H100 interactive session..."
@@ -242,9 +242,9 @@ start_interactive() {
 # Function to run quick test
 run_quick_test() {
     local gpu_type="$1"
-    
+
     log_header "${gpu_type^^} Framework Quick Test"
-    
+
     # Check if we're in an interactive session or on compute node
     if [[ -z "${SLURM_JOB_ID:-}" ]]; then
         log_error "This test should be run in an interactive SLURM session"
@@ -252,10 +252,10 @@ run_quick_test() {
         log_info "Then run: $0 $gpu_type test   # to run this test"
         exit 1
     fi
-    
+
     log_info "Running in SLURM job: ${SLURM_JOB_ID}"
     log_info "Node: ${SLURM_NODELIST:-$(hostname)}"
-    
+
     # Test GPU detection
     log_info "1. Testing GPU detection..."
     if gpu_info=$(nvidia-smi --query-gpu=name --format=csv,noheader,nounits 2>/dev/null); then
@@ -269,13 +269,13 @@ run_quick_test() {
         log_error "✗ GPU detection failed"
         return 1
     fi
-    
+
     # Test GPU memory and specifications
     log_info "2. Testing GPU specifications..."
     if gpu_memory=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits 2>/dev/null); then
         log_info "✓ GPU Memory: ${gpu_memory} MB"
     fi
-    
+
     # Test framework configuration
     log_info "3. Testing framework ${gpu_type^^} configuration..."
     if ./launch.sh --gpu-type "${gpu_type^^}" --help &> /dev/null; then
@@ -284,7 +284,7 @@ run_quick_test() {
         log_error "✗ Framework ${gpu_type^^} support issue"
         return 1
     fi
-    
+
     # Test frequency support (V100 only has detailed frequency testing)
     if [[ "$gpu_type" == "v100" ]]; then
         log_info "4. Testing ${gpu_type^^} frequency support..."
@@ -297,16 +297,16 @@ run_quick_test() {
             log_info "  Framework will fallback to nvidia-smi monitoring"
         fi
     fi
-    
+
     # Test quick run
     log_info "5. Testing quick ${gpu_type^^} baseline configuration..."
     log_info "Running: ./launch.sh --gpu-type ${gpu_type^^} --profiling-mode baseline --num-runs 1"
     log_warning "This is a real test - it will run for a few minutes"
-    
+
     if ./launch.sh --gpu-type "${gpu_type^^}" --profiling-mode baseline --num-runs 1; then
         log_info "✓ ${gpu_type^^} baseline test completed successfully"
         log_info "✓ All tests passed!"
-        
+
         # Show any output files
         if ls *.csv *.json *.log &>/dev/null 2>&1; then
             log_info "Generated output files:"
@@ -325,14 +325,14 @@ show_gpu_info() {
     local partition=$(get_gpu_config "$gpu_type" "partition")
     local memory=$(get_gpu_config "$gpu_type" "memory")
     local freq_range=$(get_gpu_config "$gpu_type" "freq_range")
-    
+
     log_header "${gpu_type^^} GPU Information"
     log_info "$system ${gpu_type^^} Configuration:"
     log_info "  GPU Type: NVIDIA Tesla ${gpu_type^^}"
     log_info "  Memory: $memory"
     log_info "  System: $system"
     log_info "  Partition: $partition"
-    
+
     case "$gpu_type" in
         "v100")
             local gpu_type_slurm=$(get_gpu_config "$gpu_type" "gpu_type")
@@ -351,7 +351,7 @@ show_gpu_info() {
             log_info "  Resource Spec: -g $(get_gpu_config "$gpu_type" "gpu_count") -w $node"
             ;;
     esac
-    
+
     echo
     log_info "${gpu_type^^} Frequency Ranges (from framework config):"
     log_info "  Graphics: $freq_range"
@@ -378,25 +378,25 @@ show_gpu_info() {
 main() {
     local gpu_type="${1:-}"
     local command="${2:-}"
-    
+
     # Handle help first
     if [[ "$gpu_type" == "help" || "$gpu_type" == "-h" || "$gpu_type" == "--help" ]]; then
         show_usage
         exit 0
     fi
-    
+
     # Validate GPU type
     if [[ -z "$gpu_type" ]]; then
         log_error "GPU type required"
         show_usage
         exit 1
     fi
-    
+
     if ! gpu_type=$(validate_gpu_type "$gpu_type"); then
         show_usage
         exit 1
     fi
-    
+
     # Handle commands
     case "$command" in
         "")

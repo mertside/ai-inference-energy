@@ -133,7 +133,7 @@ configure_output_redirection() {
     else
         log_info "Output redirection already specified in app parameters"
     fi
-    
+
     return 0
 }
 
@@ -148,7 +148,7 @@ parse_arguments() {
     APP_NAME="$DEFAULT_APP_NAME"
     APP_EXECUTABLE="$DEFAULT_APP_EXECUTABLE"
     APP_PARAMS="$DEFAULT_APP_PARAMS"
-    
+
     while (( $# > 0 )); do
         case "$1" in
             --gpu-type)
@@ -236,25 +236,25 @@ parse_arguments() {
                 ;;
         esac
     done
-    
+
     # Validate GPU type
     if [[ "$GPU_TYPE" != "A100" && "$GPU_TYPE" != "V100" && "$GPU_TYPE" != "H100" ]]; then
         log_error "Invalid GPU type: $GPU_TYPE. Supported types: A100, V100, H100"
         return 1
     fi
-    
+
     # Validate profiling tool
     if [[ "$PROFILING_TOOL" != "dcgmi" && "$PROFILING_TOOL" != "nvidia-smi" ]]; then
         log_error "Invalid profiling tool: $PROFILING_TOOL. Supported tools: dcgmi, nvidia-smi"
         return 1
     fi
-    
+
     # Validate profiling mode
     if [[ "$PROFILING_MODE" != "dvfs" && "$PROFILING_MODE" != "baseline" ]]; then
         log_error "Invalid profiling mode: $PROFILING_MODE. Supported modes: dvfs, baseline"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -295,7 +295,7 @@ configure_gpu_settings() {
         GPU_ARCH="GA100"
         MEMORY_FREQ=1215  # A100 memory frequency (MHz)
         DEFAULT_CORE_FREQ=1410  # A100 default core frequency (MHz)
-        
+
         # A100 core frequencies for testing (MHz)
         CORE_FREQUENCIES=(
             1410 1395 1380 1365 1350 1335 1320 1305 1290 1275
@@ -309,22 +309,22 @@ configure_gpu_settings() {
         GPU_ARCH="GV100"
         MEMORY_FREQ=877  # V100 memory frequency (MHz)
         DEFAULT_CORE_FREQ=1380  # V100 default core frequency (MHz)
-        
+
         # V100 core frequencies for testing (MHz) - updated with actual nvidia-smi data ≥510 MHz
         CORE_FREQUENCIES=(
-            1380 1372 1365 1357 1350 1342 1335 1327 1320 1312 1305 1297 1290 1282 1275 1267 
-            1260 1252 1245 1237 1230 1222 1215 1207 1200 1192 1185 1177 1170 1162 1155 1147 
-            1140 1132 1125 1117 1110 1102 1095 1087 1080 1072 1065 1057 1050 1042 1035 1027 
-            1020 1012 1005 997 990 982 975 967 960 952 945 937 930 922 915 907 900 892 885 877 
-            870 862 855 847 840 832 825 817 810 802 795 787 780 772 765 757 750 742 735 727 
-            720 712 705 697 690 682 675 667 660 652 645 637 630 622 615 607 600 592 585 577 
+            1380 1372 1365 1357 1350 1342 1335 1327 1320 1312 1305 1297 1290 1282 1275 1267
+            1260 1252 1245 1237 1230 1222 1215 1207 1200 1192 1185 1177 1170 1162 1155 1147
+            1140 1132 1125 1117 1110 1102 1095 1087 1080 1072 1065 1057 1050 1042 1035 1027
+            1020 1012 1005 997 990 982 975 967 960 952 945 937 930 922 915 907 900 892 885 877
+            870 862 855 847 840 832 825 817 810 802 795 787 780 772 765 757 750 742 735 727
+            720 712 705 697 690 682 675 667 660 652 645 637 630 622 615 607 600 592 585 577
             570 562 555 547 540 532 525 517 510
         )
     elif [[ "$GPU_TYPE" == "H100" ]]; then
         GPU_ARCH="GH100"
         MEMORY_FREQ=2619  # H100 memory frequency (MHz)
         DEFAULT_CORE_FREQ=1785  # H100 default core frequency (MHz)
-        
+
         # H100 core frequencies for testing (MHz) - updated with actual nvidia-smi data ≥510 MHzw
         CORE_FREQUENCIES=(
             1785 1770 1755 1740 1725 1710 1695 1680 1665 1650
@@ -341,7 +341,7 @@ configure_gpu_settings() {
         log_error "Unsupported GPU type: $GPU_TYPE. Supported types: A100, V100, H100"
         return 1
     fi
-    
+
     # Set frequency range based on profiling mode
     if [[ "$PROFILING_MODE" == "baseline" ]]; then
         # For baseline mode, only use default frequency
@@ -350,11 +350,11 @@ configure_gpu_settings() {
         # For DVFS mode, use full frequency range
         EFFECTIVE_FREQUENCIES=("${CORE_FREQUENCIES[@]}")
     fi
-    
+
     # Profiling tool configuration
     local script_dir
     script_dir=$(pwd)  # Store current directory (sample-collection-scripts)
-    
+
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
         PROFILE_SCRIPT="$script_dir/profile.py"  # Python-based DCGMI profiler
         if [[ "$PROFILING_MODE" == "dvfs" ]]; then
@@ -366,7 +366,7 @@ configure_gpu_settings() {
             CONTROL_SCRIPT="$script_dir/control_smi.sh"  # nvidia-smi based frequency control (if exists)
         fi
     fi
-    
+
     return 0
 }
 
@@ -415,22 +415,22 @@ OPTIONS:
 EXAMPLES:
     # Use defaults (LSTM on A100 with DCGMI and DVFS)
     ./launch.sh
-    
+
     # Run baseline profiling on V100
     ./launch.sh --gpu-type V100 --profiling-mode baseline
-    
+
     # Run baseline profiling on H100
     ./launch.sh --gpu-type H100 --profiling-mode baseline
-    
+
     # Run LSTM applications from app-lstm directory
     ./launch.sh --app-name "LSTM" --app-executable "../app-lstm/lstm"
-    
+
     # Run Stable Diffusion from app-stable-diffusion directory
     ./launch.sh --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'test image' > results/SD_output.log"
-    
+
     # Custom application with specific parameters
     ./launch.sh --app-name "MyApp" --app-executable "../my-app/my_script" --app-params "--input data.txt > results/MyApp_output.log"
-    
+
     # Full custom configuration
     ./launch.sh --gpu-type A100 --profiling-tool dcgmi --profiling-mode dvfs --num-runs 5 --app-name "StableDiffusion" --app-executable "../app-stable-diffusion/StableDiffusionViaHF" --app-params "--prompt 'test image' > results/SD_output.log"
 
@@ -440,13 +440,13 @@ GPU TYPE SELECTION:
         - Memory frequency: 1215MHz
         - Default core frequency: 1410MHz
         - Core frequency range: 1410-510MHz (61 frequencies)
-    
+
     V100: Automatically configures for NVIDIA V100 GPUs
         - Architecture: GV100
         - Memory frequency: 877MHz
         - Default core frequency: 1380MHz
         - Core frequency range: 1380-510MHz (117 frequencies)
-    
+
     H100: Automatically configures for NVIDIA H100 GPUs
         - Architecture: GH100
         - Memory frequency: 2619MHz
@@ -458,7 +458,7 @@ PROFILING TOOL SELECTION:
         - Profile script: ./profile.py
         - Control script: ./control.sh (DVFS mode only)
         - Auto-fallback: If dcgmi is not available, automatically switches to nvidia-smi
-    
+
     nvidia-smi: Uses nvidia-smi for profiling
         - Profile script: ./profile_smi.py
         - Control script: ./control_smi.sh (DVFS mode only)
@@ -469,7 +469,7 @@ PROFILING MODE SELECTION:
         - Tests all available frequencies for the GPU type
         - Requires control scripts for frequency management
         - Comprehensive energy vs performance analysis
-    
+
     baseline: Single frequency measurements
         - Runs only at default GPU frequency
         - No frequency control scripts needed
@@ -478,19 +478,19 @@ PROFILING MODE SELECTION:
 APPLICATION PARAMETERS:
     The --app-executable parameter should specify the path to the Python script
     relative to the sample-collection-scripts directory, without the .py extension.
-    
+
     Application Resolution:
     - If the path contains '/', it's treated as a relative/absolute path
     - Otherwise, the script attempts to map known app names to their directories:
       - "lstm" → "../app-lstm/lstm.py"
-      - "lstm_modern" → "../app-lstm/lstm_modern.py" 
+      - "lstm_modern" → "../app-lstm/lstm_modern.py"
       - "StableDiffusionViaHF" → "../app-stable-diffusion/StableDiffusionViaHF.py"
       - "LlamaViaHF" → "../app-llama/LlamaViaHF.py"
-    
+
     The --app-params option can include output redirection to capture results.
     If no output redirection is specified, it will be automatically added using
     dynamic naming: results/\$ARCH-\$MODE-\$APP-RUN-OUT
-    
+
     Examples:
         --app-executable "../app-lstm/lstm"
         --app-executable "../app-stable-diffusion/StableDiffusionViaHF"
@@ -501,10 +501,10 @@ APPLICATION PARAMETERS:
 
 OUTPUT:
     Results are saved to the 'results' directory with naming convention:
-    
+
     Performance data: \$ARCH-\$MODE-\$APP-\$FREQ-\$ITERATION
     Application output: \$ARCH-\$MODE-\$APP-RUN-OUT (when auto-generated)
-    
+
     Examples:
         Performance: GA100-dvfs-LSTM-1410-0
         App output: GA100-dvfs-LSTM-RUN-OUT
@@ -525,21 +525,21 @@ check_prerequisites() {
     log_info "GPU Type: $GPU_TYPE ($GPU_ARCH)"
     log_info "Profiling Tool: $PROFILING_TOOL"
     log_info "Profiling Mode: $PROFILING_MODE"
-    
+
     # Check required scripts (after potential profiling tool fallback)
     local required_scripts=("$PROFILE_SCRIPT")
-    
+
     # Only check control script for DVFS mode
     if [[ "$PROFILING_MODE" == "dvfs" ]]; then
         required_scripts+=("$CONTROL_SCRIPT")
     fi
-    
+
     log_info "Checking required scripts for $PROFILING_TOOL profiling..."
     for script in "${required_scripts[@]}"; do
         if [[ ! -x "$script" ]]; then
             log_error "Required script not found or not executable: $script"
             log_info "Make sure the script exists and is executable: chmod +x $script"
-            
+
             # Provide helpful suggestions based on profiling tool
             if [[ "$PROFILING_TOOL" == "nvidia-smi" ]]; then
                 log_info "For nvidia-smi profiling, you need:"
@@ -557,9 +557,9 @@ check_prerequisites() {
             return 1
         fi
     done
-    
+
     log_info "✓ All required scripts found and executable"
-    
+
     # Check if the application executable exists
     log_info "Checking application: $APP_NAME ($APP_EXECUTABLE)"
     if ! resolve_app_path "$APP_EXECUTABLE"; then
@@ -567,11 +567,11 @@ check_prerequisites() {
         return 1
     fi
     log_info "✓ Application found: $RESOLVED_APP_DIR/$RESOLVED_APP_SCRIPT.py"
-    
+
     # Validate required conda environment exists
     local required_env=$(determine_conda_env "$APP_NAME")
     log_info "Application '$APP_NAME' requires conda environment: $required_env"
-    
+
     if ! check_conda_env "$required_env"; then
         log_error "Required conda environment '$required_env' not found"
         log_error "Available environments:"
@@ -579,20 +579,20 @@ check_prerequisites() {
         return 1
     fi
     log_info "✓ Required conda environment found: $required_env"
-    
+
     # Check profiling tool availability with automatic fallback
     if [[ "$PROFILING_TOOL" == "dcgmi" ]]; then
         if ! command -v dcgmi &> /dev/null; then
             log_warning "DCGMI command not found. Attempting automatic fallback to nvidia-smi..."
-            
+
             # Check if nvidia-smi is available for fallback
             if command -v nvidia-smi &> /dev/null; then
                 log_info "✓ nvidia-smi available - switching to nvidia-smi profiling"
                 log_info "Reconfiguring profiling tool from dcgmi to nvidia-smi"
-                
+
                 # Switch profiling tool
                 PROFILING_TOOL="nvidia-smi"
-                
+
                 # Reconfigure scripts for nvidia-smi (use absolute paths)
                 local script_dir
                 script_dir=$(pwd)
@@ -600,7 +600,7 @@ check_prerequisites() {
                 if [[ "$PROFILING_MODE" == "dvfs" ]]; then
                     CONTROL_SCRIPT="$script_dir/control_smi.sh"
                 fi
-                
+
                 log_info "Updated configuration:"
                 log_info "  - Profile script: $PROFILE_SCRIPT"
                 if [[ "$PROFILING_MODE" == "dvfs" ]]; then
@@ -623,13 +623,13 @@ check_prerequisites() {
         fi
         log_info "✓ nvidia-smi available"
     fi
-    
+
     # Check GPU type compatibility
     if command -v nvidia-smi &> /dev/null; then
         local gpu_name
         gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader,nounits | head -n1)
         log_info "Detected GPU: $gpu_name"
-        
+
         if [[ "$GPU_TYPE" == "A100" && ! "$gpu_name" =~ A100 ]]; then
             log_warning "GPU type set to A100 but detected GPU doesn't appear to be A100: $gpu_name"
             log_warning "Consider changing GPU_TYPE in the configuration section"
@@ -641,13 +641,13 @@ check_prerequisites() {
             log_warning "Consider changing GPU_TYPE in the configuration section"
         fi
     fi
-    
+
     # Create results directory
     if [[ ! -d "$RESULTS_DIR" ]]; then
         log_info "Creating results directory: $RESULTS_DIR"
         mkdir -p "$RESULTS_DIR"
     fi
-    
+
     log_info "Prerequisites check completed successfully"
     return 0
 }
@@ -657,13 +657,13 @@ resolve_app_path() {
     local app_executable="$1"
     local resolved_dir=""
     local resolved_script=""
-    
+
     # Check if the path is already absolute or relative with directory
     if [[ "$app_executable" = /* ]] || [[ "$app_executable" = */* ]]; then
         # Extract directory and script name
         resolved_dir=$(dirname "$app_executable")
         resolved_script=$(basename "$app_executable")
-        
+
         # Remove .py extension if present
         resolved_script=${resolved_script%.py}
     else
@@ -688,17 +688,17 @@ resolve_app_path() {
                 ;;
         esac
     fi
-    
+
     # Validate that the script exists
     if [[ ! -f "$resolved_dir/$resolved_script.py" ]]; then
         log_error "Application script not found: $resolved_dir/$resolved_script.py"
         return 1
     fi
-    
+
     # Export the resolved paths for use in other functions
     export RESOLVED_APP_DIR="$resolved_dir"
     export RESOLVED_APP_SCRIPT="$resolved_script"
-    
+
     log_info "Resolved application: $resolved_dir/$resolved_script.py"
     return 0
 }
@@ -706,20 +706,20 @@ resolve_app_path() {
 # Function to set GPU frequency using the control script
 set_gpu_frequency() {
     local core_freq="$1"
-    
+
     # Skip frequency setting in baseline mode
     if [[ "$PROFILING_MODE" == "baseline" ]]; then
         log_info "Baseline mode: Using default GPU frequency (no frequency control)"
         return 0
     fi
-    
+
     log_info "Setting GPU frequency: Memory=${MEMORY_FREQ}MHz, Core=${core_freq}MHz"
-    
+
     if ! "$CONTROL_SCRIPT" "$MEMORY_FREQ" "$core_freq"; then
         log_error "Failed to set GPU frequency to ${core_freq}MHz"
         return 1
     fi
-    
+
     return 0
 }
 
@@ -730,38 +730,38 @@ run_application() {
     local app_params="$3"
     local frequency="$4"
     local iteration="$5"
-    
+
     # Resolve application path and directory
     if ! resolve_app_path "$app_executable"; then
         log_error "Failed to resolve application path: $app_executable"
         return 1
     fi
-    
+
     local current_dir
     current_dir=$(pwd)  # Store the sample-collection-scripts directory
     local output_file="$current_dir/${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${app_name}-${frequency}-${iteration}"
-    
+
     log_info "Running $app_name at ${frequency}MHz (iteration $iteration)"
     log_info "Application directory: $RESOLVED_APP_DIR"
     log_info "Application script: $RESOLVED_APP_SCRIPT.py"
     log_info "Output file: $output_file"
-    
+
     # Record start time
     local start_time
     start_time=$(date +%s)
-    
+
     # Change to application directory and run with profiling
     # Separate app parameters from output redirection for proper handling
-    
+
     if ! cd "$RESOLVED_APP_DIR"; then
         log_error "Failed to change to application directory: $RESOLVED_APP_DIR"
         return 1
     fi
-    
+
     # Parse app_params to separate the actual parameters from output redirection
     local clean_app_params=""
     local app_output_file=""
-    
+
     if [[ "$app_params" =~ (.*)\ \>\ (.+) ]]; then
         # Extract parameters before the redirection
         clean_app_params="${BASH_REMATCH[1]}"
@@ -770,13 +770,13 @@ run_application() {
     else
         clean_app_params="$app_params"
     fi
-    
+
     local python_command="python $RESOLVED_APP_SCRIPT.py $clean_app_params"
     log_info "Python command: $python_command"
-    
+
     # Create a temporary script to handle complex argument passing
     local temp_script=$(mktemp)
-    
+
     # Write a Python script that properly handles command line arguments
     cat > "$temp_script" << 'EOF'
 #!/usr/bin/env python3
@@ -826,13 +826,13 @@ result = profile_application(
 
 sys.exit(result.get('exit_code', 0))
 EOF
-    
+
     # Make the script executable
     chmod +x "$temp_script"
-    
+
     # Determine the required conda environment
     local required_env=$(determine_conda_env "$app_name")
-    
+
     # Parse clean_app_params into individual arguments using shell word splitting
     # This is necessary to preserve quoted arguments
     local app_args_array=()
@@ -840,7 +840,7 @@ EOF
         # Use eval to properly parse the arguments with quotes
         eval "app_args_array=($clean_app_params)"
     fi
-    
+
     # Run with profiling, handling output redirection properly
     if [[ -n "$app_output_file" ]]; then
         # If there's output redirection, apply it to the profile command
@@ -859,24 +859,24 @@ EOF
             return 1
         fi
     fi
-    
+
     # Clean up temporary script
     rm -f "$temp_script"
-    
+
     # Return to original directory
     cd "$current_dir"
-    
+
     # Calculate execution time
     local end_time
     end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     # Note: Profiling data is already saved to the correct output file by profile.py
     log_info "Profiling data saved to: $output_file"
-    
+
     # Extract and save performance metrics (for known applications)
     extract_performance_metrics "$app_name" "$frequency" "$duration"
-    
+
     log_info "Application completed in ${duration}s"
     return 0
 }
@@ -886,7 +886,7 @@ extract_performance_metrics() {
     local app_name="$1"
     local frequency="$2"
     local wall_time="$3"
-    
+
     case "$app_name" in
         "LSTM")
             extract_lstm_performance "$frequency" "$wall_time"
@@ -912,14 +912,14 @@ extract_lstm_performance() {
     local frequency="$1"
     local wall_time="$2"
     local performance_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-lstm-perf.csv"
-    
+
     # Try to extract execution time from LSTM output using dynamic naming
     local lstm_output_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-${APP_NAME}-RUN-OUT"
     if [[ -f "$lstm_output_file" ]]; then
         # Extract execution time from last line (LSTM script prints timing at the end)
         local last_line
         last_line=$(tail -n 1 "$lstm_output_file")
-        
+
         # Look for timing information in the last line
         if [[ "$last_line" =~ ([0-9]+\.?[0-9]*)[[:space:]]*seconds ]]; then
             local exec_time="${BASH_REMATCH[1]}"
@@ -943,7 +943,7 @@ extract_stable_diffusion_performance() {
     local frequency="$1"
     local wall_time="$2"
     local performance_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-stable-diffusion-perf.csv"
-    
+
     # For Stable Diffusion, use wall time (image generation time is the key metric)
     printf '%s,%s\n' "$frequency" "$wall_time" >> "$performance_file"
     log_info "Stable Diffusion performance saved: ${frequency}MHz -> ${wall_time}s"
@@ -954,7 +954,7 @@ extract_llama_performance() {
     local frequency="$1"
     local wall_time="$2"
     local performance_file="${RESULTS_DIR}/${GPU_ARCH}-${PROFILING_MODE}-llama-perf.csv"
-    
+
     # For LLaMA, use wall time (text generation time is the key metric)
     printf '%s,%s\n' "$frequency" "$wall_time" >> "$performance_file"
     log_info "LLaMA performance saved: ${frequency}MHz -> ${wall_time}s"
@@ -964,16 +964,16 @@ extract_llama_performance() {
 run_frequency_sweep() {
     local total_runs=0
     local completed_runs=0
-    
+
     # Calculate total number of runs (single application now)
     total_runs=$((${#EFFECTIVE_FREQUENCIES[@]} * NUM_RUNS))
-    
+
     if [[ "$PROFILING_MODE" == "baseline" ]]; then
         log_info "Starting baseline profiling: $total_runs total runs at default frequency"
     else
         log_info "Starting frequency sweep: $total_runs total runs across ${#EFFECTIVE_FREQUENCIES[@]} frequencies"
     fi
-    
+
     # Iterate through frequencies (or just default frequency for baseline)
     for core_freq in "${EFFECTIVE_FREQUENCIES[@]}"; do
         if [[ "$PROFILING_MODE" == "baseline" ]]; then
@@ -981,33 +981,33 @@ run_frequency_sweep() {
         else
             log_info "Processing frequency: ${core_freq}MHz"
         fi
-        
+
         # Set GPU frequency (no-op for baseline mode)
         if ! set_gpu_frequency "$core_freq"; then
             log_error "Skipping frequency ${core_freq}MHz due to frequency setting failure"
             continue
         fi
-        
+
         # Run multiple iterations for this frequency
         for iteration in $(seq 0 $((NUM_RUNS - 1))); do
             log_info "Iteration $(( iteration + 1 ))/$NUM_RUNS for ${core_freq}MHz"
-            
+
             # Run the specified application
             if ! run_application "$APP_NAME" "$APP_EXECUTABLE" "$APP_PARAMS" "$core_freq" "$iteration"; then
                 log_error "Failed to run $APP_NAME at ${core_freq}MHz (iteration $iteration)"
                 continue
             fi
-            
+
             ((completed_runs++))
             log_info "Progress: $completed_runs/$total_runs runs completed"
-            
+
             # Sleep between runs
             if (( SLEEP_INTERVAL > 0 )); then
                 sleep "$SLEEP_INTERVAL"
             fi
         done
     done
-    
+
     log_info "Frequency sweep completed: $completed_runs/$total_runs runs successful"
     return 0
 }
@@ -1018,15 +1018,15 @@ restore_default_frequency() {
     if [[ -z "${PROFILING_MODE:-}" || -z "${DEFAULT_CORE_FREQ:-}" ]]; then
         return 0
     fi
-    
+
     # Skip frequency restoration in baseline mode
     if [[ "$PROFILING_MODE" == "baseline" ]]; then
         log_info "Baseline mode: No frequency restoration needed"
         return 0
     fi
-    
+
     log_info "Restoring default GPU frequency: ${DEFAULT_CORE_FREQ}MHz"
-    
+
     if ! set_gpu_frequency "$DEFAULT_CORE_FREQ"; then
         log_warning "Failed to restore default GPU frequency"
     else
@@ -1037,27 +1037,27 @@ restore_default_frequency() {
 # Function to cleanup on exit
 cleanup() {
     local exit_code=$?
-    
+
     log_info "Cleaning up..."
-    
+
     # Note: No temporary files to clean up since profiling writes directly to final output files
-    
+
     # Restore default frequency
     restore_default_frequency
-    
+
     if (( exit_code == 0 )); then
         log_info "Experiment completed successfully"
     else
         log_error "Experiment terminated with errors (exit code: $exit_code)"
     fi
-    
+
     exit "$exit_code"
 }
 
 # Function to determine the appropriate conda environment based on the application
 determine_conda_env() {
     local app_name="$1"
-    
+
     # Map application names to conda environments
     case "$app_name" in
         "StableDiffusion")
@@ -1078,7 +1078,7 @@ determine_conda_env() {
 # Function to check if a conda environment exists
 check_conda_env() {
     local env_name="$1"
-    
+
     if conda info --envs | grep -q "^${env_name}[[:space:]]"; then
         return 0
     else
@@ -1090,9 +1090,9 @@ check_conda_env() {
 activate_conda_env() {
     local app_name="$1"
     local required_env=$(determine_conda_env "$app_name")
-    
+
     log_info "Application '$app_name' requires conda environment: $required_env"
-    
+
     # Check if the required environment exists
     if ! check_conda_env "$required_env"; then
         log_error "Required conda environment '$required_env' not found"
@@ -1100,20 +1100,20 @@ activate_conda_env() {
         conda info --envs | grep -v "^#" | sed 's/^/  /'
         return 1
     fi
-    
+
     # Check if we're already in the correct environment
     if [[ "${CONDA_DEFAULT_ENV:-}" == "$required_env" ]]; then
         log_info "Already in correct conda environment: $required_env"
         return 0
     fi
-    
+
     # Activate the required environment
     log_info "Activating conda environment: $required_env"
     if ! conda activate "$required_env"; then
         log_error "Failed to activate conda environment: $required_env"
         return 1
     fi
-    
+
     log_info "Successfully activated conda environment: $required_env"
     return 0
 }
@@ -1126,7 +1126,7 @@ main() {
     # Set up signal handlers
     trap cleanup EXIT
     trap 'log_error "Interrupted by user"; exit 130' INT TERM
-    
+
     # Parse command line arguments first
     if ! parse_arguments "$@"; then
         exit 1
@@ -1139,12 +1139,12 @@ main() {
     if ! configure_gpu_settings; then
         exit 1
     fi
-    
+
     # Configure output redirection for application parameters
     if ! configure_output_redirection; then
         exit 1
     fi
-    
+
     log_info "Starting AI inference energy profiling experiment"
     log_info "Final Configuration (after any automatic adjustments):"
     log_info "  GPU Type: $GPU_TYPE"
@@ -1170,22 +1170,22 @@ main() {
     else
         log_info "  Control script: Not used (baseline mode)"
     fi
-    
+
     # Check prerequisites
     if ! check_prerequisites; then
         exit 1
     fi
-    
+
     # Activate the conda environment for the application
     if ! activate_conda_env "$APP_NAME"; then
         exit 1
     fi
-    
+
     # Run the frequency sweep experiment
     if ! run_frequency_sweep; then
         exit 1
     fi
-    
+
     log_info "All experiments completed successfully!"
 }
 

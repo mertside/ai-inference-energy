@@ -17,7 +17,7 @@ This directory contains comprehensive documentation for the AI Inference Energy
 3. **[`SUBMIT_JOBS_README.md`](SUBMIT_JOBS_README.md)** - Submit jobs to HPC clusters
 4. **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Submission script guide
 
-### For Researchers and Advanced Users  
+### For Researchers and Advanced Users
 1. **[`GPU_USAGE_GUIDE.md`](GPU_USAGE_GUIDE.md)** - Complete GPU specifications and performance characteristics
 2. **[`USAGE_EXAMPLES.md`](USAGE_EXAMPLES.md)** - Advanced CLI usage and automation examples
 
@@ -37,12 +37,12 @@ cd sample-collection-scripts
 ./launch_v2.sh --gpu-type A100 --profiling-mode baseline
 sbatch submit_job_a100_baseline.sh
 
-# V100 (HPCC matador partition)  
+# V100 (HPCC matador partition)
 ./launch_v2.sh --gpu-type V100 --profiling-mode baseline
 sbatch submit_job_v100_baseline.sh
 
 # H100 (REPACSS h100 partition)
-./launch_v2.sh --gpu-type H100 --profiling-mode baseline  
+./launch_v2.sh --gpu-type H100 --profiling-mode baseline
 sbatch submit_job_h100_baseline.sh
 ```
 
@@ -70,13 +70,13 @@ print(f'Peak power: {df[\"power\"].max():.1f}W')
 nvidia-smi
 dcgmi discovery --list
 
-# Test framework configuration  
+# Test framework configuration
 ./launch_v2.sh --help
 ./launch_v2.sh --gpu-type A100 --profiling-mode baseline --num-runs 1
 
 # Interactive sessions for testing (use unified script)
 ./interactive_gpu.sh a100 test   # A100 testing
-./interactive_gpu.sh v100 test   # V100 testing  
+./interactive_gpu.sh v100 test   # V100 testing
 ./interactive_gpu.sh h100 test   # H100 testing
 
 ```
@@ -85,7 +85,7 @@ dcgmi discovery --list
 
 All documentation follows consistent patterns:
 - **Overview** with quick start examples
-- **Detailed configuration** options and parameters  
+- **Detailed configuration** options and parameters
 - **Practical examples** with real commands
 - **Troubleshooting** with common issues and solutions
 - **Cross-references** to related documentation
@@ -95,7 +95,7 @@ All documentation follows consistent patterns:
 ### Project Root Documentation
 - **[`../README.md`](../README.md)** - Main project overview and installation guide
 
-### Application-Specific Documentation  
+### Application-Specific Documentation
 - **[`../sample-collection-scripts/README.md`](../sample-collection-scripts/README.md)** - Profiling framework and scripts
 - **[`../app-llama/README.md`](../app-llama/README.md)** - LLaMA inference application
 - **[`../app-stable-diffusion/README.md`](../app-stable-diffusion/README.md)** - Stable Diffusion application
@@ -106,7 +106,7 @@ All documentation follows consistent patterns:
 
 ### Getting Help
 - 📖 Check the relevant documentation file for your use case
-- 🔍 Use browser search (Ctrl+F / Cmd+F) within documentation files  
+- 🔍 Use browser search (Ctrl+F / Cmd+F) within documentation files
 - 🐛 Check troubleshooting sections for common issues
 - 💬 Submit GitHub issues for bugs or feature requests
 
@@ -116,4 +116,3 @@ All documentation follows consistent patterns:
 3. **Cross-reference** related documentation appropriately
 4. **Test** all commands and examples before submitting
 5. **Update** this index file when adding new documentation
-

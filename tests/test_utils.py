@@ -3,12 +3,12 @@
 
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
 from subprocess import CompletedProcess
 from unittest.mock import patch
-import subprocess
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

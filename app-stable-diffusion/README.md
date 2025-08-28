@@ -121,7 +121,7 @@ python StableDiffusionViaHF.py --prompt "benchmark image" --multi-resolution --e
 #### Model Options
 - `sd-v1.4`: Stable Diffusion v1.4 (default)
 - `sd-v1.5`: Stable Diffusion v1.5
-- `sd-v2.0`: Stable Diffusion v2.0 
+- `sd-v2.0`: Stable Diffusion v2.0
 - `sd-v2.1`: Stable Diffusion v2.1
 - `sdxl`: Stable Diffusion XL (high quality, requires more VRAM)
 - `sdxl-turbo`: SDXL Turbo (fast generation)
@@ -206,7 +206,7 @@ If the above fixes don't work, this indicates a fundamental system library incom
 
 ### Known Working Configurations
 - **Tesla V100 + CUDA 11.0 + PyTorch 1.12.1**: ✅ **CONFIRMED WORKING**
-  - transformers==4.33.2, diffusers==0.21.4, huggingface_hub==0.16.4 
+  - transformers==4.33.2, diffusers==0.21.4, huggingface_hub==0.16.4
   - conda-forge Pillow, safetensors==0.3.3
 - **A100 + CUDA 11.8**: Generally better compatibility
 - **H100 + CUDA 12.0**: Best compatibility with recent packages
@@ -265,11 +265,11 @@ python -c "from diffusers import DiffusionPipeline; print('✅ diffusers')"
 ```
 
 ### Success Indicators
-✅ **Working**: PyTorch 1.12.1+cu113, CUDA, Tesla V100-PCIE-32GB  
-✅ **Working**: NumPy 1.21.6, SciPy 1.9.3 (CRITICAL for PyTorch 1.12.1)  
-✅ **Working**: transformers, tqdm, packaging, typing_extensions, safetensors, requests  
-✅ **Working**: diffusers 0.21.4 + transformers 4.33.2 + huggingface_hub 0.16.4 (compatible with PyTorch 1.12.1)  
-✅ **Working**: Pillow (multiple fix methods available)  
+✅ **Working**: PyTorch 1.12.1+cu113, CUDA, Tesla V100-PCIE-32GB
+✅ **Working**: NumPy 1.21.6, SciPy 1.9.3 (CRITICAL for PyTorch 1.12.1)
+✅ **Working**: transformers, tqdm, packaging, typing_extensions, safetensors, requests
+✅ **Working**: diffusers 0.21.4 + transformers 4.33.2 + huggingface_hub 0.16.4 (compatible with PyTorch 1.12.1)
+✅ **Working**: Pillow (multiple fix methods available)
 🚀 **Ready**: Stable Diffusion image generation functional!
 
 ### Workaround for Persistent Issues
@@ -282,7 +282,7 @@ If GLIBCXX issues persist, consider these alternatives:
 ## Alternative AI Models for Energy Profiling
 If Stable Diffusion remains problematic, these models work well for energy research:
 - **LSTM networks** (`../app-lstm/`): Excellent for energy profiling
-- **LLaMA models** (`../app-llama/`): Good GPU utilization patterns  
+- **LLaMA models** (`../app-llama/`): Good GPU utilization patterns
 - **Custom transformers**: Controllable complexity for energy studies
 
 ### Environment Setup Issues
@@ -332,7 +332,7 @@ python StableDiffusionViaHF.py --model-variant sd-turbo --prompt "energy efficie
 # Small resolution (512x512)
 python StableDiffusionViaHF.py --prompt "memory scaling test" --width 512 --height 512 --export-metrics mem_512.json
 
-# Medium resolution (768x768)  
+# Medium resolution (768x768)
 python StableDiffusionViaHF.py --prompt "memory scaling test" --width 768 --height 768 --export-metrics mem_768.json
 
 # Large resolution (1024x1024) - requires SDXL
@@ -347,7 +347,7 @@ python StableDiffusionViaHF.py --prompt "architecture comparison" --dtype float1
 # A100 optimal settings
 python StableDiffusionViaHF.py --prompt "architecture comparison" --dtype float16 --steps 30 --batch-size 2 --export-metrics a100_perf.json
 
-# H100 optimal settings  
+# H100 optimal settings
 python StableDiffusionViaHF.py --model-variant sdxl --prompt "architecture comparison" --dtype bfloat16 --steps 25 --export-metrics h100_perf.json
 ```
 

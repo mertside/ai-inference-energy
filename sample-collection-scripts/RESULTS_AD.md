@@ -6,7 +6,7 @@
 **Parameters Used:**
 - `--benchmark --num-generations 3 --quiet --metrics`
 - Model: `huggyllama/llama-7b` (LLaMA-7B, 7 billion parameters)
-- Precision: `float16` 
+- Precision: `float16`
 - Device: CUDA
 - Total generations: **24 text completions** across 8 prompts
 

@@ -2,6 +2,8 @@
 """
 Final success verification for Stable Diffusion environment
 """
+
+
 def run_import_test(module_name, display_name=None, from_import=None):
     if display_name is None:
         display_name = module_name
@@ -10,7 +12,7 @@ def run_import_test(module_name, display_name=None, from_import=None):
             exec(f"from {module_name} import {from_import}")
         else:
             module = __import__(module_name)
-        if hasattr(module, '__version__'):
+        if hasattr(module, "__version__"):
             print(f"✅ {display_name}: {module.__version__}")
         else:
             print(f"✅ {display_name}: Working")
@@ -18,6 +20,7 @@ def run_import_test(module_name, display_name=None, from_import=None):
     except Exception as e:
         print(f"❌ {display_name}: {e}")
         return False
+
 
 # Test all components
 components = [
@@ -36,6 +39,7 @@ components = [
 working = 0
 total = len(components)
 
+
 def main():
     print("🎉 FINAL STABLE DIFFUSION SUCCESS TEST")
     print("=" * 50)
@@ -51,9 +55,10 @@ def main():
             if run_import_test(module_name, display_name):
                 working += 1
 
-# Test CUDA
+    # Test CUDA
     try:
         import torch
+
         cuda_available = torch.cuda.is_available()
         if cuda_available:
             device_name = torch.cuda.get_device_name()

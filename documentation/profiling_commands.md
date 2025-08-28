@@ -86,15 +86,15 @@ dcgmi dmon -d 1 -e $(IFS=,; echo "${EXTRA_DCGM[*]}") -c 0 -f dcgm_extra.csv
 
 ### Tips & caveats
 
-* **Timestamps** — Both tools log host time, so aligning by wall‑clock is straightforward.  
-* **Granularity** — DCGM’s profiler fields (100x) offer cycle‑accurate activity; prefer them over coarse 203/204 where supported.  
-* **Memory utilisation** — DCGM’s 204 reflects memcpy engine utilisation; 1005 gives overall DRAM busy time.  
-* **MIG environments** — Replace 203/204 with 1001/1005 when monitoring MIG instances; the legacy utilisation counters are not MIG‑aware.  
+* **Timestamps** — Both tools log host time, so aligning by wall‑clock is straightforward.
+* **Granularity** — DCGM’s profiler fields (100x) offer cycle‑accurate activity; prefer them over coarse 203/204 where supported.
+* **Memory utilisation** — DCGM’s 204 reflects memcpy engine utilisation; 1005 gives overall DRAM busy time.
+* **MIG environments** — Replace 203/204 with 1001/1005 when monitoring MIG instances; the legacy utilisation counters are not MIG‑aware.
 * **Power averaging** — On Ampere and newer data‑centre GPUs, `power.draw` is already a 1 second rolling mean; older GPUs expose an instantaneous sample.
 
 ## References
-* *NVIDIA System Management Interface (nvidia‑smi) User Guide*, v555.xx  
-* *NVIDIA Data‑Centre GPU Manager (DCGM) API Reference*, v3.x  
+* *NVIDIA System Management Interface (nvidia‑smi) User Guide*, v555.xx
+* *NVIDIA Data‑Centre GPU Manager (DCGM) API Reference*, v3.x
 
 ---
 

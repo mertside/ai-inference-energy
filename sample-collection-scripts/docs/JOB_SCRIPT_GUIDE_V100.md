@@ -12,7 +12,7 @@ The new `submit_job_v100.sh` script unifies all V100 SLURM submission functional
 
 ### Quick Start (Configs 1-3)
 - **#1 Quick Test**: Baseline profiling (~5-10 min)
-- **#2 Research Baseline**: Extended baseline (~15-20 min) 
+- **#2 Research Baseline**: Extended baseline (~15-20 min)
 - **#3 Frequency Sampling**: Selected frequencies (~30-45 min)
 
 ### AI Applications (Configs 4-8)
