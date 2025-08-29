@@ -81,6 +81,9 @@ class TestUtilsValidation(unittest.TestCase):
         self.assertFalse(utils.validate_dcgmi_available())
         mock_run.side_effect = subprocess.CalledProcessError(1, "dcgmi")
         self.assertFalse(utils.validate_dcgmi_available())
+        mock_run.side_effect = FileNotFoundError
+        self.assertFalse(utils.validate_dcgmi_available())
+        mock_run.side_effect = None
 
 
 class TestRunCommandErrors(unittest.TestCase):
