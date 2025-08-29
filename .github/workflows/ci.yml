@@ -63,8 +63,11 @@ jobs:
           cd tools/analysis
           python -c "import edp_optimizer; print('✓ EDP optimizer loaded')"
           python -c "import edp_summary_tables; print('✓ EDP summary tables loaded')"
-          python -c "import visualize_results; print('✓ Visualize results loaded')"
-          python -c "import visualize_summary; print('✓ Visualize summary loaded')"
+
+          # Test visualization tools
+          cd ../visualization
+          python -c "import visualize_edp_results; print('✓ Visualize EDP results loaded')"
+          python -c "import visualize_edp_summary; print('✓ Visualize EDP summary loaded')"
 
           # Test data collection tools
           cd ../data-collection

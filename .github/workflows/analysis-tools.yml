@@ -71,19 +71,28 @@ jobs:
           except ImportError as e:
               print(f'❌ EDP summary tables import failed: {e}')
               sys.exit(1)
+          "
+
+      - name: Test visualization module imports
+        run: |
+          cd tools/visualization
+          python -c "
+          import sys
+          import os
+          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
 
           try:
-              import visualize_results
-              print('✅ Visualize results imported successfully')
+              import visualize_edp_results
+              print('✅ Visualize EDP results imported successfully')
           except ImportError as e:
-              print(f'❌ Visualize results import failed: {e}')
+              print(f'❌ Visualize EDP results import failed: {e}')
               sys.exit(1)
 
           try:
-              import visualize_summary
-              print('✅ Visualize summary imported successfully')
+              import visualize_edp_summary
+              print('✅ Visualize EDP summary imported successfully')
           except ImportError as e:
-              print(f'❌ Visualize summary import failed: {e}')
+              print(f'❌ Visualize EDP summary import failed: {e}')
               sys.exit(1)
           "
 
