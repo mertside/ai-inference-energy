@@ -22,7 +22,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads with DCGMI integration
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking and visualization
 
-### 🎉 Latest Updates (v2.3.0 - August 2025)
+### 🎉 Latest Updates (v2.2.0 - August 2025)
 
 - 🎨 **Enhanced Visualization System**: Publication-quality scatter plots with outlier detection and statistical filtering
 - 📊 **Advanced Data Processing**: Warm run averaging (excluding cold runs) with comprehensive outlier filtering using IQR methods
