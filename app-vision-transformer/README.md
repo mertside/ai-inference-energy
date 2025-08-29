@@ -26,11 +26,11 @@ Vision Transformer (ViT) is a transformer-based architecture for image classific
 ## Quick Start
 
 ### Environment Setup
+Run the setup script to create and activate the `vit` conda environment:
+
 ```bash
-# Uses existing whisper-energy conda environment
-conda activate whisper-energy
 cd app-vision-transformer/setup
-./setup.sh
+./setup.sh  # creates and activates the vit conda environment
 ```
 
 ### Basic Usage
@@ -114,7 +114,7 @@ ViT experiments can be submitted through the job submission system:
 ### Common Issues
 - **CUDA out of memory**: Reduce batch size or use float16/bfloat16 precision
 - **Slow performance**: Ensure CUDA is available and model is on GPU
-- **Import errors**: Verify whisper-energy environment is activated
+- **Import errors**: Verify the `vit` environment is activated
 
 ### Performance Optimization
 - Use float16 precision on modern GPUs for 2x speedup
