@@ -103,7 +103,7 @@ ai-inference-energy/
 │   ├── scripts/                         # Setup and utility scripts
 │   │   └── setup_stable_diffusion.sh    # Complete setup and validation script
 │   ├── test_stable_diffusion_*.py       # Comprehensive test suites
-│   └── validate_stable_diffusion.py    # Quick validation script
+│   └── validate_stable_diffusion.py     # Quick validation script
 │
 ├── app-whisper/                         # 🎤 Whisper speech recognition applications
 │   ├── README.md                        # Comprehensive Whisper documentation
@@ -142,7 +142,7 @@ ai-inference-energy/
 │   ├── test_configuration.py            # Configuration and compatibility tests
 │   ├── test_hardware_module.py          # Hardware detection tests
 │   ├── test_utils.py                    # Utility function tests
-│   └── test_python_compatibility.sh   # Python compatibility test
+│   └── test_python_compatibility.sh     # Python compatibility test
 │
 ├── documentation/                       # 📚 Essential documentation (streamlined)
 │   ├── README.md                        # Documentation index and quick reference
@@ -150,36 +150,36 @@ ai-inference-energy/
 │   ├── USAGE_EXAMPLES.md                # CLI usage examples and automation
 │   └── SUBMIT_JOBS_README.md            # SLURM usage and HPC deployment
 │
-├── tools/                               # 🛠️ Advanced analysis and optimization tools
-│   ├── README.md                        # Tools documentation and usage guide
-│   ├── analysis/                        # EDP optimization and performance analysis
-│   │   ├── edp_optimizer.py             # Energy-Delay Product optimization engine
-│   │   ├── edp_summary_tables.py        # EDP results summarization and reporting
-│   │   ├── results/                     # Analysis outputs and JSON data
-│   │   │   ├── edp_optimization_results.json  # Primary optimization results
-│   │   │   └── *.csv                    # Detailed analysis tables
-│   │   └── archived/                    # Historical analysis tools and reports
-│   ├── visualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py         # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py         # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                    # Complete visualization system documentation
-│   │   └── edp-plots/                   # 🎨 Generated visualization files (16 total)
-│   │       ├── *_energy_performance_scatter.png  # Individual GPU-workload plots
-│   │       ├── energy_savings_comparison.png     # EDP vs ED²P comparison
+├── tools/                                             # 🛠️ Advanced analysis and optimization tools
+│   ├── README.md                                      # Tools documentation and usage guide
+│   ├── analysis/                                      # EDP optimization and performance analysis
+│   │   ├── edp_optimizer.py                           # Energy-Delay Product optimization engine
+│   │   ├── edp_summary_tables.py                      # EDP results summarization and reporting
+│   │   ├── results/                                   # Analysis outputs and JSON data
+│   │   │   ├── edp_optimization_results.json          # Primary optimization results
+│   │   │   └── *.csv                                  # Detailed analysis tables
+│   │   └── archived/                                  # Historical analysis tools and reports
+│   ├── visualization/                                 # Data visualization and plotting tools
+│   │   ├── visualize_edp_results.py                   # 🎨 Experimental data visualization (scatter plots)
+│   │   ├── visualize_edp_summary.py                   # 📊 Comprehensive summary analysis charts
+│   │   ├── README.md                                  # Complete visualization system documentation
+│   │   └── edp-plots/                                 # 🎨 Generated visualization files (16 total)
+│   │       ├── *_energy_performance_scatter.png       # Individual GPU-workload plots
+│   │       ├── energy_savings_comparison.png          # EDP vs ED²P comparison
 │   │       ├── frequency_optimization_comparison.png  # Frequency analysis
-│   │       ├── performance_impact_analysis.png   # Performance trade-offs
-│   │       └── comprehensive_summary.png         # 4-panel overview
-│   ├── optimal-frequency/               # Frequency optimization and selection tools
-│   │   ├── comprehensive_optimal_selector.py  # Multi-criteria frequency selector
-│   │   ├── optimal_frequency_analysis.py      # Frequency analysis and evaluation
-│   │   └── production_optimal_selector.py     # Production-ready frequency selector
-│   ├── deployment/                      # Production deployment interfaces
-│   │   └── deployment_interface.py      # Optimal frequency deployment interface
-│   ├── testing/                         # Testing and validation tools
-│   │   ├── test_optimal_frequency.py    # Frequency algorithm testing
-│   │   └── test_real_data.py            # Real data validation
-│   └── utilities/                       # General utility tools
-│       └── ai_optimization_workflow.py  # End-to-end optimization workflows
+│   │       ├── performance_impact_analysis.png        # Performance trade-offs
+│   │       └── comprehensive_summary.png              # 4-panel overview
+│   ├── optimal-frequency/                             # Frequency optimization and selection tools
+│   │   ├── comprehensive_optimal_selector.py          # Multi-criteria frequency selector
+│   │   ├── optimal_frequency_analysis.py              # Frequency analysis and evaluation
+│   │   └── production_optimal_selector.py             # Production-ready frequency selector
+│   ├── deployment/                                    # Production deployment interfaces
+│   │   └── deployment_interface.py                    # Optimal frequency deployment interface
+│   ├── testing/                                       # Testing and validation tools
+│   │   ├── test_optimal_frequency.py                  # Frequency algorithm testing
+│   │   └── test_real_data.py                          # Real data validation
+│   └── utilities/                                     # General utility tools
+│       └── ai_optimization_workflow.py                # End-to-end optimization workflows
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
