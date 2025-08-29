@@ -1,38 +1,6 @@
 # AI Inference Energy
 
-A **comprehensive framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **comp│   │   │   │   │   │   │   │   ├── visualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)isualization/                   # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py    # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py    # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                   # Complete visualization system documentation
-│   │   └── edp-plots/                  # 🎨 Generated visualization files (16 total)command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **comprehensive profiling tools**, and **multiple AI model support** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
+A **comprehensive framework** for studying energy-efficient GPU frequency selection for AI inference workloads. This framework provides **complete command-line interfaces**, **triple GPU architecture support (A100/V100/H100)**, **intelligent tool fallback**, **comprehensive profiling tools**, and **multiple AI model support** for conducting systematic DVFS (Dynamic Voltage and Frequency Scaling) research on modern AI workloads.
 
 ## 🎯 Project Overview
 
@@ -54,18 +22,14 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads with DCGMI integration
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking and visualization
 
-### 🎉 Latest Updates (v2.2.0 - August 2025)
+### 🎉 Latest Updates (v2.3.0 - August 2025)
 
-- 🎨 **Data Visualization Framework**: Comprehensive visualization system using actual DCGMI profiling data
-- 📊 **Publication-Quality Plots**: 16 high-resolution scatter plots and summary charts for energy-performance analysis
-- 🔍 **Experimental Data Integration**: Direct loading of power measurements and timing data from sample-collection-scripts
-- 📈 **Enhanced Analysis Tools**: Dual-metric optimization (EDP and ED²P) with visual validation of results
-- 🚀 **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with multi-criteria frequency selection
-- 📊 **Advanced Analysis Tools**: Comprehensive analysis pipeline including optimal frequency selection and performance evaluation
-- 📈 **Enhanced Data Analysis**: Sophisticated measured data analysis with hybrid timing extraction and validation
-- ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields (vs 17 previously)
-- ✅ **Clean Filenames**: Fixed duplicate frequency naming in custom experiments (`run_01_freq_510` vs `run_freq_510_01_freq_510`)
-- ✅ **Robust Imports**: Resolved configuration import conflicts for reliable operation
+- 🎨 **Enhanced Visualization System**: Publication-quality scatter plots with outlier detection and statistical filtering
+- 📊 **Advanced Data Processing**: Warm run averaging (excluding cold runs) with comprehensive outlier filtering using IQR methods
+- 🔍 **Experimental Data Integration**: Direct loading of DCGMI profiling data with intelligent data quality improvements
+- � **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with visual validation
+- �️ **Fixed GitHub Actions**: Resolved test suite issues with correct module imports and directory structures
+- ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields
 - ✅ **Enhanced Compatibility**: Improved PyTorch/torchvision compatibility in AI model environments
 
 ### 🔋 Profiling Infrastructure Foundation
@@ -434,14 +398,17 @@ cat edp_optimization_results_summary.csv
 ```bash
 cd tools/visualization
 
-# Generate individual scatter plots with real experimental data
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+# Generate scatter plots with experimental data, outlier detection, and warm run averaging
+python visualize_edp_results.py
 
-# Create summary comparison charts
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+# Features include:
+# - One point per frequency (averaged from warm runs, excluding cold runs)
+# - Statistical outlier detection using IQR methods
+# - Direct loading of DCGMI profiling data
+# - Publication-quality plots for 12 GPU-workload combinations
 
-# View generated plots
-ls edp-plots/*.png
+# View generated plots (12 individual scatter plots)
+ls edp-plots/*_energy_performance_scatter.png
 ```
 
 **Use optimal frequency selection tools:**
@@ -720,6 +687,19 @@ python -c "import config; print('Config loaded successfully')"
 huggingface-cli whoami
 ```
 
+#### Visualization & Analysis Issues
+```bash
+# Test visualization module imports
+cd tools/visualization
+python -c "import visualize_edp_results; print('✅ Visualization modules working')"
+
+# Check if experimental data exists
+ls ../../sample-collection-scripts/results_*/
+
+# Test matplotlib backend (for headless environments)
+python -c "import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt; print('✅ Matplotlib working')"
+```
+
 #### SLURM & Partition Issues
 ```bash
 # Check available partitions
@@ -764,6 +744,7 @@ The framework includes **streamlined documentation** focused on practical usage:
 
 ### 📋 **Additional Module Documentation**
 - **[tools/README.md](tools/README.md)**: Advanced analysis and optimization tools documentation
+- **[tools/visualization/README.md](tools/visualization/README.md)**: Complete visualization system with outlier detection documentation
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
 - **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling
