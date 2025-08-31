@@ -27,8 +27,8 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 🎨 **Enhanced Visualization System**: Publication-quality scatter plots with outlier detection and statistical filtering
 - 📊 **Advanced Data Processing**: Warm run averaging (excluding cold runs) with comprehensive outlier filtering using IQR methods
 - 🔍 **Experimental Data Integration**: Direct loading of DCGMI profiling data with intelligent data quality improvements
-- � **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with visual validation
-- �️ **Fixed GitHub Actions**: Resolved test suite issues with correct module imports and directory structures
+- 🚀 **EDP Optimization Suite**: Complete Energy-Delay Product optimization tools with visual validation
+- 🛠️ **Fixed GitHub Actions**: Resolved test suite issues with correct module imports and directory structures
 - ✅ **Configuration Consolidation**: Unified DCGMI monitoring with 25 comprehensive fields
 - ✅ **Enhanced Compatibility**: Improved PyTorch/torchvision compatibility in AI model environments
 
