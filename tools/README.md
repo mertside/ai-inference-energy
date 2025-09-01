@@ -39,27 +39,17 @@ Data collection and profiling tools for GPU workloads:
 - `launch_v2.sh` - Enhanced launch script for profiling sessions
 - `submit_job_*.sh` - Job submission scripts for A100, H100, and V100 GPUs
 
-### 🚀 Deployment (`deployment/`)
-Production deployment tools:
-- `deployment_interface.py` - Production deployment interface for optimal frequency settings
+### 🚀 Deployment (planned)
+Note: Deployment interfaces are planned for a future release and are not present in this repository snapshot.
 
-### ⚙️ Optimal Frequency (`optimal-frequency/`)
-Frequency optimization and selection tools:
-- `comprehensive_optimal_selector.py` - Comprehensive frequency selector with multiple criteria
-- `optimal_frequency_analysis.py` - Frequency analysis and performance evaluation
-- `optimal_frequency_selection.py` - Core frequency selection algorithms
-- `optimal_frequency_selector.py` - Basic frequency selector implementation
-- `production_optimal_selector.py` - Production-ready frequency selector
+### ⚙️ Optimal Frequency (planned)
+Note: Dedicated optimal-frequency tools are planned and not included in this release.
 
-### 🧪 Testing (`testing/`)
-Testing and validation tools:
-- `test_optimal_frequency.py` - Optimal frequency algorithm testing
-- `test_real_data.py` - Real data validation tests
-- `quick_frequency_demo.py` - Quick demonstration and testing scripts
+### 🧪 Testing (planned)
+Note: Additional testing utilities described here are planned and not included in this release.
 
-### 🔧 Utilities (`utilities/`)
-General utility tools:
-- `ai_optimization_workflow.py` - End-to-end AI optimization workflows
+### 🔧 Utilities (planned)
+Note: General utilities referenced here are planned and not included in this release.
 
 ## 🎨 Data Visualization Framework
 
@@ -111,17 +101,9 @@ python tools/data-collection/profile.py
 # Alternative profiling with nvidia-smi
 python tools/data-collection/profile_smi.py
 
-# Comprehensive optimal frequency selection
-python tools/optimal-frequency/comprehensive_optimal_selector.py
-
-# Production frequency selection
-python tools/optimal-frequency/production_optimal_selector.py
-
-# Deployment interface
-python tools/deployment/deployment_interface.py
-
-# Quick frequency demo
-python tools/testing/quick_frequency_demo.py
+# (Planned components below are not available in this release.)
+# Optimal frequency selection, deployment interface, and additional testing utilities
+# will be added in a future version.
 ```
 
 ## Tool Dependencies

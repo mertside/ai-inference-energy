@@ -231,7 +231,7 @@ python edp_analysis/visualization/plot_metric_vs_time.py \
 # ✅ Successfully generated 113KB plot file
 ```
 
-## �🔗 Integration with Main Framework
+## 🔗 Integration with Main Framework
 
 This visualization tool is designed to work seamlessly with:
 - **DCGMI profiling data** from main framework experiments

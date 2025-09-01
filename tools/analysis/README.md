@@ -203,7 +203,7 @@ This approach accounts for the fact that maximum frequency often underperforms d
 - `H100_llama_energy_performance_scatter.png` (86 data points)
 - `H100_stablediffusion_energy_performance_scatter.png` (86 data points)
 - `H100_vit_energy_performance_scatter.png` (86 data points)
-- `H100_whisper_energy_performance_scatter.png` (86 al data points)
+- `H100_whisper_energy_performance_scatter.png` (86 data points)
 - `V100_llama_energy_performance_scatter.png` (59 data points)
 - `V100_stablediffusion_energy_performance_scatter.png` (59 data points)
 - `V100_vit_energy_performance_scatter.png` (59 data points)
@@ -260,10 +260,10 @@ Each optimal frequency includes:
 - Timing standard deviation
 - Confidence in measurement reliability
 
-## � Visualization Tools
+## Visualization Tools
 
 ### Individual Scatter Plot Analysis
-The `visualize_basic.py` script creates detailed scatter plots for each GPU-workload combination:
+The `visualize_edp_results.py` script creates detailed scatter plots for each GPU-workload combination:
 
 - **Energy vs Performance Trade-offs**: Shows the Pareto frontier of energy-performance choices
 - **Frequency Color-Coding**: Visualizes the entire frequency sweep with color gradients

@@ -1045,7 +1045,7 @@ The `interactive_gpu.sh` script provides a unified interface for all GPU types:
 ./interactive_gpu.sh help          # Full help
 ```
 
-See `README_INTERACTIVE_GPU.md` for detailed documentation.
+Tip: Run `./interactive_gpu.sh help` for detailed usage and options.
 
 ---
 

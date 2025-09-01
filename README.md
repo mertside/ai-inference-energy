@@ -130,11 +130,7 @@ ai-inference-energy/
 │   ├── README.md                        # LSTM benchmark documentation
 │   └── lstm.py                          # Sentiment analysis benchmark
 │
-├── examples/                            # 📋 Usage examples and demonstrations
-│   ├── README.md                        # Comprehensive examples documentation
-│   ├── example_usage.py                 # Framework usage demonstration
-│   ├── simple_power_modeling_demo.py    # Basic demonstration (planned feature preview)
-│   └── submit_helper.sh                 # SLURM submission helper
+├── (planned) examples/                  # Usage examples (not in this release)
 │
 ├── tests/                               # 🧪 Comprehensive test suite
 │   ├── README.md                        # Test documentation and coverage
@@ -169,17 +165,10 @@ ai-inference-energy/
 │   │       ├── frequency_optimization_comparison.png  # Frequency analysis
 │   │       ├── performance_impact_analysis.png        # Performance trade-offs
 │   │       └── comprehensive_summary.png              # 4-panel overview
-│   ├── optimal-frequency/                             # Frequency optimization and selection tools
-│   │   ├── comprehensive_optimal_selector.py          # Multi-criteria frequency selector
-│   │   ├── optimal_frequency_analysis.py              # Frequency analysis and evaluation
-│   │   └── production_optimal_selector.py             # Production-ready frequency selector
-│   ├── deployment/                                    # Production deployment interfaces
-│   │   └── deployment_interface.py                    # Optimal frequency deployment interface
-│   ├── testing/                                       # Testing and validation tools
-│   │   ├── test_optimal_frequency.py                  # Frequency algorithm testing
-│   │   └── test_real_data.py                          # Real data validation
-│   └── utilities/                                     # General utility tools
-│       └── ai_optimization_workflow.py                # End-to-end optimization workflows
+│   ├── (planned) optimal-frequency/                   # Planned frequency optimization tools (not in this release)
+│   ├── (planned) deployment/                          # Planned deployment interfaces (not in this release)
+│   ├── (planned) testing/                             # Planned extra testing tools (not in this release)
+│   └── (planned) utilities/                           # Planned general utilities (not in this release)
 │
 └── sample-collection-scripts/           # 🚀 Enhanced profiling framework
     ├── README.md                        # Profiling framework documentation
@@ -411,24 +400,7 @@ python visualize_edp_results.py
 ls edp-plots/*_energy_performance_scatter.png
 ```
 
-**Use optimal frequency selection tools:**
-```bash
-cd tools/optimal-frequency
-
-# Select optimal frequencies for production deployment
-python production_optimal_selector.py --gpu-type A100 --criteria power
-
-# Comprehensive frequency analysis
-python comprehensive_optimal_selector.py --gpu H100 --workload stable_diffusion
-```
-
-**Deploy optimal settings in production:**
-```bash
-cd tools/deployment
-
-# Deploy optimal frequency settings
-python deployment_interface.py --gpu A100 --workload llama --deploy
-```
+Note: Optimal-frequency selection and deployment tooling are planned and not included in this release.
 
 #### 6. Profiling Data Analysis
 
