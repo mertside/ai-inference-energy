@@ -82,9 +82,11 @@ from PIL import Image
 import requests
 import torchvision
 import numpy as np
+
 print('✅ PyTorch:', torch.__version__)
 print('✅ Transformers:', transformers.__version__)
-print('✅ Pillow:', Image.__version__)
+print('✅ PIL (Pillow):', getattr(Image, '__version__', 'Available'))
+print('✅ Requests: Available')
 print('✅ Torchvision:', torchvision.__version__)
 print('✅ CUDA available:', torch.cuda.is_available())
 if torch.cuda.is_available():
@@ -109,18 +111,13 @@ else
     echo "❌ Environment verification failed."
     exit 1
 fi
-print('✅ PIL (Pillow):', Image.__version__ if hasattr(Image, '__version__') else 'Available')
-print('✅ Requests: Available')
-print('✅ CUDA Available:', torch.cuda.is_available())
-if torch.cuda.is_available():
-    print('✅ CUDA Device:', torch.cuda.get_device_name(0))
-"
 
 echo ""
 echo "=== ViT Setup Complete ==="
-echo "Environment: whisper-energy"
+echo "Environment: vit"
 echo "Ready for Vision Transformer energy profiling!"
 echo ""
 echo "Test the installation:"
-echo "conda activate whisper-energy"
+echo "conda activate vit"
 echo "python app-vision-transformer/ViTViaHF.py --benchmark --num-images 5"
+exit 0
