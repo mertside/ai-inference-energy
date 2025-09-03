@@ -154,17 +154,17 @@ ai-inference-energy/
 │   │   ├── results/                                   # Analysis outputs and JSON data
 │   │   │   ├── edp_optimization_results.json          # Primary optimization results
 │   │   │   └── *.csv                                  # Detailed analysis tables
+│   │   ├── visualization/                             # Data visualization and plotting tools
+│   │   │   ├── visualize_edp_results.py               # 🎨 Experimental data visualization (scatter plots)
+│   │   │   ├── visualize_edp_summary.py               # 📊 Comprehensive summary analysis charts
+│   │   │   ├── README.md                              # Complete visualization system documentation
+│   │   │   └── edp-plots/                             # 🎨 Generated visualization files (16 total)
+│   │   │       ├── *_energy_performance_scatter.png   # Individual GPU-workload plots
+│   │   │       ├── energy_savings_comparison.png      # EDP vs ED²P comparison
+│   │   │       ├── frequency_optimization_comparison.png  # Frequency analysis
+│   │   │       ├── performance_impact_analysis.png    # Performance trade-offs
+│   │   │       └── comprehensive_summary.png          # 4-panel overview
 │   │   └── archived/                                  # Historical analysis tools and reports
-│   ├── visualization/                                 # Data visualization and plotting tools
-│   │   ├── visualize_edp_results.py                   # 🎨 Experimental data visualization (scatter plots)
-│   │   ├── visualize_edp_summary.py                   # 📊 Comprehensive summary analysis charts
-│   │   ├── README.md                                  # Complete visualization system documentation
-│   │   └── edp-plots/                                 # 🎨 Generated visualization files (16 total)
-│   │       ├── *_energy_performance_scatter.png       # Individual GPU-workload plots
-│   │       ├── energy_savings_comparison.png          # EDP vs ED²P comparison
-│   │       ├── frequency_optimization_comparison.png  # Frequency analysis
-│   │       ├── performance_impact_analysis.png        # Performance trade-offs
-│   │       └── comprehensive_summary.png              # 4-panel overview
 │   ├── (planned) optimal-frequency/                   # Planned frequency optimization tools (not in this release)
 │   ├── (planned) deployment/                          # Planned deployment interfaces (not in this release)
 │   ├── (planned) testing/                             # Planned extra testing tools (not in this release)
@@ -385,7 +385,7 @@ cat edp_optimization_results_summary.csv
 
 **Create comprehensive visualizations:**
 ```bash
-cd tools/visualization
+cd tools/analysis/visualization
 
 # Generate scatter plots with experimental data, outlier detection, and warm run averaging
 python visualize_edp_results.py
@@ -662,7 +662,7 @@ huggingface-cli whoami
 #### Visualization & Analysis Issues
 ```bash
 # Test visualization module imports
-cd tools/visualization
+cd tools/analysis/visualization
 python -c "import visualize_edp_results; print('✅ Visualization modules working')"
 
 # Check if experimental data exists
@@ -716,7 +716,7 @@ The framework includes **streamlined documentation** focused on practical usage:
 
 ### 📋 **Additional Module Documentation**
 - **[tools/README.md](tools/README.md)**: Advanced analysis and optimization tools documentation
-- **[tools/visualization/README.md](tools/visualization/README.md)**: Complete visualization system with outlier detection documentation
+- **[tools/analysis/visualization/README.md](tools/analysis/visualization/README.md)**: Complete visualization system with outlier detection documentation
 - **[sample-collection-scripts/README.md](sample-collection-scripts/README.md)**: Profiling framework documentation
 - **[app-stable-diffusion/README.md](app-stable-diffusion/README.md)**: Modernized Stable Diffusion application with latest models
 - **[app-whisper/README.md](app-whisper/README.md)**: OpenAI Whisper speech recognition for audio processing energy profiling

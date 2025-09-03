@@ -18,7 +18,7 @@ This directory contains a comprehensive analysis suite for calculating Energy De
 ## Data Visualization Framework
 
 ### Key Enhancement: Experimental Data Integration
-The visualization system is located in `../visualization/` and has been **completely enhanced** to use **experimental data** from DCGMI profiling:
+The visualization system is located in `visualization/` and has been **completely enhanced** to use **experimental data** from DCGMI profiling:
 
 - **Real Power Measurements**: Direct integration with DCGMI CSV power profiles (50ms sampling)
 - **Actual Execution Times**: Timing data extracted from experimental summary logs
@@ -28,12 +28,12 @@ The visualization system is located in `../visualization/` and has been **comple
 
 ### Visualization Scripts Overview
 
-1. **`../visualization/visualize_edp_results.py`** - **Primary visualization script with data integration**
+1. **`visualization/visualize_edp_results.py`** - **Primary visualization script with data integration**
    - Uses actual DCGMI profiling data from `sample-collection-scripts/`
    - Creates individual scatter plots for each GPU-workload combination
    - Clear annotations showing EDP/ED²P optimal points with measurements
 
-2. **`../visualization/visualize_edp_summary.py`** - **Comparative analysis and summary plots**
+2. **`visualization/visualize_edp_summary.py`** - **Comparative analysis and summary plots**
    - Energy savings comparison between EDP and ED²P strategies
    - Frequency optimization analysis across GPU architectures
    - Performance impact visualization with statistical analysis
@@ -65,11 +65,11 @@ python edp_optimizer.py --results-dir ../../sample-collection-scripts
 python edp_summary_tables.py --csv
 
 # 3. Create individual scatter plots using experimental data
-cd ../visualization
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+cd visualization
+python visualize_edp_results.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # 4. Generate comprehensive summary visualizations
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_summary.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # 5. View all 16 generated visualization files
 ls edp-plots/*.png
@@ -88,11 +88,11 @@ python edp_optimizer.py --results-dir ../../sample-collection-scripts
 python edp_summary_tables.py --csv
 
 # Create visualizations with experimental data (RECOMMENDED)
-cd ../visualization
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+cd visualization
+python visualize_edp_results.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # Create comparative summary analysis
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_summary.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 ```
 
 ### Advanced Usage
@@ -288,11 +288,11 @@ The `visualize_edp_summary.py` script generates comparative analysis across all 
 ### Quick Visualization Workflow
 ```bash
 # Generate all individual plots (12 scatter plots)
-cd ../visualization
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+cd visualization
+python visualize_edp_results.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # Generate all summary comparisons (4 summary plots)
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_summary.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # View results in edp-plots/ directory
 ```
