@@ -74,7 +74,11 @@ class DataVisualizer:
             output_dir: Output directory for plots
         """
         self.results_file = Path(results_file)
-        self.sample_scripts_dir = Path(sample_scripts_dir) if sample_scripts_dir else Path("../../sample-collection-scripts")
+        self.sample_scripts_dir = (
+            Path(sample_scripts_dir)
+            if sample_scripts_dir
+            else Path("../../../sample-collection-scripts")
+        )
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -93,7 +97,7 @@ class DataVisualizer:
     def find_result_directory(self, gpu: str, workload: str) -> Optional[Path]:
         """Find the experimental results directory for a GPU-workload combination"""
         # Define base directory for experimental results
-        base_dir = Path("../../sample-collection-scripts")
+        base_dir = Path("../../../sample-collection-scripts")
 
         if not base_dir.exists():
             print(f"Warning: Sample collection scripts directory not found: {base_dir}")
@@ -727,7 +731,7 @@ def main():
     parser.add_argument(
         "--input",
         "-i",
-        default="../analysis/results/edp_optimization_results.json",
+        default="../results/edp_optimization_results.json",
         help="Input JSON file with optimization results",
     )
     parser.add_argument("--output-dir", "-o", default="edp-plots", help="Output directory for plot files")

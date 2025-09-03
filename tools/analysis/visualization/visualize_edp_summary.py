@@ -380,7 +380,7 @@ def main():
     parser.add_argument(
         "--input",
         "-i",
-        default="../analysis/results/edp_optimization_results.json",
+        default="../results/edp_optimization_results.json",
         help="Input JSON file with optimization results",
     )
     parser.add_argument("--output-dir", "-o", default="edp-plots", help="Output directory for plot files")

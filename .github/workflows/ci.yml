@@ -65,12 +65,12 @@ jobs:
           python -c "import edp_summary_tables; print('✓ EDP summary tables loaded')"
 
           # Test visualization tools
-          cd ../visualization
+          cd visualization
           python -c "import visualize_edp_results; print('✓ Visualize EDP results loaded')"
           python -c "import visualize_edp_summary; print('✓ Visualize EDP summary loaded')"
 
           # Test data collection tools
-          cd ../data-collection
+          cd ../../data-collection
           python -c "import profile; print('✓ Profile module loaded')"
           python -c "import profile_smi; print('✓ Profile SMI module loaded')"
 

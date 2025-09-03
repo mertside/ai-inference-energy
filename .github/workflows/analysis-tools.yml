@@ -75,7 +75,7 @@ jobs:
 
       - name: Test visualization module imports
         run: |
-          cd tools/visualization
+          cd tools/analysis/visualization
           python -c "
           import sys
           import os

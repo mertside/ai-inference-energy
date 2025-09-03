@@ -22,14 +22,14 @@ The visualization suite provides:
 ### Generate All Visualizations
 
 ```bash
-# From the tools/visualization directory
-cd tools/visualization
+# From the tools/analysis/visualization directory
+cd tools/analysis/visualization
 
 # 1. Create individual scatter plots with real experimental data
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_results.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # 2. Generate comprehensive summary visualizations
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_summary.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 
 # 3. View all generated visualization files
 ls edp-plots/*.png
@@ -130,7 +130,7 @@ python edp_optimizer.py --results-dir ../../sample-collection-scripts
 python edp_summary_tables.py --csv
 
 # 3. Create visualizations
-cd ../visualization
-python visualize_edp_results.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
-python visualize_edp_summary.py --input ../analysis/results/edp_optimization_results.json --output-dir edp-plots
+cd visualization
+python visualize_edp_results.py --input ../results/edp_optimization_results.json --output-dir edp-plots
+python visualize_edp_summary.py --input ../results/edp_optimization_results.json --output-dir edp-plots
 ```
