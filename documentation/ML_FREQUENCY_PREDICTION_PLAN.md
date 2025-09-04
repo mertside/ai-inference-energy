@@ -72,6 +72,38 @@ Notes on revisions vs original text
 - Align min/max/available frequencies with `hardware/gpu_info.py`; remove hardcoded `min_frequency=210`.
 - Ensure warm-run averaging and IQR outlier filtering match the visualization code path.
 
+---
+
+Progress Update (v1.2) and Next Actions
+----------------------------------------
+Completed
+- CLI: `build_labels.py` generates `labels.json` using `edp_optimizer.py` with consistent performance thresholding.
+- CLI: `build_dataset.py` supports probe policies `max-only`, `tri-point`, and `all-freq`.
+- Baseline: `train_baseline.py` (RandomForest) with frequency snapping and quick error metrics.
+- Features added in lightweight path: `power_mean`, `duration_seconds`, `energy_estimate_j`, `probe_frequency_mhz`, `probe_freq_ratio`, plus context.
+
+Findings
+- `max-only` dataset (12 rows total) is too small and yields poor results (≈352.5 MHz median error; 0% within 60 MHz). Expected due to dataset size and minimal features.
+- `all-freq` dataset increases sample count substantially and should be used for baseline training.
+
+Immediate Next Steps
+- Build `all-freq` dataset and retrain to establish a stronger baseline.
+- Replace lightweight features with `feature_extractor.py` features (POWER/GPUTL/MCUTL/SMCLK/TMPTR/SMACT/DRAMA + trends/ratios) for accuracy.
+- Add evaluation script with cross‑workload and cross‑GPU splits and EDP gap metrics.
+
+Targets
+- Baseline on `all-freq`: within‑60 MHz accuracy > 60%; improved further with richer features.
+- EDP gap within 10–15% of optimal on average for ≥2/3 workloads.
+
+Updated TODO Checklist
+- [x] Labels CLI and JSON export
+- [x] Dataset builder CLI with `max-only`, `tri-point`, `all-freq`; include probe frequency features
+- [x] Baseline RF training script with snapping and quick metrics
+- [ ] Integrate `feature_extractor.py` into dataset builder (richer features)
+- [ ] Evaluation script with cross‑workload/GPU splits + EDP gap
+- [ ] Few‑shot inference gating (tri‑point) based on confidence
+- [ ] Advanced models (XGB/NN/ensembles) and ablations
+
 
 ## 🎯 Project Overview
 
