@@ -135,40 +135,22 @@ class DatasetBuilder:
         return result
 
     def _extract_features_for_runs(self, run_files: List[Path], context: Dict[str, Any]) -> Dict[str, Any]:
-        """Aggregate/concatenate features from selected run files.
-
-        TODO:
-        - For now, use lightweight parsing (no pandas) to extract avg power
-        - Later, switch to ProfileFeatureExtractor for richer features
-        """
+        """Aggregate features from selected run files using the feature extractor (pooled)."""
         if not run_files:
             return {}
+        import re
 
-        def parse_power_values(path: Path) -> List[float]:
-            vals: List[float] = []
-            with path.open("r", encoding="utf-8", errors="ignore") as f:
-                for raw in f:
-                    line = raw.strip()
-                    if not line or line.startswith("#") or "GPU" not in line:
-                        continue
-                    parts = line.split()
-                    # scan a reasonable slice for power value
-                    for i in range(3, min(len(parts), 10)):
-                        try:
-                            power = float(parts[i])
-                            if 0 < power < 1000:
-                                vals.append(power)
-                                break
-                        except ValueError:
-                            continue
-            return vals
+        from .feature_extractor import ProfileFeatureExtractor
+        from .profile_reader import parse_dcgmi_profile
 
-        # Load timing map
-        def load_timing(dir_path: Path) -> Dict[str, Tuple[int, float]]:
-            tmap: Dict[str, Tuple[int, float]] = {}
-            tfile = dir_path / "timing_summary.log"
-            if not tfile.exists():
-                return tmap
+        extractor = ProfileFeatureExtractor()
+        pooled: Dict[str, Any] = {}
+        count = 0
+        # Also approximate energy by pooling power*duration across runs
+        dir_path = run_files[0].parent
+        timing_map: Dict[str, Tuple[int, float]] = {}
+        tfile = dir_path / "timing_summary.log"
+        if tfile.exists():
             with tfile.open("r", encoding="utf-8", errors="ignore") as f:
                 for raw in f:
                     line = raw.strip()
@@ -177,58 +159,35 @@ class DatasetBuilder:
                     parts = [p.strip() for p in line.split(",")]
                     if len(parts) < 5:
                         continue
-                    run_id, freq_str, dur_str, exit_code, status = parts[:5]
+                    rid, freq_str, dur_str, *_ = parts
                     try:
-                        tmap[run_id] = (int(freq_str), float(dur_str))
+                        timing_map[rid] = (int(freq_str), float(dur_str))
                     except ValueError:
                         continue
-            return tmap
-
-        # Compute pooled features (avg across selected runs)
-        import re
-
-        dir_path = run_files[0].parent
-        timing_map = load_timing(dir_path)
-
-        power_means: List[float] = []
-        durations: List[float] = []
-        energies: List[float] = []
-
         pat = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
         for fp in run_files:
+            df = parse_dcgmi_profile(fp)
+            feats = extractor.extract(df, context)
+            for k, v in feats.items():
+                if isinstance(v, (int, float)):
+                    pooled[k] = pooled.get(k, 0.0) + float(v)
+                else:
+                    pooled[k] = v
+            # energy estimate
             m = pat.search(fp.name)
-            run_id = None
-            if m:
-                seq, run_num = int(m.group(1)), int(m.group(2))
-                run_id = f"{seq}_{run_num:02d}"
-            pvals = parse_power_values(fp)
-            if not pvals:
-                continue
-            pmean = sum(pvals) / len(pvals)
-            power_means.append(pmean)
-            dur = 0.0
-            if run_id and run_id in timing_map:
-                _, dur = timing_map[run_id]
-            durations.append(dur)
-            energies.append(pmean * dur)
-
-        if not power_means:
-            return {}
-
-        # Aggregate
-        avg_power = sum(power_means) / len(power_means)
-        avg_duration = sum(durations) / max(len(durations), 1)
-        avg_energy = sum(energies) / max(len(energies), 1)
-
-        return {
-            "power_mean": avg_power,
-            "duration_seconds": avg_duration,
-            "energy_estimate_j": avg_energy,
-            # Context passthrough
-            "gpu_type": context.get("gpu_type"),
-            "sampling_interval_ms": context.get("sampling_interval_ms"),
-            "probe_policy": context.get("probe_policy"),
-        }
+            if m and "POWER" in df.columns:
+                run_id = f"{int(m.group(1))}_{int(m.group(2)):02d}"
+                dur = timing_map.get(run_id, (None, 0.0))[1]
+                pmean = float(df["POWER"].dropna().mean())
+                pooled["energy_estimate_j"] = pooled.get("energy_estimate_j", 0.0) + pmean * dur
+            count += 1
+        # average numeric features
+        for k, v in list(pooled.items()):
+            if isinstance(v, (int, float)) and k != "energy_estimate_j":
+                pooled[k] = float(v) / max(count, 1)
+        if "energy_estimate_j" in pooled:
+            pooled["energy_estimate_j"] = float(pooled["energy_estimate_j"]) / max(count, 1)
+        return pooled
 
     def _extract_features_single_run(self, run_file: Path, context: Dict[str, Any], max_freq: Optional[int]) -> Dict[str, Any]:
         """Extract lightweight features for a single run file.
@@ -240,22 +199,13 @@ class DatasetBuilder:
         """
         import re
 
-        power_vals: List[float] = []
-        with run_file.open("r", encoding="utf-8", errors="ignore") as f:
-            for raw in f:
-                line = raw.strip()
-                if not line or line.startswith("#") or "GPU" not in line:
-                    continue
-                parts = line.split()
-                for i in range(3, min(len(parts), 10)):
-                    try:
-                        power = float(parts[i])
-                        if 0 < power < 1000:
-                            power_vals.append(power)
-                            break
-                    except ValueError:
-                        continue
-        pmean = sum(power_vals) / len(power_vals) if power_vals else 0.0
+        from .feature_extractor import ProfileFeatureExtractor
+        from .profile_reader import parse_dcgmi_profile
+
+        df = parse_dcgmi_profile(run_file)
+        extractor = ProfileFeatureExtractor()
+        feats_extracted = extractor.extract(df, context)
+        pmean = float(df["POWER"].dropna().mean()) if "POWER" in df.columns else 0.0
 
         # timing
         m = re.search(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$", run_file.name)
@@ -298,6 +248,10 @@ class DatasetBuilder:
                 feats["probe_freq_ratio"] = float(probe_freq) / float(max_freq)
         if max_freq:
             feats["max_frequency_mhz"] = max_freq
+        # merge richer extracted features
+        for k, v in feats_extracted.items():
+            if k not in feats:
+                feats[k] = v
         return feats
 
     def build(self, output_file: Path, policy: ProbePolicy = "max-only") -> Path:
