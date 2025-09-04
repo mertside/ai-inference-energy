@@ -33,7 +33,12 @@ def main() -> int:
     parser.add_argument("--results-dir", required=True, help="Path to sample-collection results base dir")
     parser.add_argument("--labels", required=True, help="Path to labels.json produced by build_labels")
     parser.add_argument("--output", required=True, help="Output CSV or Parquet path for dataset")
-    parser.add_argument("--policy", choices=["max-only", "tri-point"], default="max-only", help="Probe policy")
+    parser.add_argument(
+        "--policy",
+        choices=["max-only", "tri-point", "all-freq"],
+        default="max-only",
+        help="Probe policy",
+    )
     args = parser.parse_args()
 
     results_dir = Path(args.results_dir).resolve()
