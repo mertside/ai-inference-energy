@@ -1,5 +1,5 @@
 """
-Label Builder (Scaffold)
+Label Builder
 
 Responsibilities:
 - Generate ground-truth labels (EDP/ED²P optimal frequencies) per GPU–workload
@@ -9,8 +9,6 @@ Responsibilities:
 Outputs:
 - labels.json: list of entries {gpu, workload, performance_threshold, optimal_frequency_edp,
   optimal_frequency_ed2p, fastest_frequency, max_frequency, metrics...}
-
-This is a scaffold. Implement functionality per the plan in phases.
 """
 
 from __future__ import annotations
@@ -42,13 +40,7 @@ def build_labels(
     performance_threshold: float,
     output_file: Path,
 ) -> List[LabelRecord]:
-    """Run the EDP optimizer to build labels and save as JSON.
-
-    TODO:
-    - Import and run tools/analysis/edp_optimizer.EDPOptimizer
-    - Convert its OptimalResult entries to LabelRecord
-    - Save to output_file as JSON
-    """
+    """Run the EDP optimizer to build labels and save as JSON."""
     # Lazy import using importlib to avoid package path issues
     import importlib.util
 

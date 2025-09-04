@@ -1,15 +1,13 @@
 """
-Dataset Builder (Scaffold)
+Dataset Builder
 
 Responsibilities:
 - Assemble supervised datasets from probe runs and ground-truth labels
-- Support probe policies: `max-only` (default) and `tri-point`
-- Ensure no leakage from full sweep: features must come only from chosen probe runs
+- Support probe policies: `max-only`, `tri-point`, and `all-freq`
+- Ensure no leakage from full sweep: features come only from chosen probe runs
 
 Outputs:
-- Parquet/CSV with features + {gpu, workload, probe_policy, label_edp, label_ed2p, performance_threshold}
-
-This is a scaffold. Implement functionality per the plan in phases.
+- CSV/Parquet with features + {gpu, workload, probe_policy, label_edp, label_ed2p, performance_threshold}
 """
 
 from __future__ import annotations
@@ -59,12 +57,7 @@ class DatasetBuilder:
         return (m.group(1).upper(), m.group(2).lower(), m.group(3))
 
     def _select_probe_runs(self, result_dir: Path, policy: ProbePolicy) -> List[Path]:
-        """Return list of run profile files matching the selected probe policy.
-
-        TODO:
-        - Implement logic to pick max-only or tri-point frequencies
-        - Use hardware.gpu_info to query valid ranges if needed
-        """
+        """Return run profile files matching the selected probe policy."""
         files = sorted(result_dir.glob("run_*_profile.csv"))
         if not files:
             return []

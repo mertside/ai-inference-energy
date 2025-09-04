@@ -1,12 +1,10 @@
 """
-Feature Extractor (Scaffold)
+Feature Extractor
 
 Responsibilities:
 - Convert aggregated warm-run profiles into model-ready features
 - Provide statistical descriptors (mean/std/p95/min/max), ratios, and context
-- Optionally include short trend (slope) features for selected metrics
-
-This is a scaffold. Implement functionality per the plan in phases.
+- Optionally extend with short trend (slope) features for selected metrics
 """
 
 from __future__ import annotations
@@ -29,7 +27,7 @@ class ProfileFeatureExtractor:
     """
 
     def __init__(self) -> None:
-        # TODO: consider configurable metric lists and percentiles
+        # Extension point: make metrics/percentiles configurable if needed
         self.metrics = [
             "POWER",
             "GPUTL",

@@ -1,18 +1,16 @@
 """
-Profile Reader (Scaffold)
+Profile Reader
 
 Responsibilities:
-- Robustly parse DCGMI/nvidia-smi profiling outputs from sample-collection results
+- Parse DCGMI/nvidia-smi profiling outputs from sample-collection results
 - Aggregate warm runs only (exclude first run per frequency)
-- Apply optional IQR outlier filtering for timings/power/energy
+- Optional IQR outlier filtering for timings/power/energy
 - Return per-frequency aggregates suitable for feature extraction and labeling
 
-Implementation notes:
+Notes:
 - DCGMI output is a whitespace table with header rows; some fields may be "N/A"
 - Prefer measured timing from timing_summary.log; otherwise fall back where possible
-- Energy may be computed as avg_power * duration_seconds for the run
-
-This is a scaffold. Implement functionality per the plan in phases.
+- Energy is computed as avg_power × duration_seconds for the run
 """
 
 from __future__ import annotations
@@ -46,10 +44,9 @@ class RunAggregate:
 def parse_dcgmi_profile(file_path: Path) -> "pd.DataFrame":
     """Parse a DCGMI profile file into a DataFrame.
 
-    TODO:
-    - Implement whitespace-table parsing with header detection
-    - Map columns to canonical names (POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, etc.)
-    - Handle N/A rows robustly
+    Implements whitespace-table parsing with header detection, handles N/A
+    values, and maps known DCGMI columns (e.g., POWER, GPUTL, MCUTL, SMCLK,
+    MMCLK, TMPTR, etc.) when present.
 
     Returns: pd.DataFrame with canonical columns
     """
@@ -125,12 +122,7 @@ def parse_dcgmi_profile(file_path: Path) -> "pd.DataFrame":
 
 
 def load_timing_summary(dir_path: Path) -> Mapping[str, Tuple[int, float]]:
-    """Load timing_summary.log mapping run_id -> (frequency_mhz, duration_seconds).
-
-    TODO:
-    - Parse CSV lines skipping comments
-    - Return dict keyed by run_id
-    """
+    """Load timing_summary.log mapping run_id -> (frequency_mhz, duration_seconds)."""
     timings: Dict[str, Tuple[int, float]] = {}
     timing_file = dir_path / "timing_summary.log"
     if not timing_file.exists():
@@ -170,11 +162,9 @@ def aggregate_warm_runs(
 ) -> Dict[int, RunAggregate]:
     """Aggregate warm runs per frequency in a results directory.
 
-    TODO:
-    - For each frequency, order runs, exclude first run (cold), collect avg power
-    - Compute duration from timing_summary.log per run_id
-    - Optionally apply IQR-based outlier filtering to power/energy
-    - Compute RunAggregate per frequency
+    For each frequency: order runs, exclude first run (cold), compute average
+    power and duration (from timing_summary.log), apply optional IQR filtering
+    on energy, and return RunAggregate per frequency.
     """
     if pd is None or np is None:
         raise RuntimeError("pandas and numpy are required for aggregation")
@@ -260,13 +250,7 @@ def aggregate_warm_runs(
 
 
 def read_run_profiles(dir_path: Path) -> Dict[int, "pd.DataFrame"]:
-    """Return raw per-run profile DataFrames keyed by frequency.
-
-    TODO:
-    - Parse each profile
-    - Group by frequency from file name (regex)
-    - Return mapping for downstream feature extraction
-    """
+    """Return raw per‑run profile DataFrames keyed by frequency."""
     if pd is None:
         raise RuntimeError("pandas is required to read run profiles")
 

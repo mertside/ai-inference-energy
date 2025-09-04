@@ -1,12 +1,10 @@
 """
-Random Forest Predictor (Scaffold)
+Random Forest Predictor
 
 Responsibilities:
 - Baseline discrete classifier to predict optimal frequency bin per GPU
 - Frequency snapping to nearest valid clock via hardware.gpu_info
-- Confidence estimate (e.g., class probability or ensemble agreement)
-
-This is a scaffold. Implement functionality per the plan in phases.
+- Confidence estimate (class probability / ensemble agreement)
 """
 
 from __future__ import annotations
@@ -51,11 +49,10 @@ class RandomForestFrequencyPredictor:
         self.frequencies_per_gpu: Dict[str, List[int]] = {}
 
     def fit(self, X: "pd.DataFrame", y: "np.ndarray") -> None:
-        """Train the RF classifier with preprocessing.
+        """Train the RF classifier with preprocessing (scaler + one‑hot).
 
-        TODO:
-        - Build ColumnTransformer (scaler for numeric, one-hot for categorical)
-        - Fit Pipeline(RandomForestClassifier)
+        Automatically infers numeric/categorical features if not provided in
+        the config. Stores a `Pipeline(preprocessor -> RandomForestClassifier)`.
         """
         if RandomForestClassifier is None:
             raise RuntimeError("scikit-learn is required to train the model")
@@ -85,13 +82,7 @@ class RandomForestFrequencyPredictor:
         self.model.fit(X, y)
 
     def predict(self, X: "pd.DataFrame") -> List[int]:
-        """Predict and snap to nearest legal frequency per-row.
-
-        TODO:
-        - Predict class or frequency
-        - For each row, obtain gpu_type → legal clocks via HAL
-        - Snap to nearest
-        """
+        """Predict and snap to the nearest legal frequency per row."""
         if self.model is None:
             raise RuntimeError("Model not trained")
         preds = self.model.predict(X)
@@ -107,12 +98,8 @@ class RandomForestFrequencyPredictor:
     def predict_single(self, features: Dict[str, Any]) -> Dict[str, Any]:
         """Predict from a single feature dict.
 
-        Returns: {predicted_frequency, snapped_frequency, confidence}
-
-        TODO:
-        - Convert dict → DataFrame row
-        - Predict class probabilities for confidence (if available)
-        - Snap to valid clocks
+        Returns a dict with keys: `predicted_frequency`, `snapped_frequency`,
+        and `confidence` (max class probability, if available).
         """
         if self.model is None:
             raise RuntimeError("Model not trained")
@@ -130,24 +117,14 @@ class RandomForestFrequencyPredictor:
         return {"predicted_frequency": pred, "snapped_frequency": snapped, "confidence": conf}
 
     def save(self, path: Path) -> None:
-        """Save model artifacts and frequency maps.
-
-        TODO:
-        - Persist pipeline/model (e.g., joblib)
-        - Persist frequencies_per_gpu mapping
-        """
+        """Save model artifacts using joblib."""
         import joblib
 
         path.parent.mkdir(parents=True, exist_ok=True)
         joblib.dump(self.model, path)
 
     def load(self, path: Path) -> None:
-        """Load model artifacts and frequency maps.
-
-        TODO:
-        - Load pipeline/model (e.g., joblib)
-        - Load frequencies_per_gpu mapping
-        """
+        """Load model artifacts using joblib."""
         import joblib
 
         self.model = joblib.load(path)
