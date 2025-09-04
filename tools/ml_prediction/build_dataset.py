@@ -15,7 +15,17 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from .dataset_builder import DatasetBuilder
+# Support both package and direct script execution
+try:
+    from .dataset_builder import DatasetBuilder  # type: ignore
+except Exception:  # pragma: no cover
+    import sys
+    from pathlib import Path as _Path
+
+    repo_root = _Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from tools.ml_prediction.dataset_builder import DatasetBuilder  # type: ignore
 
 
 def main() -> int:
