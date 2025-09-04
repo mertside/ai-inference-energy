@@ -27,7 +27,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -35,22 +35,31 @@ import pandas as pd
 from .models.random_forest_predictor import PredictorConfig, RandomForestFrequencyPredictor
 
 
-def build_energy_map(df: pd.DataFrame) -> Dict[Tuple[str, str, int], float]:
-    """Map (gpu, workload, frequency_mhz) -> energy_estimate_j from dataset."""
+def build_maps(df: pd.DataFrame) -> Tuple[Dict[Tuple[str, str, int], float], Dict[Tuple[str, str, int], float]]:
+    """Maps for (gpu, workload, freq) -> energy_estimate_j and duration_seconds (averaged)."""
     emap: Dict[Tuple[str, str, int], float] = {}
+    tmap: Dict[Tuple[str, str, int], float] = {}
     if "probe_frequency_mhz" not in df.columns:
-        return emap
-    for (gpu, wl, freq), g in df.groupby(["gpu", "workload", "probe_frequency_mhz"], dropna=True):
-        energy = float(g["energy_estimate_j"].mean()) if "energy_estimate_j" in g.columns else np.nan
-        emap[(str(gpu), str(wl), int(freq))] = energy
-    return emap
+        return emap, tmap
+    group_cols = ["gpu", "workload", "probe_frequency_mhz"]
+    for (gpu, wl, freq), g in df.groupby(group_cols, dropna=True):
+        key = (str(gpu), str(wl), int(freq))
+        if "energy_estimate_j" in g.columns:
+            emap[key] = float(g["energy_estimate_j"].mean())
+        if "duration_seconds" in g.columns:
+            tmap[key] = float(g["duration_seconds"].mean())
+    return emap, tmap
+
+
+def nearest_key(keys: List[int], target: int) -> Optional[int]:
+    return min(keys, key=lambda k: abs(k - target)) if keys else None
 
 
 def evaluate(
     df: pd.DataFrame, labels: Dict[Tuple[str, str], dict], split: str, holdout: float, holdout_workloads: List[str], holdout_gpus: List[str]
 ) -> None:
     # Build energy map for EDP gap calculations
-    energy_map = build_energy_map(df)
+    energy_map, time_map = build_maps(df)
 
     # Split
     if split == "random":
@@ -113,8 +122,8 @@ def evaluate(
 
     # EDP gap metrics
     print("\n=== EDP Gap Metrics ===")
-    gaps = []
-    savings_deltas = []
+    gaps = []  # EDP gap (%)
+    savings_deltas = []  # Savings delta (pp) vs optimal
     missing = 0
     for i in range(len(test_df)):
         gpu = str(test_df.iloc[i]["gpu"]).upper()
@@ -125,24 +134,58 @@ def evaluate(
         opt_freq = int(lbl.get("optimal_frequency_edp_mhz"))
         max_freq = int(lbl.get("max_frequency_mhz"))
         pred_freq = int(preds[i])
-        # Energies
-        e_opt = energy_map.get((gpu, wl, opt_freq))
-        e_pred = energy_map.get((gpu, wl, pred_freq))
-        e_max = energy_map.get((gpu, wl, max_freq))
-        if e_opt is None or e_pred is None or e_max is None or any(np.isnan([e_opt, e_pred, e_max])):
+        # Energies and durations
+        key_opt = (gpu, wl, opt_freq)
+        key_pred = (gpu, wl, pred_freq)
+        key_max = (gpu, wl, max_freq)
+
+        e_opt = energy_map.get(key_opt)
+        e_pred = energy_map.get(key_pred)
+        e_max = energy_map.get(key_max)
+        t_opt = time_map.get(key_opt)
+        t_pred = time_map.get(key_pred)
+        t_max = time_map.get(key_max)
+
+        # Fallback: nearest frequency in available mapping if exact key missing
+        if any(x is None for x in [e_opt, e_pred, e_max, t_opt, t_pred, t_max]):
+            freqs_available = [f for (g2, w2, f) in energy_map.keys() if g2 == gpu and w2 == wl]
+            if freqs_available:
+                if e_opt is None or t_opt is None:
+                    f = nearest_key(freqs_available, opt_freq)
+                    if f is not None:
+                        e_opt = energy_map.get((gpu, wl, f))
+                        t_opt = time_map.get((gpu, wl, f))
+                if e_pred is None or t_pred is None:
+                    f = nearest_key(freqs_available, pred_freq)
+                    if f is not None:
+                        e_pred = energy_map.get((gpu, wl, f))
+                        t_pred = time_map.get((gpu, wl, f))
+                if e_max is None or t_max is None:
+                    f = nearest_key(freqs_available, max_freq)
+                    if f is not None:
+                        e_max = energy_map.get((gpu, wl, f))
+                        t_max = time_map.get((gpu, wl, f))
+
+        if any(x is None for x in [e_opt, e_pred, e_max, t_opt, t_pred, t_max]):
             missing += 1
             continue
-        gap = (e_pred - e_opt) / e_opt * 100.0
+
+        # Compute EDP values (Energy × Time)
+        edp_opt = float(e_opt) * float(t_opt)
+        edp_pred = float(e_pred) * float(t_pred)
+        edp_max = float(e_max) * float(t_max)
+
+        gap = (edp_pred - edp_opt) / edp_opt * 100.0
         gaps.append(gap)
-        s_opt = (e_max - e_opt) / e_max * 100.0
-        s_pred = (e_max - e_pred) / e_max * 100.0
+        s_opt = (edp_max - edp_opt) / edp_max * 100.0
+        s_pred = (edp_max - edp_pred) / edp_max * 100.0
         savings_deltas.append(s_opt - s_pred)  # positive means predicted saves less than optimal
 
     if gaps:
         print(f"EDP gap vs optimal: median {np.median(gaps):.1f}% | mean {np.mean(gaps):.1f}%")
         print(f"Savings delta vs optimal: median {np.median(savings_deltas):.1f} pp | mean {np.mean(savings_deltas):.1f} pp")
     else:
-        print("Insufficient energy mapping to compute EDP gap (build dataset with --policy all-freq)")
+        print("Insufficient mapping to compute EDP gap (ensure dataset built with --policy all-freq)")
     if missing:
         print(f"Note: {missing} test rows lacked energy mapping; ensure dataset contains one row per frequency (all-freq).")
 
