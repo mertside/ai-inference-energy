@@ -21,7 +21,17 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from .models.random_forest_predictor import PredictorConfig, RandomForestFrequencyPredictor
+# Support both package and direct script execution
+try:
+    from .models.random_forest_predictor import PredictorConfig, RandomForestFrequencyPredictor  # type: ignore
+except Exception:  # pragma: no cover
+    import sys
+    from pathlib import Path as _Path
+
+    repo_root = _Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from tools.ml_prediction.models.random_forest_predictor import PredictorConfig, RandomForestFrequencyPredictor  # type: ignore
 
 
 def eval_frequency_error(y_true: np.ndarray, y_pred: List[int]) -> None:
