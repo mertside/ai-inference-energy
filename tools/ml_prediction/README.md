@@ -80,7 +80,7 @@ python tools/ml_prediction/build_dataset.py \
 
 3) Train baseline RF and view quick metrics
 ```bash
-python -m tools.ml_prediction.train_baseline \
+ python -m tools.ml_prediction.train_baseline \
   --dataset tools/ml_prediction/datasets/max_only.csv \
   --model-out tools/ml_prediction/models/rf_max_only.joblib
 ```
@@ -105,6 +105,30 @@ Tips to improve baseline results:
   which typically improves learning substantially over `max-only` (12 samples).
 - Include more informative features (e.g., probe_frequency_mhz, normalized ratio, GPUTL/MCUTL/SMCLK) by switching to the richer `feature_extractor.py` path.
 - Evaluate with cross‑workload and cross‑GPU splits to check generalization.
+
+## Evaluation with EDP Gap
+
+Use the evaluation script for cross‑workload/GPU splits and EDP gap reporting (requires `--policy all-freq` dataset):
+```bash
+# Random 20% holdout
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split random --holdout 0.2
+
+# Leave-one-workload-out
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split workload --holdout-workloads llama
+
+# Leave-one-GPU-out
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split gpu --holdout-gpus H100
+```
+The evaluator prints frequency error metrics and EDP gap (predicted vs optimal) using the dataset’s per‑frequency energy estimates.
 
 ## Roadmap / TODOs
 
