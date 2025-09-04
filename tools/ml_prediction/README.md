@@ -1,18 +1,17 @@
-# ML Prediction Package (Scaffold)
+# ML Prediction Tools — User Guide
 
-This package contains scaffolding for the ML-based frequency prediction workflow.
-Files are intentionally light-weight and include clear TODOs to implement in phases,
-aligned with `documentation/ML_FREQUENCY_PREDICTION_PLAN.md` (Revised Plan Addendum v1.1).
+This guide explains how to train and evaluate ML models that predict EDP‑optimal GPU frequency from short profiling runs. It builds on profiling results under `sample-collection-scripts/` and the analysis pipeline in `tools/analysis/`.
 
-## Modules
+## Components
 
-- `profile_reader.py`: Robust DCGMI/nvidia-smi parsing, warm-run aggregation, IQR outlier filtering.
-- `label_builder.py`: Wraps `tools/analysis/edp_optimizer.py` to export ground-truth labels.
-- `feature_extractor.py`: Converts aggregated run profiles into model-ready features.
-- `dataset_builder.py`: Builds training datasets from probe runs + labels with probe policies.
-- `models/random_forest_predictor.py`: Baseline classifier scaffold with frequency snapping.
+- `profile_reader.py`: Robust DCGMI/nvidia‑smi parsing, warm‑run aggregation, optional IQR outlier filtering.
+- `feature_extractor.py`: Converts profiles to features (POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, SMACT, DRAMA) plus ratios and context.
+- `label_builder.py`: Generates ground‑truth labels (EDP & ED²P optimal) via `tools/analysis/edp_optimizer.py`.
+- `dataset_builder.py`: Builds datasets from probe policies: `max-only`, `tri-point`, `all-freq`.
+- `models/random_forest_predictor.py`: Baseline RF classifier with frequency snapping.
+- `evaluate.py`: Cross‑workload/GPU evaluation with EDP gap reporting.
 
-## Quick Start (End‑to‑End)
+## Environment Setup
 
 Prerequisites (local environment):
 - Python 3.8+
@@ -35,7 +34,7 @@ python -V
 python -m pip -V
 ```
 
-Important: run from the repository root (so `tools` is on the Python path), or use the direct script form shown below.
+Important: run from the repository root (so `tools` is on the Python path), or use the direct script form (both supported).
 
 1) Build labels (EDP/ED²P) from experimental results
 ```bash
@@ -69,14 +68,7 @@ python -m tools.ml_prediction.build_dataset \
   --output tools/ml_prediction/datasets/all_freq.csv \
   --policy all-freq
 ```
-Alternative (direct script):
-```bash
-python tools/ml_prediction/build_dataset.py \
-  --results-dir sample-collection-scripts \
-  --labels tools/ml_prediction/labels.json \
-  --output tools/ml_prediction/datasets/max_only.csv \
-  --policy max-only
-```
+Alternative (direct script): same flags using `python tools/ml_prediction/build_dataset.py ...`
 
 3) Train baseline RF and view quick metrics
 ```bash
@@ -91,13 +83,13 @@ python tools/ml_prediction/train_baseline.py \
   --model-out tools/ml_prediction/models/rf_max_only.joblib
 ```
 
-Expected output (example, with max-only):
+Expected output (random split, all-freq):
 ```
 === Evaluation (label_edp) ===
 Frequency error (median): XX.X MHz
 Frequency error (mean):   XX.X MHz
 Within 30 MHz: YY.Y%  |  Within 60 MHz: ZZ.Z%
-Model saved to tools/ml_prediction/models/rf_max_only.joblib
+Model saved to tools/ml_prediction/models/rf_all_freq.joblib
 ```
 
 Tips to improve baseline results:
@@ -106,7 +98,7 @@ Tips to improve baseline results:
 - Include more informative features (e.g., probe_frequency_mhz, normalized ratio, GPUTL/MCUTL/SMCLK) by switching to the richer `feature_extractor.py` path.
 - Evaluate with cross‑workload and cross‑GPU splits to check generalization.
 
-## Evaluation with EDP Gap
+## Evaluation With EDP Gap
 
 Use the evaluation script for cross‑workload/GPU splits and EDP gap reporting (requires `--policy all-freq` dataset):
 ```bash
@@ -128,7 +120,7 @@ python -m tools.ml_prediction.evaluate \
   --labels tools/ml_prediction/labels.json \
   --split gpu --holdout-gpus H100
 ```
-The evaluator prints frequency error metrics and EDP gap (predicted vs optimal) using the dataset’s per‑frequency energy estimates.
+The evaluator prints frequency error and EDP gap (predicted vs optimal EDP = energy × time). It avoids split leakage (e.g., excludes `workload` from features for workload holdout).
 
 ## Roadmap / TODOs
 
@@ -140,13 +132,8 @@ The evaluator prints frequency error metrics and EDP gap (predicted vs optimal) 
 - [ ] Few‑shot inference (tri‑point) gated by confidence
 - [ ] Advanced models (XGB/NN/ensembles) and ablations
 
-Notes:
-- This baseline uses a lightweight feature set (mean power, duration, energy estimate, and context). You can switch to the richer feature extractor (`feature_extractor.py`) later for better accuracy.
-- Probe policies: `max-only` (default) or `tri-point` (3 runs pooled). `tri-point` is basic initially and can be expanded to concatenated feature blocks.
+## Notes
 
-## Implementation Order (Plan)
-
-Implement in order:
-1) `profile_reader.py` → 2) `label_builder.py` → 3) `feature_extractor.py` → 4) `dataset_builder.py` → 5) `models/random_forest_predictor.py`.
-
-Each file provides function/class skeletons, expected inputs/outputs, and TODO blocks.
+- Focus on EDP gap (energy × time), not only raw MHz error — especially for holdout scenarios where curves can be flat near the optimum.
+- Probe policies: `max-only` (fast sanity), `all-freq` (training), `tri-point` (few‑shot) — use `all-freq` to train.
+- Energy estimate: prefers `TOTEC` deltas only when positive; otherwise mean(POWER) × duration. Duration falls back to sample count × sampling interval if timing is missing.

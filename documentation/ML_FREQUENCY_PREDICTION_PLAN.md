@@ -1,76 +1,56 @@
-# ML-Based Frequency Prediction Implementation Plan
+# ML‑Based Frequency Prediction — Plan & Progress (v1.2)
 
-Revised Plan Addendum (v1.1)
---------------------------------
-This addendum refines the step-by-step plan to align with our implemented profiling and analysis methodology. It introduces robust data ingestion, consistent label generation via the optimizer, probe policies for single/few-run features, frequency snapping, and concrete evaluation criteria. The sections below supersede earlier steps where they conflict.
+This document summarizes the goal, current progress, key findings, and concrete next steps for the ML system that predicts EDP‑optimal GPU frequency from short profiling runs.
 
-High-level goals
-- Train on full DVFS sweeps (warm-run averages, outlier-filtered) to learn ground-truth EDP-optimal frequencies (and optionally ED²P).
-- Predict optimal frequency from one (or a few) short profiling runs, while honoring a performance threshold relative to the fastest execution (default 5%).
+**Goal**
+- Predict EDP‑optimal GPU frequency (and ED²P) using one or a few probe runs, aligning labels and methodology with the analysis tools (warm‑run averaging, outlier filtering, performance threshold).
 
-Files to add under `tools/ml_prediction/`
-- `profile_reader.py`: Robust DCGMI/nvidia-smi parser, warm-run aggregation, IQR outlier filtering.
-- `label_builder.py`: Wraps `tools/analysis/edp_optimizer.py` to produce labels JSON aligned with the performance threshold.
-- `feature_extractor.py`: Feature computation from aggregated runs (stats, ratios, trends, context).
-- `dataset_builder.py`: Assembles training dataset from probe runs and labels; supports probe policies.
-- `models/random_forest_predictor.py`: Baseline classifier with frequency snapping and confidence.
-- (Later) `api/` and `cli/` for deployment.
+**What We’ve Built**
+- Labels: `build_labels.py` generates `labels.json` via `edp_optimizer.py` with consistent performance thresholding.
+- Datasets: `build_dataset.py` supports `max-only`, `tri-point`, `all-freq` policies. Features include DCGMI stats (POWER/GPUTL/MCUTL/SMCLK/MMCLK/TMPTR) + ratios + context + probe frequency features.
+- Training: `train_baseline.py` trains an RF classifier with frequency snapping; prints quick metrics.
+- Evaluation: `evaluate.py` supports random/workload/GPU splits and reports both frequency error and EDP gap (energy × time). Avoids split leakage.
 
-Probe policies (how features are created at inference and training)
-- `max-only` (default): Use the maximum supported frequency run as the probe (fast and high-SNR).
-- `tri-point`: Use three runs (e.g., max, ~0.7×max, ~0.5×max). Concatenate/aggregate features and include a `probe_policy` flag.
+**Results So Far**
+- Random holdout (all‑freq): excellent (median 0 MHz, mean ~26 MHz; >90% within 60 MHz).
+- Workload holdout (e.g., whisper): raw MHz error large; EDP gap moderate (median ~10%, mean ~5%). The EDP curve is relatively flat near the optimum; MHz error can be high while energy remains close to optimal.
+- GPU holdout (e.g., H100): raw MHz error moderate; EDP gap median near zero but mean high due to a few outliers → opportunity to improve generalization and reduce extreme misses.
 
-Frequency snapping and ranges
-- Always snap predictions to a legal frequency from `hardware.gpu_info.GPUSpecifications(...).get_available_frequencies()`.
-- Do not hardcode min frequencies; read per-GPU ranges from the HAL.
+**Methodology Notes**
+- Energy estimate: prefers DCGMI `TOTEC` deltas only when positive; otherwise mean(POWER) × duration. Duration falls back to sample count × sampling interval when timing missing.
+- Evaluation: if an exact (gpu, workload, freq) tuple is missing from the dataset maps, evaluator falls back to nearest available frequency; skips invalid/non‑finite EDP rows.
 
-Updated phases and tasks
-1) Data Extraction and Labeling (Week 1–2)
-   - Implement `profile_reader.py`:
-     - Parse DCGMI whitespace tables reliably; map field IDs/names to canonical columns (POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, SMACT, DRAMA, etc.).
-     - Aggregate warm runs only (exclude first run at each frequency) and apply IQR outlier filtering.
-     - Provide per-frequency aggregates: avg_power, avg_timing, energy (avg_power × avg_time), plus basic dispersion metrics.
-   - Implement `label_builder.py`:
-     - Call `edp_optimizer.py` to compute EDP/ED²P optimal frequencies using the same performance threshold (default 5%).
-     - Export `labels.json` with `{gpu, workload, performance_threshold, optimal_frequency_edp, optimal_frequency_ed2p, fastest_frequency, metrics...}`.
+**Next Steps (Step‑By‑Step)**
+1) Feature Enrichment
+   - Add normalized clocks/utilizations (e.g., SMCLK/max, MMCLK/max; normalize GPUTL/MCUTL as needed).
+   - Add trend features (linear slopes) for POWER, TMPTR, GPUTL to capture stability/dynamics.
+   - Include PSTATE/power‑limit features when available.
+2) Rebuild & Retrain
+   - Rebuild `all-freq` dataset; retrain RF; re‑evaluate on random and holdout splits.
+3) Hyperparameter Tuning
+   - Sweep RF depth/leaf size and/or test XGBoost/LightGBM; select by EDP gap on workload/GPU holdouts.
+4) Confidence‑Gated Few‑Shot
+   - Implement tri‑point probing at inference when confidence is low; re‑predict with augmented features.
+5) Diagnostics & Reporting
+   - Extend evaluator to print EDP gap percentiles per workload and per GPU; highlight worst‑case scenarios.
+6) Packaging
+   - Optionally add API/CLI for one‑shot prediction from a live probe; integrate confidence gating.
 
-2) Dataset Building (Week 2–3)
-   - Implement `feature_extractor.py`:
-     - Stats: mean/std/p95/min/max for key metrics; simple trends (slopes) for POWER/TMPTR/GPUTL.
-     - Ratios: MCUTL/GPUTL, GPUTL/POWER, TENSOR/SMACT (when available).
-     - Normalized clocks: SMCLK/max, MMCLK/max; include `gpu_type`, `sampling_interval_ms`, `power_limit` if available.
-   - Implement `dataset_builder.py`:
-     - For each `results_*` dir, load label from `labels.json` and build features from probe runs per chosen policy (no leakage from the rest of the sweep).
-     - Save parquet/CSV with features + `{gpu, workload, probe_policy, label_edp, label_ed2p, performance_threshold}`.
+**Acceptance Targets**
+- Random split (all‑freq): maintain >90% within 60 MHz; near‑zero median EDP gap.
+- Workload holdout: median EDP gap ≤ 5–10%; mean ≤ 10–15%.
+- GPU holdout: reduce outliers to bring mean EDP gap ≤ 20% while keeping median near zero.
 
-3) Baseline Modeling (Week 3–4)
-   - Random Forest classifier over legal frequency bins per GPU.
-   - Provide `.predict_single()` that snaps to valid clocks and returns a confidence score (class probability or ensemble agreement).
-   - Optionally add a regression head or a candidate-set EDP(Time/Energy) predictor that selects argmin under the constraint.
-
-4) Evaluation (Week 4)
-   - Metrics: (a) snapped frequency error (MHz), (b) EDP gap vs optimal (%), (c) energy savings vs max (%), (d) performance delta vs fastest (%).
-   - Splits: cross-workload (hold-out apps), cross-GPU (hold-out GPU family), plus random split for sanity.
-
-5) Few-shot Extension (Week 5)
-   - Add `tri-point` policy at inference when confidence is low: probe two additional frequencies around the predicted optimum, recompute features, re-predict.
-
-6) Advanced Models (Week 6–8)
-   - Gradient-boosted trees; multitask (EDP + ED²P); curve modeling to predict EDP(Time/Energy) on candidates and pick argmin; ensembles with meta-learner.
-
-7) Packaging (Week 9–10)
-   - REST API and CLI wrappers for prediction; include confidence-based guardrails and optional few-shot fallback.
-
-Acceptance criteria per phase
-- P1: Reader returns consistent per-frequency aggregates; labels identical to `edp_optimizer` output for the same threshold.
-- P2: Dataset export reproducible; schema documented; basic stats produced.
-- P3–4: Baseline RF model achieves small EDP gap and keeps performance within threshold on held-out workloads/GPUs.
-- P5–7: Confidence-driven few-shot probing improves low-confidence cases; API/CLI deliver end-to-end prediction.
-
-Notes on revisions vs original text
-- Replace naive CSV reads with a robust DCGMI parser and whitespace handling; handle `N/A` rows and header lines.
-- Align min/max/available frequencies with `hardware/gpu_info.py`; remove hardcoded `min_frequency=210`.
-- Ensure warm-run averaging and IQR outlier filtering match the visualization code path.
+**Updated TODO Checklist**
+- [x] Labels CLI and JSON export
+- [x] Dataset builder CLI with `max-only`, `tri-point`, `all-freq`; probe frequency features; DCGMI feature extraction
+- [x] Baseline RF training with snapping and quick metrics
+- [x] Evaluation script with random/workload/GPU splits and EDP gap (EDP = energy × time)
+- [ ] Enrich features (normalized clocks/utilizations; trend features; PSTATE)
+- [ ] Hyperparameter tuning / alternative models with holdout‑split tracking
+- [ ] Confidence‑gated few‑shot inference (tri‑point)
+- [ ] Per‑workload/GPU percentiles and worst‑case reporting
+- [ ] API/CLI packaging for live use
 
 ---
 
