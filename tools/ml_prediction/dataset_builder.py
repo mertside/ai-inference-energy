@@ -178,8 +178,14 @@ class DatasetBuilder:
             if m and "POWER" in df.columns:
                 run_id = f"{int(m.group(1))}_{int(m.group(2)):02d}"
                 dur = timing_map.get(run_id, (None, 0.0))[1]
-                pmean = float(df["POWER"].dropna().mean())
-                pooled["energy_estimate_j"] = pooled.get("energy_estimate_j", 0.0) + pmean * dur
+                # Prefer DCGMI TOTEC delta if available (mJ → J)
+                if "TOTEC" in df.columns and not df["TOTEC"].dropna().empty:
+                    totec = df["TOTEC"].dropna()
+                    energy_j = max(float(totec.iloc[-1] - totec.iloc[0]) / 1000.0, 0.0)
+                else:
+                    pmean = float(df["POWER"].dropna().mean()) if "POWER" in df.columns else 0.0
+                    energy_j = pmean * float(dur)
+                pooled["energy_estimate_j"] = pooled.get("energy_estimate_j", 0.0) + energy_j
             count += 1
         # average numeric features
         for k, v in list(pooled.items()):
@@ -234,10 +240,17 @@ class DatasetBuilder:
                             pass
                         break
 
+        # Prefer TOTEC-based energy when available
+        if "TOTEC" in df.columns and not df["TOTEC"].dropna().empty:
+            totec = df["TOTEC"].dropna()
+            energy_estimate = max(float(totec.iloc[-1] - totec.iloc[0]) / 1000.0, 0.0)
+        else:
+            energy_estimate = pmean * dur
+
         feats = {
             "power_mean": pmean,
             "duration_seconds": dur,
-            "energy_estimate_j": pmean * dur,
+            "energy_estimate_j": energy_estimate,
             "gpu_type": context.get("gpu_type"),
             "sampling_interval_ms": context.get("sampling_interval_ms"),
             "probe_policy": context.get("probe_policy"),

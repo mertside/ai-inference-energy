@@ -76,10 +76,30 @@ def evaluate(
     X_train = train_df.drop(columns=[c for c in drop_cols if c in train_df.columns])
     X_test = test_df.drop(columns=[c for c in drop_cols if c in test_df.columns])
 
+    # Choose categorical features conservatively to avoid leakage in LO(O) splits
+    cat_feats: List[str] = []
+    if "gpu_type" in X_train.columns:
+        cat_feats.append("gpu_type")
+    if "probe_policy" in X_train.columns:
+        cat_feats.append("probe_policy")
+    if split == "random":
+        # Random split can include workload/gpu safely
+        for c in ["gpu", "workload"]:
+            if c in X_train.columns:
+                cat_feats.append(c)
+    elif split == "workload":
+        # Exclude 'workload' to test generalization to unseen workloads
+        if "gpu" in X_train.columns:
+            cat_feats.append("gpu")
+    elif split == "gpu":
+        # Exclude 'gpu' to test generalization to unseen GPUs
+        if "workload" in X_train.columns:
+            cat_feats.append("workload")
+
     cfg = PredictorConfig(
         numeric_features=[],
-        categorical_features=[c for c in ["gpu_type", "probe_policy", "gpu", "workload"] if c in X_train.columns],
-        gpu_type_field="gpu_type" if "gpu_type" in X_train.columns else "gpu",
+        categorical_features=cat_feats,
+        gpu_type_field="gpu_type" if "gpu_type" in X_train.columns else ("gpu" if "gpu" in X_train.columns else "gpu_type"),
     )
     model = RandomForestFrequencyPredictor(cfg)
     model.fit(X_train, y_train)
