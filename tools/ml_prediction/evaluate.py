@@ -174,6 +174,12 @@ def evaluate(
         edp_opt = float(e_opt) * float(t_opt)
         edp_pred = float(e_pred) * float(t_pred)
         edp_max = float(e_max) * float(t_max)
+        if not np.isfinite(edp_opt) or not np.isfinite(edp_pred) or not np.isfinite(edp_max):
+            missing += 1
+            continue
+        if edp_opt <= 0 or edp_max <= 0:
+            missing += 1
+            continue
 
         gap = (edp_pred - edp_opt) / edp_opt * 100.0
         gaps.append(gap)

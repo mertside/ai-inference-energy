@@ -239,13 +239,19 @@ class DatasetBuilder:
                         except ValueError:
                             pass
                         break
+        # Fallback: infer duration from number of POWER samples if timing missing
+        if dur <= 0.0 and "POWER" in df.columns:
+            samples = int(df["POWER"].dropna().shape[0])
+            interval_s = float(context.get("sampling_interval_ms", 50)) / 1000.0
+            dur = samples * interval_s
 
-        # Prefer TOTEC-based energy when available
+        # Compute energy from power×time; use TOTEC delta only if positive
+        energy_estimate = pmean * dur
         if "TOTEC" in df.columns and not df["TOTEC"].dropna().empty:
             totec = df["TOTEC"].dropna()
-            energy_estimate = max(float(totec.iloc[-1] - totec.iloc[0]) / 1000.0, 0.0)
-        else:
-            energy_estimate = pmean * dur
+            delta_j = float(totec.iloc[-1] - totec.iloc[0]) / 1000.0
+            if delta_j > 0.0:
+                energy_estimate = delta_j
 
         feats = {
             "power_mean": pmean,
