@@ -49,7 +49,7 @@ PYCODE
 echo
 
 echo "4. Testing LSTM script syntax..."
-python -m py_compile "$PROJECT_ROOT/sample-collection-scripts/lstm.py" && echo "✓ LSTM script compiles successfully"
+python -m py_compile "$PROJECT_ROOT/app-lstm/lstm.py" && echo "✓ LSTM script compiles successfully"
 
 echo
 

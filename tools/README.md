@@ -27,8 +27,8 @@ Core analysis scripts for EDP (Energy-Delay Product) optimization and visualizat
     - 4 summary comparison charts and multi-GPU analysis
     - Publication-quality 300 DPI PNG files
 
-### 📡 Data Collection (`data-collection/`)
-Data collection and profiling tools for GPU workloads:
+### 📡 Data Collection (`sample-collection-scripts/`)
+Data collection and profiling tools for GPU workloads (repository root):
 - `profile.py` - DCGMI profiling interface for detailed metrics
 - `profile_smi.py` - nvidia-smi profiling fallback
 - `control.sh` - Main control script for profiling automation
@@ -94,10 +94,10 @@ python tools/analysis/visualization/visualize_edp_results.py
 python tools/analysis/visualization/visualize_edp_summary.py
 
 # Data collection with DCGMI profiling
-python tools/data-collection/profile.py
+python sample-collection-scripts/profile.py --help
 
 # Alternative profiling with nvidia-smi
-python tools/data-collection/profile_smi.py
+python sample-collection-scripts/profile_smi.py --help
 
 # (Planned components below are not available in this release.)
 # Optimal frequency selection, deployment interface, and additional testing utilities
