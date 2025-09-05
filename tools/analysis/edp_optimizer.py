@@ -108,8 +108,11 @@ class EDPOptimizer:
         self.all_results = []
 
     def parse_directory_name(self, dir_name: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-        """Parse results directory name to extract GPU, workload, and job ID"""
-        match = re.match(r"results_([^_]+)_([^_]+)_job_(\d+)", dir_name)
+        """Parse results directory name to extract GPU, workload, and job ID.
+
+        Accepts workloads with underscores by capturing everything up to `_job_`.
+        """
+        match = re.match(r"results_([^_]+)_(.+)_job_(\d+)", dir_name)
         if match:
             return match.group(1).upper(), match.group(2), match.group(3)
         return None, None, None

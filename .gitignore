@@ -66,5 +66,8 @@ __pycache__/
 *.csv
 *.png
 
+# Model artifacts
+*.joblib
+
 # Miscellaneous
 machinefile.*

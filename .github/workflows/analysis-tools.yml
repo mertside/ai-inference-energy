@@ -2,13 +2,13 @@ name: Analysis Tools Validation
 
 on:
   push:
-    branches: [main, dev, develop]
+    branches: [main, dev, develop, prediction]
     paths:
       - 'tools/**'
       - 'config.py'
       - 'requirements.txt'
   pull_request:
-    branches: [main, dev, develop]
+    branches: [main, dev, develop, prediction]
     paths:
       - 'tools/**'
       - 'config.py'
@@ -28,7 +28,7 @@ on:
           - analysis-only
 
 env:
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.9'
 
 jobs:
   analysis-tools-test:
@@ -97,25 +97,32 @@ jobs:
           "
 
       - name: Test data collection tools
-        if: github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'analysis-only' || github.event.inputs.test_scope == ''
+        # Run on push/PR/schedule; when manually dispatched, gate by input
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.test_scope == 'all' || github.event.inputs.test_scope == 'analysis-only'
         run: |
-          cd tools/data-collection
+          cd sample-collection-scripts
           python -c "
+          import importlib.util
+          from pathlib import Path
           import sys
-          import os
-          sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath('.')))))
+
+          def import_from_path(name, path):
+              spec = importlib.util.spec_from_file_location(name, str(path))
+              mod = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(mod)
+              return mod
 
           try:
-              import profile
+              import_from_path('profile', Path('profile.py'))
               print('✅ Profile module imported successfully')
-          except ImportError as e:
+          except Exception as e:
               print(f'❌ Profile import failed: {e}')
               sys.exit(1)
 
           try:
-              import profile_smi
+              import_from_path('profile_smi', Path('legacy/profile_smi.py'))
               print('✅ Profile SMI module imported successfully')
-          except ImportError as e:
+          except Exception as e:
               print(f'❌ Profile SMI import failed: {e}')
               sys.exit(1)
           "
