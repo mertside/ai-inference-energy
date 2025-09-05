@@ -5,11 +5,25 @@ This guide explains how to train and evaluate ML models that predict EDP‑optim
 ## Components
 
 - `profile_reader.py`: Robust DCGMI/nvidia‑smi parsing, warm‑run aggregation, optional IQR outlier filtering.
-- `feature_extractor.py`: Converts profiles to features (POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, SMACT, DRAMA) plus ratios and context.
+- `feature_extractor.py`: Converts profiles to features (POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, SMACT, DRAMA) plus ratios, trend slopes (POWER/TMPTR/GPUTL), and HAL‑normalized clocks.
 - `label_builder.py`: Generates ground‑truth labels (EDP & ED²P optimal) via `tools/analysis/edp_optimizer.py`.
 - `dataset_builder.py`: Builds datasets from probe policies: `max-only`, `tri-point`, `all-freq`.
 - `models/random_forest_predictor.py`: Baseline RF classifier with frequency snapping.
 - `evaluate.py`: Cross‑workload/GPU evaluation with EDP gap reporting.
+
+## Feature Set (Extracted)
+
+The dataset builder invokes `feature_extractor.py` to compute the following, when available in DCGMI profiles:
+
+- Stats per metric: mean, std, min, max, p95 for POWER, GPUTL, MCUTL, SMCLK, MMCLK, TMPTR, SMACT, DRAMA.
+- Trend slopes: POWER, TMPTR, GPUTL slopes over the last N samples (default N=30), reported per‑second using `sampling_interval_ms` (default 50 ms).
+- Ratios and relationships: `mem_to_gpu_ratio` (MCUTL/GPUTL), `power_efficiency` (GPUTL/POWER), `sm_to_mem_clock_ratio` (SMCLK/MMCLK), `gputl_per_mhz` (GPUTL/SMCLK), `utilization_balance` (GPUTL − MCUTL).
+- HAL normalization (best‑effort): `smclk_norm_hal_max` = mean(SMCLK)/HAL core max; `mmclk_norm_hal_mem` = mean(MMCLK)/HAL mem clock.
+- Context: `gpu_type`, `probe_policy`, `sampling_interval_ms`, plus dataset‑level fields: `probe_frequency_mhz`, `probe_freq_ratio`, `max_frequency_mhz`, `duration_seconds`, `energy_estimate_j`.
+
+Notes:
+- Slopes are robust to missing values and omitted if insufficient samples (<5).
+- HAL features are added only if HAL is available for the `gpu_type`.
 
 ## Environment Setup
 
@@ -95,7 +109,7 @@ Model saved to tools/ml_prediction/models/rf_all_freq.joblib
 Tips to improve baseline results:
 - Prefer `--policy all-freq` to generate many more training samples (one per frequency),
   which typically improves learning substantially over `max-only` (12 samples).
-- Include more informative features (e.g., probe_frequency_mhz, normalized ratio, GPUTL/MCUTL/SMCLK) by switching to the richer `feature_extractor.py` path.
+- Prefer enriched features: trends (POWER/TMPTR/GPUTL) + normalized clocks via HAL; probe frequency features from `all-freq` policy significantly help.
 - Evaluate with cross‑workload and cross‑GPU splits to check generalization.
 
 ## Evaluation With EDP Gap
@@ -127,13 +141,20 @@ The evaluator prints frequency error and EDP gap (predicted vs optimal EDP = ene
 - [x] Build labels from optimizer (`build_labels.py`)
 - [x] Build dataset with `max-only`, `tri-point`, `all-freq` (`build_dataset.py`)
 - [x] Baseline RF training (`train_baseline.py`) with quick metrics
-- [ ] Enrich features using `feature_extractor.py` (POWER/GPUTL/MCUTL/SMCLK/TMPTR/SMACT/DRAMA + trends/ratios)
-- [ ] Evaluation script: cross‑workload and cross‑GPU splits + EDP gap
-- [ ] Few‑shot inference (tri‑point) gated by confidence
-- [ ] Advanced models (XGB/NN/ensembles) and ablations
+- [x] Enrich features using `feature_extractor.py` (stats, trends, ratios, HAL‑normalized clocks)
+- [x] Evaluation script: cross‑workload and cross‑GPU splits + EDP gap
+- [x] Internal refactor: shared run‑filename parser + unified timing loader
+- [ ] Confidence‑gated few‑shot (tri‑point) inference
+- [ ] Hyperparameter tuning / alternative models (XGB/LightGBM/NN) with holdout‑split tracking
+- [ ] Per‑workload/GPU percentiles, worst‑case reporting, and feature importances
 
 ## Notes
 
 - Focus on EDP gap (energy × time), not only raw MHz error — especially for holdout scenarios where curves can be flat near the optimum.
 - Probe policies: `max-only` (fast sanity), `all-freq` (training), `tri-point` (few‑shot) — use `all-freq` to train.
 - Energy estimate: prefers `TOTEC` deltas only when positive; otherwise mean(POWER) × duration. Duration falls back to sample count × sampling interval if timing is missing.
+
+## Recent Changes
+
+- Consolidated run filename parsing into a shared helper and reused the canonical `timing_summary.log` loader to avoid duplication across tools.
+- Added trend slopes and HAL‑normalized clock features to the feature extractor; datasets now include these automatically when rebuilt.
