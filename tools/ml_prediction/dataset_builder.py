@@ -62,14 +62,14 @@ class DatasetBuilder:
         if not files:
             return []
         # Extract (freq, run_num, path)
+        from .profile_reader import parse_run_filename as _parse
+
         entries: List[Tuple[int, int, Path]] = []
-        pat = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
         for fp in files:
-            m = pat.search(fp.name)
-            if not m:
+            parsed = _parse(fp.name)
+            if not parsed:
                 continue
-            run_num = int(m.group(2))
-            freq = int(m.group(3))
+            _, run_num, freq = parsed
             entries.append((freq, run_num, fp))
         if not entries:
             return []
@@ -131,33 +131,15 @@ class DatasetBuilder:
         """Aggregate features from selected run files using the feature extractor (pooled)."""
         if not run_files:
             return {}
-        import re
-
         from .feature_extractor import ProfileFeatureExtractor
-        from .profile_reader import parse_dcgmi_profile
+        from .profile_reader import load_timing_summary, parse_dcgmi_profile, parse_run_filename
 
         extractor = ProfileFeatureExtractor()
         pooled: Dict[str, Any] = {}
         count = 0
         # Also approximate energy by pooling power*duration across runs
         dir_path = run_files[0].parent
-        timing_map: Dict[str, Tuple[int, float]] = {}
-        tfile = dir_path / "timing_summary.log"
-        if tfile.exists():
-            with tfile.open("r", encoding="utf-8", errors="ignore") as f:
-                for raw in f:
-                    line = raw.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    parts = [p.strip() for p in line.split(",")]
-                    if len(parts) < 5:
-                        continue
-                    rid, freq_str, dur_str, *_ = parts
-                    try:
-                        timing_map[rid] = (int(freq_str), float(dur_str))
-                    except ValueError:
-                        continue
-        pat = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
+        timing_map: Dict[str, Tuple[int, float]] = dict(load_timing_summary(dir_path))
         for fp in run_files:
             df = parse_dcgmi_profile(fp)
             feats = extractor.extract(df, context)
@@ -167,9 +149,10 @@ class DatasetBuilder:
                 else:
                     pooled[k] = v
             # energy estimate
-            m = pat.search(fp.name)
-            if m and "POWER" in df.columns:
-                run_id = f"{int(m.group(1))}_{int(m.group(2)):02d}"
+            parsed = parse_run_filename(fp.name)
+            if parsed and "POWER" in df.columns:
+                seq, run_num, _ = parsed
+                run_id = f"{seq}_{run_num:02d}"
                 dur = timing_map.get(run_id, (None, 0.0))[1]
                 # Prefer DCGMI TOTEC delta if available (mJ → J)
                 if "TOTEC" in df.columns and not df["TOTEC"].dropna().empty:
@@ -196,10 +179,8 @@ class DatasetBuilder:
         - probe_frequency_mhz (from filename) and normalized ratio to max_freq if provided
         - gpu_type, sampling_interval_ms, probe_policy
         """
-        import re
-
         from .feature_extractor import ProfileFeatureExtractor
-        from .profile_reader import parse_dcgmi_profile
+        from .profile_reader import load_timing_summary, parse_dcgmi_profile, parse_run_filename
 
         df = parse_dcgmi_profile(run_file)
         extractor = ProfileFeatureExtractor()
@@ -207,31 +188,21 @@ class DatasetBuilder:
         pmean = float(df["POWER"].dropna().mean()) if "POWER" in df.columns else 0.0
 
         # timing
-        m = re.search(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$", run_file.name)
         run_id = None
         probe_freq = None
-        if m:
-            seq, run_num, fmhz = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        parsed = parse_run_filename(run_file.name)
+        if parsed:
+            seq, run_num, fmhz = parsed
             run_id = f"{seq}_{run_num:02d}"
             probe_freq = fmhz
         dur = 0.0
-        tfile = run_file.parent / "timing_summary.log"
-        if run_id and tfile.exists():
-            with tfile.open("r", encoding="utf-8", errors="ignore") as f:
-                for raw in f:
-                    line = raw.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    parts = [p.strip() for p in line.split(",")]
-                    if len(parts) < 5:
-                        continue
-                    rid, freq_str, dur_str, exit_code, status = parts[:5]
-                    if rid == run_id:
-                        try:
-                            dur = float(dur_str)
-                        except ValueError:
-                            pass
-                        break
+        if run_id:
+            timing_map = load_timing_summary(run_file.parent)
+            if run_id in timing_map:
+                try:
+                    dur = float(timing_map[run_id][1])
+                except Exception:
+                    dur = 0.0
         # Fallback: infer duration from number of POWER samples if timing missing
         if dur <= 0.0 and "POWER" in df.columns:
             samples = int(df["POWER"].dropna().shape[0])

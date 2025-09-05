@@ -15,6 +15,7 @@ Notes:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Tuple
@@ -39,6 +40,22 @@ class RunAggregate:
     power_std_w: Optional[float] = None
     timing_std_s: Optional[float] = None
     run_count: int = 0
+
+
+# Shared filename pattern for per-run profiles
+# Format: run_<seq>_<run_num>_freq_<MHz>_profile.csv
+RUN_FILE_PATTERN = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
+
+
+def parse_run_filename(name: str) -> Optional[Tuple[int, int, int]]:
+    """Parse a profile filename into (seq, run_num, frequency_mhz).
+
+    Returns None if the name does not match the expected pattern.
+    """
+    m = RUN_FILE_PATTERN.search(name)
+    if not m:
+        return None
+    return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
 
 def parse_dcgmi_profile(file_path: Path) -> "pd.DataFrame":
@@ -169,19 +186,16 @@ def aggregate_warm_runs(
     if pd is None or np is None:
         raise RuntimeError("pandas and numpy are required for aggregation")
 
-    import re
-
     timing_map = load_timing_summary(dir_path)
     files = list_profile_files(dir_path)
     # Group runs per frequency
     runs_by_freq: Dict[int, List[Tuple[str, int, Path]]] = {}
 
-    pattern = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
     for fp in files:
-        m = pattern.search(fp.name)
-        if not m:
+        parsed = parse_run_filename(fp.name)
+        if not parsed:
             continue
-        seq, run_num, freq = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        seq, run_num, freq = parsed
         # Exclude cold run (run_num == 1)
         if run_num <= 1:
             continue
@@ -254,15 +268,12 @@ def read_run_profiles(dir_path: Path) -> Dict[int, "pd.DataFrame"]:
     if pd is None:
         raise RuntimeError("pandas is required to read run profiles")
 
-    import re
-
     mapping: Dict[int, "pd.DataFrame"] = {}
-    pattern = re.compile(r"run_(\d+)_(\d+)_freq_(\d+)_profile\.csv$")
     for fp in list_profile_files(dir_path):
-        m = pattern.search(fp.name)
-        if not m:
+        parsed = parse_run_filename(fp.name)
+        if not parsed:
             continue
-        freq = int(m.group(3))
+        _, _, freq = parsed
         try:
             df = parse_dcgmi_profile(fp)
         except Exception:
