@@ -51,7 +51,8 @@ class DatasetBuilder:
 
         Returns: (gpu, workload, job_id) or None
         """
-        m = re.match(r"results_([^_]+)_([^_]+)_job_(\d+)", dir_path.name)
+        # Allow underscores in workload name by capturing greedily up to _job_
+        m = re.match(r"results_([^_]+)_(.+)_job_(\d+)", dir_path.name)
         if not m:
             return None
         return (m.group(1).upper(), m.group(2).lower(), m.group(3))
