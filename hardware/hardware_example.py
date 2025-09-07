@@ -7,7 +7,7 @@ which provides comprehensive specifications and validation for
 NVIDIA GPU architectures used in AI inference energy profiling.
 
 Usage:
-    python hardware_example.py [--gpu-type V100|A100|H100] [--compare-all]
+    python hardware_example.py [--gpu-type V100|A100|H100] [--compare-all] [--integration]
 """
 
 import argparse
