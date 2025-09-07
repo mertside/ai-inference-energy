@@ -44,6 +44,8 @@ class TestUtilsParsing(unittest.TestCase):
         self.assertEqual(utils.parse_csv_line(line), ["a", "b", "c"])
         line_semicolon = "1;2;3"
         self.assertEqual(utils.parse_csv_line(line_semicolon, delimiter=";"), ["1", "2", "3"])
+        line_quotes = '"a,1",b'
+        self.assertEqual(utils.parse_csv_line(line_quotes), ["a,1", "b"])
 
     def test_clean_filename(self):
         dirty = "inva:lid/fi*le?name.txt"
