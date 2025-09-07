@@ -10,7 +10,7 @@ Section about vgpu_driver_capability properties
 Retrieves information about driver level caps.
 
 "vgpu_driver_capability.heterogenous_multivGPU"
-Whether heterogeneuos multi-vGPU is supported by driver.
+Whether heterogeneous multi-vGPU is supported by driver.
 
 "count"
 The number of NVIDIA GPUs in the system.
