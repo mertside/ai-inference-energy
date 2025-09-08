@@ -162,24 +162,26 @@ class GPUSpecifications:
         """Get list of all available frequencies in MHz."""
         freq_spec = self.get_frequency_specification()
         if freq_spec.frequencies:
-            return freq_spec.frequencies.copy()
-
-        # Generate frequency list if not explicitly provided
-        frequencies = []
-        if freq_spec.step_size:
-            freq = freq_spec.min_freq
-            while freq <= freq_spec.max_freq:
-                frequencies.append(freq)
-                freq += freq_spec.step_size
+            frequencies = freq_spec.frequencies.copy()
         else:
-            if freq_spec.count <= 1:
-                return [freq_spec.min_freq]
-            # Use count to determine approximate step size
-            step = (freq_spec.max_freq - freq_spec.min_freq) / (freq_spec.count - 1)
-            for i in range(freq_spec.count):
-                freq = freq_spec.min_freq + int(i * step)
-                frequencies.append(freq)
+            # Generate frequency list if not explicitly provided
+            frequencies = []
+            if freq_spec.step_size:
+                freq = freq_spec.min_freq
+                while freq <= freq_spec.max_freq:
+                    frequencies.append(freq)
+                    freq += freq_spec.step_size
+            else:
+                if freq_spec.count <= 1:
+                    frequencies = [freq_spec.min_freq]
+                else:
+                    # Use count to determine approximate step size
+                    step = (freq_spec.max_freq - freq_spec.min_freq) / (freq_spec.count - 1)
+                    for i in range(freq_spec.count):
+                        freq = freq_spec.min_freq + int(i * step)
+                        frequencies.append(freq)
 
+        frequencies.sort(reverse=True)
         return frequencies
 
     def get_memory_specification(self) -> MemorySpecification:
