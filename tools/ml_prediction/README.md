@@ -149,6 +149,35 @@ Notes:
 - Importances are model‑based (Gini) summary values; they are not causal.
 - For more robust attribution (especially with correlated features), consider permutation importance or SHAP in future iterations.
 
+### Save Importances to Disk
+
+Both commands can persist feature importances to a directory and generate a quick visual:
+```bash
+# Trainer: save CSV/JSON/Markdown + PNG bar plot
+python -m tools.ml_prediction.train_baseline \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --model-out tools/ml_prediction/models/rf_all_freq.joblib \
+  --save-fi-dir tools/ml_prediction/results/fi_baseline \
+  --fi-top-n 30 \
+  --fi-tag "rf_all_freq_random_20"
+
+# Evaluator: include split context in saved metadata
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split workload --holdout-workloads llama \
+  --save-fi-dir tools/ml_prediction/results/fi_eval_workload_llama \
+  --fi-top-n 30 \
+  --fi-tag "rf_eval_loo_wl"
+```
+Outputs in the chosen directory:
+- `feature_importances.csv`: full ranking (feature, importance, rank)
+- `feature_importances.json`: importances + run context
+- `feature_importances.md`: top‑N table with brief context
+- `feature_importances_top.png`: horizontal bar chart (top‑N)
+
+Tip: Commit the CSV/JSON to track changes across runs; the PNG/MD help with quick reviews.
+
 ## Evaluation With EDP Gap
 
 Use the evaluation script for cross‑workload/GPU splits and EDP gap reporting (requires `--policy all-freq` dataset):
