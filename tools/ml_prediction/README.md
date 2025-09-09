@@ -10,6 +10,7 @@ This guide explains how to train and evaluate ML models that predict EDP‑optim
 - `dataset_builder.py`: Builds datasets from probe policies: `max-only`, `tri-point`, `all-freq`.
 - `models/random_forest_predictor.py`: Baseline RF classifier with frequency snapping and confidence estimate.
 - `evaluate.py`: Cross‑workload/GPU evaluation with EDP gap reporting.
+  The trainer and evaluator also print aggregated feature importances.
 
 ## Feature Set (Extracted)
 
@@ -113,6 +114,40 @@ Tips to improve baseline results:
   which typically improves learning substantially over `max-only` (12 samples).
 - Prefer enriched features: trends (POWER/TMPTR/GPUTL) + normalized clocks via HAL; probe frequency features from `all-freq` policy significantly help.
 - Evaluate with cross‑workload and cross‑GPU splits to check generalization.
+
+## Feature Importances
+
+Both the baseline trainer and evaluator report feature importances from the fitted RandomForest model:
+- Importances are aggregated back to the original feature names (one‑hot encoded categoricals are summed per source column).
+- This helps identify which extracted features most influence the predicted EDP‑optimal frequency.
+
+How to run and view importances:
+```bash
+# During baseline training (prints top features)
+python -m tools.ml_prediction.train_baseline \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --model-out tools/ml_prediction/models/rf_all_freq.joblib
+
+# During evaluation with EDP gap (also prints importances before metrics)
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split random --holdout 0.2
+```
+Example output snippet:
+```
+=== Top Feature Importances (RF, aggregated) ===
+probe_frequency_mhz              0.2315
+power_mean                       0.1142
+gputl_slope                      0.0719
+gpu_type                         0.0705
+smclk_norm_hal_max               0.0574
+...
+```
+
+Notes:
+- Importances are model‑based (Gini) summary values; they are not causal.
+- For more robust attribution (especially with correlated features), consider permutation importance or SHAP in future iterations.
 
 ## Evaluation With EDP Gap
 

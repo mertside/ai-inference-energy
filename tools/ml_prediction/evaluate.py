@@ -112,6 +112,16 @@ def evaluate(
     )
     model = RandomForestFrequencyPredictor(cfg)
     model.fit(X_train, y_train)
+    # Report feature importances (Gini) aggregated by original feature
+    try:
+        fi = model.feature_importances()
+        if fi:
+            top = sorted(fi.items(), key=lambda x: x[1], reverse=True)[:15]
+            print("\n=== Top Feature Importances (RF, aggregated) ===")
+            for name, val in top:
+                print(f"{name:32s} {val:.4f}")
+    except Exception:
+        pass
     preds = model.predict(X_test)
 
     # Frequency error metrics
