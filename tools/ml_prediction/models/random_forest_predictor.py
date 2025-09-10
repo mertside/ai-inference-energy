@@ -47,6 +47,9 @@ class RandomForestFrequencyPredictor:
         self.model = None  # type: ignore
         self.preprocessor = None  # type: ignore
         self.frequencies_per_gpu: Dict[str, List[int]] = {}
+        # Persist the resolved feature lists after fit()
+        self.numeric_features_: List[str] = []
+        self.categorical_features_: List[str] = []
 
     def fit(self, X: "pd.DataFrame", y: "np.ndarray") -> None:
         """Train the RF classifier with preprocessing (scaler + one‑hot).
@@ -66,6 +69,9 @@ class RandomForestFrequencyPredictor:
             if self.config.categorical_features
             else [c for c in X.columns if c not in numeric_features]
         )
+        # Persist for later reporting
+        self.numeric_features_ = list(numeric_features)
+        self.categorical_features_ = list(categorical_features)
 
         numeric_transformer = Pipeline(steps=[("scaler", StandardScaler())])
         categorical_transformer = Pipeline(steps=[("onehot", OneHotEncoder(handle_unknown="ignore"))])
@@ -80,6 +86,60 @@ class RandomForestFrequencyPredictor:
         clf = RandomForestClassifier(n_estimators=300, random_state=42, n_jobs=-1)
         self.model = Pipeline(steps=[("preprocessor", self.preprocessor), ("clf", clf)])
         self.model.fit(X, y)
+
+    def feature_importances(self) -> Dict[str, float]:
+        """Return aggregated feature importances by original feature name.
+
+        Uses RandomForestClassifier's `feature_importances_` and aggregates
+        one‑hot encoded categorical features by summing their contributions.
+        """
+        if self.model is None:
+            raise RuntimeError("Model not trained")
+        # Access fitted components
+        clf = self.model.named_steps.get("clf")
+        pre = self.model.named_steps.get("preprocessor")
+        if clf is None or pre is None:
+            return {}
+        try:
+            importances = clf.feature_importances_  # type: ignore[attr-defined]
+        except Exception:
+            return {}
+        out: Dict[str, float] = {}
+        idx = 0
+        # Numeric features: one output per feature
+        for f in self.numeric_features_:
+            if idx < len(importances):
+                out[f] = float(importances[idx])
+                idx += 1
+        # Categorical features: sum over one‑hot columns per original feature
+        try:
+            cat_tr = pre.named_transformers_.get("cat")  # type: ignore[attr-defined]
+            if cat_tr is not None:
+                # If a Pipeline, take the last step (OneHotEncoder)
+                ohe = getattr(cat_tr, "named_steps", {}).get("onehot", cat_tr)
+                cats = getattr(ohe, "categories_", None)
+                if cats is not None:
+                    for feat_name, categories in zip(self.categorical_features_, cats):
+                        span = len(categories)
+                        if span > 0:
+                            out[feat_name] = out.get(feat_name, 0.0) + float(sum(importances[idx : idx + span]))
+                            idx += span
+                else:
+                    # Fallback: attribute the remaining mass to a combined key
+                    remaining = float(sum(importances[idx:]))
+                    if remaining > 0:
+                        out["categorical_features"] = out.get("categorical_features", 0.0) + remaining
+            else:
+                # No categorical transformer; attribute any leftover mass
+                remaining = float(sum(importances[idx:]))
+                if remaining > 0:
+                    out["_remainder_"] = out.get("_remainder_", 0.0) + remaining
+        except Exception:
+            # Robust to structure/version differences
+            remaining = float(sum(importances[idx:]))
+            if remaining > 0:
+                out["_remainder_"] = out.get("_remainder_", 0.0) + remaining
+        return out
 
     def predict(self, X: "pd.DataFrame") -> List[int]:
         """Predict and snap to the nearest legal frequency per row."""

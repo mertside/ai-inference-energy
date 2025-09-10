@@ -65,6 +65,7 @@ __pycache__/
 *.log
 *.csv
 *.png
+*.json
 
 # Model artifacts
 *.joblib

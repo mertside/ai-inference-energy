@@ -49,6 +49,9 @@ def main() -> int:
     parser.add_argument("--dataset", required=True, help="CSV/Parquet dataset path")
     parser.add_argument("--model-out", required=True, help="Output path for joblib model")
     parser.add_argument("--holdout", type=float, default=0.2, help="Holdout fraction [0,1]")
+    parser.add_argument("--save-fi-dir", default=None, help="If set, save feature importances to this directory")
+    parser.add_argument("--fi-top-n", type=int, default=25, help="Top-N features to include in the plot/table")
+    parser.add_argument("--fi-tag", default=None, help="Optional tag to include in saved outputs (e.g., run id)")
     args = parser.parse_args()
 
     ds_path = Path(args.dataset).resolve()
@@ -79,6 +82,33 @@ def main() -> int:
     )
     model = RandomForestFrequencyPredictor(cfg)
     model.fit(X_train, y_train)
+    # Report feature importances (aggregated by original feature)
+    try:
+        fi = model.feature_importances()
+        if fi:
+            top = sorted(fi.items(), key=lambda x: x[1], reverse=True)[:15]
+            print("\n=== Top Feature Importances (RF, aggregated) ===")
+            for name, val in top:
+                print(f"{name:32s} {val:.4f}")
+            # Optional: persist to disk
+            if args.save_fi_dir:
+                from .feature_importance import FIContext, save_feature_importances
+
+                out_paths = save_feature_importances(
+                    fi,
+                    Path(args.save_fi_dir).resolve(),
+                    top_n=int(args.fi_top_n),
+                    context=FIContext(
+                        dataset=str(ds_path),
+                        split="random",
+                        holdout=float(args.holdout),
+                        model="RandomForest",
+                        tag=args.fi_tag,
+                    ),
+                )
+                print(f"Saved feature importances: {out_paths}")
+    except Exception:
+        pass
 
     # Evaluate
     preds = model.predict(X_test)

@@ -27,6 +27,15 @@ Core analysis scripts for EDP (Energy-Delay Product) optimization and visualizat
     - 4 summary comparison charts and multi-GPU analysis
     - Publication-quality 300 DPI PNG files
 
+### 🤖 ML Prediction (`ml_prediction/`)
+End-to-end pipeline for learning to predict EDP‑optimal GPU frequencies from short profiling runs:
+- `build_labels.py` / `label_builder.py` — Generate ground‑truth labels (EDP & ED²P optimal) using `analysis/edp_optimizer.py`
+- `build_dataset.py` / `dataset_builder.py` — Build training datasets from probe policies: `max-only`, `tri-point`, `all-freq`
+- `feature_extractor.py` — Derive statistics, trend slopes, ratios, and HAL‑normalized features from DCGMI profiles
+- `train_baseline.py` + `models/random_forest_predictor.py` — Baseline RandomForest with frequency snapping and confidence
+- `evaluate.py` — Cross‑workload/GPU splits with frequency error + EDP gap metrics
+- Outputs: `tools/ml_prediction/labels.json`, `tools/ml_prediction/datasets/*.csv`, `tools/ml_prediction/models/*.joblib`
+
 ### 📡 Data Collection (`sample-collection-scripts/`)
 Data collection and profiling tools for GPU workloads (repository root):
 - `profile.py` - DCGMI profiling interface for detailed metrics
@@ -76,6 +85,36 @@ python visualize_edp_summary.py --input ../results/edp_optimization_results.json
 ls edp-plots/*.png
 ```
 
+## 🤖 ML Prediction Workflow
+
+Run from repository root:
+
+```bash
+# 1) Build labels (EDP/ED²P) from experimental results
+python -m tools.ml_prediction.build_labels \
+  --results-dir sample-collection-scripts \
+  --performance-threshold 5.0 \
+  --output tools/ml_prediction/labels.json
+
+# 2) Build dataset (recommend all-freq for training)
+python -m tools.ml_prediction.build_dataset \
+  --results-dir sample-collection-scripts \
+  --labels tools/ml_prediction/labels.json \
+  --output tools/ml_prediction/datasets/all_freq.csv \
+  --policy all-freq
+
+# 3) Train baseline RF and view quick metrics
+python -m tools.ml_prediction.train_baseline \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --model-out tools/ml_prediction/models/rf_all_freq.joblib
+
+# 4) Evaluate with EDP gap (requires all-freq dataset)
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split workload --holdout-workloads llama
+```
+
 ## Usage
 
 Run scripts from the project root directory:
@@ -106,10 +145,11 @@ python sample-collection-scripts/profile_smi.py --help
 
 ## Tool Dependencies
 
-- **Core Analysis**: Python 3.8+, pandas, numpy
+- **Core Analysis**: Python 3.10+, pandas, numpy
 - **EDP Optimization**: scikit-learn, matplotlib, seaborn
 - **Data Visualization**: matplotlib, numpy, pandas, pathlib (for DCGMI integration)
-- **Profiling**: NVIDIA DCGMI, nvidia-smi
+- **ML Prediction**: scikit-learn, joblib; optional `pyarrow` for Parquet I/O
+- **Profiling**: NVIDIA DCGMI (primary); nvidia-smi fallback for collection (ML pipeline parses DCGMI)
 - **Data Collection**: subprocess, threading
 - **Testing**: pytest (optional)
 
@@ -122,6 +162,9 @@ Scripts generate various output files:
   - Individual scatter plots for each GPU-workload combination
   - Summary analysis charts and comparative visualizations
   - Experimental data integration with 824 data points total
+- `tools/ml_prediction/labels.json` — Ground‑truth label records per GPU–workload
+- `tools/ml_prediction/datasets/*.csv` — Training/evaluation datasets (`max_only.csv`, `all_freq.csv`, …)
+- `tools/ml_prediction/models/*.joblib` — Saved ML models (e.g., `rf_all_freq.joblib`)
 - `MEASURED_DATA_OPTIMAL_FREQUENCIES.md` - Legacy results report (archived)
 - `measured_data_optimal_frequencies_deployment.json` - Deployment config (archived)
 - Analysis reports and model outputs in respective directories
@@ -141,3 +184,18 @@ The enhanced visualization framework generates **16 total files**:
 - Comprehensive 4-panel overview dashboard
 
 All visualizations are **publication-ready at 300 DPI** and use **experimental data** from DCGMI profiling when available.
+
+## Known Limitations and Notes
+
+- ML prediction pipeline currently parses DCGMI profiles; direct nvidia‑smi parsing within ML tools is planned.
+- EDP gap evaluation relies on datasets with one row per frequency (`all-freq` policy). Sparse datasets may reduce coverage.
+- HAL‑normalized features are best‑effort and skipped when unsupported for a GPU type.
+- Parquet I/O requires optional dependencies (e.g., `pyarrow`); CSV works by default.
+
+## Roadmap / TODOs
+
+- Integrate nvidia‑smi parsing path into ML tools
+- Add an inference CLI for single‑run prediction (load model → frequency + confidence)
+- Hyperparameter tuning and alternative models (XGB/LightGBM/NN) with split tracking
+- Percentile/worst‑case reporting and feature importances in evaluation outputs
+- Packaging for tools (entry points) and reproducible environments (conda/uv lockfiles)

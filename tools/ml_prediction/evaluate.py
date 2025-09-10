@@ -56,7 +56,16 @@ def nearest_key(keys: List[int], target: int) -> Optional[int]:
 
 
 def evaluate(
-    df: pd.DataFrame, labels: Dict[Tuple[str, str], dict], split: str, holdout: float, holdout_workloads: List[str], holdout_gpus: List[str]
+    df: pd.DataFrame,
+    labels: Dict[Tuple[str, str], dict],
+    split: str,
+    holdout: float,
+    holdout_workloads: List[str],
+    holdout_gpus: List[str],
+    save_fi_dir: Optional[str] = None,
+    fi_top_n: int = 25,
+    fi_tag: Optional[str] = None,
+    dataset_path: Optional[Path] = None,
 ) -> None:
     # Build energy map for EDP gap calculations
     energy_map, time_map = build_maps(df)
@@ -112,6 +121,33 @@ def evaluate(
     )
     model = RandomForestFrequencyPredictor(cfg)
     model.fit(X_train, y_train)
+    # Report feature importances (Gini) aggregated by original feature
+    try:
+        fi = model.feature_importances()
+        if fi:
+            top = sorted(fi.items(), key=lambda x: x[1], reverse=True)[:15]
+            print("\n=== Top Feature Importances (RF, aggregated) ===")
+            for name, val in top:
+                print(f"{name:32s} {val:.4f}")
+            if save_fi_dir:
+                try:
+                    from .feature_importance import FIContext, save_feature_importances
+
+                    ctx = FIContext(
+                        dataset=str(dataset_path) if dataset_path else None,
+                        split=str(split),
+                        holdout=float(holdout) if split == "random" else None,
+                        holdout_workloads=[w.lower() for w in holdout_workloads] if split == "workload" else None,
+                        holdout_gpus=[g.upper() for g in holdout_gpus] if split == "gpu" else None,
+                        model="RandomForest",
+                        tag=fi_tag,
+                    )
+                    out_paths = save_feature_importances(fi, Path(save_fi_dir).resolve(), top_n=int(fi_top_n), context=ctx)
+                    print(f"Saved feature importances: {out_paths}")
+                except Exception:
+                    pass
+    except Exception:
+        pass
     preds = model.predict(X_test)
 
     # Frequency error metrics
@@ -209,6 +245,9 @@ def main() -> int:
     ap.add_argument("--holdout", type=float, default=0.2, help="random split holdout fraction")
     ap.add_argument("--holdout-workloads", nargs="*", default=[], help="workloads to hold out for split=workload")
     ap.add_argument("--holdout-gpus", nargs="*", default=[], help="GPUs to hold out for split=gpu")
+    ap.add_argument("--save-fi-dir", default=None, help="If set, save feature importances to this directory")
+    ap.add_argument("--fi-top-n", type=int, default=25, help="Top-N features to include in the plot/table")
+    ap.add_argument("--fi-tag", default=None, help="Optional tag to include in saved outputs (e.g., run id)")
     args = ap.parse_args()
 
     ds_path = Path(args.dataset).resolve()
@@ -218,7 +257,18 @@ def main() -> int:
         df = pd.read_csv(ds_path)
     labels = load_labels(Path(args.labels).resolve())
 
-    evaluate(df, labels, args.split, args.holdout, args.holdout_workloads, args.holdout_gpus)
+    evaluate(
+        df,
+        labels,
+        args.split,
+        args.holdout,
+        args.holdout_workloads,
+        args.holdout_gpus,
+        save_fi_dir=args.save_fi_dir,
+        fi_top_n=int(args.fi_top_n),
+        fi_tag=args.fi_tag,
+        dataset_path=ds_path,
+    )
     return 0
 
 
