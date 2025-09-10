@@ -9,8 +9,8 @@ This guide explains how to train and evaluate ML models that predict EDP‑optim
 - `label_builder.py`: Generates ground‑truth labels (EDP & ED²P optimal) via `tools/analysis/edp_optimizer.py`.
 - `dataset_builder.py`: Builds datasets from probe policies: `max-only`, `tri-point`, `all-freq`.
 - `models/random_forest_predictor.py`: Baseline RF classifier with frequency snapping and confidence estimate.
-- `evaluate.py`: Cross‑workload/GPU evaluation with EDP gap reporting.
-  The trainer and evaluator also print aggregated feature importances.
+- `feature_importance.py`: Save feature importances to CSV/JSON/Markdown and render a top‑N bar plot.
+- `evaluate.py`: Cross‑workload/GPU evaluation with EDP gap reporting. Trainer/evaluator print and can save aggregated feature importances.
 
 ## Feature Set (Extracted)
 
@@ -50,6 +50,12 @@ python -m pip -V
 ```
 
 Important: run from the repository root (so `tools` is on the Python path), or use the direct script form (both supported).
+
+## End‑to‑End Workflow
+
+0) Collect profiling results (once per workload/GPU)
+- Use scripts under `sample-collection-scripts/` to generate `results_<GPU>_<workload>_job_<id>/` with `run_*_profile.csv` and a `timing_summary.log`.
+- For datasets covering many frequencies (recommended for training + EDP gap eval), run with a DVFS sweep so multiple `probe_frequency_mhz` values exist per workload.
 
 1) Build labels (EDP/ED²P) from experimental results
 ```bash
@@ -114,6 +120,40 @@ Tips to improve baseline results:
   which typically improves learning substantially over `max-only` (12 samples).
 - Prefer enriched features: trends (POWER/TMPTR/GPUTL) + normalized clocks via HAL; probe frequency features from `all-freq` policy significantly help.
 - Evaluate with cross‑workload and cross‑GPU splits to check generalization.
+
+4) Evaluate with EDP gap (requires `all-freq` dataset)
+```bash
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split workload --holdout-workloads llama
+```
+The evaluator prints frequency error and EDP gap (predicted vs optimal EDP = energy × time). It avoids split leakage (e.g., excludes `workload` from features for workload holdout). If an exact (gpu, workload, freq) mapping is missing, it falls back to the nearest available frequency for EDP calculations.
+
+5) Save feature importances (optional, trainer or evaluator)
+```bash
+# Trainer: save CSV/JSON/Markdown + PNG bar plot
+python -m tools.ml_prediction.train_baseline \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --model-out tools/ml_prediction/models/rf_all_freq.joblib \
+  --save-fi-dir tools/ml_prediction/results/fi_baseline \
+  --fi-top-n 30 \
+  --fi-tag "rf_all_freq_random_20"
+
+# Evaluator: include split context in saved metadata
+python -m tools.ml_prediction.evaluate \
+  --dataset tools/ml_prediction/datasets/all_freq.csv \
+  --labels tools/ml_prediction/labels.json \
+  --split gpu --holdout-gpus H100 \
+  --save-fi-dir tools/ml_prediction/results/fi_eval_gpu_h100 \
+  --fi-top-n 30 \
+  --fi-tag "rf_eval_loo_gpu"
+```
+Outputs in the chosen directory:
+- `feature_importances.csv` — full ranking (feature, importance, rank)
+- `feature_importances.json` — importances + run context
+- `feature_importances.md` — top‑N table with context
+- `feature_importances_top.png` — horizontal bar chart (top‑N)
 
 ## Feature Importances
 
@@ -235,3 +275,4 @@ The evaluator prints frequency error and EDP gap (predicted vs optimal EDP = ene
 - Consolidated run filename parsing into a shared helper and reused the canonical `timing_summary.log` loader to avoid duplication across tools.
 - Added trend slopes and HAL‑normalized clock features to the feature extractor; datasets now include these automatically when rebuilt.
 - Evaluator now reports EDP gap with nearest‑frequency fallback when exact keys are missing.
+- Added aggregated RandomForest feature importances with options to persist CSV/JSON/Markdown and a PNG bar plot via `--save-fi-dir` in trainer and evaluator.
