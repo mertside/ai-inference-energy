@@ -1,6 +1,6 @@
 # Documentation Directory
 
-This directory contains comprehensive documentation for the AI Inference Energy
+This directory contains comprehensive documentation for the AI Inference Energy profiling framework.
 
 ## 📚 Core Documentation
 
