@@ -173,10 +173,8 @@ run_profiling_experiment() {
     # Parse application parameters into array
     local app_params_array=()
     if [[ -n "$PARSED_APP_PARAMS" ]]; then
-        # Use bash read to properly parse quoted parameters
-        while IFS= read -r -d '' param; do
-            app_params_array+=("$param")
-        done < <(printf '%s\0' $PARSED_APP_PARAMS)
+        eval "set -- $PARSED_APP_PARAMS"
+        app_params_array=("$@")
     fi
 
     log_debug "Application parameters: ${#app_params_array[@]} items"
