@@ -76,6 +76,11 @@ class TestUtilsValidation(unittest.TestCase):
         self.assertFalse(utils.validate_gpu_available())
 
     @patch("utils.run_command")
+    def test_validate_gpu_available_calledprocesserror(self, mock_run):
+        mock_run.side_effect = subprocess.CalledProcessError(1, "nvidia-smi")
+        self.assertFalse(utils.validate_gpu_available())
+
+    @patch("utils.run_command")
     def test_validate_dcgmi_available(self, mock_run):
         mock_run.return_value = CompletedProcess([], 0, stdout="", stderr="")
         self.assertTrue(utils.validate_dcgmi_available())
