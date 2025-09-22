@@ -9,12 +9,10 @@ The LSTM application provides a standardized binary sentiment classification ben
 ## Files
 
 - **`lstm.py`**: Main LSTM sentiment analysis benchmark application
-- **`lstm_modern.py`**: Modern TensorFlow 2.x LSTM implementation with enhanced features
-- **`requirements_h100.txt`**: Complete pip requirements for H100 environment
-- **`requirements_h100_minimal.txt`**: Minimal requirements for easy setup
-- **`lstm-h100-20250708.yml`**: Conda environment file for H100 TensorFlow setup
-- **`tensorflow.yml`**: Alternative TensorFlow environment configuration
-- **`setEnv.sh`**: Environment setup script
+- **`setup/lstm-env-hpcc.yml`**: Conda environment file for HPCC cluster
+- **`setup/lstm-env-repacss.yml`**: Conda environment file for REPACSS cluster
+- **`setup/requirements_lstm_repacss.txt`**: Python dependencies for REPACSS
+- **`setup/requirements_lstm_repacss_minimal.txt`**: Minimal requirements for REPACSS
 
 ## Features
 
@@ -54,45 +52,44 @@ lstm_units = 10                 # LSTM hidden units
 
 ## Usage
 
-### Quick Start (H100 Environment)
+## Usage
+
+### Quick Start (HPCC/REPACSS Environment)
 
 **Using the pre-configured conda environment:**
 ```bash
-# Load conda and activate the H100 environment
-conda activate tensorflow-lstm
+# For HPCC cluster
+conda env create -f setup/lstm-env-hpcc.yml
+conda activate lstm-env
+
+# For REPACSS cluster
+conda env create -f setup/lstm-env-repacss.yml
+conda activate lstm-env
+
+# Run LSTM benchmark
 cd app-lstm
-python lstm_modern.py       # Run modern LSTM benchmark
+python lstm.py
 ```
 
-**Creating the environment from scratch:**
+**Creating environment from requirements:**
 ```bash
-# Option 1: From conda environment file (H100 optimized)
-conda env create -f lstm-h100-20250708.yml
+# Create new environment
+conda create -n lstm-benchmark python=3.10
+conda activate lstm-benchmark
 
-# Option 2: From alternative conda environment file
-conda env create -f tensorflow.yml
+# Install dependencies (REPACSS)
+pip install -r setup/requirements_lstm_repacss_minimal.txt
 
-# Option 3: From pip requirements (minimal)
-conda create -n tensorflow-lstm python=3.10
-conda activate tensorflow-lstm
-pip install -r requirements_h100_minimal.txt
-
-# Option 4: From pip requirements (complete)
-pip install -r requirements_h100.txt
-
-# Option 5: Using setup script
-source setEnv.sh
+# Run benchmark
+python lstm.py
 ```
 
 ### Standalone Usage
 ```bash
 cd app-lstm
 
-# Run original LSTM
+# Run LSTM benchmark
 python lstm.py
-
-# Run modern LSTM (recommended)
-python lstm_modern.py
 ```
 
 ### Profiling Usage

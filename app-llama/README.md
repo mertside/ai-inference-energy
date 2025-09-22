@@ -20,14 +20,13 @@ Choose the appropriate environment for your hardware:
 ```bash
 cd setup/
 
-# Auto-detect GPU and setup environment
-./setup_llama.sh
+# For HPCC cluster
+conda env create -f llama-environment-hpcc.yml
+conda activate llama-env
 
-# Or specify GPU type manually
-./setup_llama.sh h100    # For H100 GPUs
-./setup_llama.sh a100    # For A100 GPUs
-./setup_llama.sh v100    # For V100 GPUs
-./setup_llama.sh generic # For development/CPU
+# For REPACSS cluster
+conda env create -f llama-environment-repacss.yml
+conda activate llama-env
 ```
 
 ### 2. Hugging Face Authentication

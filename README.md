@@ -21,6 +21,7 @@ As AI workloads grow in complexity and energy demand, static frequency settings 
 - 📊 **Advanced Analysis Suite**: EDP optimization, optimal frequency selection, and production deployment tools with comprehensive visualization framework
 - 🔍 **Data Collection**: Systematic energy and performance data collection across AI workloads with DCGMI integration
 - 🎨 **Modernized AI Models**: Latest Stable Diffusion variants (SDXL, Turbo, Lightning) with comprehensive benchmarking and visualization
+- 🤖 **ML Frequency Prediction**: Machine learning system for predicting optimal GPU frequencies from short profiling runs
 
 ### 🎉 Latest Updates (v2.2.0 - August 2025)
 
@@ -64,6 +65,13 @@ This framework provides a robust foundation for GPU energy profiling and compreh
 cd sample-collection-scripts
 ./launch_v2.sh --app-name "StableDiffusion" --profiling-mode baseline
 # Results saved to structured CSV files for analysis
+
+# ML frequency prediction - Available now!
+cd tools/ml_prediction
+python -m tools.ml_prediction.train_baseline \
+  --dataset datasets/all_freq.csv \
+  --model-out models/rf_predictor.joblib
+# Train ML model to predict optimal frequencies from short profiling runs
 ```
 
 ### Supported AI Models & Applications
@@ -128,7 +136,12 @@ ai-inference-energy/
 │
 ├── app-lstm/                            # LSTM benchmark application
 │   ├── README.md                        # LSTM benchmark documentation
-│   └── lstm.py                          # Sentiment analysis benchmark
+│   ├── lstm.py                          # Sentiment analysis benchmark
+│   └── setup/                           # Environment configuration
+│       ├── lstm-env-hpcc.yml            # HPCC cluster environment
+│       ├── lstm-env-repacss.yml         # REPACSS cluster environment
+│       ├── requirements_lstm_repacss.txt            # Python dependencies
+│       └── requirements_lstm_repacss_minimal.txt   # Minimal dependencies
 │
 ├── (planned) examples/                  # Usage examples (not in this release)
 │
@@ -165,6 +178,25 @@ ai-inference-energy/
 │   │   │       ├── performance_impact_analysis.png    # Performance trade-offs
 │   │   │       └── comprehensive_summary.png          # 4-panel overview
 │   │   └── archived/                                  # Historical analysis tools and reports
+│   ├── ml_prediction/                                 # 🤖 Machine Learning Frequency Prediction System
+│   │   ├── README.md                                  # Comprehensive ML tools documentation
+│   │   ├── build_labels.py                            # Generate EDP/ED²P optimal labels
+│   │   ├── build_dataset.py                           # Build training datasets with probe policies
+│   │   ├── train_baseline.py                          # Baseline RandomForest training
+│   │   ├── evaluate.py                                # Cross-validation with EDP gap analysis
+│   │   ├── feature_extractor.py                       # Statistical features and trend analysis
+│   │   ├── profile_reader.py                          # DCGMI profile parsing and aggregation
+│   │   ├── datasets/                                  # Generated training datasets
+│   │   │   ├── all_freq.csv                           # Full frequency sweep dataset
+│   │   │   └── max_only.csv                           # Max frequency baseline dataset
+│   │   ├── models/                                    # Trained ML models
+│   │   │   ├── random_forest_predictor.py             # RF implementation with frequency snapping
+│   │   │   ├── rf_all_freq.joblib                     # Trained model (all frequencies)
+│   │   │   └── rf_max_only.joblib                     # Trained model (max frequency only)
+│   │   ├── results/                                   # Feature importance analysis results
+│   │   │   ├── fi_baseline/                           # Baseline training feature importance
+│   │   │   └── fi_eval_gpu_h100/                      # Cross-GPU evaluation results
+│   │   └── labels.json                                # Generated optimal frequency labels
 │   ├── (planned) optimal-frequency/                   # Planned frequency optimization tools (not in this release)
 │   ├── (planned) deployment/                          # Planned deployment interfaces (not in this release)
 │   ├── (planned) testing/                             # Planned extra testing tools (not in this release)
