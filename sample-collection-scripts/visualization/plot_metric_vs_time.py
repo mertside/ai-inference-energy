@@ -28,7 +28,16 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 try:
+    import matplotlib
+
+    # Set non-interactive backend for batch processing
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    # Configure matplotlib to use Times font
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["font.serif"] = ["Times New Roman", "Times", "DejaVu Serif", "serif"]
+    plt.rcParams["mathtext.fontset"] = "stix"  # Use STIX fonts for math text (similar to Times)
 
     HAS_MATPLOTLIB = True
 except ImportError:
@@ -292,7 +301,7 @@ class MetricPlotter:
 
     def __init__(self, figsize=(12, 8)):
         self.figsize = figsize
-        self.colors = plt.cm.plasma  # Use viridis colormap for frequency colors
+        self.colors = plt.cm.Set1  # plt.cm.plasma #plt.cm.tab10 #plt.cm.plasma  # Use viridis colormap for frequency colors
         # plt.cm.plasma  # Use plasma colormap for frequency colors
 
     def plot_metric_vs_time(
@@ -342,8 +351,13 @@ class MetricPlotter:
         frequencies = sorted(df["frequency"].unique())
         colors = self.colors(np.linspace(0, 1, len(frequencies)))
 
+        # Define line styles and markers for different frequencies
+        line_styles = ["-", "--", "-.", ":", "-", "--", "-.", ":"]  # Solid, dashed, dash-dot, dotted
+        markers = ["o", "s", "^", "v", "D", "P", "X", "*"]  # Circle, square, triangle up/down, diamond, plus, x, star
+        marker_sizes = [6, 6, 7, 7, 6, 8, 8, 9]  # Varying sizes for better visibility
+
         # Plot each frequency as a separate line
-        for freq, color in zip(frequencies, colors):
+        for i, (freq, color) in enumerate(zip(frequencies, colors)):
             freq_data = df[df["frequency"] == freq].copy()
             freq_data = freq_data.sort_values("normalized_time")
 
@@ -354,7 +368,30 @@ class MetricPlotter:
                 # Convert to percentage if needed
                 plot_values = valid_data[metric] * 100 if convert_to_percentage else valid_data[metric]
 
-                ax.plot(valid_data["normalized_time"], plot_values, color=color, linewidth=3, alpha=0.9, label=f"{freq} MHz")
+                # Use cycling line styles and markers
+                linestyle = line_styles[i % len(line_styles)]
+                marker = markers[i % len(markers)]
+                markersize = marker_sizes[i % len(marker_sizes)]
+
+                # Plot with different line style and markers
+                # Use markevery to show markers only at intervals for cleaner look
+                markevery = max(1, len(valid_data) // 15)  # Show ~15 markers per line
+
+                ax.plot(
+                    valid_data["normalized_time"],
+                    plot_values,
+                    color=color,
+                    linewidth=3,
+                    alpha=0.9,
+                    linestyle=linestyle,
+                    marker=marker,
+                    markersize=markersize,
+                    markevery=markevery,
+                    markerfacecolor=color,
+                    markeredgecolor="white",
+                    markeredgewidth=1,
+                    label=f"{freq} MHz",
+                )
 
                 # Log some stats for this frequency
                 metric_values = valid_data[metric]
