@@ -19,7 +19,16 @@ import numpy as np
 
 # Set style for publication-quality plots
 plt.style.use("default")
-plt.rcParams.update({"font.size": 11, "font.family": "serif", "axes.linewidth": 1.2, "figure.dpi": 300})
+plt.rcParams.update(
+    {
+        "font.size": 20,
+        "font.family": "serif",
+        "font.serif": ["Times New Roman", "Times", "DejaVu Serif", "serif"],
+        "axes.linewidth": 1.2,
+        "figure.dpi": 300,
+        "mathtext.fontset": "stix",  # Use STIX fonts for math text (similar to Times)
+    }
+)
 
 
 class SummaryVisualizer:
@@ -35,8 +44,26 @@ class SummaryVisualizer:
         with open(self.results_file, "r") as f:
             self.results = json.load(f)
 
-        # Color scheme
-        self.colors = {"edp": "#2ecc71", "ed2p": "#3498db", "baseline": "#95a5a6", "highlight": "#e74c3c"}
+        # Color scheme using Set1 colormap colors (for reference only)
+        set1_colors = plt.cm.Set1(np.linspace(0, 1, 9))  # Get Set1 colors
+        self.colors = {
+            "edp": set1_colors[0],  # Red
+            "ed2p": set1_colors[1],  # Blue
+            "baseline": set1_colors[7],  # Gray
+            "highlight": set1_colors[3],  # Purple
+        }
+
+        # Tab10 colors for hatching
+        tab10_colors = plt.cm.tab10(np.linspace(0, 1, 10))  # Get tab10 colors
+        self.hatch_colors = {
+            "edp": tab10_colors[0],  # Tab10 blue
+            "ed2p": tab10_colors[1],  # Tab10 orange
+            "baseline": tab10_colors[2],  # Tab10 green
+            "highlight": tab10_colors[3],  # Tab10 red
+        }
+
+        # Hatch patterns - focusing on diagonal patterns like the image
+        self.hatch_patterns = ["///", "\\\\\\", "|||", "---"]
 
     def create_energy_savings_comparison(self):
         """Create bar chart comparing energy savings between EDP and ED²P"""
@@ -54,40 +81,71 @@ class SummaryVisualizer:
             edp_savings.append(result["energy_savings_edp_percent"])
             ed2p_savings.append(result["energy_savings_ed2p_percent"])
 
-        # Create grouped bar chart
+        # Create grouped bar chart with tab10 colored hatches and no background
         x = np.arange(len(configs))
         width = 0.35
 
-        bars1 = ax.bar(x - width / 2, edp_savings, width, label="EDP Strategy", color=self.colors["edp"], alpha=0.8)
-        bars2 = ax.bar(x + width / 2, ed2p_savings, width, label="ED²P Strategy", color=self.colors["ed2p"], alpha=0.8)
+        bars1 = ax.bar(
+            x - width / 2,
+            edp_savings,
+            width,
+            label="EDP Strategy",
+            color="none",
+            hatch=self.hatch_patterns[0],
+            edgecolor=self.hatch_colors["edp"],
+            linewidth=2.0,
+        )
+        bars2 = ax.bar(
+            x + width / 2,
+            ed2p_savings,
+            width,
+            label="ED²P Strategy",
+            color="none",
+            hatch=self.hatch_patterns[1],
+            edgecolor=self.hatch_colors["ed2p"],
+            linewidth=2.0,
+        )
 
-        # Add value labels on bars
-        for bars in [bars1, bars2]:
+        # Add value labels on bars with overlap avoidance
+        for bar_group_idx, bars in enumerate([bars1, bars2]):
             for bar in bars:
                 height = bar.get_height()
+
+                # Use different vertical offsets for each bar group to avoid overlap
+                if bar_group_idx == 0:  # EDP bars (left bars)
+                    offset = 15  # Higher offset for left bars
+                    va_alignment = "bottom"
+                else:  # ED²P bars (right bars)
+                    offset = 0  # Lower offset for right bars
+                    va_alignment = "bottom"
+
                 ax.annotate(
-                    f"{height:.1f}%",
+                    f"     {height:.1f}%",
                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                    xytext=(0, 3),  # 3 points vertical offset
+                    xytext=(0, offset),
                     textcoords="offset points",
                     ha="center",
-                    va="bottom",
-                    fontsize=9,
+                    va=va_alignment,
+                    fontsize=16,
                     fontweight="bold",
                 )
 
         # Customize plot
-        ax.set_ylabel("Energy Savings (%)", fontsize=14, fontweight="bold")
+        ax.set_ylabel("Energy Savings (%)", fontsize=18, fontweight="bold")
         ax.set_title(
             "Energy Savings Comparison: EDP vs ED²P Optimization Strategies\n" "Across GPU Architectures and AI Workloads",
-            fontsize=16,
+            fontsize=20,
             fontweight="bold",
             pad=20,
         )
         ax.set_xticks(x)
-        ax.set_xticklabels(configs, rotation=45, ha="right")
-        ax.legend(fontsize=12, loc="upper right")
+        ax.set_xticklabels(configs, rotation=45, ha="right", fontsize=16)
+        ax.legend(fontsize=16, loc="upper right")
         ax.grid(True, alpha=0.3, axis="y")
+        ax.set_ylim(0, 50)
+
+        # Increase tick label sizes
+        ax.tick_params(axis="y", labelsize=14)
 
         # Add average lines
         avg_edp = np.mean(edp_savings)
@@ -165,12 +223,12 @@ class SummaryVisualizer:
 
         config_labels = [f"{r['gpu']}-{r['workload']}" for r in self.results]
 
-        # Plot 1: Performance vs Energy Savings scatter
+        # Plot 1: Performance vs Energy Savings scatter with tab10 colors
         ax1.scatter(
             edp_perf,
             edp_energy,
             s=120,
-            color=self.colors["edp"],
+            color=self.hatch_colors["edp"],
             alpha=0.7,
             label="EDP Strategy",
             edgecolors="black",
@@ -180,7 +238,7 @@ class SummaryVisualizer:
             ed2p_perf,
             ed2p_energy,
             s=120,
-            color=self.colors["ed2p"],
+            color=self.hatch_colors["ed2p"],
             alpha=0.7,
             label="ED²P Strategy",
             edgecolors="black",
@@ -197,17 +255,37 @@ class SummaryVisualizer:
         ax1.legend(fontsize=11)
         ax1.grid(True, alpha=0.3)
 
-        # Plot 2: Histogram of performance impacts
+        # Plot 2: Histogram of performance impacts with tab10 colored hatches
         bins = np.linspace(min(min(edp_perf), min(ed2p_perf)), max(max(edp_perf), max(ed2p_perf)), 12)
 
-        ax2.hist(edp_perf, bins=bins, alpha=0.6, label="EDP Strategy", color=self.colors["edp"], edgecolor="black")
-        ax2.hist(ed2p_perf, bins=bins, alpha=0.6, label="ED²P Strategy", color=self.colors["ed2p"], edgecolor="black")
+        ax2.hist(
+            edp_perf,
+            bins=bins,
+            alpha=1.0,
+            label="EDP Strategy",
+            facecolor="none",
+            edgecolor=self.hatch_colors["edp"],
+            linewidth=2.0,
+            hatch=self.hatch_patterns[0],
+        )
+        ax2.hist(
+            ed2p_perf,
+            bins=bins,
+            alpha=1.0,
+            label="ED²P Strategy",
+            facecolor="none",
+            edgecolor=self.hatch_colors["ed2p"],
+            linewidth=2.0,
+            hatch=self.hatch_patterns[1],
+        )
 
         ax2.axvline(x=0, color="red", linestyle="--", alpha=0.7, label="No Change")
-        ax2.axvline(x=np.mean(edp_perf), color=self.colors["edp"], linestyle="-", alpha=0.8, label=f"EDP Avg: {np.mean(edp_perf):.1f}%")
+        ax2.axvline(
+            x=np.mean(edp_perf), color=self.hatch_colors["edp"], linestyle="-", alpha=0.8, label=f"EDP Avg: {np.mean(edp_perf):.1f}%"
+        )
         ax2.axvline(
             x=np.mean(ed2p_perf),
-            color=self.colors["ed2p"],
+            color=self.hatch_colors["ed2p"],
             linestyle="-",
             alpha=0.8,
             label=f"ED²P Avg: {np.mean(ed2p_perf):.1f}%",
@@ -229,6 +307,115 @@ class SummaryVisualizer:
         plt.tight_layout()
         return fig
 
+    def create_performance_vs_energy_scatter(self):
+        """Create scatter plot of performance vs energy trade-offs"""
+
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+
+        # Prepare data
+        edp_perf = [result["performance_vs_max_edp_percent"] for result in self.results]
+        ed2p_perf = [result["performance_vs_max_ed2p_percent"] for result in self.results]
+        edp_energy = [result["energy_savings_edp_percent"] for result in self.results]
+        ed2p_energy = [result["energy_savings_ed2p_percent"] for result in self.results]
+
+        config_labels = [f"{r['gpu']}-{r['workload']}" for r in self.results]
+
+        # Performance vs Energy Savings scatter with tab10 colors
+        ax.scatter(
+            edp_perf,
+            edp_energy,
+            s=120,
+            color=self.hatch_colors["edp"],
+            alpha=0.7,
+            label="EDP Strategy",
+            edgecolors="black",
+            linewidth=1,
+        )
+        ax.scatter(
+            ed2p_perf,
+            ed2p_energy,
+            s=120,
+            color=self.hatch_colors["ed2p"],
+            alpha=0.7,
+            label="ED²P Strategy",
+            edgecolors="black",
+            linewidth=1,
+        )
+
+        # Add reference lines
+        ax.axvline(x=0, color="red", linestyle="--", alpha=0.5, label="No Performance Change")
+        ax.axhline(y=0, color="red", linestyle="--", alpha=0.5, label="No Energy Savings")
+
+        ax.set_xlabel("Performance Change vs Max Frequency (%)", fontsize=14, fontweight="bold")
+        ax.set_ylabel("Energy Savings (%)", fontsize=14, fontweight="bold")
+        ax.set_title(
+            "Performance vs Energy Trade-off Analysis\n" "EDP and ED²P Optimization Strategies", fontsize=16, fontweight="bold", pad=20
+        )
+        ax.legend(fontsize=12)
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        return fig
+
+    def create_performance_impact_distribution(self):
+        """Create histogram of performance impact distribution"""
+
+        fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+
+        # Prepare data
+        edp_perf = [result["performance_vs_max_edp_percent"] for result in self.results]
+        ed2p_perf = [result["performance_vs_max_ed2p_percent"] for result in self.results]
+
+        # Histogram of performance impacts with tab10 colored hatches
+        bins = np.linspace(min(min(edp_perf), min(ed2p_perf)), max(max(edp_perf), max(ed2p_perf)), 12)
+
+        ax.hist(
+            edp_perf,
+            bins=bins,
+            alpha=1.0,
+            label="EDP Strategy",
+            facecolor="none",
+            edgecolor=self.hatch_colors["edp"],
+            linewidth=2.0,
+            hatch=self.hatch_patterns[0],
+        )
+        ax.hist(
+            ed2p_perf,
+            bins=bins,
+            alpha=1.0,
+            label="ED²P Strategy",
+            facecolor="none",
+            edgecolor=self.hatch_colors["ed2p"],
+            linewidth=2.0,
+            hatch=self.hatch_patterns[1],
+        )
+
+        ax.axvline(x=0, color="red", linestyle="--", alpha=0.7, label="No Change")
+        ax.axvline(
+            x=np.mean(edp_perf), color=self.hatch_colors["edp"], linestyle="-", alpha=0.8, label=f"EDP Avg: {np.mean(edp_perf):.1f}%"
+        )
+        ax.axvline(
+            x=np.mean(ed2p_perf),
+            color=self.hatch_colors["ed2p"],
+            linestyle="-",
+            alpha=0.8,
+            label=f"ED²P Avg: {np.mean(ed2p_perf):.1f}%",
+        )
+
+        ax.set_xlabel("Performance Change vs Max Frequency (%)", fontsize=14, fontweight="bold")
+        ax.set_ylabel("Number of Configurations", fontsize=14, fontweight="bold")
+        ax.set_title(
+            "Performance Impact Distribution\n" "Negative values indicate slower execution compared to maximum frequency",
+            fontsize=16,
+            fontweight="bold",
+            pad=20,
+        )
+        ax.legend(fontsize=12)
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        return fig
+
     def create_comprehensive_summary(self):
         """Create a comprehensive 4-panel summary visualization"""
 
@@ -242,8 +429,26 @@ class SummaryVisualizer:
 
         x = np.arange(len(configs))
         width = 0.35
-        ax1.bar(x - width / 2, edp_savings, width, label="EDP", color=self.colors["edp"], alpha=0.8)
-        ax1.bar(x + width / 2, ed2p_savings, width, label="ED²P", color=self.colors["ed2p"], alpha=0.8)
+        ax1.bar(
+            x - width / 2,
+            edp_savings,
+            width,
+            label="EDP",
+            color="none",
+            hatch=self.hatch_patterns[0],
+            edgecolor=self.hatch_colors["edp"],
+            linewidth=2.0,
+        )
+        ax1.bar(
+            x + width / 2,
+            ed2p_savings,
+            width,
+            label="ED²P",
+            color="none",
+            hatch=self.hatch_patterns[1],
+            edgecolor=self.hatch_colors["ed2p"],
+            linewidth=2.0,
+        )
         ax1.set_ylabel("Energy Savings (%)")
         ax1.set_title("Energy Savings Comparison", fontweight="bold")
         ax1.set_xticks(x)
@@ -256,8 +461,26 @@ class SummaryVisualizer:
         edp_freq_red = [(r["max_frequency_mhz"] - r["optimal_frequency_edp_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results]
         ed2p_freq_red = [(r["max_frequency_mhz"] - r["optimal_frequency_ed2p_mhz"]) / r["max_frequency_mhz"] * 100 for r in self.results]
 
-        ax2.bar(x - width / 2, edp_freq_red, width, label="EDP", color=self.colors["edp"], alpha=0.8)
-        ax2.bar(x + width / 2, ed2p_freq_red, width, label="ED²P", color=self.colors["ed2p"], alpha=0.8)
+        ax2.bar(
+            x - width / 2,
+            edp_freq_red,
+            width,
+            label="EDP",
+            color="none",
+            hatch=self.hatch_patterns[2],
+            edgecolor=self.hatch_colors["edp"],
+            linewidth=2.0,
+        )
+        ax2.bar(
+            x + width / 2,
+            ed2p_freq_red,
+            width,
+            label="ED²P",
+            color="none",
+            hatch=self.hatch_patterns[3],
+            edgecolor=self.hatch_colors["ed2p"],
+            linewidth=2.0,
+        )
         ax2.set_ylabel("Frequency Reduction (%)")
         ax2.set_title("Frequency Reduction from Maximum", fontweight="bold")
         ax2.set_xticks(x)
@@ -357,7 +580,8 @@ class SummaryVisualizer:
         plots = [
             ("energy_savings_comparison.png", self.create_energy_savings_comparison),
             ("frequency_optimization_comparison.png", self.create_frequency_optimization_comparison),
-            ("performance_impact_analysis.png", self.create_performance_impact_analysis),
+            ("performance_vs_energy_scatter.png", self.create_performance_vs_energy_scatter),
+            ("performance_impact_distribution.png", self.create_performance_impact_distribution),
             ("comprehensive_summary.png", self.create_comprehensive_summary),
         ]
 
