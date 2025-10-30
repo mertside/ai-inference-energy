@@ -22,6 +22,13 @@ import pandas as pd
 
 # Set style for clean plots
 plt.style.use("default")
+plt.rcParams.update(
+    {
+        "font.family": "serif",
+        "font.serif": ["Times New Roman", "Times", "DejaVu Serif", "serif"],
+        "mathtext.fontset": "stix",  # Use STIX fonts for math text (similar to Times)
+    }
+)
 
 
 def detect_outliers(data: List[float], method: str = "iqr", threshold: float = 2.0) -> List[bool]:
@@ -74,11 +81,7 @@ class DataVisualizer:
             output_dir: Output directory for plots
         """
         self.results_file = Path(results_file)
-        self.sample_scripts_dir = (
-            Path(sample_scripts_dir)
-            if sample_scripts_dir
-            else Path("../../../sample-collection-scripts")
-        )
+        self.sample_scripts_dir = Path(sample_scripts_dir) if sample_scripts_dir else Path("../../../sample-collection-scripts")
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -610,7 +613,7 @@ class DataVisualizer:
         ax.set_ylabel("Energy Consumption (Joules)", fontsize=16, fontweight="bold")
         ax.tick_params(axis="both", which="major", labelsize=18)
         ax.set_title(
-            f"{gpu} GPU - {workload.title()} Workload\n" f"Energy vs Performance Trade-off Analysis\n" f"({data_source})",
+            f"{gpu} GPU - {workload.title().upper()} Workload\n" f"Energy vs Performance Trade-off Analysis",
             fontsize=20,
             fontweight="bold",
             pad=20,
